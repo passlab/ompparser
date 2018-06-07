@@ -4,7 +4,11 @@ Standalone OpenMP parser
 ## omparser API
 
 ```
+
 public class OMPAttribute {
+ OMPAttribute [] children; /* this could be other C/C++ vector */
+ OMPAttribute parent;
+ const char * lang_str;
    
 
 }
@@ -26,4 +30,9 @@ OMPAttribute * omp_parse(const char * filename, const line, const char * string,
 ```
 
 ## Related work
-Check Clang, e.g. https://github.com/llvm-mirror/clang/blob/master/include/clang/AST/OpenMPClause.h, https://github.com/llvm-mirror/clang/blob/master/include/clang/AST/StmtOpenMP.h
+* Check Clang, e.g. https://github.com/llvm-mirror/clang/blob/master/include/clang/AST/OpenMPClause.h, https://github.com/llvm-mirror/clang/blob/master/include/clang/AST/StmtOpenMP.h
+* Check Clang for how it easily specifies enums for OpenMP AST/Attribute. 
+   * https://github.com/llvm-mirror/clang/blob/master/include/clang/Basic/OpenMPKinds.def
+   * https://github.com/llvm-mirror/clang/blob/master/include/clang/Basic/OpenMPKinds.h
+
+
