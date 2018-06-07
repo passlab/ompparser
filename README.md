@@ -1,0 +1,2 @@
+# ompparser
+Standalone OpenMP parser
