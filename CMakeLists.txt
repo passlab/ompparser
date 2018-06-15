@@ -18,22 +18,23 @@ configure_file(src/ompparser_config.h.cmake "ompparser_config.h" @ONLY)
 set(OMPPARSER_SOURCE_FILES
     src/omplexer.ll
     src/ompparser.yy
-    src/OMPAttribute.h
-    src/OMPAttribute.C)
+    src/OpenMPAttribute.h
+    src/OpenMPAttribute.cpp)
 
-BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/omplexer.yy.cpp)
-FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/ompparser.ll.cpp)
+BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/ompparser.yy.cpp)
+FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/omplexer.ll.cpp)
 ADD_FLEX_BISON_DEPENDENCY(OMPFLEXScanner OMPBISONParser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OMPAttribute.C)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPAttribute.cpp)
 
 set(ompparser_targets ompparser)
 
 # Install headers and libraries
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/ompparser_config.h
-	OMPAttribute.h
+        OpenMPAttribute.h
         DESTINATION include)
 install(TARGETS ${ompparser_targets}
         LIBRARY DESTINATION lib
