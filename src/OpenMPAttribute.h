@@ -1,0 +1,8 @@
+//
+// Created by Yonghong Yan on 6/15/18.
+//
+
+#ifndef OMPPARSER_OPENMPATTRIBUTE_H_H
+#define OMPPARSER_OPENMPATTRIBUTE_H_H
+
+#endif //OMPPARSER_OPENMPATTRIBUTE_H_H
