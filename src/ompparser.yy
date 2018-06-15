@@ -44,15 +44,10 @@ extern void omp_parser_init(SgNode* aNode, const char* str);
   Implemented in the scanner*/
 extern void omp_parse_expr();
 
-//The result AST representing the annotation
-extern OmpAttribute* getParsedDirective();
-
 static int omp_error(const char*);
 
 //Insert variable into var_list of some clause
 static bool addVar(const char* var);
-
-static bool addVarExp(SgExpression* var);
 
 //Insert expression into some clause
 static bool addExpression(const char* expr);
@@ -65,32 +60,34 @@ static OmpAttribute* ompattribute = NULL;
 // Used to indicate the OpenMP directive or clause to which a variable list or an expression should get added for the current OpenMP pragma being parsed.
 static omp_construct_enum omptype = e_unknown;
 
-// The node to which vars/expressions should get added
-//static OmpAttribute* omptype = 0;
-
 // The context node with the pragma annotation being parsed
 //
 // We attach the attribute to the pragma declaration directly for now, 
 // A few OpenMP directive does not affect the next structure block
 // This variable is set by the prefix_parser_init() before prefix_parse() is called.
 //Liao
-static SgNode* gNode;
+//static SgNode* gNode;
 
 static const char* orig_str; 
 
 // The current expression node being generated 
-static SgExpression* current_exp = NULL;
+//static SgExpression* current_exp = NULL;
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
 
 // We now follow the OpenMP 4.0 standard's C-style array section syntax: [lower-bound:length] or just [length]
 // the latest variable symbol being parsed, used to help parsing the array dimensions associated with array symbol
 // such as a[0:n][0:m]
-static SgVariableSymbol* array_symbol; 
-static SgExpression* lower_exp = NULL;
-static SgExpression* length_exp = NULL;
+//static SgVariableSymbol* array_symbol;
+//static SgExpression* lower_exp = NULL;
+//static SgExpression* length_exp = NULL;
 // check if the parsed a[][] is an array element access a[i][j] or array section a[lower:length][lower:length]
 // 
 static bool arraySection=true; 
+
+
+//The directive/clause that are being parsed
+static OpenMPDirective* directive = NULL;
+static OpenMPClause * clause = NULL;
 
 %}
 
