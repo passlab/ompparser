@@ -4,14 +4,14 @@ Standalone OpenMP parser
 ## Build
 1. clone the repo, create build folder and use cmake to create Makefile
 
-     git clone https://github.com/passlab/ompparser.git
-     mkdir ompparser-build
-     cd ompparser-build
-     cmake -DCMAKE_INSTALL_PREFIX=../ompparser-install ../ompparser 
+       git clone https://github.com/passlab/ompparser.git
+       mkdir ompparser-build
+       cd ompparser-build
+       cmake -DCMAKE_INSTALL_PREFIX=../ompparser-install ../ompparser 
 
 2. build and install
      
-     make; make install
+       make; make install
 
 ## omparser API
 
