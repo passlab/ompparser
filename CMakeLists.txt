@@ -27,6 +27,11 @@ ADD_FLEX_BISON_DEPENDENCY(OMPFLEXScanner OMPBISONParser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# The temporary test file
+add_executable(main ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPAttribute.cpp main.cpp)
+
+# The ompparser library for install and distribution
 add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPAttribute.cpp)
 
 set(ompparser_targets ompparser)

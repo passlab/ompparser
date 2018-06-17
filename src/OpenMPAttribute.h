@@ -31,6 +31,9 @@ class OpenMPDirective {
 
     void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
 
+    /* generate DOT representation of the directive */
+    void generateDOT(const string * filename);
+
 };
 
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H
