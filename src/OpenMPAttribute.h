@@ -6,11 +6,13 @@
 #define OMPPARSER_OPENMPATTRIBUTE_H_H
 
 #include <OpenMPKinds.h>
+#include <vector>
+#include <string>
 
 class OpenMPClause {
     OpenMPClauseKind kind;
 
-    OpenMPClause(OpenMPClauseKind K) : kind(k) {};
+    OpenMPClause(OpenMPClauseKind k) : kind(k) {};
 
     OpenMPClauseKind const getClauseKind() { return kind; }
 
@@ -32,8 +34,9 @@ class OpenMPDirective {
     void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
 
     /* generate DOT representation of the directive */
-    void generateDOT(const string * filename);
+    void generateDOT(const std::string * filename);
 
 };
+
 
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H
