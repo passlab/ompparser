@@ -22,6 +22,7 @@ in the build tree
 #include <assert.h>
 #include <iostream>
 #include "OpenMPAttribute.h"
+#include <string.h>
 
 #ifdef _MSC_VER
   #undef IN
@@ -36,6 +37,10 @@ extern int omp_lex();
 
 /*A customized initialization function for the scanner, str is the string to be scanned.*/
 extern void omp_lexer_init(const char* str);
+
+/* Standalone omppartser */
+extern void start_lexer(const char* input);
+extern void end_lexer(void);
 
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
@@ -119,7 +124,7 @@ corresponding C type is union name defaults to YYSTYPE.
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION 
+%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING 
 
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
@@ -128,7 +133,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
-%type <ptype> expression
+%type <stype> expression clause_parameter
 %type <itype> schedule_kind
 
 /* start point for the parsing */
@@ -615,7 +620,7 @@ default_clause : DEFAULT '(' SHARED ')' {
                    
 private_clause : PRIVATE {
                               // ompattribute->addClause(e_private); omptype = e_private;
-                            } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
+                            } clause_parameter
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
@@ -632,13 +637,16 @@ lastprivate_clause : LASTPRIVATE {
 
 share_clause : SHARED {
                         // ompattribute->addClause(e_shared); omptype = e_shared; 
-                      } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
+                      } clause_parameter
                     ;
 
 reduction_clause : REDUCTION { 
                           // ompattribute->addClause(e_reduction);
-                        } '(' reduction_operator ':' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
+                        } clause_parameter
                       ;
+
+clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
+                        ;
 
 reduction_operator : '+' {
                        // ompattribute->setReductionOperator(e_reduction_plus); 
@@ -776,8 +784,8 @@ if_clause: IF {
 num_threads_clause: NUM_THREADS {
                            // ompattribute->addClause(e_num_threads);
                            // omptype = e_num_threads;
-                         } '(' expression ')' {
-                            addExpression("");
+                         } clause_parameter {
+                            ;
                          }
                       ;
 map_clause: MAP {
@@ -942,7 +950,7 @@ linear_clause_step_optseq: /* empty */
 
 linear_clause_step: ':' expression {addExpression(""); }
 
-expression :
+expression : RAW_STRING
 
 /*  in C
 variable-list : identifier
@@ -1019,10 +1027,23 @@ int yyerror(const char *s) {
     return 0; // we want to the program to stop on error
 }
 
+/* OmpAttribute* getParsedDirective() {
+    return ompattribute;
+}
+*/
 
-// OmpAttribute* getParsedDirective() {
-//     return ompattribute;
-// }
+// Standalone ompparser
+int getBison(const char* input) {
+    
+    printf("Start parsing...\n");
+    
+    start_lexer(input);
+    int res = yyparse();
+    end_lexer();
+    
+    return 0;
+}
+
 
 /* void omp_parser_init(SgNode* aNode, const char* str) {
     orig_str = str;  

@@ -1,5 +1,5 @@
 %option prefix="omp_"
-%option outfile="lex.yy.c"
+/*%option outfile="lex.yy.c"*/
 %option stack
 %x EXPR
 
@@ -58,12 +58,10 @@ static int cond_return (int input);
 
 blank           [ ]
 newline         [\n]
-digit           [0-9]
 
-id              [a-zA-Z_][a-zA-Z0-9_]*
+raw             [(].*[)]
 
 %%
-{digit}{digit}* { omp_lval.itype = atoi(strdup(yytext)); return (ICONSTANT); }
 omp             { return cond_return ( OMP); }
 parallel        { return cond_return ( PARALLEL); }
 task            { return cond_return ( TASK ); }
@@ -159,47 +157,12 @@ BLOCK           {return ( BLOCK ); }
 DUPLICATE       {return ( DUPLICATE ); }
 CYCLIC          {return ( CYCLIC ); }
 
-"="             { return('='); }
+{raw}           {omp_lval.stype = strdup(yytext); return (RAW_STRING);}
+
 "("             { return ('('); }
 ")"             { return (')'); }
-"["             { return ('['); }
-"]"             { return (']'); }
-","             { return (','); }
-":"             { return (':'); }
-"+"             { return ('+'); }
-"*"             { return ('*'); }
-"-"             { return ('-'); }
-"&"             { return ('&'); }
-"^"             { return ('^'); }
-"|"             { return ('|'); }
-"&&"            { return (LOGAND); }
-"||"            { return (LOGOR); }
-"<<"            { return (SHLEFT); }
-">>"            { return (SHRIGHT); }
-"++"            { return (PLUSPLUS); }
-"--"            { return (MINUSMINUS); }
-
-">>="            {return(RIGHT_ASSIGN2); }
-"<<="            {return(LEFT_ASSIGN2); }
-"+="             {return(ADD_ASSIGN2); }
-"-="             {return(SUB_ASSIGN2); }
-"*="             {return(MUL_ASSIGN2); }
-"/="             {return(DIV_ASSIGN2); }
-"%="             {return(MOD_ASSIGN2); }
-"&="             {return(AND_ASSIGN2); }
-"^="             {return(XOR_ASSIGN2); }
-"|="             {return(OR_ASSIGN2); }
-
-"<"             { return ('<'); }
-">"             { return ('>'); }
-"<="            { return (LE_OP2);}
-">="            { return (GE_OP2);}
-"=="            { return (EQ_OP2);}
-"!="            { return (NE_OP2);}
 "\\"            { /*printf("found a backslash\n"); This does not work properly but can be ignored*/}
 
-"->"            { return (PTR_TO); }
-"."             { return ('.'); }
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
@@ -227,8 +190,6 @@ CYCLIC          {return ( CYCLIC ); }
 
 expr            { return (EXPRESSION); }
 identifier      { return (IDENTIFIER); /*not in use for now*/ }
-{id}            { omp_lval.stype = strdup(yytext); 
-                  return (ID_EXPRESSION); }
 
 {blank}*        ;
 .               { return (LEXICALERROR);}
@@ -258,6 +219,22 @@ static int cond_return (int input)
   else
     return ( input); 
 }
+
+
+/* Standalone ompparser */
+void start_lexer(const char* input) {
+    yy_scan_string(input);
+}
+
+void end_lexer(void) {
+    yy_delete_buffer(YY_CURRENT_BUFFER);
+}
+
+
+
+
+
+
 /**
  * @file
  * Lexer for OpenMP-pragmas.
