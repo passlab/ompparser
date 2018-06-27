@@ -147,7 +147,8 @@ extern int omp_debug;
     ICONSTANT = 357,
     EXPRESSION = 358,
     ID_EXPRESSION = 359,
-    RAW_STRING = 360
+    RAW_STRING = 360,
+    TESTEXPR = 361
   };
 #endif
 /* Tokens.  */

@@ -124,7 +124,7 @@ corresponding C type is union name defaults to YYSTYPE.
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING 
+%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
 
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
@@ -646,6 +646,7 @@ reduction_clause : REDUCTION {
                       ;
 
 clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
+                   | TESTEXPR {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
                         ;
 
 reduction_operator : '+' {

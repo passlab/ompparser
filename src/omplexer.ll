@@ -157,7 +157,7 @@ BLOCK           {return ( BLOCK ); }
 DUPLICATE       {return ( DUPLICATE ); }
 CYCLIC          {return ( CYCLIC ); }
 
-{raw}           {omp_lval.stype = strdup(yytext); return (RAW_STRING);}
+{raw}           {printf("raw expressions in lex!\n"); omp_lval.stype = strdup(yytext); return (RAW_STRING);}
 
 "("             { return ('('); }
 ")"             { return (')'); }
