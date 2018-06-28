@@ -23,6 +23,7 @@ in the build tree
 #include <iostream>
 #include "OpenMPAttribute.h"
 #include <string.h>
+#include <cstring>
 
 #ifdef _MSC_VER
   #undef IN
@@ -41,6 +42,8 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
+//openMPNode* root = new openMPNode ("root");
+openMPNode* root = new openMPNode;
 
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
@@ -1034,7 +1037,7 @@ int yyerror(const char *s) {
 */
 
 // Standalone ompparser
-int getBison(const char* input) {
+openMPNode* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
@@ -1042,9 +1045,27 @@ int getBison(const char* input) {
     int res = yyparse();
     end_lexer();
     
-    return 0;
+    return root;
 }
 
+std::vector<openMPNode*>* parseClauseParameter (char* input) {
+    
+    printf("Start splitting  raw strings...\n");
+    std::vector<openMPNode*>* res = new std::vector<openMPNode*>;
+
+    char* tok = std::strtok(input, ":");
+    while (tok != NULL) {
+        //openMPNode* clip = new openMPNode ("parameter");
+        openMPNode* clip = new openMPNode;
+        clip->setType("parameter");
+        clip->setVal(tok);
+        res->push_back(clip);
+        tok = std::strtok(NULL, ":");
+    }
+
+    return res;
+
+}
 
 /* void omp_parser_init(SgNode* aNode, const char* str) {
     orig_str = str;  

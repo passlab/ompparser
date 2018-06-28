@@ -38,5 +38,49 @@ class OpenMPDirective {
 
 };
 
+// standalone omp_parser
+class openMPNode {
+    
+    char* type;
+    const char* id;
+    openMPNode* parent;
+    char* val;
+    std::vector<openMPNode*> children;
+    
+    public:
+        
+        //openMPNode (char*);
+
+        std::vector<openMPNode*>* getChildren() {
+            return &children;
+        }
+
+        char* getType() {
+            return type;
+        }
+
+        void setType (char* nodeType) {
+            type = nodeType;
+        }
+
+        openMPNode* addChild (char* childType ) {
+            //openMPNode* child = new openMPNode(childType);
+            openMPNode* child = new openMPNode;
+            child->setType(childType);
+            children.push_back(child);
+            return child;
+        }
+
+        void setVal (char* value) {
+            val = value;
+        }
+};
+
+/*
+openMPNode::openMPNode (char* nodeType) {
+    type = nodeType;
+};
+*/
+
 
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H
