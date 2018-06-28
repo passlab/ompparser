@@ -56,13 +56,6 @@ extern void omp_parse_expr();
 
 static int omp_error(const char*);
 
-//Insert variable into var_list of some clause
-static bool addVar(const char* var);
-
-//Insert expression into some clause
-static bool addExpression(const char* expr);
-
-
 // The current AST annotation being built
 // static OmpAttribute* ompattribute = NULL;
 
@@ -268,7 +261,6 @@ for_or_simd_clause : ordered_clause
 
 schedule_chunk_opt: /* empty */
                 | ',' expression { 
-                     addExpression("");
                  }
                 ; 
 
@@ -280,7 +272,6 @@ ordered_clause: ORDERED {
 
 ordered_parameter_opt: /* empty */
                 | '(' expression ')' {
-                    addExpression("");
                    }
                  ;
 
@@ -296,7 +287,6 @@ collapse_clause: COLLAPSE {
                       // ompattribute->addClause(e_collapse);
                       // omptype = e_collapse;
                     } '(' expression ')' { 
-                      addExpression("");
                     }
                   ;
  
@@ -392,13 +382,11 @@ unique_task_clause : FINAL {
                        // ompattribute->addClause(e_final);
                        // omptype = e_final; 
                      } '(' expression ')' { 
-                       addExpression("");
                      }
                    | PRIORITY { 
                        // ompattribute->addClause(e_priority);
                        // omptype = e_priority; 
                      } '(' expression ')' { 
-                       addExpression("");
                      }
                    | UNTIED {
                        // ompattribute->addClause(e_untied);
@@ -672,40 +660,6 @@ clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n";
                     }
                         ;
 
-reduction_operator : '+' {
-                       // ompattribute->setReductionOperator(e_reduction_plus); 
-                       // omptype = e_reduction_plus; /*variables are stored for each operator*/
-                     }
-                   | '*' {
-                       // ompattribute->setReductionOperator(e_reduction_mul);  
-                       // omptype = e_reduction_mul;
-                     }
-                   | '-' {
-                       // ompattribute->setReductionOperator(e_reduction_minus); 
-                       // omptype = e_reduction_minus;
-                      }
-                   | '&' {
-                       // ompattribute->setReductionOperator(e_reduction_bitand);  
-                       // omptype = e_reduction_bitand;
-                      }
-                   | '^' {
-                       // ompattribute->setReductionOperator(e_reduction_bitxor);  
-                       // omptype = e_reduction_bitxor;
-                      }
-                   | '|' {
-                       // ompattribute->setReductionOperator(e_reduction_bitor);  
-                       // omptype = e_reduction_bitor;
-                      }
-                   | LOGAND /* && */ {
-                       // ompattribute->setReductionOperator(e_reduction_logand);  
-                       // omptype = e_reduction_logand;
-                     }
-                   | LOGOR /* || */ {
-                       // ompattribute->setReductionOperator(e_reduction_logor); 
-                       // omptype = e_reduction_logor;
-                     }
-                   ;
-
 target_data_directive: /* pragma */ OMP TARGET DATA {
                        // ompattribute = buildOmpAttribute(e_target_data, gNode,true);
                        // omptype = e_target_data;
@@ -766,22 +720,18 @@ device_clause : DEVICE {
 expression_or_star_or_mpi: 
                   MPI ')' { // special mpi device for supporting MPI code generation
                             // current_exp= SageBuilder::buildStringVal("mpi");
-                            addExpression("mpi");
                           }
                   | MPI_ALL ')' { // special mpi device for supporting MPI code generation
                             // current_exp= SageBuilder::buildStringVal("mpi:all");
-                            addExpression("mpi:all");
                           }
                   | MPI_MASTER ')' { // special mpi device for supporting MPI code generation
                             // current_exp= SageBuilder::buildStringVal("mpi:master");
-                            addExpression("mpi:master");
                           }
                   | expression ')' { //normal expression
-                           addExpression("");
                           }
                   | '*' ')' { // our extension device (*) 
                             // current_exp= SageBuilder::buildCharVal('*'); 
-                            addExpression("*");  }; 
+                             }; 
 
 
 begin_clause: TARGET_BEGIN {
@@ -801,7 +751,6 @@ if_clause: IF {
                            // ompattribute->addClause(e_if);
                            // omptype = e_if;
              } '(' expression ')' {
-                            addExpression("");
              }
              ;
 
@@ -894,7 +843,6 @@ safelen_clause :  SAFELEN {
                         // ompattribute->addClause(e_safelen);
                         // omptype = e_safelen;
                       } '(' expression ')' {
-                        addExpression("");
                  }
                 ; 
 
@@ -908,7 +856,6 @@ simdlen_clause: SIMDLEN {
                           // ompattribute->addClause(e_simdlen);
                           // omptype = e_simdlen;
                           } '(' expression ')' {
-                          addExpression(""); 
                       } 
                   ;
 
@@ -958,7 +905,7 @@ aligned_clause_optseq: /* empty */
                         | aligned_clause_alignment
                         ;
 
-aligned_clause_alignment: ':' expression {addExpression(""); } 
+aligned_clause_alignment: ':' expression { } 
 
 
 linear_clause :  LINEAR { 
@@ -972,7 +919,7 @@ linear_clause_step_optseq: /* empty */
                         | linear_clause_step
                         ;
 
-linear_clause_step: ':' expression {addExpression(""); }
+linear_clause_step: ':' expression { }
 
 expression : RAW_STRING
 
@@ -982,8 +929,8 @@ variable-list : identifier
 */
 
 /* in C++ (we use the C++ version) */ 
-variable_list : ID_EXPRESSION { if (!addVar((const char*)$1)) YYABORT; }
-              | variable_list ',' ID_EXPRESSION { if (!addVar((const char*)$3)) YYABORT; }
+variable_list : ID_EXPRESSION {  }
+              | variable_list ',' ID_EXPRESSION {  }
               ;
 
 /* map (array[lower:length][lower:length])  , not array references, but array section notations */
@@ -991,7 +938,7 @@ map_variable_list : id_expression_opt_dimension
               | map_variable_list ',' id_expression_opt_dimension
               ;
 /* mapped variables may have optional dimension information */
-id_expression_opt_dimension: ID_EXPRESSION { if (!addVar((const char*)$1)) YYABORT; } dimension_field_optseq
+id_expression_opt_dimension: ID_EXPRESSION {  } dimension_field_optseq
                            ;
 
 /* Parse optional dimension information associated with map(a[0:n][0:m]) Liao 1/22/2013 */
@@ -1062,6 +1009,7 @@ openMPNode* parseOpenMP(const char* input) {
     printf("Start parsing...\n");
     
     root->setType("root");
+    root->setVal("root"); // It could be the line number.
     start_lexer(input);
     int res = yyparse();
     end_lexer();
@@ -1088,32 +1036,4 @@ static std::vector<openMPNode*>* parseParameter (char* input) {
 
 }
 
-/* void omp_parser_init(SgNode* aNode, const char* str) {
-    orig_str = str;  
-    omp_lexer_init(str);
-    gNode = aNode;
-}
-*/
-
-static bool addVar(const char* var)  {
-    // array_symbol = ompattribute->addVariable(omptype,var);
-    return true;
-}
-
-/* static bool addVarExp(SgExpression* exp)  { // new interface to add variables, supporting array reference expressions
-    array_symbol = ompattribute->addVariable(omptype,exp);
-    return true;
-}
-*/
-
-
-// The ROSE's string-based AST construction is not stable,
-// pass real expressions as SgExpression, Liao
-static bool addExpression(const char* expr) {
-    // ompattribute->addExpression(omptype,std::string(expr),NULL);
-    // std::cout<<"debug: current expression is:"<<current_exp->unparseToString()<<std::endl;
-//     assert (current_exp != NULL);
-//     ompattribute->addExpression(omptype,std::string(expr),current_exp);
-    return true;
-}
 

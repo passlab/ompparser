@@ -41,10 +41,10 @@ class OpenMPDirective {
 // standalone omp_parser
 class openMPNode {
     
-    char* type;
+    const char* type;
     const char* id;
     openMPNode* parent;
-    char* val;
+    const char* val;
     std::vector<openMPNode*> children;
     
     public:
@@ -59,11 +59,11 @@ class openMPNode {
             return children.back();
         }
 
-        char* getType() {
+        const char* getType() {
             return type;
         }
 
-        void setType (char* nodeType) {
+        void setType (const char* nodeType) {
             type = nodeType;
         }
 
@@ -84,11 +84,11 @@ class openMPNode {
             //return child;
         }
 
-        char* getVal() {
+        const char* getVal() {
             return val;
         }
 
-        void setVal (char* value) {
+        void setVal (const char* value) {
             val = value;
         }
 };
