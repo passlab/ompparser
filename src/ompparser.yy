@@ -45,6 +45,8 @@ extern void end_lexer(void);
 //openMPNode* root = new openMPNode ("root");
 openMPNode* root = new openMPNode;
 
+static std::vector<openMPNode*>* parseParameter (char*);
+
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
 
@@ -59,6 +61,7 @@ static bool addVar(const char* var);
 
 //Insert expression into some clause
 static bool addExpression(const char* expr);
+
 
 // The current AST annotation being built
 // static OmpAttribute* ompattribute = NULL;
@@ -430,9 +433,11 @@ dependence_type : IN {
 
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
-                           // ompattribute = buildOmpAttribute(e_parallel_for,gNode, true); 
-                           // omptype=e_parallel_for; 
-                           // cur_omp_directive = omptype;
+                            openMPNode* node = new openMPNode;
+                            node->setType("directive");
+                            node->setVal("parallel_for");
+                            root->addChild(node);
+                            //printf(root->getLast()->getVal());
                          } parallel_for_clauseoptseq
                        ;
 
@@ -440,9 +445,10 @@ parallel_for_clauseoptseq : /* empty */
                           | parallel_for_clause_seq
                           ;
 
+/* tracking: change the order */
 parallel_for_clause_seq : parallel_for_clause
-                        | parallel_for_clause_seq parallel_for_clause
-                        | parallel_for_clause_seq ',' parallel_for_clause
+                        | parallel_for_clause parallel_for_clause_seq
+                        | parallel_for_clause ',' parallel_for_clause_seq
                         ;
 /*
 clause can be any of the clauses accepted by the parallel or for directives, except the
@@ -644,12 +650,26 @@ share_clause : SHARED {
                     ;
 
 reduction_clause : REDUCTION { 
-                          // ompattribute->addClause(e_reduction);
+                            openMPNode* node = new openMPNode;
+                            node->setType("clause");
+                            node->setVal("reduction");
+                            openMPNode* parent = root->getLast();
+                            parent->addChild(node);
+
                         } clause_parameter
                       ;
 
 clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
-                   | TESTEXPR {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
+                   | TESTEXPR {
+                        char* res = strdup($1);
+                        std::cout << res << "\n";
+                        std::vector<openMPNode*>* nodes = parseParameter(res);
+                        std::vector<openMPNode*>::iterator it;
+                        for (it = nodes->begin(); it != nodes->end(); it++) {
+                            root->getLast()->getLast()->addChild(*it);
+                        }
+                        $$ = res;
+                    }
                         ;
 
 reduction_operator : '+' {
@@ -1041,6 +1061,7 @@ openMPNode* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
+    root->setType("root");
     start_lexer(input);
     int res = yyparse();
     end_lexer();
@@ -1048,7 +1069,7 @@ openMPNode* parseOpenMP(const char* input) {
     return root;
 }
 
-std::vector<openMPNode*>* parseClauseParameter (char* input) {
+static std::vector<openMPNode*>* parseParameter (char* input) {
     
     printf("Start splitting  raw strings...\n");
     std::vector<openMPNode*>* res = new std::vector<openMPNode*>;

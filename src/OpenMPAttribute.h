@@ -55,6 +55,10 @@ class openMPNode {
             return &children;
         }
 
+        openMPNode* getLast() {
+            return children.back();
+        }
+
         char* getType() {
             return type;
         }
@@ -63,12 +67,25 @@ class openMPNode {
             type = nodeType;
         }
 
-        openMPNode* addChild (char* childType ) {
+        openMPNode* getParent() {
+            return parent;
+        }
+
+        void setParent (openMPNode* node) {
+            parent = node;
+        }
+
+        void addChild (openMPNode* node) {
             //openMPNode* child = new openMPNode(childType);
-            openMPNode* child = new openMPNode;
-            child->setType(childType);
-            children.push_back(child);
-            return child;
+            //openMPNode* child = new openMPNode;
+            //child->setType(childType);
+            children.push_back(node);
+            node->setParent(this);
+            //return child;
+        }
+
+        char* getVal() {
+            return val;
         }
 
         void setVal (char* value) {
