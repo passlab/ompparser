@@ -59,8 +59,6 @@ static int cond_return (int input);
 blank           [ ]
 newline         [\n]
 
-raw             [(].*[)]
-
 %%
 omp             { return cond_return ( OMP); }
 parallel        { return cond_return ( PARALLEL); }
@@ -157,9 +155,8 @@ BLOCK           {return ( BLOCK ); }
 DUPLICATE       {return ( DUPLICATE ); }
 CYCLIC          {return ( CYCLIC ); }
 
-{raw}           {printf("raw expressions in lex!\n"); omp_lval.stype = strdup(yytext); return (RAW_STRING);}
 
-"("             { return ('('); }
+"("             { BEGIN(EXPR);}
 ")"             { return (')'); }
 "\\"            { /*printf("found a backslash\n"); This does not work properly but can be ignored*/}
 
@@ -174,11 +171,10 @@ CYCLIC          {return ( CYCLIC ); }
                         if (c == ')')
                                 --parenCount;
                         if (parenCount == 0) {
-                                unput(')');
                                 omp_lval.stype =strdup(gExpressionString.c_str()); 
                                 gExpressionString = "";
                                 BEGIN(INITIAL);
-                                return EXPRESSION;
+                                return RAW_STRING;
                         }
                         gExpressionString += c;
                         if (c == '(')
