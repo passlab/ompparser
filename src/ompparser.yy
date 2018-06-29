@@ -1019,7 +1019,7 @@ openMPNode* parseOpenMP(const char* input) {
 
 static std::vector<openMPNode*>* parseParameter (char* input) {
     
-    printf("Start splitting  raw strings...\n");
+    printf("Start splitting raw strings...\n");
     std::vector<openMPNode*>* res = new std::vector<openMPNode*>;
 
     const char* tok = std::strtok(input, ":");

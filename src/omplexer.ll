@@ -58,6 +58,7 @@ static int cond_return (int input);
 
 blank           [ ]
 newline         [\n]
+comment         [\/\/].*
 
 %%
 omp             { return cond_return ( OMP); }
@@ -157,8 +158,7 @@ CYCLIC          {return ( CYCLIC ); }
 
 
 "("             { BEGIN(EXPR);}
-")"             { return (')'); }
-"\\"            { /*printf("found a backslash\n"); This does not work properly but can be ignored*/}
+{comment}       { ; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
