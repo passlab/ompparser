@@ -46,6 +46,8 @@ extern void end_lexer(void);
 openMPNode* root = new openMPNode;
 
 static std::vector<openMPNode*>* parseParameter (char*);
+static void addDirective (const char*);
+static void addClause (const char*);
 
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
@@ -421,11 +423,7 @@ dependence_type : IN {
 
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
-                            openMPNode* node = new openMPNode;
-                            node->setType("directive");
-                            node->setVal("parallel_for");
-                            root->addChild(node);
-                            //printf(root->getLast()->getVal());
+                            addDirective("parallel_for");
                          } parallel_for_clauseoptseq
                        ;
 
@@ -638,12 +636,7 @@ share_clause : SHARED {
                     ;
 
 reduction_clause : REDUCTION { 
-                            openMPNode* node = new openMPNode;
-                            node->setType("clause");
-                            node->setVal("reduction");
-                            openMPNode* parent = root->getLast();
-                            parent->addChild(node);
-
+                        addClause("reduction");
                         } clause_parameter
                       ;
 
@@ -755,7 +748,8 @@ if_clause: IF {
              ;
 
 num_threads_clause: NUM_THREADS {
-                           // ompattribute->addClause(e_num_threads);
+                        addClause("num_threads");   
+// ompattribute->addClause(e_num_threads);
                            // omptype = e_num_threads;
                          } clause_parameter {
                             ;
@@ -1015,6 +1009,21 @@ openMPNode* parseOpenMP(const char* input) {
     end_lexer();
     
     return root;
+}
+
+static void addDirective (const char* value) {
+    openMPNode* node = new openMPNode;
+    node->setType("directive");
+    node->setVal(value);
+    root->addChild(node);
+}
+
+static void addClause (const char* value) {
+    openMPNode* node = new openMPNode;
+    node->setType("clause");
+    node->setVal(value);
+    openMPNode* parent = root->getLast();
+    parent->addChild(node);
 }
 
 static std::vector<openMPNode*>* parseParameter (char* input) {
