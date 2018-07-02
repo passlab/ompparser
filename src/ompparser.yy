@@ -615,6 +615,7 @@ default_clause : DEFAULT '(' SHARED ')' {
                    
 private_clause : PRIVATE {
                               // ompattribute->addClause(e_private); omptype = e_private;
+                        addClause("private");
                             } clause_parameter
                           ;
 
@@ -631,7 +632,8 @@ lastprivate_clause : LASTPRIVATE {
                               ;
 
 share_clause : SHARED {
-                        // ompattribute->addClause(e_shared); omptype = e_shared; 
+                        addClause("shared");
+// ompattribute->addClause(e_shared); omptype = e_shared; 
                       } clause_parameter
                     ;
 
