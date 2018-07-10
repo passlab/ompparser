@@ -1,0 +1,35 @@
+digraph G {
+0[label=MainProgram];
+1[label=parallel];
+2[label=single];
+3[label=concurrent];
+4[label=private];
+5[label=allocate];
+6[label=sections];
+7[label=shared];
+8[label=reduction];
+9[label=private];
+10[label=allocate];
+11[label=sections];
+12[label=shared];
+13[label=private];
+14[label=allocate];
+15[label=sections];
+16[label=shared];
+0->1 ;
+0->2 ;
+0->3 ;
+1->4 ;
+1->5 ;
+1->6 ;
+1->7 ;
+1->8 ;
+2->9 ;
+2->10 ;
+2->11 ;
+2->12 ;
+3->13 ;
+3->14 ;
+3->15 ;
+3->16 ;
+}
