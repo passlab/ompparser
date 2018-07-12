@@ -995,8 +995,6 @@ OpenMPDirective* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
-    //root->setType("root");
-    //root->setVal("root"); // It could be the line number.
     start_lexer(input);
     int res = yyparse();
     end_lexer();
@@ -1022,11 +1020,6 @@ static std::vector<char*>* parseParameter (char* input) {
 
     const char* tok = std::strtok(input, ":");
     while (tok != NULL) {
-        //openMPNode* clip = new openMPNode ("parameter");
-        //openMPNode* clip = new openMPNode;
-        //clip->setType("parameter");
-        //clip->setVal(tok);
-        //res->push_back(clip);
         clause->addLangExpr(tok);
         tok = std::strtok(NULL, ":");
     }
