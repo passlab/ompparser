@@ -23,6 +23,10 @@ class OpenMPClause {
 
     void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
     
+    std::vector<const char*>* getExpr() {
+       return &lang_expr;
+    } 
+
     OpenMPClauseKind getKind() { return kind; }
 };
 
@@ -40,6 +44,10 @@ class OpenMPDirective {
     void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
 
     OpenMPDirectiveKind getKind() { return kind; }
+
+    std::vector<OpenMPClause*>* getClauses() {
+        return &clauses;
+    }
 
     /* generate DOT representation of the directive */
     void generateDOT(const std::string * filename);
