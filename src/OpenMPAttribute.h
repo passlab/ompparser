@@ -11,13 +11,15 @@
 
 class OpenMPClause {
     OpenMPClauseKind kind;
+    std::vector<const char*> lang_expr;
+    
+    public:
 
     OpenMPClause(OpenMPClauseKind k) : kind(k) {};
 
     OpenMPClauseKind const getClauseKind() { return kind; }
 
     /* a list of language expressions, variables, etc that are not parsed by the ompparser */
-    std::vector<const char*> lang_expr;
 
     void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
     
@@ -29,6 +31,8 @@ class OpenMPDirective {
 
     std::vector<OpenMPClause*> clauses;
 
+    public: 
+    
     OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
 
     OpenMPDirectiveKind const getDirectiveKind() { return kind; }

@@ -42,7 +42,7 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
-static std::vector<openMPNode*>* parseParameter (char*);
+static std::vector<char*>* parseParameter (char*);
 
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
@@ -349,7 +349,7 @@ unique_single_clause : COPYPRIVATE {
                        '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list =false;}
 
 task_directive : /* #pragma */ OMP TASK {
-                    curDirective = addDirective("task"); 
+                    //curDirective = addDirective("task"); 
                     printf("direct task");
                  } task_clause_optseq
                ;
@@ -415,7 +415,8 @@ dependence_type : IN {
 
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
-                            curDirective = addDirective("parallel_for");
+                            //curDirective = addDirective("parallel_for");
+                            directive = new OpenMPDirective(OMPD_parallel_for);
                          } parallel_for_clauseoptseq
                        ;
 
@@ -595,15 +596,17 @@ threadprivate_directive : /* #pragma */ OMP THREADPRIVATE {
                         ;
 
 default_clause : DEFAULT { 
-                        curClause = addClause("default", curDirective);
+                        //curClause = addClause("default", curDirective);
                       } clause_parameter
                     ;
 
                    
 private_clause : PRIVATE {
                               // ompattribute->addClause(e_private); omptype = e_private;
-                              clause = new OpenMPClause(OMPC_private);
-                              directive->addClause(clause);
+                              //clause = new OpenMPClause(OMPC_private);
+                              //directive->addClause(clause);
+                            clause = new OpenMPClause(OMPC_private);
+                            directive->addClause(clause);
                             } clause_parameter
                           ;
 
@@ -620,13 +623,13 @@ lastprivate_clause : LASTPRIVATE {
                               ;
 
 share_clause : SHARED {
-                        curClause = addClause("shared", curDirective);
+                        //curClause = addClause("shared", curDirective);
 // ompattribute->addClause(e_shared); omptype = e_shared; 
                       } clause_parameter
                     ;
 
 reduction_clause : REDUCTION { 
-                        curClause = addClause("reduction", curDirective);
+                        //curClause = addClause("reduction", curDirective);
                         } clause_parameter
                       ;
 
@@ -634,11 +637,11 @@ clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n";
                    | TESTEXPR {
                         char* res = strdup($1);
                         std::cout << res << "\n";
-                        std::vector<openMPNode*>* nodes = parseParameter(res);
+                        std::vector<char*>* nodes = parseParameter(res);
                         if (nodes != NULL) {
-                            std::vector<openMPNode*>::iterator it;
+                            std::vector<char*>::iterator it;
                             for (it = nodes->begin(); it != nodes->end(); it++) {
-                                root->getLast()->getLast()->addChild(*it);
+                                clause->addLangExpr(*it);
                             }
                         }
                         $$ = res;
@@ -740,7 +743,7 @@ if_clause: IF {
              ;
 
 num_threads_clause: NUM_THREADS {
-                        addClause("num_threads", root->getLast());   
+                        //addClause("num_threads", root->getLast());   
                          } clause_parameter {
                             ;
                          }
@@ -988,22 +991,23 @@ int yyerror(const char *s) {
 */
 
 // Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input) {
+OpenMPDirective parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
-    root->setType("root");
-    root->setVal("root"); // It could be the line number.
+    //root->setType("root");
+    //root->setVal("root"); // It could be the line number.
     start_lexer(input);
     int res = yyparse();
     end_lexer();
     
-    return root;
+    return directive;
 }
 
 static std::vector<openMPNode*>* parseParameter (char* input) {
     
     // later create a new function to handle special case.
+    /*
     if (strcmp(input, "shared") == 0) {
         addClause("shared", curClause);
         return NULL;
@@ -1012,7 +1016,7 @@ static std::vector<openMPNode*>* parseParameter (char* input) {
         addClause("none", curClause);
         return NULL;
     }
-
+    */
     printf("Start splitting raw strings...\n");
     std::vector<openMPNode*>* res = new std::vector<openMPNode*>;
 
