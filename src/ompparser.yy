@@ -991,7 +991,7 @@ int yyerror(const char *s) {
 */
 
 // Standalone ompparser
-OpenMPDirective parseOpenMP(const char* input) {
+OpenMPDirective* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
@@ -1004,7 +1004,7 @@ OpenMPDirective parseOpenMP(const char* input) {
     return directive;
 }
 
-static std::vector<openMPNode*>* parseParameter (char* input) {
+static std::vector<char*>* parseParameter (char* input) {
     
     // later create a new function to handle special case.
     /*
@@ -1018,19 +1018,21 @@ static std::vector<openMPNode*>* parseParameter (char* input) {
     }
     */
     printf("Start splitting raw strings...\n");
-    std::vector<openMPNode*>* res = new std::vector<openMPNode*>;
+    std::vector<char*>* res = new std::vector<char*>;
 
     const char* tok = std::strtok(input, ":");
     while (tok != NULL) {
         //openMPNode* clip = new openMPNode ("parameter");
-        openMPNode* clip = new openMPNode;
-        clip->setType("parameter");
-        clip->setVal(tok);
-        res->push_back(clip);
+        //openMPNode* clip = new openMPNode;
+        //clip->setType("parameter");
+        //clip->setVal(tok);
+        //res->push_back(clip);
+        clause->addLangExpr(tok);
         tok = std::strtok(NULL, ":");
     }
 
-    return res;
+    return res
+;
 
 }
 

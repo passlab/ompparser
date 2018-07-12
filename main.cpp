@@ -2,11 +2,13 @@
 #include <OpenMPAttribute.h>
 #include <string.h>
 
-extern openMPNode* parseOpenMP(const char*);
+extern OpenMPDirective* parseOpenMP(const char*);
+/*
+void output(OpenMPDirective*);
 
-void output(openMPNode*);
-
-void output(openMPNode* node) {
+void output(OpenMPDirective* node) {
+    print("Directive: ");
+    print(node->getKind());
     if (strcmp(node->getType(), "directive") == 0) {
         printf("\n    directive: ");
     }
@@ -29,20 +31,20 @@ void output(openMPNode* node) {
         }
     }
 }
-
+*/
 
 int main( int argc, const char* argv[] )
 {
     // const char * input = "omp parallel for num_threads (3+5) private(a,b,c) shared (d,e,f)";
-    const char* input = "omp parallel default (shared)";
+    const char* input = "omp parallel private (a+b)";
     // const char* input = "omp parallel for reduction (+:a,b,c) reduction (whatever:foo(x):goo(y+8)) reduction (2+3*6-8) // Some comments.";
 
     //OpenMPDirective* pfor = OpenMP_ParseDirective(OpenMPString);
     //parallel_for->generateDOT("pfile.dot");
 
-    openMPNode* openMPAST = parseOpenMP(input);
+    OpenMPDirective* openMPAST = parseOpenMP(input);
     
-    output(openMPAST);
+    //output(openMPAST);
     printf("\n");
 
     /* for future features, ignore now
