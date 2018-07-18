@@ -228,8 +228,8 @@ parallel_clause : if_clause
                 ;
 
 copyin_clause: COPYIN {
-                           //ompattribute->addClause(e_copyin);
-                           //omptype = e_copyin;
+                            clause = new OpenMPClause(OMPC_copyin);
+                            directive->addClause(clause);
                          } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                 ;
 
@@ -640,13 +640,12 @@ default_clause : DEFAULT '(' SHARED ')' {
 private_clause : PRIVATE {
                             clause = new OpenMPClause(OMPC_private);
                             directive->addClause(clause);
-                              //ompattribute->addClause(e_private); omptype = e_private;
                             } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
-                                 //ompattribute->addClause(e_firstprivate); 
-                                 //omptype = e_firstprivate;
+                            clause = new OpenMPClause(OMPC_firstprivate);
+                            directive->addClause(clause);
                                } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                              ;
 
@@ -657,7 +656,8 @@ lastprivate_clause : LASTPRIVATE {
                               ;
 
 share_clause : SHARED {
-                        //ompattribute->addClause(e_shared); omptype = e_shared; 
+                            clause = new OpenMPClause(OMPC_shared);
+                            directive->addClause(clause);
                       } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                     ;
 
