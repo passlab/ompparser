@@ -184,6 +184,7 @@ openmp_directive : parallel_directive
                  ;
 
 parallel_directive : /* #pragma */ OMP PARALLEL {
+                       directive = new OpenMPDirective(OMPD_parallel);
                        //ompattribute = buildOmpAttribute(e_parallel,gNode,true);
                        //omptype = e_parallel; 
                        //cur_omp_directive=omptype;
@@ -637,6 +638,8 @@ default_clause : DEFAULT '(' SHARED ')' {
 
                    
 private_clause : PRIVATE {
+                            clause = new OpenMPClause(OMPC_private);
+                            directive->addClause(clause);
                               //ompattribute->addClause(e_private); omptype = e_private;
                             } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                           ;
@@ -1308,8 +1311,8 @@ variable-list : identifier
 */
 
 /* in C++ (we use the C++ version) */ 
-variable_list : ID_EXPRESSION { if (!addVar((const char*)$1)) YYABORT; }
-              | variable_list ',' ID_EXPRESSION { if (!addVar((const char*)$3)) YYABORT; }
+variable_list : ID_EXPRESSION { clause->addLangExpr((const char*)$1); /*if (!addVar((const char*)$1)) YYABORT; */ }
+              | variable_list ',' ID_EXPRESSION { clause->addLangExpr((const char*)$3); /*if (!addVar((const char*)$3)) YYABORT; */}
               ;
 
 /*  depend( array1[i][k], array2[p][l]), real array references in the list  */
@@ -1438,9 +1441,9 @@ OpenMPDirective* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
-    //start_lexer(input);
+    start_lexer(input);
     int res = yyparse();
-    //end_lexer();
+    end_lexer();
     
     return directive;
 }

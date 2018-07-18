@@ -264,3 +264,14 @@ static int cond_return (int input)
  * Lexer for OpenMP-pragmas.
  */
 
+
+/* Standalone ompparser */
+void start_lexer(const char* input) {
+    yy_scan_string(input);
+}
+
+void end_lexer(void) {
+    yy_delete_buffer(YY_CURRENT_BUFFER);
+}
+
+
