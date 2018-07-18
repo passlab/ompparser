@@ -30,12 +30,12 @@ class OpenMPClause {
     OpenMPClauseKind getKind() { return kind; }
 };
 
-class OpenMPReductionClause : OpeMPClause {
-    <properType for reduction_modifier> reduction_modifier;
-    <properType for reduction_identifier> reduction_identifier;
+class OpenMPReductionClause : OpenMPClause {
+    // <properType for reduction_modifier> reduction_modifier;
+    // <properType for reduction_identifier> reduction_identifier;
     
     
-}
+};
 
 class OpenMPDirective {
     OpenMPDirectiveKind kind;
