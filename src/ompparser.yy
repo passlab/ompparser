@@ -800,8 +800,8 @@ if_clause: IF {
              ;
 
 num_threads_clause: NUM_THREADS {
-                           //ompattribute->addClause(e_num_threads);
-                          // omptype = e_num_threads;
+                            clause = new OpenMPClause(OMPC_num_threads);
+                            directive->addClause(clause);
                          } '(' expression ')' {
                             addExpression("");
                          }
@@ -1213,10 +1213,14 @@ multiplicative_expr : primary_expr
                     ;
 
 primary_expr : ICONSTANT {
+                    char* buffer;
+                    sprintf(buffer, "%d", $1);
+                    clause->addLangExpr((const char*)buffer); 
                /*current_exp = SageBuilder::buildIntVal($1);
                $$ = current_exp;*/
               }
              | ID_EXPRESSION {
+                    clause->addLangExpr((const char*)$1); 
                /*current_exp = SageBuilder::buildVarRefExp(
                  (const char*)($1),SageInterface::getScope(gNode)
                );
