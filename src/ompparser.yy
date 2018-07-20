@@ -1213,7 +1213,8 @@ multiplicative_expr : primary_expr
                     ;
 
 primary_expr : ICONSTANT {
-                    char* buffer;
+                    //char* buffer;
+                    char* buffer = (char*)malloc(sizeof(char)*32);
                     sprintf(buffer, "%d", $1);
                     clause->addLangExpr((const char*)buffer); 
                /*current_exp = SageBuilder::buildIntVal($1);

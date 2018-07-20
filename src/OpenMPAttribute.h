@@ -10,13 +10,13 @@
 #include <string>
 
 class OpenMPClause {
+    
+    protected:
     OpenMPClauseKind kind;
     std::vector<const char*> lang_expr;
     
     public:
-
     OpenMPClause(OpenMPClauseKind k) : kind(k) {};
-
     OpenMPClauseKind const getClauseKind() { return kind; }
 
     /* a list of language expressions, variables, etc that are not parsed by the ompparser */
@@ -33,17 +33,18 @@ class OpenMPClause {
 class OpenMPReductionClause : OpenMPClause {
     // <properType for reduction_modifier> reduction_modifier;
     // <properType for reduction_identifier> reduction_identifier;
+    // def file
     
     
 };
 
 class OpenMPDirective {
-    OpenMPDirectiveKind kind;
 
+    protected:
+    OpenMPDirectiveKind kind;
     std::vector<OpenMPClause*> clauses;
 
-    public: 
-    
+    public:
     OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
 
     OpenMPDirectiveKind const getDirectiveKind() { return kind; }
