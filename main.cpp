@@ -32,7 +32,7 @@ void output(OpenMPDirective* node) {
 int main( int argc, const char* argv[] )
 {
     // const char * input = "omp parallel for num_threads (3+5) private(a,b,c) shared (d,e,f)";
-    const char* input = "omp parallel firstprivate (a,b,c) private (x,y) shared (m) copyin (a, b, c) num_threads(a*55-4)";
+    const char* input = "omp parallel private (a+b:c) private (123:66:x) private (foo(x))";
     // const char* input = "omp parallel for reduction (+:a,b,c) reduction (whatever:foo(x):goo(y+8)) reduction (2+3*6-8) // Some comments.";
 
     //OpenMPDirective* pfor = OpenMP_ParseDirective(OpenMPString);
