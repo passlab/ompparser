@@ -42,7 +42,8 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
-static std::vector<char*>* parseParameter (char*);
+static void parseParameter (const char*);
+static void parseExpression(const char*); 
 
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
@@ -129,7 +130,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
-%type <stype> expression clause_parameter private_clause
+%type <stype> expression clause_parameter
 %type <itype> schedule_kind
 
 /* start point for the parsing */
@@ -602,13 +603,9 @@ default_clause : DEFAULT {
 
                    
 private_clause : PRIVATE {
-                              // ompattribute->addClause(e_private); omptype = e_private;
-                              //clause = new OpenMPClause(OMPC_private);
-                              //directive->addClause(clause);
                             clause = new OpenMPClause(OMPC_private);
                             directive->addClause(clause);
                             } clause_parameter {
-                                //char* tmmmp = strdup($3);
                                 parseParameter(strdup($3));
                             }
                           ;
@@ -749,9 +746,10 @@ if_clause: IF {
              ;
 
 num_threads_clause: NUM_THREADS {
-                        //addClause("num_threads", root->getLast());   
+                            clause = new OpenMPClause(OMPC_num_threads);
+                            directive->addClause(clause);
                          } clause_parameter {
-                            ;
+                            parseExpression(strdup($3));
                          }
                       ;
 map_clause: MAP {
@@ -1008,7 +1006,7 @@ OpenMPDirective* parseOpenMP(const char* input) {
     return directive;
 }
 
-static std::vector<char*>* parseParameter (char* input) {
+static void parseParameter (const char* input) {
     
     // later create a new function to handle special case.
     /*
@@ -1021,7 +1019,6 @@ static std::vector<char*>* parseParameter (char* input) {
         return NULL;
     }
     */
-
 
     printf("Start splitting raw strings...\n");
 
@@ -1051,10 +1048,12 @@ static std::vector<char*>* parseParameter (char* input) {
     if (clip->size() != 0) {
         clause->addLangExpr((const char*)clip->c_str());
     };
-
-    return NULL
-;
-
 }
+
+static void parseExpression(const char* input) {
+
+    clause->addLangExpr(input);
+}
+
 
 
