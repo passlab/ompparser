@@ -45,6 +45,10 @@ extern void end_lexer(void);
 static void parseParameter (const char*);
 static void parseExpression(const char*); 
 
+//The directive/clause that are being parsed
+static OpenMPDirective* CurrentDirective = NULL;
+static OpenMPClause * CurrentClause = NULL;
+
 //! Initialize the parser with the originating SgPragmaDeclaration and its pragma text
 // extern void omp_parser_init(SgNode* aNode, const char* str);
 
@@ -87,9 +91,6 @@ bool b_within_variable_list  = false;  // a flag to indicate if the program is n
 static bool arraySection=true; 
 
 
-//The directive/clause that are being parsed
-static OpenMPDirective* directive = NULL;
-static OpenMPClause * clause = NULL;
 
 %}
 
@@ -168,7 +169,7 @@ openmp_directive : parallel_directive
                  ;
 
 parallel_directive : /* #pragma */ OMP PARALLEL {
-                       directive = new OpenMPDirective(OMPD_parallel);
+                       CurrentDirective = new OpenMPDirective(OMPD_parallel);
                      }
                      parallel_clause_optseq 
                    ;
@@ -209,10 +210,12 @@ parallel_clause : if_clause
                 ;
 
 copyin_clause: COPYIN {
-                           // ompattribute->addClause(e_copyin);
-                           // omptype = e_copyin;
-                         } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
-                ;
+                            CurrentClause = new OpenMPClause(OMPC_copyin);
+                            CurrentDirective->addClause(CurrentClause);
+                            } clause_parameter {
+                                parseParameter(strdup($3));
+                            }
+                          ;
 
 
 for_directive : /* #pragma */ OMP FOR { 
@@ -416,8 +419,7 @@ dependence_type : IN {
 
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
-                            //curDirective = addDirective("parallel_for");
-                            directive = new OpenMPDirective(OMPD_parallel_for);
+                            CurrentDirective = new OpenMPDirective(OMPD_parallel_for);
                          } parallel_for_clauseoptseq
                        ;
 
@@ -603,18 +605,20 @@ default_clause : DEFAULT {
 
                    
 private_clause : PRIVATE {
-                            clause = new OpenMPClause(OMPC_private);
-                            directive->addClause(clause);
+                            CurrentClause = new OpenMPClause(OMPC_private);
+                            CurrentDirective->addClause(CurrentClause);
                             } clause_parameter {
                                 parseParameter(strdup($3));
                             }
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
-                                 // ompattribute->addClause(e_firstprivate); 
-                                 // omptype = e_firstprivate;
-                               } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
-                             ;
+                            CurrentClause = new OpenMPClause(OMPC_firstprivate);
+                            CurrentDirective->addClause(CurrentClause);
+                            } clause_parameter {
+                                parseParameter(strdup($3));
+                            }
+                          ;
 
 lastprivate_clause : LASTPRIVATE { 
                                   // ompattribute->addClause(e_lastprivate); 
@@ -623,30 +627,22 @@ lastprivate_clause : LASTPRIVATE {
                               ;
 
 share_clause : SHARED {
-                        //curClause = addClause("shared", curDirective);
-// ompattribute->addClause(e_shared); omptype = e_shared; 
-                      } clause_parameter
-                    ;
+                            CurrentClause = new OpenMPClause(OMPC_shared);
+                            CurrentDirective->addClause(CurrentClause);
+                            } clause_parameter {
+                                parseParameter(strdup($3));
+                            }
+                          ;
 
 reduction_clause : REDUCTION { 
                         //curClause = addClause("reduction", curDirective);
                         } clause_parameter
                       ;
 
-clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
+clause_parameter : RAW_STRING {
+                        ;
+                    }
                    | TESTEXPR {
-                        //char* res = strdup($1);
-                        //std::cout << res << "\n";
-                        /*
-                        std::vector<char*>* nodes = parseParameter(res);
-                        if (nodes != NULL) {
-                            std::vector<char*>::iterator it;
-                            for (it = nodes->begin(); it != nodes->end(); it++) {
-                                clause->addLangExpr(*it);
-                            }
-                        }
-                        */
-                        //$$ = res;
                         $$ = $1;
                     }
                         ;
@@ -746,8 +742,8 @@ if_clause: IF {
              ;
 
 num_threads_clause: NUM_THREADS {
-                            clause = new OpenMPClause(OMPC_num_threads);
-                            directive->addClause(clause);
+                            CurrentClause = new OpenMPClause(OMPC_num_threads);
+                            CurrentDirective->addClause(CurrentClause);
                          } clause_parameter {
                             parseExpression(strdup($3));
                          }
@@ -1003,7 +999,7 @@ OpenMPDirective* parseOpenMP(const char* input) {
     int res = yyparse();
     end_lexer();
     
-    return directive;
+    return CurrentDirective;
 }
 
 static void parseParameter (const char* input) {
@@ -1036,7 +1032,7 @@ static void parseParameter (const char* input) {
             counter--;
         }
         else if (CurrentString[i] == ',' && counter == 0) {
-            clause->addLangExpr((const char*)clip->c_str());
+            CurrentClause->addLangExpr((const char*)clip->c_str());
             clip = new std::string("");
         }
         else {
@@ -1046,13 +1042,13 @@ static void parseParameter (const char* input) {
         }
     };
     if (clip->size() != 0) {
-        clause->addLangExpr((const char*)clip->c_str());
+        CurrentClause->addLangExpr((const char*)clip->c_str());
     };
 }
 
 static void parseExpression(const char* input) {
 
-    clause->addLangExpr(input);
+    CurrentClause->addLangExpr(input);
 }
 
 
