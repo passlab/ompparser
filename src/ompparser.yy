@@ -129,7 +129,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
-%type <stype> expression clause_parameter
+%type <stype> expression clause_parameter private_clause
 %type <itype> schedule_kind
 
 /* start point for the parsing */
@@ -607,7 +607,10 @@ private_clause : PRIVATE {
                               //directive->addClause(clause);
                             clause = new OpenMPClause(OMPC_private);
                             directive->addClause(clause);
-                            } clause_parameter
+                            } clause_parameter {
+                                //char* tmmmp = strdup($3);
+                                parseParameter(strdup($3));
+                            }
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
@@ -635,8 +638,9 @@ reduction_clause : REDUCTION {
 
 clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n"; $$ = res;}
                    | TESTEXPR {
-                        char* res = strdup($1);
-                        std::cout << res << "\n";
+                        //char* res = strdup($1);
+                        //std::cout << res << "\n";
+                        /*
                         std::vector<char*>* nodes = parseParameter(res);
                         if (nodes != NULL) {
                             std::vector<char*>::iterator it;
@@ -644,7 +648,9 @@ clause_parameter : RAW_STRING {char* res = strdup($1); std::cout << res << "\n";
                                 clause->addLangExpr(*it);
                             }
                         }
-                        $$ = res;
+                        */
+                        //$$ = res;
+                        $$ = $1;
                     }
                         ;
 
@@ -1015,16 +1021,38 @@ static std::vector<char*>* parseParameter (char* input) {
         return NULL;
     }
     */
+
+
     printf("Start splitting raw strings...\n");
-    std::vector<char*>* res = new std::vector<char*>;
 
-    const char* tok = std::strtok(input, ":");
-    while (tok != NULL) {
-        clause->addLangExpr(tok);
-        tok = std::strtok(NULL, ":");
-    }
+    std::string CurrentString(input);
+    std::cout << CurrentString << "\n";
+    std::string* clip = new std::string("");
+    int counter = 0;
+    for (int i = 0; i < CurrentString.size(); i++) {
+        if (CurrentString[i] == '(') {
+            clip->append(1, CurrentString[i]);
+            counter++;
+        }
+        else if (CurrentString[i] == ')') {
+            clip->append(1, CurrentString[i]);
+            counter--;
+        }
+        else if (CurrentString[i] == ',' && counter == 0) {
+            clause->addLangExpr((const char*)clip->c_str());
+            clip = new std::string("");
+        }
+        else {
+            if (CurrentString[i] != ' ' || counter != 0) {
+                clip->append(1, CurrentString[i]);
+            }
+        }
+    };
+    if (clip->size() != 0) {
+        clause->addLangExpr((const char*)clip->c_str());
+    };
 
-    return res
+    return NULL
 ;
 
 }
