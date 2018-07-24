@@ -20,7 +20,7 @@ extern int omp_lex();
 #include <stdio.h>
 #include <string>
 #include <string.h>
-#include "ompparser.h"
+#include "ompparser.yy.hpp"
 
 /* Moved from Makefile.am to the source file to work with --with-pch 
 Liao 12/10/2009 */
