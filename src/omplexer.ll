@@ -158,11 +158,13 @@ CYCLIC          {return ( CYCLIC ); }
 
 
 "("             { BEGIN(EXPR);}
+")"             { ; }
 {comment}       { ; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
-
+<EXPR>shared    { BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
+<EXPR>none      { BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
 <EXPR>.         { int c = yytext[0];
                   int parenCount = 1;
                   for (;;) {
