@@ -120,7 +120,7 @@ corresponding C type is union name defaults to YYSTYPE.
         XOR_ASSIGN2 OR_ASSIGN2 DEPEND IN OUT INOUT MERGEABLE
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
-        ATTR_SHARED ATTR_NONE
+        ATTR_SHARED ATTR_NONE ATTR_PARALLEL
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
@@ -606,7 +606,8 @@ default_clause : DEFAULT {
                     ;
 
 clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: SHARED. \n";}
-                 | ATTR_NONE {std::cout << "This is static attribute: NONE. \n";}
+                |  ATTR_NONE {std::cout << "This is static attribute: NONE. \n";}
+                |  ATTR_PARALLEL {std::cout << "This is static attribute: PARALLEL. \n";}
                 ;
 
                    
@@ -741,10 +742,16 @@ end_clause: TARGET_END {
 
                     
 if_clause: IF {
-                           // ompattribute->addClause(e_if);
-                           // omptype = e_if;
-             } '(' expression ')' {
+                CurrentClause = new OpenMPClause(OMPC_if);
+                CurrentDirective->addClause(CurrentClause);
+             } clause_parameter {
+                parseParameter(strdup($3));
              }
+        |   IF {
+            } clause_attribute {
+            } clause_parameter {
+                parseParameter(strdup($5));
+            }
              ;
 
 num_threads_clause: NUM_THREADS {

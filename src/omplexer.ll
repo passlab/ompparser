@@ -2,6 +2,7 @@
 /*%option outfile="lex.yy.c"*/
 %option stack
 %x EXPR
+%x CLAUSE
 
 %{
 
@@ -157,14 +158,22 @@ DUPLICATE       {return ( DUPLICATE ); }
 CYCLIC          {return ( CYCLIC ); }
 
 
-"("             { BEGIN(EXPR);}
+"("             { BEGIN(CLAUSE);}
 ")"             { ; }
 {comment}       { ; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
-<EXPR>shared    { BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
-<EXPR>none      { BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
+
+
+<CLAUSE>shared    { BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
+<CLAUSE>none      { BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
+<CLAUSE>parallel  { printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
+<CLAUSE>","       { ; }
+<CLAUSE>{blank}   { ; }
+<CLAUSE>":"       { BEGIN(EXPR);}
+<CLAUSE>.         { BEGIN(EXPR); gExpressionString = yytext[0];}
+
 <EXPR>.         { int c = yytext[0];
                   int parenCount = 1;
                   for (;;) {
