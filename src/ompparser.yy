@@ -120,7 +120,7 @@ corresponding C type is union name defaults to YYSTYPE.
         XOR_ASSIGN2 OR_ASSIGN2 DEPEND IN OUT INOUT MERGEABLE
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
-        ATTR_SHARED ATTR_NONE ATTR_PARALLEL
+        ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
@@ -184,18 +184,10 @@ parallel_clause_seq : parallel_clause
                     | parallel_clause_seq ',' parallel_clause
                     ;
 
-proc_bind_clause : PROC_BIND '(' MASTER ')' { 
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_master); 
-                      }
-                    | PROC_BIND '(' CLOSE ')' {
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_close); 
-                      }
-                    | PROC_BIND '(' SPREAD ')' {
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_spread); 
-                      }
+proc_bind_clause : PROC_BIND { 
+                        CurrentClause = new OpenMPClause(OMPC_proc_bind);
+                        CurrentDirective->addClause(CurrentClause);
+                      } clause_attribute
                     ;
 
 /*  follow the order in the 4.5 specification  */ 
@@ -608,6 +600,9 @@ default_clause : DEFAULT {
 clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEFAULT_shared: " << OMPC_DEFAULT_shared <<  "\n";}
                 |  ATTR_NONE {std::cout << "This is static attribute: OMPC_DEFAULT_none: " << OMPC_DEFAULT_none << " \n";}
                 |  ATTR_PARALLEL {std::cout << "This is static attribute: OMPC_IF_parallel: " << OMPC_IF_parallel << " \n";}
+                |  ATTR_MASTER {std::cout << "This is static attribute: OMPC_PROC_BIND_master: " << OMPC_PROC_BIND_master << " \n";}
+                |  ATTR_CLOSE {std::cout << "This is static attribute: OMPC_PROC_BIND_close: " << OMPC_PROC_BIND_close << " \n";}
+                |  ATTR_SPREAD {std::cout << "This is static attribute: OMPC_PROC_BIND_spread: " << OMPC_PROC_BIND_spread << " \n";}
                 ;
 
                    

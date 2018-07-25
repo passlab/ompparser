@@ -168,6 +168,9 @@ CYCLIC          {return ( CYCLIC ); }
 
 <CLAUSE>shared    { BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
 <CLAUSE>none      { BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
+<CLAUSE>master    { BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
+<CLAUSE>close     { BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
+<CLAUSE>spread    { BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
 <CLAUSE>parallel  { printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
 <CLAUSE>","       { ; }
 <CLAUSE>{blank}   { ; }
