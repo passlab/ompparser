@@ -35,6 +35,14 @@ enum OpenMPClauseKind {
   OMPC_unknown
 };
 
+/// OpenMP attributes for 'if' clause.
+enum OpenMPIfClauseKind {
+#define OPENMP_IF_KIND(Name) \
+  OMPC_IF_##Name,
+#include "OpenMPKinds.def"
+  OMPC_IF_unknown
+};
+
 /// OpenMP attributes for 'default' clause.
 enum OpenMPDefaultClauseKind {
 #define OPENMP_DEFAULT_KIND(Name) \

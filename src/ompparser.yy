@@ -605,9 +605,9 @@ default_clause : DEFAULT {
                       } clause_attribute
                     ;
 
-clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: SHARED. \n";}
-                |  ATTR_NONE {std::cout << "This is static attribute: NONE. \n";}
-                |  ATTR_PARALLEL {std::cout << "This is static attribute: PARALLEL. \n";}
+clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEFAULT_shared: " << OMPC_DEFAULT_shared <<  "\n";}
+                |  ATTR_NONE {std::cout << "This is static attribute: OMPC_DEFAULT_none: " << OMPC_DEFAULT_none << " \n";}
+                |  ATTR_PARALLEL {std::cout << "This is static attribute: OMPC_IF_parallel: " << OMPC_IF_parallel << " \n";}
                 ;
 
                    
@@ -748,6 +748,8 @@ if_clause: IF {
                 parseParameter(strdup($3));
              }
         |   IF {
+                CurrentClause = new OpenMPClause(OMPC_if);
+                CurrentDirective->addClause(CurrentClause);
             } clause_attribute {
             } clause_parameter {
                 parseParameter(strdup($5));
