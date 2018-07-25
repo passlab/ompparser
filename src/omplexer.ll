@@ -172,6 +172,11 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>close     { BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
 <CLAUSE>spread    { BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
 <CLAUSE>parallel  { printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
+<CLAUSE>inscan    { printf("TOKEN inscan in the clause is found. \n"); return MODI_INSCAN; }
+<CLAUSE>task      { printf("TOKEN task in the clause is found. \n"); return MODI_TASK; }
+<CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODI_DEFAULT; }
+<CLAUSE>"+"       { printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
+<CLAUSE>"-"       { printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
 <CLAUSE>","       { ; }
 <CLAUSE>{blank}   { ; }
 <CLAUSE>":"       { BEGIN(EXPR);}

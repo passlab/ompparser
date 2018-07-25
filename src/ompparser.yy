@@ -121,6 +121,7 @@ corresponding C type is union name defaults to YYSTYPE.
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
+        MODI_INSCAN MODI_TASK MODI_DEFAULT IDEN_PLUS IDEN_MINUS
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
@@ -637,9 +638,26 @@ share_clause : SHARED {
                           ;
 
 reduction_clause : REDUCTION { 
-                        //curClause = addClause("reduction", curDirective);
-                        } clause_parameter
+                        CurrentClause = new OpenMPClause(OMPC_reduction);
+                        CurrentDirective->addClause(CurrentClause);
+                        } pre_parameter clause_parameter {
+                                parseParameter(strdup($4));
+                            }
                       ;
+
+pre_parameter : identifier {}
+              | modifier {} identifier {}
+                ;
+
+modifier : MODI_INSCAN {}
+        | MODI_TASK {}
+        | MODI_DEFAULT {}
+        ;
+
+identifier : IDEN_PLUS {}
+           | IDEN_MINUS {}
+            ;
+
 
 clause_parameter : RAW_STRING {
                         ;
