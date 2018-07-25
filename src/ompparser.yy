@@ -127,7 +127,7 @@ corresponding C type is union name defaults to YYSTYPE.
         ALLOCATE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
+%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING
 
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
@@ -457,7 +457,6 @@ allocate_clause : ALLOCATE {
                 ;
 
 special_clause_parameter : RAW_STRING { parseSpecialClause(strdup($1)); }
-                        | TESTEXPR { /* parseSpecialClause(strdup($1)); */ }
                         ;
 
 
@@ -679,12 +678,8 @@ clause_parameter : RAW_STRING {
                     }
                 | RAW_STRING { 
                     parseExpression(strdup($1));
-                    }
-                    clause_parameter
-                 //  | TESTEXPR {
-                   //     $$ = $1;
-                  //  }
-                        ;
+                    } clause_parameter
+                ;
 
 target_data_directive: /* pragma */ OMP TARGET DATA {
                        // ompattribute = buildOmpAttribute(e_target_data, gNode,true);
