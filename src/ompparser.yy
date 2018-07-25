@@ -210,7 +210,7 @@ copyin_clause: COPYIN {
                             CurrentClause = new OpenMPClause(OMPC_copyin);
                             CurrentDirective->addClause(CurrentClause);
                             } clause_parameter {
-                                parseParameter(strdup($3));
+                            //    parseParameter(strdup($3));
                             }
                           ;
 
@@ -626,7 +626,7 @@ private_clause : PRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_private);
                             CurrentDirective->addClause(CurrentClause);
                             } clause_parameter {
-                                parseParameter(strdup($3));
+                                //parseParameter(strdup($3));
                             }
                           ;
 
@@ -634,7 +634,7 @@ firstprivate_clause : FIRSTPRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_firstprivate);
                             CurrentDirective->addClause(CurrentClause);
                             } clause_parameter {
-                                parseParameter(strdup($3));
+                                //parseParameter(strdup($3));
                             }
                           ;
 
@@ -648,7 +648,7 @@ share_clause : SHARED {
                             CurrentClause = new OpenMPClause(OMPC_shared);
                             CurrentDirective->addClause(CurrentClause);
                             } clause_parameter {
-                                parseParameter(strdup($3));
+                                //parseParameter(strdup($3));
                             }
                           ;
 
@@ -656,7 +656,7 @@ reduction_clause : REDUCTION {
                         CurrentClause = new OpenMPClause(OMPC_reduction);
                         CurrentDirective->addClause(CurrentClause);
                         } pre_parameter clause_parameter {
-                                parseParameter(strdup($4));
+                               // parseParameter(strdup($4));
                             }
                       ;
 
@@ -675,11 +675,15 @@ identifier : IDEN_PLUS {}
 
 
 clause_parameter : RAW_STRING {
-                        ;
+                    parseExpression(strdup($1));
                     }
-                   | TESTEXPR {
-                        $$ = $1;
+                | RAW_STRING { 
+                    parseExpression(strdup($1));
                     }
+                    clause_parameter
+                 //  | TESTEXPR {
+                   //     $$ = $1;
+                  //  }
                         ;
 
 target_data_directive: /* pragma */ OMP TARGET DATA {
@@ -773,14 +777,14 @@ if_clause: IF {
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
              } clause_parameter {
-                parseParameter(strdup($3));
+                //parseParameter(strdup($3));
              }
         |   IF {
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
             } clause_attribute {
             } clause_parameter {
-                parseParameter(strdup($5));
+                //parseParameter(strdup($5));
             }
              ;
 
@@ -788,7 +792,7 @@ num_threads_clause: NUM_THREADS {
                             CurrentClause = new OpenMPClause(OMPC_num_threads);
                             CurrentDirective->addClause(CurrentClause);
                          } clause_parameter {
-                            parseExpression(strdup($3));
+                            //parseExpression(strdup($3));
                          }
                       ;
 map_clause: MAP {

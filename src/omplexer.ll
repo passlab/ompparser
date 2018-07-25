@@ -30,6 +30,7 @@ Liao 12/10/2009 */
 
 static const char* ompparserinput = NULL;
 static std::string gExpressionString;
+static std::string CurrentString;
 
 /* Liao 6/11/2010,
 OpenMP does not preclude the use of clause names as regular variable names.
@@ -181,25 +182,48 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>","       { ; }
 <CLAUSE>{blank}   { ; }
 <CLAUSE>":"       { BEGIN(EXPR);}
-<CLAUSE>.         { BEGIN(EXPR); gExpressionString = yytext[0];}
+<CLAUSE>.         { BEGIN(EXPR); CurrentString = yytext[0];}
 
 <EXPR>.         { int c = yytext[0];
-                  int parenCount = 1;
+                  int ParenLocalCount = 0;
+                  int ParenGlobalCount = 1;
                   for (;;) {
-                        if (c == EOF)
-                                return LEXICALERROR;
-                        if (c == ')')
-                                --parenCount;
-                        if (parenCount == 0) {
-                                omp_lval.stype =strdup(gExpressionString.c_str()); 
-                                gExpressionString = "";
-                                BEGIN(INITIAL);
+                    if (c == EOF)
+                        return LEXICALERROR;
+                    else if (c == '(') {
+                        ParenLocalCount++;
+                        ParenGlobalCount++;
+                        CurrentString.append(1, c);
+                    }
+                    else if (c == ')') {
+                        ParenLocalCount--;
+                        ParenGlobalCount--;
+                        if (ParenGlobalCount == 0) {
+                            BEGIN(INITIAL);
+                            if (CurrentString.size() != 0) {
+                                omp_lval.stype =strdup(CurrentString.c_str());
+                                CurrentString = "";
                                 return RAW_STRING;
+                            }
+                            else {
+                                break;
+                            }
                         }
-                        gExpressionString += c;
-                        if (c == '(')
-                                parenCount++;
-                        c = yyinput();
+                        else {
+                            CurrentString.append(1, c);
+                        };
+                    }
+                    else if (c == ',' && ParenLocalCount == 0) {
+                        omp_lval.stype =strdup(CurrentString.c_str());
+                        CurrentString = "";
+                        return RAW_STRING;
+                        }
+                    else {
+                        if (c != ' ' || ParenLocalCount != 0) {
+                            CurrentString.append(1, c);
+                        }
+                    }
+                    c = yyinput();
                   }
                         
                 }
