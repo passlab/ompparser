@@ -112,6 +112,7 @@ copyin          { return cond_return ( COPYIN ); }
 inbranch        { return cond_return ( INBRANCH ); }
 notinbranch     { return cond_return ( NOTINBRANCH ); }
 proc_bind       { return cond_return ( PROC_BIND); }
+allocate        { return ALLOCATE; }
 close           { return cond_return ( CLOSE ); }
 spread          { return cond_return ( SPREAD ); } /* master should already be recognized */
 depend          { return cond_return ( DEPEND ); } 

@@ -44,6 +44,7 @@ extern void start_lexer(const char* input);
 extern void end_lexer(void);
 static void parseParameter (const char*);
 static void parseExpression(const char*); 
+static void parseSpecialClause(const char*);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* CurrentDirective = NULL;
@@ -121,7 +122,9 @@ corresponding C type is union name defaults to YYSTYPE.
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
-        MODI_INSCAN MODI_TASK MODI_DEFAULT IDEN_PLUS IDEN_MINUS
+        MODI_INSCAN MODI_TASK MODI_DEFAULT
+        IDEN_PLUS IDEN_MINUS
+        ALLOCATE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
@@ -444,7 +447,19 @@ parallel_for_clause : if_clause
                     | schedule_clause 
                     | collapse_clause
                     | ordered_clause
+                    | allocate_clause
                    ;
+
+allocate_clause : ALLOCATE {
+                    CurrentClause = new OpenMPClause(OMPC_allocate);
+                    CurrentDirective->addClause(CurrentClause);
+                    } special_clause_parameter
+                ;
+
+special_clause_parameter : RAW_STRING { parseSpecialClause(strdup($1)); }
+                        | TESTEXPR { /* parseSpecialClause(strdup($1)); */ }
+                        ;
+
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -1079,5 +1094,18 @@ static void parseExpression(const char* input) {
     CurrentClause->addLangExpr(input);
 }
 
+static void parseSpecialClause(const char* input) {
+    std::string CurrentString(input);
+    int StringLength = CurrentString.size();
+    int ColonPosition = CurrentString.find(':');
+    std::string SpecialVariable = CurrentString.substr(0, ColonPosition);
+    //CurrentClause->addLangExpr((const char*)SpecialVariable.c_str());
+    parseParameter((const char*)SpecialVariable.c_str());
+    //parseParameter((const char*)CurrentString.substr(0, ColonPosition).c_str());
+    parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
 
+
+
+
+}
 
