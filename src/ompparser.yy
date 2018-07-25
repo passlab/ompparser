@@ -127,7 +127,7 @@ corresponding C type is union name defaults to YYSTYPE.
         ALLOCATE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING
+%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING ALLOCATOR
 
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
@@ -136,7 +136,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
-%type <stype> expression clause_parameter
+%type <stype> expression
 %type <itype> schedule_kind
 
 /* start point for the parsing */
@@ -456,7 +456,8 @@ allocate_clause : ALLOCATE {
                     } special_clause_parameter
                 ;
 
-special_clause_parameter : RAW_STRING { parseSpecialClause(strdup($1)); }
+special_clause_parameter : clause_parameter{  }
+                        | ALLOCATOR { std::cout << "An allocator is found in the parser: " << strdup($1) << "\n";} clause_parameter
                         ;
 
 

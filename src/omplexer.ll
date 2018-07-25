@@ -187,6 +187,7 @@ CYCLIC          {return ( CYCLIC ); }
 <EXPR>.         { int c = yytext[0];
                   int ParenLocalCount = 0;
                   int ParenGlobalCount = 1;
+                  int BracketCount = 0;
                   for (;;) {
                     if (c == EOF)
                         return LEXICALERROR;
@@ -217,7 +218,18 @@ CYCLIC          {return ( CYCLIC ); }
                         omp_lval.stype =strdup(CurrentString.c_str());
                         CurrentString = "";
                         return RAW_STRING;
-                        }
+                    }
+                    else if (c == '[') {
+                        BracketCount++;
+                    }
+                    else if (c == ']') {
+                        BracketCount--;
+                    }
+                    else if (c == ':' && BracketCount == 0) {
+                        omp_lval.stype =strdup(CurrentString.c_str());
+                        CurrentString = "";
+                        return ALLOCATOR;
+                    }
                     else {
                         if (c != ' ' || ParenLocalCount != 0) {
                             CurrentString.append(1, c);
