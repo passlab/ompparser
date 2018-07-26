@@ -22,6 +22,7 @@ extern int omp_lex();
 #include <string>
 #include <string.h>
 #include "ompparser.yy.hpp"
+#include <iostream>;
 
 /* Moved from Makefile.am to the source file to work with --with-pch 
 Liao 12/10/2009 */
@@ -29,8 +30,9 @@ Liao 12/10/2009 */
 #define YY_NO_POP_STATE
 
 static const char* ompparserinput = NULL;
-static std::string gExpressionString;
 static std::string CurrentString;
+static int ParenLocalCount, ParenGlobalCount, BracketCount;
+static char CurrentChar;
 
 /* Liao 6/11/2010,
 OpenMP does not preclude the use of clause names as regular variable names.
@@ -184,61 +186,80 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>":"       { BEGIN(EXPR);}
 <CLAUSE>.         { BEGIN(EXPR); CurrentString = yytext[0];}
 
-<EXPR>.         { int c = yytext[0];
-                  int ParenLocalCount = 0;
-                  int ParenGlobalCount = 1;
-                  int BracketCount = 0;
-                  for (;;) {
-                    if (c == EOF)
-                        return LEXICALERROR;
-                    else if (c == '(') {
-                        ParenLocalCount++;
-                        ParenGlobalCount++;
-                        CurrentString.append(1, c);
-                    }
-                    else if (c == ')') {
-                        ParenLocalCount--;
-                        ParenGlobalCount--;
-                        if (ParenGlobalCount == 0) {
-                            BEGIN(INITIAL);
-                            if (CurrentString.size() != 0) {
-                                omp_lval.stype =strdup(CurrentString.c_str());
+<EXPR>.     {   CurrentChar = yytext[0];
+                ParenLocalCount = 0;
+                ParenGlobalCount = 1;
+                BracketCount = 0;
+                for (;;) {
+                    switch (CurrentChar) {
+                        case EOF :
+                            return LEXICALERROR;
+
+                        case '(' :
+                            ParenLocalCount++;
+                            ParenGlobalCount++;
+                            CurrentString.append(1, CurrentChar);
+                            break;
+
+                        case ')' :
+                            ParenLocalCount--;
+                            ParenGlobalCount--;
+                            if (ParenGlobalCount == 0) {
+                                BEGIN(INITIAL);
+                                if (CurrentString.size() != 0) {
+                                    omp_lval.stype = strdup(CurrentString.c_str());
+                                    CurrentString = "";
+                                    return RAW_STRING;
+                                }
+                                else {
+                                    break;
+                                };
+                            }
+                            else {
+                                CurrentString.append(1, CurrentChar);
+                            };
+                            break;
+
+                        case ',' :
+                            if (ParenLocalCount == 0) {
+                                omp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
                                 return RAW_STRING;
                             }
                             else {
-                                break;
+                                CurrentString.append(1, CurrentChar);
+                            };
+                            break;
+
+                        case '[' :
+                            BracketCount++;
+                            CurrentString.append(1, CurrentChar);
+                            break;
+
+                        case ']' :
+                            BracketCount--;
+                            CurrentString.append(1, CurrentChar);
+                            break;
+
+                        case ':' :
+                            if (BracketCount == 0) {
+                                omp_lval.stype = strdup(CurrentString.c_str());
+                                CurrentString = "";
+                                return ALLOCATOR;
                             }
-                        }
-                        else {
-                            CurrentString.append(1, c);
-                        };
+                            else {
+                                CurrentString.append(1, CurrentChar);
+                            }
+                            break;
+
+                        default :
+                            if (CurrentChar != ' ' || ParenLocalCount != 0) {
+                                CurrentString.append(1, CurrentChar);
+                            }
                     }
-                    else if (c == ',' && ParenLocalCount == 0) {
-                        omp_lval.stype =strdup(CurrentString.c_str());
-                        CurrentString = "";
-                        return RAW_STRING;
-                    }
-                    else if (c == '[') {
-                        BracketCount++;
-                    }
-                    else if (c == ']') {
-                        BracketCount--;
-                    }
-                    else if (c == ':' && BracketCount == 0) {
-                        omp_lval.stype =strdup(CurrentString.c_str());
-                        CurrentString = "";
-                        return ALLOCATOR;
-                    }
-                    else {
-                        if (c != ' ' || ParenLocalCount != 0) {
-                            CurrentString.append(1, c);
-                        }
-                    }
-                    c = yyinput();
-                  }
-                        
+                    CurrentChar = yyinput();
                 }
+            }
 
 expr            { return (EXPRESSION); }
 identifier      { return (IDENTIFIER); /*not in use for now*/ }
