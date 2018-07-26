@@ -127,7 +127,7 @@ corresponding C type is union name defaults to YYSTYPE.
         ALLOCATE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING ALLOCATOR
+%token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING ALLOCATOR
 
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
@@ -200,7 +200,7 @@ parallel_clause : if_clause
                 | default_clause
                 | private_clause
                 | firstprivate_clause
-                | share_clause
+                | shared_clause
                 | copyin_clause
                 | reduction_clause
                 | proc_bind_clause
@@ -368,7 +368,7 @@ task_clause : unique_task_clause
             | default_clause
             | private_clause
             | firstprivate_clause
-            | share_clause
+            | shared_clause
             | depend_clause
             | if_clause
             ;
@@ -438,7 +438,7 @@ parallel_for_clause : if_clause
                     | default_clause
                     | private_clause
                     | firstprivate_clause
-                    | share_clause
+                    | shared_clause
                     | copyin_clause
                     | reduction_clause
                     | proc_bind_clause
@@ -485,7 +485,7 @@ parallel_for_simd_clause: copyin_clause
                     | lastprivate_clause
                     | reduction_clause
                     | collapse_clause
-                    | share_clause
+                    | shared_clause
                     | if_clause
                     | num_threads_clause
                     | proc_bind_clause
@@ -512,7 +512,7 @@ parallel_sections_clause : copyin_clause
                          | private_clause
                          | firstprivate_clause
                          | lastprivate_clause
-                         | share_clause
+                         | shared_clause
                          | reduction_clause
                          | if_clause
                          | num_threads_clause
@@ -644,12 +644,10 @@ lastprivate_clause : LASTPRIVATE {
                                 } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
                               ;
 
-share_clause : SHARED {
+shared_clause : SHARED {
                             CurrentClause = new OpenMPClause(OMPC_shared);
                             CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                //parseParameter(strdup($3));
-                            }
+                            } '(' variable_list ')'
                           ;
 
 reduction_clause : REDUCTION { 
@@ -673,14 +671,15 @@ identifier : IDEN_PLUS {}
            | IDEN_MINUS {}
             ;
 
+expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
+        | expr_list ',' EXPR_STRING {
+          CurrentClause->addLangExpr($3); /* why strdup($3) */ }
+        ;
 
-clause_parameter : RAW_STRING {
-                    parseExpression(strdup($1));
-                    }
-                | RAW_STRING { 
-                    parseExpression(strdup($1));
-                    } clause_parameter
-                ;
+variable_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
+        | variable_list ',' EXPR_STRING {
+          CurrentClause->addLangExpr($3); /* why strdup($3) */ }
+        ;
 
 target_data_directive: /* pragma */ OMP TARGET DATA {
                        // ompattribute = buildOmpAttribute(e_target_data, gNode,true);
@@ -951,7 +950,7 @@ linear_clause_step_optseq: /* empty */
 
 linear_clause_step: ':' expression { }
 
-expression : RAW_STRING
+expression : EXPR_STRING
 
 /*  in C
 variable-list : identifier

@@ -209,7 +209,7 @@ CYCLIC          {return ( CYCLIC ); }
                                 if (CurrentString.size() != 0) {
                                     omp_lval.stype = strdup(CurrentString.c_str());
                                     CurrentString = "";
-                                    return RAW_STRING;
+                                    return EXPR_STRING;
                                 }
                                 else {
                                     break;
@@ -224,7 +224,7 @@ CYCLIC          {return ( CYCLIC ); }
                             if (ParenLocalCount == 0) {
                                 omp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
-                                return RAW_STRING;
+                                return EXPR_STRING;
                             }
                             else {
                                 CurrentString.append(1, CurrentChar);
