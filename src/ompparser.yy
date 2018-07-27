@@ -191,7 +191,7 @@ parallel_clause_seq : parallel_clause
 proc_bind_clause : PROC_BIND { 
                         CurrentClause = new OpenMPClause(OMPC_proc_bind);
                         CurrentDirective->addClause(CurrentClause);
-                      } clause_attribute
+                      } '(' clause_attribute ')'
                     ;
 
 /*  follow the order in the 4.5 specification  */ 
@@ -209,8 +209,7 @@ parallel_clause : if_clause
 copyin_clause: COPYIN {
                             CurrentClause = new OpenMPClause(OMPC_copyin);
                             CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                            //    parseParameter(strdup($3));
+                            } '(' var_list ')' {
                             }
                           ;
 
@@ -456,8 +455,8 @@ allocate_clause : ALLOCATE {
                     } special_clause_parameter
                 ;
 
-special_clause_parameter : clause_parameter{  }
-                        | ALLOCATOR { std::cout << "An allocator is found in the parser: " << strdup($1) << "\n";} clause_parameter
+special_clause_parameter : '(' var_list ')'
+                        | '(' ALLOCATOR { std::cout << "An allocator is found in the parser: " << $2 << "\n";} ':' var_list ')'
                         ;
 
 
@@ -610,7 +609,7 @@ threadprivate_directive : /* #pragma */ OMP THREADPRIVATE {
 default_clause : DEFAULT { 
                         CurrentClause = new OpenMPClause(OMPC_default);
                         CurrentDirective->addClause(CurrentClause);
-                      } clause_attribute
+                      } '(' clause_attribute ')'
                     ;
 
 clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEFAULT_shared: " << OMPC_DEFAULT_shared <<  "\n";}
@@ -625,16 +624,14 @@ clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEF
 private_clause : PRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_private);
                             CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                //parseParameter(strdup($3));
+                            } '(' var_list ')' {
                             }
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
                             CurrentClause = new OpenMPClause(OMPC_firstprivate);
                             CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                //parseParameter(strdup($3));
+                            } '(' var_list ')' {
                             }
                           ;
 
@@ -647,19 +644,18 @@ lastprivate_clause : LASTPRIVATE {
 shared_clause : SHARED {
                             CurrentClause = new OpenMPClause(OMPC_shared);
                             CurrentDirective->addClause(CurrentClause);
-                            } '(' variable_list ')'
+                            } '(' var_list ')'
                           ;
 
 reduction_clause : REDUCTION { 
                         CurrentClause = new OpenMPClause(OMPC_reduction);
                         CurrentDirective->addClause(CurrentClause);
-                        } pre_parameter clause_parameter {
-                               // parseParameter(strdup($4));
+                        } '(' pre_parameter ':' var_list ')' {
                             }
                       ;
 
 pre_parameter : identifier {}
-              | modifier {} identifier {}
+              | modifier ',' identifier {}
                 ;
 
 modifier : MODI_INSCAN {}
@@ -673,12 +669,12 @@ identifier : IDEN_PLUS {}
 
 expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
         | expr_list ',' EXPR_STRING {
-          CurrentClause->addLangExpr($3); /* why strdup($3) */ }
+          CurrentClause->addLangExpr($3);}
         ;
 
-variable_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
-        | variable_list ',' EXPR_STRING {
-          CurrentClause->addLangExpr($3); /* why strdup($3) */ }
+var_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
+        | var_list ',' EXPR_STRING {
+          CurrentClause->addLangExpr($3); }
         ;
 
 target_data_directive: /* pragma */ OMP TARGET DATA {
@@ -768,26 +764,20 @@ end_clause: TARGET_END {
                     ;
 
                     
-if_clause: IF {
+if_clause: IF { 
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
-             } clause_parameter {
-                //parseParameter(strdup($3));
-             }
-        |   IF {
-                CurrentClause = new OpenMPClause(OMPC_if);
-                CurrentDirective->addClause(CurrentClause);
-            } clause_attribute {
-            } clause_parameter {
-                //parseParameter(strdup($5));
-            }
+            } clause_with_opt_attribute
+         ;
+
+clause_with_opt_attribute : '(' var_list ')' 
+            | '(' clause_attribute ':'  var_list ')' 
              ;
 
 num_threads_clause: NUM_THREADS {
                             CurrentClause = new OpenMPClause(OMPC_num_threads);
                             CurrentDirective->addClause(CurrentClause);
-                         } clause_parameter {
-                            //parseExpression(strdup($3));
+                         } '(' expr_list ')' {
                          }
                       ;
 map_clause: MAP {

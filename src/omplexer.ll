@@ -162,8 +162,8 @@ DUPLICATE       {return ( DUPLICATE ); }
 CYCLIC          {return ( CYCLIC ); }
 
 
-"("             { BEGIN(CLAUSE);}
-")"             { ; }
+"("             { BEGIN(CLAUSE); return '('; }
+")"             { return ')'; }
 {comment}       { ; }
 
 
@@ -181,9 +181,9 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODI_DEFAULT; }
 <CLAUSE>"+"       { printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
 <CLAUSE>"-"       { printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
-<CLAUSE>","       { ; }
+<CLAUSE>","       { return ','; }
 <CLAUSE>{blank}   { ; }
-<CLAUSE>":"       { BEGIN(EXPR);}
+<CLAUSE>":"       { BEGIN(EXPR); return ':';}
 <CLAUSE>.         { BEGIN(EXPR); CurrentString = yytext[0];}
 
 <EXPR>.     {   CurrentChar = yytext[0];
@@ -209,6 +209,7 @@ CYCLIC          {return ( CYCLIC ); }
                                 if (CurrentString.size() != 0) {
                                     omp_lval.stype = strdup(CurrentString.c_str());
                                     CurrentString = "";
+                                    unput(')');
                                     return EXPR_STRING;
                                 }
                                 else {
@@ -221,9 +222,13 @@ CYCLIC          {return ( CYCLIC ); }
                             break;
 
                         case ',' :
-                            if (ParenLocalCount == 0) {
+                            if (CurrentString == "") {
+                                return ',';
+                            }
+                            else if (ParenLocalCount == 0) {
                                 omp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
+                                unput(',');
                                 return EXPR_STRING;
                             }
                             else {
@@ -242,9 +247,13 @@ CYCLIC          {return ( CYCLIC ); }
                             break;
 
                         case ':' :
-                            if (BracketCount == 0) {
+                            if (CurrentString == "") {
+                                return ':';
+                            }
+                            else if (BracketCount == 0) {
                                 omp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
+                                unput(':');
                                 return ALLOCATOR;
                             }
                             else {
