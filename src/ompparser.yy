@@ -204,6 +204,7 @@ parallel_clause : if_clause
                 | copyin_clause
                 | reduction_clause
                 | proc_bind_clause
+                | allocate_clause
                 ;
 
 copyin_clause: COPYIN {
