@@ -164,6 +164,8 @@ CYCLIC          {return ( CYCLIC ); }
 
 "("             { BEGIN(CLAUSE); return '('; }
 ")"             { return ')'; }
+","             { return ','; }
+
 {comment}       { ; }
 
 
