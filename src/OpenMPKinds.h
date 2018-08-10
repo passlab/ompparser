@@ -76,6 +76,32 @@ enum OpenMPScheduleClauseModifier {
   OMPC_SCHEDULE_MODIFIER_last
 };
 
+/// OpenMP attributes for 'reduction' clause.
+enum OpenMPReductionClauseKind {
+#define OPENMP_REDUCTION_KIND(Name) \
+  OMPC_REDUCTION_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_unknown
+};
+
+/// OpenMP modifiers for 'reduction' clause.
+enum OpenMPReductionClauseModifier {
+  OMPC_REDUCTION_MODIFIER_unknown = OMPC_REDUCTION_unknown,
+#define OPENMP_REDUCTION_MODIFIER(Name) \
+  OMPC_REDUCTION_MODIFIER_##Name,
+#include "OpenMPKinds.def"	
+  OMPC_REDUCTION_MODIFIER_last
+};
+
+/// OpenMP identifiers for 'reduction' clause.
+enum OpenMPReductionClauseIdentifier {
+  OMPC_REDUCTION_IDENTIFIER_unknown = OMPC_REDUCTION_unknown,
+#define OPENMP_REDUCTION_IDENTIFIER(Name) \
+  OMPC_REDUCTION_IDENTIFIER_##Name,
+#include "OpenMPKinds.def"	
+  OMPC_REDUCTION_IDENTIFIER_last
+};
+
 /// OpenMP attributes for 'depend' clause.
 enum OpenMPDependClauseKind {
 #define OPENMP_DEPEND_KIND(Name) \

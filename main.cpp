@@ -9,7 +9,10 @@ void output(OpenMPDirective*);
 
 void output(OpenMPDirective* node) {
     
-    std::cout << "Directive: " << node->getKind() << "\n";
+	// get graph
+	node->generateDOT(); // node->getLabel()
+
+    std::cout << "\nDirective: " << node->getKind() << "\n";
 
     std::vector<OpenMPClause*>* clauses = node->getClauses();
     if (clauses != NULL) {
@@ -31,11 +34,14 @@ void output(OpenMPDirective* node) {
 
 int main( int argc, const char* argv[] )
 {
+	
     const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) firstprivate (foo(x), y), shared (a, b, c[1:10]), copyin (a[foo(goo(x)):20]) default (shared), default (none) if (a) if (parallel : b) proc_bind (master) proc_bind(close) proc_bind(spread) reduction (inscan, + : a, foo(x)) reduction (- : x, y, z) allocate (allocator_m : m, n[1:5]) allocate (no, allo, cator)";
     // const char* input = "omp parallel for reduction (+:a,b,c) reduction (whatever:foo(x):goo(y+8)) reduction (2+3*6-8) // Some comments.";
-
-    //OpenMPDirective* pfor = OpenMP_ParseDirective(OpenMPString);
-    //parallel_for->generateDOT("pfile.dot");
+	
+	
+	// parallel directive
+    //const char* input = "omp parallel if(parallel:x==y) private (a[foo(x, goo(x, y)):100], bc[1:30], c) num_threads(3*5+4/(foo(x)+10)) firstprivate (foo(x), y) shared (a, b, c[1:10]) copyin (a[foo(goo(x)):20]) reduction(+:foo(a))"; //  allocate (abc)
+	
 
     OpenMPDirective* openMPAST = parseOpenMP(input);
     

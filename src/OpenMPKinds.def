@@ -16,7 +16,7 @@
 #  define OPENMP_DIRECTIVE(Name)
 #endif
 #ifndef OPENMP_DIRECTIVE_EXT
-#define OPENMP_DIRECTIVE_EXT(Name, Str)
+#	define OPENMP_DIRECTIVE_EXT(Name, Str)
 #endif
 #ifndef OPENMP_CLAUSE
 #  define OPENMP_CLAUSE(Name, Class)
@@ -110,6 +110,12 @@
 #endif
 #ifndef OPENMP_SCHEDULE_MODIFIER
 #define OPENMP_SCHEDULE_MODIFIER(Name)
+#endif
+#ifndef OPENMP_REDUCTION_MODIFIER
+#define OPENMP_REDUCTION_MODIFIER(Name)
+#endif
+#ifndef OPENMP_REDUCTION_IDENTIFIER
+#define OPENMP_REDUCTION_IDENTIFIER(Name)
 #endif
 #ifndef OPENMP_DEPEND_KIND
 #define OPENMP_DEPEND_KIND(Name)
@@ -245,6 +251,7 @@ OPENMP_CLAUSE(reduction,  OMPReductionClause)
 OPENMP_CLAUSE(linear,  OMPLinearClause)
 OPENMP_CLAUSE(aligned, OMPAlignedClause)
 OPENMP_CLAUSE(copyin,  OMPCopyinClause)
+OPENMP_CLAUSE(allocate,  OMPAllocateClause)
 OPENMP_CLAUSE(copyprivate,  OMPCopyprivateClause)
 OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
 OPENMP_CLAUSE(schedule, OMPScheduleClause)
@@ -278,7 +285,6 @@ OPENMP_CLAUSE(use_device_ptr, OMPUseDevicePtrClause)
 OPENMP_CLAUSE(is_device_ptr, OMPIsDevicePtrClause)
 OPENMP_CLAUSE(task_reduction,  OMPTaskReductionClause)
 OPENMP_CLAUSE(in_reduction,  OMPInReductionClause)
-OPENMP_CLAUSE(allocate,  OMPAllocateClause)
 
 // Clauses allowed for OpenMP directive 'parallel'.
 OPENMP_PARALLEL_CLAUSE(if)
@@ -290,6 +296,7 @@ OPENMP_PARALLEL_CLAUSE(firstprivate)
 OPENMP_PARALLEL_CLAUSE(shared)
 OPENMP_PARALLEL_CLAUSE(reduction)
 OPENMP_PARALLEL_CLAUSE(copyin)
+OPENMP_PARALLEL_CLAUSE(allocate)
 
 // Clauses allowed for directive 'omp simd'.
 OPENMP_SIMD_CLAUSE(private)
@@ -551,6 +558,21 @@ OPENMP_MAP_KIND(tofrom)
 OPENMP_MAP_KIND(delete)
 OPENMP_MAP_KIND(release)
 OPENMP_MAP_KIND(always)
+
+// reduction type modifier for 'reduction' clause.
+OPENMP_REDUCTION_MODIFIER(inscan)
+OPENMP_REDUCTION_MODIFIER(task)
+OPENMP_REDUCTION_MODIFIER(default)
+
+// reduction type identifier for 'reduction' clause.
+OPENMP_REDUCTION_IDENTIFIER(reduction_plus)
+OPENMP_REDUCTION_IDENTIFIER(reduction_minus)
+OPENMP_REDUCTION_IDENTIFIER(reduction_mul)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitand)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitor)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitxor)
+OPENMP_REDUCTION_IDENTIFIER(reduction_logand)
+OPENMP_REDUCTION_IDENTIFIER(reduction_logor)
 
 // Clauses allowed for OpenMP directive 'taskloop'.
 OPENMP_TASKLOOP_CLAUSE(if)
@@ -902,6 +924,8 @@ OPENMP_TASKGROUP_CLAUSE(task_reduction)
 #undef OPENMP_FOR_CLAUSE
 #undef OPENMP_FOR_SIMD_CLAUSE
 #undef OPENMP_MAP_KIND
+#undef OPENMP_REDUCTION_IDENTIFIER
+#undef OPENMP_REDUCTION_MODIFIER
 #undef OPENMP_DISTRIBUTE_CLAUSE
 #undef OPENMP_DIST_SCHEDULE_KIND
 #undef OPENMP_DEFAULTMAP_KIND
