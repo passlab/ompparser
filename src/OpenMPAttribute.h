@@ -28,7 +28,6 @@ class OpenMPClause {
 		OpenMPClauseKind const getClauseKind() { return kind; }
 
 		/* a list of language expressions, variables, etc that are not parsed by the ompparser */
-
 		void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
 		
 		std::vector<const char*>* getExpr() {
