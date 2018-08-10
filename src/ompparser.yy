@@ -175,6 +175,7 @@ openmp_directive : parallel_directive
 
 parallel_directive : /* #pragma */ OMP PARALLEL {
                        CurrentDirective = new OpenMPDirective(OMPD_parallel);
+					   CurrentDirective->setLabel("PARALLEL");
                      }
                      parallel_clause_optseq 
                    ;
@@ -191,6 +192,7 @@ parallel_clause_seq : parallel_clause
 proc_bind_clause : PROC_BIND { 
                         CurrentClause = new OpenMPClause(OMPC_proc_bind);
                         CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("PROC_BIND");
                       } '(' clause_attribute ')'
                     ;
 
@@ -210,6 +212,7 @@ parallel_clause : if_clause
 copyin_clause: COPYIN {
                             CurrentClause = new OpenMPClause(OMPC_copyin);
                             CurrentDirective->addClause(CurrentClause);
+							CurrentClause->setLabel("COPYIN");
                             } '(' var_list ')' {
                             }
                           ;
@@ -417,6 +420,7 @@ dependence_type : IN {
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
                             CurrentDirective = new OpenMPDirective(OMPD_parallel_for);
+							CurrentDirective->setLabel("PARALLEL_FOR");
                          } parallel_for_clauseoptseq
                        ;
 
@@ -453,6 +457,7 @@ parallel_for_clause : if_clause
 allocate_clause : ALLOCATE {
                     CurrentClause = new OpenMPClause(OMPC_allocate);
                     CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ALLOCATE");
                     } special_clause_parameter
                 ;
 
@@ -610,6 +615,7 @@ threadprivate_directive : /* #pragma */ OMP THREADPRIVATE {
 default_clause : DEFAULT { 
                         CurrentClause = new OpenMPClause(OMPC_default);
                         CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("DEFAULT");
                       } '(' clause_attribute ')'
                     ;
 
@@ -625,6 +631,7 @@ clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEF
 private_clause : PRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_private);
                             CurrentDirective->addClause(CurrentClause);
+							CurrentClause->setLabel("PRIVATE");
                             } '(' var_list ')' {
                             }
                           ;
@@ -632,6 +639,7 @@ private_clause : PRIVATE {
 firstprivate_clause : FIRSTPRIVATE { 
                             CurrentClause = new OpenMPClause(OMPC_firstprivate);
                             CurrentDirective->addClause(CurrentClause);
+							CurrentClause->setLabel("FIRSTPRIVATE");
                             } '(' var_list ')' {
                             }
                           ;
@@ -645,12 +653,14 @@ lastprivate_clause : LASTPRIVATE {
 shared_clause : SHARED {
                             CurrentClause = new OpenMPClause(OMPC_shared);
                             CurrentDirective->addClause(CurrentClause);
+							CurrentClause->setLabel("SHARED");
                             } '(' var_list ')'
                           ;
 
 reduction_clause : REDUCTION { 
                         CurrentClause = new OpenMPClause(OMPC_reduction);
                         CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("REDUCTION");
                         } '(' pre_parameter ':' var_list ')' {
                             }
                       ;
@@ -768,6 +778,7 @@ end_clause: TARGET_END {
 if_clause: IF { 
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
+				CurrentClause->setLabel("IF");
             } clause_with_opt_attribute
          ;
 
@@ -778,6 +789,7 @@ clause_with_opt_attribute : '(' var_list ')'
 num_threads_clause: NUM_THREADS {
                             CurrentClause = new OpenMPClause(OMPC_num_threads);
                             CurrentDirective->addClause(CurrentClause);
+							CurrentClause->setLabel("NUM_THREADS");
                          } '(' expr_list ')' {
                          }
                       ;
