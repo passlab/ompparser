@@ -19,21 +19,21 @@ using namespace std;
 class OpenMPClause {
     
     protected:
-    OpenMPClauseKind kind;
-    std::vector<const char*> lang_expr;
-    std::string label;
+		OpenMPClauseKind kind;
+		std::vector<const char*> lang_expr;
+		std::string label;
 	
     public:
-    OpenMPClause(OpenMPClauseKind k) : kind(k) {};
-    OpenMPClauseKind const getClauseKind() { return kind; }
+		OpenMPClause(OpenMPClauseKind k) : kind(k) {};
+		OpenMPClauseKind const getClauseKind() { return kind; }
 
-    /* a list of language expressions, variables, etc that are not parsed by the ompparser */
+		/* a list of language expressions, variables, etc that are not parsed by the ompparser */
 
-    void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
-    
-    std::vector<const char*>* getExpr() {
-       return &lang_expr;
-    } 
+		void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
+		
+		std::vector<const char*>* getExpr() {
+		   return &lang_expr;
+		} 
 
 		OpenMPClauseKind getKind() { return kind; }
 		
@@ -113,25 +113,25 @@ class OpenMPEnumClause : OpenMPClause {
 class OpenMPDirective {
 
     protected:
-    OpenMPDirectiveKind kind;
-    std::vector<OpenMPClause*> clauses;
-	std::string label;
+		OpenMPDirectiveKind kind;
+		std::vector<OpenMPClause*> clauses;
+		std::string label;
 	
     public:
-    OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
+		OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
 
-    OpenMPDirectiveKind const getDirectiveKind() { return kind; }
+		OpenMPDirectiveKind const getDirectiveKind() { return kind; }
 
-	void setLabel(std::string name) { label = name; }
-	std::string getLabel() { return label; }
-	
-    void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
+		void setLabel(std::string name) { label = name; }
+		std::string getLabel() { return label; }
+		
+		void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
 
-    OpenMPDirectiveKind getKind() { return kind; }
+		OpenMPDirectiveKind getKind() { return kind; }
 
-    std::vector<OpenMPClause*>* getClauses() {
-        return &clauses;
-    }
+		std::vector<OpenMPClause*>* getClauses() {
+			return &clauses;
+		}
 
 		/* generate DOT representation of the directive */
 		void generateDOT() {
