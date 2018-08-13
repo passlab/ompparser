@@ -162,4 +162,109 @@ class OpenMPDirective {
 		}
 };
 
+// handling allocators
+/*
+// Predefined Allocators
+// ---------------------
+omp_default_mem_alloc
+omp_large_cap_mem_alloc
+omp_const_mem_alloc
+omp_high_bw_mem_alloc
+omp_low_lat_mem_alloc
+omp_cgroup_mem_alloc
+omp_pteam_mem_alloc
+omp_thread_mem_alloc
+*/
+
+class OpenMPAllocator {
+   //	
+};
+
+// The memspace argument must be one of the predefined memory spaces below:
+typedef enum {
+	omp_default_mem_space, // Represents the system default storage.
+	omp_large_cap_mem_space, // Represents storage with large capacity.
+	omp_const_mem_space, // Represents storage optimized for variables with constant values. The result of writing to this storage is unspecified.
+	omp_high_bw_mem_space, // Represents storage with high bandwidth.
+	omp_low_lat_mem_space // Represents storage with low latency.
+} omp_memspace_t;
+
+// Allocator traits
+typedef struct {
+	enum sync_hint {
+		contended, // default
+		uncontended,
+		serialized, 
+		sequential		
+	};
+	int alignment; // A positive integer value which is a power of 2, default is 1 byte
+	enum access {
+		all, // default
+		cgroup,
+		pteam,
+		thread
+	};
+	int pool_size; // Positive integer value; it is implementation-defined
+	enum fallback {
+		default_mem_fb, // default
+		null_fb,
+		abort_fb, 
+		allocator_fb
+	};
+	OpenMPAllocator fb_data; // an allocator handle
+	bool pinned = false; // default is false
+	enum partition {
+		environment, // default
+		nearest,
+		blocked,
+		interleaved
+	};
+} traits;
+
+typedef enum {
+	OMP_ATK_THREADMODEL = 1,
+	OMP_ATK_ALIGNMENT = 2,
+	OMP_ATK_ACCESS = 3,
+	OMP_ATK_POOL_SIZE = 4,
+	OMP_ATK_FALLBACK = 5,
+	OMP_ATK_FB_DATA = 6,
+	OMP_ATK_PINNED = 7,
+	OMP_ATK_PARTITION = 8
+} omp_alloctrait_key_t;
+
+typedef enum {
+	OMP_ATV_FALSE = 0,
+	OMP_ATV_TRUE = 1,
+	OMP_ATV_DEFAULT = 2,
+	OMP_ATV_CONTENDED = 3,
+	OMP_ATV_UNCONTENDED = 4,
+	OMP_ATV_SEQUENTIAL = 5,
+	OMP_ATV_PRIVATE = 6,
+	OMP_ATV_ALL = 7,
+	OMP_ATV_THREAD = 8,
+	OMP_ATV_PTEAM = 9,
+	OMP_ATV_CGROUP = 10,
+	OMP_ATV_DEFAULT_MEM_FB = 11,
+	OMP_ATV_NULL_FB = 12,
+	OMP_ATV_ABORT_FB = 13,
+	OMP_ATV_ALLOCATOR_FB = 14,
+	OMP_ATV_ENVIRONMENT = 15,
+	OMP_ATV_NEAREST = 16,
+	OMP_ATV_BLOCKED = 17,
+	OMP_ATV_INTERLEAVED = 18
+} omp_alloctrait_value_t;
+
+typedef struct {
+	omp_alloctrait_key_t key;
+	uint omp_uintptr_t; // omp_uintptr_t is an unsigned integer type capable of holding a pointer.
+} omp_alloctrait_t;
+
+enum { OMP_NULL_ALLOCATOR = NULL };
+
+typedef struct {
+	omp_memspace_t memspace_t;
+	int ntraits;
+	omp_alloctrait_t traits_params;
+} omp_allocator_t;
+
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H

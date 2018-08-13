@@ -45,6 +45,8 @@ extern void end_lexer(void);
 static void parseParameter (const char*);
 static void parseExpression(const char*); 
 static void parseSpecialClause(const char*);
+// omp_allocator_t * omp_init_allocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]);
+void CreateAllocator(string);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* CurrentDirective = NULL;
@@ -462,9 +464,10 @@ allocate_clause : ALLOCATE {
                 ;
 
 special_clause_parameter : '(' var_list ')'
-                        | '(' ALLOCATOR { std::cout << "An allocator is found in the parser: " << $2 << "\n";} ':' var_list ')'
+                        | '(' ALLOCATOR { CreateAllocator($2); } ':' var_list ')'
                         ;
-
+//                         | '(' ALLOCATOR { std::cout << "An allocator is found in the parser: " << $2 << "\n";} ':' var_list ')'
+// ALLOCATOR { printf("omp_init_allocator() allocator found.\n\n"); }
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -1105,9 +1108,21 @@ static void parseSpecialClause(const char* input) {
     parseParameter((const char*)SpecialVariable.c_str());
     //parseParameter((const char*)CurrentString.substr(0, ColonPosition).c_str());
     parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
-
-
-
-
 }
 
+// This method creates an allocator
+// allocators can take default values or they can be specifically implemented as custom allocators 
+// memspace are predefined values, ntraits specifies number of traits, traits is a list of allocator attributes
+omp_allocator_t * omp_init_allocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]) {
+		omp_allocator_t *allocator;
+		
+		allocator->memspace_t = omp_large_cap_mem_space; //memspace;
+		allocator->ntraits = ntraits;
+		// allocator->traits_params.key = omp_alloctrait_key_t.OMP_ATK_ACCESS;
+		// allocator->traits_params.omp_uintptr_t = omp_alloctrait_value_t.OMP_ATV_ALL;
+}
+
+// called to create an allocator if an allocator is found
+void CreateAllocator(std::string param) { // should get Allocator string, process it and create an allocator or return a default one.
+	cout << "Testing allocator parsing: " << param << endl;
+}
