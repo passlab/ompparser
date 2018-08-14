@@ -126,7 +126,8 @@ corresponding C type is union name defaults to YYSTYPE.
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
         MODI_INSCAN MODI_TASK MODI_DEFAULT
         IDEN_PLUS IDEN_MINUS
-        ALLOCATE
+        ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
+		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC USER_DEFINED_MEM_ALLOC
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING ALLOCATOR
@@ -464,11 +465,22 @@ allocate_clause : ALLOCATE {
                 ;
 
 special_clause_parameter : '(' var_list ')'
-                        | '(' ALLOCATOR { CreateAllocator($2); } ':' var_list ')'
+                        | '(' allocator_param ':' var_list ')'
                         ;
+//                        | '(' ALLOCATOR { CreateAllocator($2); } ':' var_list ')'						
 //                         | '(' ALLOCATOR { std::cout << "An allocator is found in the parser: " << $2 << "\n";} ':' var_list ')'
 // ALLOCATOR { printf("omp_init_allocator() allocator found.\n\n"); }
-
+allocator_param : DEFAULT_MEM_ALLOC {}
+				  | LARGE_CAP_MEM_ALLOC {}
+				  | CONST_MEM_ALLOC {}
+				  | HIGH_BW_MEM_ALLOC {}
+				  | LOW_LAT_MEM_ALLOC {}
+				  | CGROUP_MEM_ALLOC {}
+				  | PTEAM_MEM_ALLOC {}
+				  | THREAD_MEM_ALLOC {}
+				  | USER_DEFINED_MEM_ALLOC { std::cout << "Call function to create custom allocator here. " << "\n"; }
+				;
+					
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
                            // omptype= e_parallel_for_simd;
@@ -1108,18 +1120,6 @@ static void parseSpecialClause(const char* input) {
     parseParameter((const char*)SpecialVariable.c_str());
     //parseParameter((const char*)CurrentString.substr(0, ColonPosition).c_str());
     parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
-}
-
-// This method creates an allocator
-// allocators can take default values or they can be specifically implemented as custom allocators 
-// memspace are predefined values, ntraits specifies number of traits, traits is a list of allocator attributes
-omp_allocator_t * omp_init_allocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]) {
-		omp_allocator_t *allocator;
-		
-		allocator->memspace_t = omp_large_cap_mem_space; //memspace;
-		allocator->ntraits = ntraits;
-		// allocator->traits_params.key = omp_alloctrait_key_t.OMP_ATK_ACCESS;
-		// allocator->traits_params.omp_uintptr_t = omp_alloctrait_value_t.OMP_ATV_ALL;
 }
 
 // called to create an allocator if an allocator is found

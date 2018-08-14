@@ -163,22 +163,7 @@ class OpenMPDirective {
 };
 
 // handling allocators
-/*
-// Predefined Allocators
-// ---------------------
-omp_default_mem_alloc
-omp_large_cap_mem_alloc
-omp_const_mem_alloc
-omp_high_bw_mem_alloc
-omp_low_lat_mem_alloc
-omp_cgroup_mem_alloc
-omp_pteam_mem_alloc
-omp_thread_mem_alloc
-*/
-
-class OpenMPAllocator {
-   //	
-};
+//
 
 // The memspace argument must be one of the predefined memory spaces below:
 typedef enum {
@@ -211,7 +196,7 @@ typedef struct {
 		abort_fb, 
 		allocator_fb
 	};
-	OpenMPAllocator fb_data; // an allocator handle
+	int fb_data; // an allocator handle - OpenMPCustomAllocator
 	bool pinned = false; // default is false
 	enum partition {
 		environment, // default
@@ -266,5 +251,38 @@ typedef struct {
 	int ntraits;
 	omp_alloctrait_t traits_params;
 } omp_allocator_t;
+
+/*
+// Predefined Allocators
+// ---------------------
+omp_default_mem_alloc
+omp_large_cap_mem_alloc
+omp_const_mem_alloc
+omp_high_bw_mem_alloc
+omp_low_lat_mem_alloc
+omp_cgroup_mem_alloc
+omp_pteam_mem_alloc
+omp_thread_mem_alloc
+*/
+
+// allocators can take default values or they can be specifically implemented as custom allocators 
+// memspace are predefined values, ntraits specifies number of traits, traits is a list of allocator attributes
+// This class is for user defined allocators
+// TODO - Fully implement this class
+class OpenMPCustomAllocator {
+	
+	protected:
+		omp_allocator_t *allocator;
+		
+	public:
+		OpenMPCustomAllocator() {}
+		OpenMPCustomAllocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]) {
+			allocator->memspace_t = omp_large_cap_mem_space; //memspace;
+			allocator->ntraits = ntraits; // number of traits
+			// TODO - add traits here
+			// 
+		}
+   
+};
 
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H

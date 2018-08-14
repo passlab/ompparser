@@ -180,6 +180,15 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>inscan    { printf("TOKEN inscan in the clause is found. \n"); return MODI_INSCAN; }
 <CLAUSE>task      { printf("TOKEN task in the clause is found. \n"); return MODI_TASK; }
 <CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODI_DEFAULT; }
+<CLAUSE>omp_default_mem_alloc       	{ printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
+<CLAUSE>omp_large_cap_mem_alloc       	{ printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
+<CLAUSE>omp_const_mem_alloc       		{ printf("TOKEN omp_const_mem_alloc in the clause is found. \n"); 		return CONST_MEM_ALLOC; }
+<CLAUSE>omp_high_bw_mem_alloc       	{ printf("TOKEN omp_high_bw_mem_alloc in the clause is found. \n"); 	return HIGH_BW_MEM_ALLOC; }
+<CLAUSE>omp_low_lat_mem_alloc       	{ printf("TOKEN omp_low_lat_mem_alloc in the clause is found. \n"); 	return LOW_LAT_MEM_ALLOC; }
+<CLAUSE>omp_cgroup_mem_alloc       		{ printf("TOKEN omp_cgroup_mem_alloc in the clause is found. \n"); 		return CGROUP_MEM_ALLOC; }
+<CLAUSE>omp_pteam_mem_alloc       		{ printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
+<CLAUSE>omp_thread_mem_alloc       		{ printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
+<CLAUSE>omp_user_defined_mem_alloc      { printf("TOKEN omp_user_defined_mem_alloc in the clause is found. \n");return USER_DEFINED_MEM_ALLOC; }
 <CLAUSE>"+"       { printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
 <CLAUSE>"-"       { printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
 <CLAUSE>","       { return ','; }
