@@ -189,12 +189,18 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>omp_pteam_mem_alloc       		{ printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
 <CLAUSE>omp_thread_mem_alloc       		{ printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
 <CLAUSE>omp_user_defined_mem_alloc      { printf("TOKEN omp_user_defined_mem_alloc in the clause is found. \n");return USER_DEFINED_MEM_ALLOC; }
-<CLAUSE>"+"       { printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
-<CLAUSE>"-"       { printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
-<CLAUSE>","       { return ','; }
-<CLAUSE>{blank}   { ; }
-<CLAUSE>":"       { BEGIN(EXPR); return ':';}
-<CLAUSE>.         { BEGIN(EXPR); CurrentString = yytext[0];}
+<CLAUSE>"+"			{ printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
+<CLAUSE>"-"       	{ printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
+<CLAUSE>"*"       	{ printf("TOKEN * in the clause is found. \n"); return IDEN_MUL; }
+<CLAUSE>"&"       	{ printf("TOKEN & in the clause is found. \n"); return IDEN_BITAND; }
+<CLAUSE>"|"			{ printf("TOKEN | in the clause is found. \n"); return IDEN_BITOR; }
+<CLAUSE>"^"       	{ printf("TOKEN ^ in the clause is found. \n"); return IDEN_BITXOR; }
+<CLAUSE>"&&"		{ printf("TOKEN && in the clause is found. \n"); return IDEN_LOGAND; }
+<CLAUSE>"||"		{ printf("TOKEN || in the clause is found. \n"); return IDEN_LOGOR; }
+<CLAUSE>","			{ return ','; }
+<CLAUSE>{blank}		{ ; }
+<CLAUSE>":"			{ BEGIN(EXPR); return ':';}
+<CLAUSE>.			{ BEGIN(EXPR); CurrentString = yytext[0];}
 
 <EXPR>.     {   CurrentChar = yytext[0];
                 ParenLocalCount = 0;
