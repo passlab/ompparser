@@ -105,17 +105,17 @@
 #ifndef OPENMP_PROC_BIND_KIND
 #  define OPENMP_PROC_BIND_KIND(Name)
 #endif
+#ifndef OPENMP_ALLOCATE_KIND
+#  define OPENMP_ALLOCATE_KIND(Name)
+#endif
 #ifndef OPENMP_SCHEDULE_KIND
 #define OPENMP_SCHEDULE_KIND(Name)
 #endif
 #ifndef OPENMP_SCHEDULE_MODIFIER
 #define OPENMP_SCHEDULE_MODIFIER(Name)
 #endif
-#ifndef OPENMP_REDUCTION_MODIFIER
-#define OPENMP_REDUCTION_MODIFIER(Name)
-#endif
-#ifndef OPENMP_REDUCTION_IDENTIFIER
-#define OPENMP_REDUCTION_IDENTIFIER(Name)
+#ifndef OPENMP_REDUCTION_KIND
+#	define OPENMP_REDUCTION_KIND(Name)
 #endif
 #ifndef OPENMP_DEPEND_KIND
 #define OPENMP_DEPEND_KIND(Name)
@@ -251,9 +251,9 @@ OPENMP_CLAUSE(reduction,  OMPReductionClause)
 OPENMP_CLAUSE(linear,  OMPLinearClause)
 OPENMP_CLAUSE(aligned, OMPAlignedClause)
 OPENMP_CLAUSE(copyin,  OMPCopyinClause)
-OPENMP_CLAUSE(allocate,  OMPAllocateClause)
 OPENMP_CLAUSE(copyprivate,  OMPCopyprivateClause)
 OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
+OPENMP_CLAUSE(allocate, OMPAllocateClause)
 OPENMP_CLAUSE(schedule, OMPScheduleClause)
 OPENMP_CLAUSE(ordered, OMPOrderedClause)
 OPENMP_CLAUSE(nowait, OMPNowaitClause)
@@ -360,6 +360,17 @@ OPENMP_DEFAULT_KIND(shared)
 OPENMP_PROC_BIND_KIND(master)
 OPENMP_PROC_BIND_KIND(close)
 OPENMP_PROC_BIND_KIND(spread)
+
+// Static attributes for 'allocate' clause - allocator values
+OPENMP_ALLOCATE_KIND(omp_default_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_large_cap_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_const_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_high_bw_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_low_lat_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_cgroup_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_pteam_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_thread_mem_alloc)
+OPENMP_ALLOCATE_KIND(omp_user_defined_mem_alloc)
 
 // Static attributes for 'schedule' clause.
 OPENMP_SCHEDULE_KIND(static)
@@ -560,19 +571,19 @@ OPENMP_MAP_KIND(release)
 OPENMP_MAP_KIND(always)
 
 // reduction type modifier for 'reduction' clause.
-OPENMP_REDUCTION_MODIFIER(inscan)
-OPENMP_REDUCTION_MODIFIER(task)
-OPENMP_REDUCTION_MODIFIER(default)
+OPENMP_REDUCTION_KIND(inscan)
+OPENMP_REDUCTION_KIND(task)
+OPENMP_REDUCTION_KIND(default)
 
-// reduction type identifier for 'reduction' clause.
-OPENMP_REDUCTION_IDENTIFIER(reduction_plus)
-OPENMP_REDUCTION_IDENTIFIER(reduction_minus)
-OPENMP_REDUCTION_IDENTIFIER(reduction_mul)
-OPENMP_REDUCTION_IDENTIFIER(reduction_bitand)
-OPENMP_REDUCTION_IDENTIFIER(reduction_bitor)
-OPENMP_REDUCTION_IDENTIFIER(reduction_bitxor)
-OPENMP_REDUCTION_IDENTIFIER(reduction_logand)
-OPENMP_REDUCTION_IDENTIFIER(reduction_logor)
+// reduction type identifier for 'reduction' clause. - reduction_plus reduction_minus
+OPENMP_REDUCTION_KIND(reduction_plus)
+OPENMP_REDUCTION_KIND(reduction_minus)
+OPENMP_REDUCTION_KIND(reduction_mul)
+OPENMP_REDUCTION_KIND(reduction_bitand)
+OPENMP_REDUCTION_KIND(reduction_bitor)
+OPENMP_REDUCTION_KIND(reduction_bitxor)
+OPENMP_REDUCTION_KIND(reduction_logand)
+OPENMP_REDUCTION_KIND(reduction_logor)
 
 // Clauses allowed for OpenMP directive 'taskloop'.
 OPENMP_TASKLOOP_CLAUSE(if)
@@ -898,6 +909,7 @@ OPENMP_TASKGROUP_CLAUSE(task_reduction)
 #undef OPENMP_SCHEDULE_MODIFIER
 #undef OPENMP_SCHEDULE_KIND
 #undef OPENMP_PROC_BIND_KIND
+#undef OPENMP_ALLOCATE_KIND
 #undef OPENMP_DEFAULT_KIND
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -924,8 +936,7 @@ OPENMP_TASKGROUP_CLAUSE(task_reduction)
 #undef OPENMP_FOR_CLAUSE
 #undef OPENMP_FOR_SIMD_CLAUSE
 #undef OPENMP_MAP_KIND
-#undef OPENMP_REDUCTION_IDENTIFIER
-#undef OPENMP_REDUCTION_MODIFIER
+#undef OPENMP_REDUCTION_KIND
 #undef OPENMP_DISTRIBUTE_CLAUSE
 #undef OPENMP_DIST_SCHEDULE_KIND
 #undef OPENMP_DEFAULTMAP_KIND

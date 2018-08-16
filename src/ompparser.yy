@@ -125,7 +125,7 @@ corresponding C type is union name defaults to YYSTYPE.
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
         MODI_INSCAN MODI_TASK MODI_DEFAULT
-        IDEN_PLUS IDEN_MINUS
+        IDEN_PLUS IDEN_MINUS IDEN_MUL IDEN_BITAND IDEN_BITOR  IDEN_BITXOR IDEN_LOGAND IDEN_LOGOR
         ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
 		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC USER_DEFINED_MEM_ALLOC
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
@@ -467,20 +467,18 @@ allocate_clause : ALLOCATE {
 special_clause_parameter : '(' var_list ')'
                         | '(' allocator_param ':' var_list ')'
                         ;
-//                        | '(' ALLOCATOR { CreateAllocator($2); } ':' var_list ')'						
-//                         | '(' ALLOCATOR { std::cout << "An allocator is found in the parser: " << $2 << "\n";} ':' var_list ')'
 // ALLOCATOR { printf("omp_init_allocator() allocator found.\n\n"); }
-allocator_param : DEFAULT_MEM_ALLOC {}
-				  | LARGE_CAP_MEM_ALLOC {}
-				  | CONST_MEM_ALLOC {}
-				  | HIGH_BW_MEM_ALLOC {}
-				  | LOW_LAT_MEM_ALLOC {}
-				  | CGROUP_MEM_ALLOC {}
-				  | PTEAM_MEM_ALLOC {}
-				  | THREAD_MEM_ALLOC {}
-				  | USER_DEFINED_MEM_ALLOC { std::cout << "Call function to create custom allocator here. " << "\n"; }
+allocator_param : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_default_mem_alloc); }
+				  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_large_cap_mem_alloc); }
+				  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_const_mem_alloc); }
+				  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_high_bw_mem_alloc); }
+				  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_low_lat_mem_alloc); }
+				  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_cgroup_mem_alloc); }
+				  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_pteam_mem_alloc); }
+				  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_thread_mem_alloc); }
+				  | USER_DEFINED_MEM_ALLOC 	{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_user_defined_mem_alloc); }
 				;
-					
+
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
                            // omptype= e_parallel_for_simd;
@@ -634,14 +632,14 @@ default_clause : DEFAULT {
                       } '(' clause_attribute ')'
                     ;
 
-clause_attribute : ATTR_SHARED {std::cout << "This is static attribute: OMPC_DEFAULT_shared: " << OMPC_DEFAULT_shared <<  "\n";}
-                |  ATTR_NONE {std::cout << "This is static attribute: OMPC_DEFAULT_none: " << OMPC_DEFAULT_none << " \n";}
-                |  ATTR_PARALLEL {std::cout << "This is static attribute: OMPC_IF_parallel: " << OMPC_IF_parallel << " \n";}
-                |  ATTR_MASTER {std::cout << "This is static attribute: OMPC_PROC_BIND_master: " << OMPC_PROC_BIND_master << " \n";}
-                |  ATTR_CLOSE {std::cout << "This is static attribute: OMPC_PROC_BIND_close: " << OMPC_PROC_BIND_close << " \n";}
-                |  ATTR_SPREAD {std::cout << "This is static attribute: OMPC_PROC_BIND_spread: " << OMPC_PROC_BIND_spread << " \n";}
+clause_attribute : ATTR_SHARED { CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_shared); }
+                |  ATTR_NONE { CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_none); }
+                |  ATTR_PARALLEL { CurrentClause->setIfClauseValue(OMPC_IF_parallel); }
+                |  ATTR_MASTER { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_master); }
+                |  ATTR_CLOSE { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_close); }
+                |  ATTR_SPREAD { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_spread); }
                 ;
-
+				// |  ATTR_SPREAD {std::cout << "This is static attribute: OMPC_PROC_BIND_spread: " << OMPC_PROC_BIND_spread << " \n";}
                    
 private_clause : PRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_private);
@@ -684,18 +682,23 @@ pre_parameter : identifier {}
               | modifier ',' identifier {}
                 ;
 
-modifier : MODI_INSCAN {}
-        | MODI_TASK {}
-        | MODI_DEFAULT {}
+modifier : MODI_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_inscan); }
+        | MODI_TASK 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_task); }
+        | MODI_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_default); }
         ;
 
-identifier : IDEN_PLUS {}
-           | IDEN_MINUS {}
+identifier : IDEN_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_plus); }
+           | IDEN_MINUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_minus); }
+           | IDEN_MUL		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_mul); }
+           | IDEN_BITAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitand); }
+           | IDEN_BITOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitor); }
+           | IDEN_BITXOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitxor); }
+           | IDEN_LOGAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_logand); }
+           | IDEN_LOGOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_logor); }
             ;
 
 expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
-        | expr_list ',' EXPR_STRING {
-          CurrentClause->addLangExpr($3);}
+        | expr_list ',' EXPR_STRING { CurrentClause->addLangExpr($3);}
         ;
 
 var_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
@@ -797,8 +800,9 @@ if_clause: IF {
             } clause_with_opt_attribute
          ;
 
-clause_with_opt_attribute : '(' var_list ')' 
-            | '(' clause_attribute ':'  var_list ')' 
+// expr_list also takes a single expression
+clause_with_opt_attribute : '(' expr_list ')' 
+            | '(' clause_attribute ':'  expr_list ')' 
              ;
 
 num_threads_clause: NUM_THREADS {
@@ -1120,9 +1124,4 @@ static void parseSpecialClause(const char* input) {
     parseParameter((const char*)SpecialVariable.c_str());
     //parseParameter((const char*)CurrentString.substr(0, ColonPosition).c_str());
     parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
-}
-
-// called to create an allocator if an allocator is found
-void CreateAllocator(std::string param) { // should get Allocator string, process it and create an allocator or return a default one.
-	cout << "Testing allocator parsing: " << param << endl;
 }

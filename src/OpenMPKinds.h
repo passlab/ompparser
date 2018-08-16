@@ -59,6 +59,14 @@ enum OpenMPProcBindClauseKind {
   OMPC_PROC_BIND_unknown
 };
 
+/// OpenMP attributes for 'Allocate' clause.
+enum OpenMPAllocateClauseKind {
+#define OPENMP_ALLOCATE_KIND(Name) \
+  OMPC_ALLOCATE_##Name,
+#include "OpenMPKinds.def"
+  OMPC_ALLOCATE_unknown
+};
+
 /// OpenMP attributes for 'schedule' clause.
 enum OpenMPScheduleClauseKind {
 #define OPENMP_SCHEDULE_KIND(Name) \
@@ -82,24 +90,6 @@ enum OpenMPReductionClauseKind {
   OMPC_REDUCTION_##Name,
 #include "OpenMPKinds.def"
   OMPC_REDUCTION_unknown
-};
-
-/// OpenMP modifiers for 'reduction' clause.
-enum OpenMPReductionClauseModifier {
-  OMPC_REDUCTION_MODIFIER_unknown = OMPC_REDUCTION_unknown,
-#define OPENMP_REDUCTION_MODIFIER(Name) \
-  OMPC_REDUCTION_MODIFIER_##Name,
-#include "OpenMPKinds.def"	
-  OMPC_REDUCTION_MODIFIER_last
-};
-
-/// OpenMP identifiers for 'reduction' clause.
-enum OpenMPReductionClauseIdentifier {
-  OMPC_REDUCTION_IDENTIFIER_unknown = OMPC_REDUCTION_unknown,
-#define OPENMP_REDUCTION_IDENTIFIER(Name) \
-  OMPC_REDUCTION_IDENTIFIER_##Name,
-#include "OpenMPKinds.def"	
-  OMPC_REDUCTION_IDENTIFIER_last
 };
 
 /// OpenMP attributes for 'depend' clause.
