@@ -89,7 +89,26 @@ enum OpenMPReductionClauseKind {
 #define OPENMP_REDUCTION_KIND(Name) \
   OMPC_REDUCTION_##Name,
 #include "OpenMPKinds.def"
-  OMPC_REDUCTION_unknown
+  OMPC_REDUCTION_modifier,
+  OMPC_REDUCTION_identifier
+};
+
+/// OpenMP modifiers for 'reduction' clause.
+enum OpenMPReductionClauseModifier {
+  OMPC_REDUCTION_MODIFIER_unknown = OMPC_REDUCTION_modifier,
+#define OPENMP_REDUCTION_MODIFIER(Name) \
+  OMPC_REDUCTION_MODIFIER_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_MODIFIER_last
+};
+
+/// OpenMP identifiers for 'reduction' clause.
+enum OpenMPReductionClauseIdentifier {
+  OMPC_REDUCTION_IDENTIFIER_unknown = OMPC_REDUCTION_identifier,
+#define OPENMP_REDUCTION_IDENTIFIER(Name) \
+  OMPC_REDUCTION_IDENTIFIER_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_IDENTIFIER_last
 };
 
 /// OpenMP attributes for 'depend' clause.

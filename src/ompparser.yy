@@ -3,6 +3,7 @@
 /* Modified by Christian Biesinger 2006 for OpenMP 2.0 */
 /* Modified by Chunhua Liao for OpenMP 3.0 and connect to OmpAttribute, 2008 */
 /* Updated by Chunhua Liao for OpenMP 4.5,  2017 */
+/* Updated by Chrisogonas for OpenMP 5.0, 2018 */
 
 /*
 To debug bison conflicts, use the following command line in the build tree
@@ -42,9 +43,9 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
-static void parseParameter (const char*);
-static void parseExpression(const char*); 
-static void parseSpecialClause(const char*);
+//static void parseParameter (const char*);
+//static void parseExpression(const char*); 
+//static void parseSpecialClause(const char*);
 // omp_allocator_t * omp_init_allocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]);
 void CreateAllocator(string);
 
@@ -124,8 +125,8 @@ corresponding C type is union name defaults to YYSTYPE.
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
-        MODI_INSCAN MODI_TASK MODI_DEFAULT
-        IDEN_PLUS IDEN_MINUS IDEN_MUL IDEN_BITAND IDEN_BITOR  IDEN_BITXOR IDEN_LOGAND IDEN_LOGOR
+        MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
+        IDENTIFIER_PLUS IDENTIFIER_MINUS IDENTIFIER_MUL IDENTIFIER_BITAND IDENTIFIER_BITOR IDENTIFIER_BITXOR IDENTIFIER_LOGAND IDENTIFIER_LOGOR IDENTIFIER_MAX IDENTIFIER_MIN
         ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
 		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC USER_DEFINED_MEM_ALLOC
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
@@ -196,7 +197,7 @@ proc_bind_clause : PROC_BIND {
                         CurrentClause = new OpenMPClause(OMPC_proc_bind);
                         CurrentDirective->addClause(CurrentClause);
 						CurrentClause->setLabel("PROC_BIND");
-                      } '(' clause_attribute ')'
+                      } '(' clause_parameter ')'
                     ;
 
 /*  follow the order in the 4.5 specification  */ 
@@ -213,13 +214,12 @@ parallel_clause : if_clause
                 ;
 
 copyin_clause: COPYIN {
-                            CurrentClause = new OpenMPClause(OMPC_copyin);
-                            CurrentDirective->addClause(CurrentClause);
-							CurrentClause->setLabel("COPYIN");
-                            } '(' var_list ')' {
-                            }
-                          ;
-
+				CurrentClause = new OpenMPClause(OMPC_copyin);
+				CurrentDirective->addClause(CurrentClause);
+				CurrentClause->setLabel("COPYIN");
+				} '(' var_list ')' {
+				}
+			  ;
 
 for_directive : /* #pragma */ OMP FOR { 
                   // ompattribute = buildOmpAttribute(e_for,gNode,true); 
@@ -461,23 +461,23 @@ allocate_clause : ALLOCATE {
                     CurrentClause = new OpenMPClause(OMPC_allocate);
                     CurrentDirective->addClause(CurrentClause);
 					CurrentClause->setLabel("ALLOCATE");
-                    } special_clause_parameter
+                  } allocator_attributes
                 ;
 
-special_clause_parameter : '(' var_list ')'
-                        | '(' allocator_param ':' var_list ')'
+allocator_attributes : '(' var_list ')'
+                        | '(' allocator_parameter ':' var_list ')'
                         ;
-// ALLOCATOR { printf("omp_init_allocator() allocator found.\n\n"); }
-allocator_param : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_default_mem_alloc); }
-				  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_large_cap_mem_alloc); }
-				  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_const_mem_alloc); }
-				  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_high_bw_mem_alloc); }
-				  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_low_lat_mem_alloc); }
-				  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_cgroup_mem_alloc); }
-				  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_pteam_mem_alloc); }
-				  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_thread_mem_alloc); }
-				  | USER_DEFINED_MEM_ALLOC 	{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_omp_user_defined_mem_alloc); }
-				;
+
+allocator_parameter : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_default_storage); }
+					  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_large_capacity); }
+					  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_constant_memory); }
+					  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_high_bandwidth); }
+					  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_low_latency); }	
+					  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_group_access); }	
+					  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_team_access); }
+					  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_thread_access); }	
+					  | USER_DEFINED_MEM_ALLOC 	{ cout << "User-defined allocator found." << endl; } // CurrentClause->setAllocatorValue(OMPC_ALLOCATE_user_defined)
+					;
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -540,7 +540,7 @@ parallel_sections_clause : copyin_clause
 master_directive : /* #pragma */ OMP MASTER { 
                      // ompattribute = buildOmpAttribute(e_master, gNode, true);
                      // cur_omp_directive = e_master; 
-}
+					}
                  ;
 
 critical_directive : /* #pragma */ OMP CRITICAL {
@@ -565,7 +565,7 @@ region_phrase : '(' ID_EXPRESSION ')' {
 barrier_directive : /* #pragma */ OMP BARRIER { 
                       // ompattribute = buildOmpAttribute(e_barrier,gNode, true); 
                       // cur_omp_directive = e_barrier;
-}
+					}
                   ;
 
 taskwait_directive : /* #pragma */ OMP TASKWAIT { 
@@ -626,21 +626,20 @@ threadprivate_directive : /* #pragma */ OMP THREADPRIVATE {
                         ;
 
 default_clause : DEFAULT { 
-                        CurrentClause = new OpenMPClause(OMPC_default);
-                        CurrentDirective->addClause(CurrentClause);
-						CurrentClause->setLabel("DEFAULT");
-                      } '(' clause_attribute ')'
-                    ;
+					CurrentClause = new OpenMPClause(OMPC_default);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("DEFAULT");
+				  } '(' clause_parameter ')'
+				;
 
-clause_attribute : ATTR_SHARED { CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_shared); }
-                |  ATTR_NONE { CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_none); }
-                |  ATTR_PARALLEL { CurrentClause->setIfClauseValue(OMPC_IF_parallel); }
-                |  ATTR_MASTER { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_master); }
-                |  ATTR_CLOSE { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_close); }
-                |  ATTR_SPREAD { CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_spread); }
+clause_parameter : ATTR_SHARED 		{ CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_shared); }
+                |  ATTR_NONE 		{ CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_none); }
+                |  ATTR_PARALLEL 	{ CurrentClause->setIfClauseValue(OMPC_IF_parallel); }
+                |  ATTR_MASTER 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_master); }
+                |  ATTR_CLOSE 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_close); }
+                |  ATTR_SPREAD 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_spread); }
                 ;
-				// |  ATTR_SPREAD {std::cout << "This is static attribute: OMPC_PROC_BIND_spread: " << OMPC_PROC_BIND_spread << " \n";}
-                   
+    
 private_clause : PRIVATE {
                             CurrentClause = new OpenMPClause(OMPC_private);
                             CurrentDirective->addClause(CurrentClause);
@@ -664,38 +663,46 @@ lastprivate_clause : LASTPRIVATE {
                               ;
 
 shared_clause : SHARED {
-                            CurrentClause = new OpenMPClause(OMPC_shared);
-                            CurrentDirective->addClause(CurrentClause);
-							CurrentClause->setLabel("SHARED");
-                            } '(' var_list ')'
-                          ;
+					CurrentClause = new OpenMPClause(OMPC_shared);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("SHARED");
+					} '(' var_list ')'
+				  ;
 
 reduction_clause : REDUCTION { 
                         CurrentClause = new OpenMPClause(OMPC_reduction);
                         CurrentDirective->addClause(CurrentClause);
 						CurrentClause->setLabel("REDUCTION");
-                        } '(' pre_parameter ':' var_list ')' {
-                            }
-                      ;
+					} '(' reduction_parameter ':' var_list ')' {
+					}
+					;
 
-pre_parameter : identifier {}
-              | modifier ',' identifier {}
+reduction_parameter : reduction_identifier {}
+              | reduction_modifier ',' reduction_identifier {}
                 ;
 
-modifier : MODI_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_inscan); }
-        | MODI_TASK 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_task); }
-        | MODI_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_default); }
-        ;
+reduction_identifier : reduction_enum_identifier {}
+              | reduction_custom_identifier {  }
+			  ;
+			  
+reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_inscan); }
+					| MODIFIER_TASK 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_task); }
+					| MODIFIER_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_default); }
+					;
 
-identifier : IDEN_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_plus); }
-           | IDEN_MINUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_minus); }
-           | IDEN_MUL		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_mul); }
-           | IDEN_BITAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitand); }
-           | IDEN_BITOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitor); }
-           | IDEN_BITXOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_bitxor); }
-           | IDEN_LOGAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_logand); }
-           | IDEN_LOGOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_reduction_logor); }
-            ;
+reduction_custom_identifier : ID_EXPRESSION {  }; //'(' expression ')'; // EXPR_STRING { cout << "Custom reduction identifier found!" << endl; } ; //CurrentClause->addLangExpr($1); };
+
+reduction_enum_identifier : IDENTIFIER_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
+						   | IDENTIFIER_MINUS	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
+						   | IDENTIFIER_MUL		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_mul); }
+						   | IDENTIFIER_BITAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitand); }
+						   | IDENTIFIER_BITOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitor); }
+						   | IDENTIFIER_BITXOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitxor); }
+						   | IDENTIFIER_LOGAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logand); }
+						   | IDENTIFIER_LOGOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logor); }
+						   | IDENTIFIER_MAX		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_max); }
+						   | IDENTIFIER_MIN		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_min); }
+						;
 
 expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
         | expr_list ',' EXPR_STRING { CurrentClause->addLangExpr($3);}
@@ -791,19 +798,18 @@ end_clause: TARGET_END {
                            // omptype = e_end;
                     }
                     ;
-
-                    
+                   
 if_clause: IF { 
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
 				CurrentClause->setLabel("IF");
-            } clause_with_opt_attribute
+            } if_clause_attribute
          ;
 
 // expr_list also takes a single expression
-clause_with_opt_attribute : '(' expr_list ')' 
-            | '(' clause_attribute ':'  expr_list ')' 
-             ;
+if_clause_attribute : '(' expr_list ')' 
+				| '(' clause_parameter ':'  expr_list ')' 
+				;
 
 num_threads_clause: NUM_THREADS {
                             CurrentClause = new OpenMPClause(OMPC_num_threads);
@@ -1059,14 +1065,16 @@ OpenMPDirective* parseOpenMP(const char* input) {
     
     printf("Start parsing...\n");
     
+	cout << input << endl;
+	
     start_lexer(input);
+	cout << "after lexer" << endl;
     int res = yyparse();
+	cout << "after yyparse" << endl;
     end_lexer();
     
     return CurrentDirective;
 }
-
-static void parseParameter (const char* input) {
     
     // later create a new function to handle special case.
     /*
@@ -1079,6 +1087,9 @@ static void parseParameter (const char* input) {
         return NULL;
     }
     */
+
+/*
+static void parseParameter (const char* input) {
 
     printf("Start splitting raw strings...\n");
 
@@ -1115,13 +1126,13 @@ static void parseExpression(const char* input) {
     CurrentClause->addLangExpr(input);
 }
 
+
 static void parseSpecialClause(const char* input) {
     std::string CurrentString(input);
     int StringLength = CurrentString.size();
     int ColonPosition = CurrentString.find(':');
     std::string SpecialVariable = CurrentString.substr(0, ColonPosition);
-    //CurrentClause->addLangExpr((const char*)SpecialVariable.c_str());
     parseParameter((const char*)SpecialVariable.c_str());
-    //parseParameter((const char*)CurrentString.substr(0, ColonPosition).c_str());
     parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
 }
+*/

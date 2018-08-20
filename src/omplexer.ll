@@ -22,7 +22,7 @@ extern int omp_lex();
 #include <string>
 #include <string.h>
 #include "ompparser.yy.hpp"
-#include <iostream>;
+#include <iostream>
 
 /* Moved from Makefile.am to the source file to work with --with-pch 
 Liao 12/10/2009 */
@@ -177,9 +177,9 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>close     { BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
 <CLAUSE>spread    { BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
 <CLAUSE>parallel  { printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
-<CLAUSE>inscan    { printf("TOKEN inscan in the clause is found. \n"); return MODI_INSCAN; }
-<CLAUSE>task      { printf("TOKEN task in the clause is found. \n"); return MODI_TASK; }
-<CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODI_DEFAULT; }
+<CLAUSE>inscan    { printf("TOKEN inscan in the clause is found. \n"); return MODIFIER_INSCAN; }
+<CLAUSE>task      { printf("TOKEN task in the clause is found. \n"); return MODIFIER_TASK; }
+<CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODIFIER_DEFAULT; }
 <CLAUSE>omp_default_mem_alloc       	{ printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
 <CLAUSE>omp_large_cap_mem_alloc       	{ printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
 <CLAUSE>omp_const_mem_alloc       		{ printf("TOKEN omp_const_mem_alloc in the clause is found. \n"); 		return CONST_MEM_ALLOC; }
@@ -189,14 +189,16 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>omp_pteam_mem_alloc       		{ printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
 <CLAUSE>omp_thread_mem_alloc       		{ printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
 <CLAUSE>omp_user_defined_mem_alloc      { printf("TOKEN omp_user_defined_mem_alloc in the clause is found. \n");return USER_DEFINED_MEM_ALLOC; }
-<CLAUSE>"+"			{ printf("TOKEN + in the clause is found. \n"); return IDEN_PLUS; }
-<CLAUSE>"-"       	{ printf("TOKEN - in the clause is found. \n"); return IDEN_MINUS; }
-<CLAUSE>"*"       	{ printf("TOKEN * in the clause is found. \n"); return IDEN_MUL; }
-<CLAUSE>"&"       	{ printf("TOKEN & in the clause is found. \n"); return IDEN_BITAND; }
-<CLAUSE>"|"			{ printf("TOKEN | in the clause is found. \n"); return IDEN_BITOR; }
-<CLAUSE>"^"       	{ printf("TOKEN ^ in the clause is found. \n"); return IDEN_BITXOR; }
-<CLAUSE>"&&"		{ printf("TOKEN && in the clause is found. \n"); return IDEN_LOGAND; }
-<CLAUSE>"||"		{ printf("TOKEN || in the clause is found. \n"); return IDEN_LOGOR; }
+<CLAUSE>"+"			{ printf("TOKEN + in the clause is found. \n"); return IDENTIFIER_PLUS; }
+<CLAUSE>"-"       	{ printf("TOKEN - in the clause is found. \n"); return IDENTIFIER_MINUS; }
+<CLAUSE>"*"       	{ printf("TOKEN * in the clause is found. \n"); return IDENTIFIER_MUL; }
+<CLAUSE>"&"       	{ printf("TOKEN & in the clause is found. \n"); return IDENTIFIER_BITAND; }
+<CLAUSE>"|"			{ printf("TOKEN | in the clause is found. \n"); return IDENTIFIER_BITOR; }
+<CLAUSE>"^"       	{ printf("TOKEN ^ in the clause is found. \n"); return IDENTIFIER_BITXOR; }
+<CLAUSE>"&&"		{ printf("TOKEN && in the clause is found. \n"); return IDENTIFIER_LOGAND; }
+<CLAUSE>"||"		{ printf("TOKEN || in the clause is found. \n"); return IDENTIFIER_LOGOR; }
+<CLAUSE>"max"		{ printf("TOKEN max in the clause is found. \n"); return IDENTIFIER_MAX; }
+<CLAUSE>"min"		{ printf("TOKEN min in the clause is found. \n"); return IDENTIFIER_MIN; }
 <CLAUSE>","			{ return ','; }
 <CLAUSE>{blank}		{ ; }
 <CLAUSE>":"			{ BEGIN(EXPR); return ':';}

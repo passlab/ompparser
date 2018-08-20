@@ -23,14 +23,20 @@ class OpenMPClause {
 		std::vector<const char*> lang_expr;
 		std::string label;
 
-		// modifiers and identifiers
-		// reduction clause
-		OpenMPReductionClauseKind reductionModifier;	
-		OpenMPReductionClauseKind reductionIdentifier;
+		// first and second parameters e.g. modifiers and identifiers in reduction clause
+		// most of openmp clauses have 2 paramaters
+		//
+		union firstParameter
+		{			
+			OpenMPReductionClauseModifier reductionModifier; 		// reduction
+			OpenMPAllocateClauseKind allocator; 					// Allocate allocator
+		};
 		
-		// Allocate allocator
-		OpenMPAllocateClauseKind allocator; 
-		
+		union secondParameter
+		{
+			OpenMPReductionClauseIdentifier reductionIdentifier; 			// reduction
+		};
+				
 		// clauses that accept predefined values
 		union clauseAttributes
 		{
@@ -40,6 +46,8 @@ class OpenMPClause {
 		};
 		
 		clauseAttributes clauseAttribute;
+		firstParameter first_parameter;
+		secondParameter second_parameter;
 	
     public:
 		OpenMPClause(OpenMPClauseKind k) : kind(k) {};
@@ -61,23 +69,23 @@ class OpenMPClause {
 		//
 		// REDUCTION
 		// set the value for reduction modifier
-		void setReductionClauseModifier(OpenMPReductionClauseKind v) {
-			reductionModifier = v;
+		void setReductionClauseModifier(OpenMPReductionClauseModifier v) {
+			first_parameter.reductionModifier = v;
 		}
 		
 		// get reduction modifier value
-		OpenMPReductionClauseKind getReductionClauseModifier() {
-			return reductionModifier;
+		OpenMPReductionClauseModifier getReductionClauseModifier() {
+			return first_parameter.reductionModifier;
 		}
 		
 		// set the value for reduction identifier
-		void setReductionClauseIdentifier(OpenMPReductionClauseKind v) {
-			reductionIdentifier = v;
+		void setReductionClauseIdentifier(OpenMPReductionClauseIdentifier v) {
+			second_parameter.reductionIdentifier = v;
 		}
 		
 		// get reduction identifier value
-		OpenMPReductionClauseKind getReductionClauseIdentifier() {
-			return reductionIdentifier;
+		OpenMPReductionClauseIdentifier getReductionClauseIdentifier() {
+			return second_parameter.reductionIdentifier;
 		}
 		
 		
@@ -119,12 +127,12 @@ class OpenMPClause {
 		// 	ALLOCATE ALLOCATORS
 		// set the value
 		void setAllocatorValue(OpenMPAllocateClauseKind v) {
-			allocator = v;
+			first_parameter.allocator = v;
 		}
 
 		// get value
 		OpenMPAllocateClauseKind getAllocateClauseValue() {
-			return allocator;
+			return first_parameter.allocator;
 		}
 };
 /*
