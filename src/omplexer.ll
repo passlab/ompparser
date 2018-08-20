@@ -188,7 +188,6 @@ CYCLIC          {return ( CYCLIC ); }
 <CLAUSE>omp_cgroup_mem_alloc       		{ printf("TOKEN omp_cgroup_mem_alloc in the clause is found. \n"); 		return CGROUP_MEM_ALLOC; }
 <CLAUSE>omp_pteam_mem_alloc       		{ printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
 <CLAUSE>omp_thread_mem_alloc       		{ printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
-<CLAUSE>omp_user_defined_mem_alloc      { printf("TOKEN omp_user_defined_mem_alloc in the clause is found. \n");return USER_DEFINED_MEM_ALLOC; }
 <CLAUSE>"+"			{ printf("TOKEN + in the clause is found. \n"); return IDENTIFIER_PLUS; }
 <CLAUSE>"-"       	{ printf("TOKEN - in the clause is found. \n"); return IDENTIFIER_MINUS; }
 <CLAUSE>"*"       	{ printf("TOKEN * in the clause is found. \n"); return IDENTIFIER_MUL; }

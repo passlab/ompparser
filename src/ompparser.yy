@@ -128,11 +128,10 @@ corresponding C type is union name defaults to YYSTYPE.
         MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
         IDENTIFIER_PLUS IDENTIFIER_MINUS IDENTIFIER_MUL IDENTIFIER_BITAND IDENTIFIER_BITOR IDENTIFIER_BITXOR IDENTIFIER_LOGAND IDENTIFIER_LOGOR IDENTIFIER_MAX IDENTIFIER_MIN
         ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
-		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC USER_DEFINED_MEM_ALLOC
+		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING ALLOCATOR
-
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
 %left '+' '-'
@@ -467,17 +466,25 @@ allocate_clause : ALLOCATE {
 allocator_attributes : '(' var_list ')'
                         | '(' allocator_parameter ':' var_list ')'
                         ;
-
-allocator_parameter : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_default_storage); }
-					  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_large_capacity); }
-					  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_constant_memory); }
-					  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_high_bandwidth); }
-					  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_low_latency); }	
-					  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_group_access); }	
-					  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_team_access); }
-					  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_thread_access); }	
-					  | USER_DEFINED_MEM_ALLOC 	{ cout << "User-defined allocator found." << endl; } // CurrentClause->setAllocatorValue(OMPC_ALLOCATE_user_defined)
+						
+allocator_parameter : allocator_enum_parameter {}
+					| allocator_custom_parameter {}
 					;
+
+allocator_custom_parameter : ID_EXPRESSION { 
+								CurrentClause->addLangExpr($1);
+							}
+						  ;
+							
+allocator_enum_parameter : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_default_storage); }
+						  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_large_capacity); }
+						  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_constant_memory); }
+						  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_high_bandwidth); }
+						  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_low_latency); }	
+						  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_group_access); }	
+						  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_team_access); }
+						  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_thread_access); }	
+					  ;
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -690,7 +697,10 @@ reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifie
 					| MODIFIER_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_default); }
 					;
 
-reduction_custom_identifier : ID_EXPRESSION {  }; //'(' expression ')'; // EXPR_STRING { cout << "Custom reduction identifier found!" << endl; } ; //CurrentClause->addLangExpr($1); };
+reduction_custom_identifier : ID_EXPRESSION { 
+								CurrentClause->addLangExpr($1);
+							}
+						  ;
 
 reduction_enum_identifier : IDENTIFIER_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
 						   | IDENTIFIER_MINUS	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
@@ -1068,7 +1078,6 @@ OpenMPDirective* parseOpenMP(const char* input) {
 	cout << input << endl;
 	
     start_lexer(input);
-	cout << "after lexer" << endl;
     int res = yyparse();
 	cout << "after yyparse" << endl;
     end_lexer();
