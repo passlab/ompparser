@@ -43,10 +43,6 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
-//static void parseParameter (const char*);
-//static void parseExpression(const char*); 
-//static void parseSpecialClause(const char*);
-// omp_allocator_t * omp_init_allocator (const omp_memspace_t *memspace, const int ntraits, const omp_alloctrait_t traits[]);
 void CreateAllocator(string);
 
 //The directive/clause that are being parsed
@@ -468,11 +464,11 @@ allocator_attributes : '(' var_list ')'
                         ;
 						
 allocator_parameter : allocator_enum_parameter {}
-					| allocator_custom_parameter {}
+					| user_defined_parameter
 					;
 
-allocator_custom_parameter : ID_EXPRESSION { 
-								CurrentClause->addLangExpr($1);
+user_defined_parameter : EXPR_STRING { 
+							CurrentClause->addLangExpr($1);
 							}
 						  ;
 							
@@ -484,7 +480,7 @@ allocator_enum_parameter : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValu
 						  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_group_access); }	
 						  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_team_access); }
 						  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_thread_access); }	
-					  ;
+						;
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -685,22 +681,17 @@ reduction_clause : REDUCTION {
 					;
 
 reduction_parameter : reduction_identifier {}
-              | reduction_modifier ',' reduction_identifier {}
-                ;
+					| reduction_modifier ',' reduction_identifier {}
+					;
 
-reduction_identifier : reduction_enum_identifier {}
-              | reduction_custom_identifier {  }
-			  ;
+reduction_identifier : reduction_enum_identifier {	}
+					| user_defined_parameter
+				  ;
 			  
 reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_inscan); }
 					| MODIFIER_TASK 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_task); }
 					| MODIFIER_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_default); }
 					;
-
-reduction_custom_identifier : ID_EXPRESSION { 
-								CurrentClause->addLangExpr($1);
-							}
-						  ;
 
 reduction_enum_identifier : IDENTIFIER_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
 						   | IDENTIFIER_MINUS	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
@@ -1032,28 +1023,6 @@ dimension_field: '[' expression { /* lower_exp = current_exp; */}
                       } 
                   ']'
                ;
-/* commenting out experimental stuff
-Optional data distribution clause: dist_data(dim1_policy, dim2_policy, dim3_policy)
-mixed keyword or variable parsing is tricky TODO 
-one or more dimensions, each has a policy
-reset current_exp to avoid leaving stale values
-Optional (exp) for some policy                   
-id_expression_opt_dimension: ID_EXPRESSION { if (!addVar((const char*)$1)) YYABORT; } dimension_field_optseq id_expression_opt_dist_data
-                           ;
-id_expression_opt_dist_data: empty 
-                           | DIST_DATA '(' dist_policy_seq ')'
-                           ;
-dist_policy_seq: dist_policy_per_dim
-               | dist_policy_seq ',' dist_policy_per_dim
-               ;
-dist_policy_per_dim: DUPLICATE  { ompattribute->appendDistDataPolicy(array_symbol, e_duplicate, NULL); }
-                   | BLOCK dist_size_opt { ompattribute->appendDistDataPolicy(array_symbol, e_block, current_exp );  current_exp = NULL;}
-                   | CYCLIC dist_size_opt { ompattribute->appendDistDataPolicy(array_symbol, e_cyclic, current_exp ); current_exp = NULL;}
-                   ;
-dist_size_opt: empty {current_exp = NULL;}
-             | '(' expression ')'
-             ;
-*/
 
 %%
 int yyerror(const char *s) {
@@ -1065,11 +1034,6 @@ int yyerror(const char *s) {
     return 0; // we want to the program to stop on error
 }
 
-/* OmpAttribute* getParsedDirective() {
-    return ompattribute;
-}
-*/
-
 // Standalone ompparser
 OpenMPDirective* parseOpenMP(const char* input) {
     
@@ -1079,69 +1043,7 @@ OpenMPDirective* parseOpenMP(const char* input) {
 	
     start_lexer(input);
     int res = yyparse();
-	cout << "after yyparse" << endl;
     end_lexer();
     
     return CurrentDirective;
 }
-    
-    // later create a new function to handle special case.
-    /*
-    if (strcmp(input, "shared") == 0) {
-        addClause("shared", curClause);
-        return NULL;
-    }
-    else if (strcmp(input, "none") == 0) {
-        addClause("none", curClause);
-        return NULL;
-    }
-    */
-
-/*
-static void parseParameter (const char* input) {
-
-    printf("Start splitting raw strings...\n");
-
-    std::string CurrentString(input);
-    std::cout << CurrentString << "\n";
-    std::string* clip = new std::string("");
-    int counter = 0;
-    for (int i = 0; i < CurrentString.size(); i++) {
-        if (CurrentString[i] == '(') {
-            clip->append(1, CurrentString[i]);
-            counter++;
-        }
-        else if (CurrentString[i] == ')') {
-            clip->append(1, CurrentString[i]);
-            counter--;
-        }
-        else if (CurrentString[i] == ',' && counter == 0) {
-            CurrentClause->addLangExpr((const char*)clip->c_str());
-            clip = new std::string("");
-        }
-        else {
-            if (CurrentString[i] != ' ' || counter != 0) {
-                clip->append(1, CurrentString[i]);
-            }
-        }
-    };
-    if (clip->size() != 0) {
-        CurrentClause->addLangExpr((const char*)clip->c_str());
-    };
-}
-
-static void parseExpression(const char* input) {
-
-    CurrentClause->addLangExpr(input);
-}
-
-
-static void parseSpecialClause(const char* input) {
-    std::string CurrentString(input);
-    int StringLength = CurrentString.size();
-    int ColonPosition = CurrentString.find(':');
-    std::string SpecialVariable = CurrentString.substr(0, ColonPosition);
-    parseParameter((const char*)SpecialVariable.c_str());
-    parseParameter((const char*)CurrentString.substr(ColonPosition+1, StringLength).c_str());
-}
-*/

@@ -5,6 +5,8 @@
 %x CLAUSE
 
 %{
+#undef ECHO
+#define ECHO printf ("[%s]\n", yytext)
 
 /* DQ (12/10/2016): This is a technique to suppress warnings in generated code that we want to be an error elsewhere in ROSE. 
    See https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html for more detail.
@@ -65,14 +67,14 @@ newline         [\n]
 comment         [\/\/].*
 
 %%
-omp             { return cond_return ( OMP); }
-parallel        { return cond_return ( PARALLEL); }
-task            { return cond_return ( TASK ); }
-taskwait        { return cond_return ( TASKWAIT ); }
-untied          { return cond_return ( UNTIED );}
-mergeable       { return cond_return ( MERGEABLE );}
-if              { return ( IF); } /*if is a keyword in C/C++, no change to be a variable*/
-num_threads     { /*Can be either a clause name or a variable name */ 
+omp             {ECHO; return cond_return ( OMP); }
+parallel        {ECHO; return cond_return ( PARALLEL); }
+task            {ECHO; return cond_return ( TASK ); }
+taskwait        {ECHO; return cond_return ( TASKWAIT ); }
+untied          {ECHO; return cond_return ( UNTIED );}
+mergeable       {ECHO; return cond_return ( MERGEABLE );}
+if              {ECHO; return ( IF); } /*if is a keyword in C/C++, no change to be a variable*/
+num_threads     {ECHO; /*Can be either a clause name or a variable name */ 
                   return cond_return (NUM_THREADS);
                   /*
                   if (b_within_variable_list)
@@ -84,124 +86,124 @@ num_threads     { /*Can be either a clause name or a variable name */
                     return ( NUM_THREADS); 
                     */
                 } 
-ordered         { return cond_return ( ORDERED  ); }
-schedule        { return cond_return ( SCHEDULE ); }
-static          { return ( STATIC ); }  /*keyword in C/C++ */
-dynamic         { return cond_return ( DYNAMIC ); } 
-guided          { return cond_return ( GUIDED ); }
-runtime         { return cond_return ( RUNTIME ); }
-auto            { return ( AUTO ); } /*keyword in C/C++ ?*/
-sections        { return cond_return  ( SECTIONS ); }
-section         { return cond_return ( SECTION ); }
-single          { return cond_return ( SINGLE ); }
-nowait          { return cond_return ( NOWAIT); }
-for             { return ( FOR ); } /*keyword in C/C++ */
-collapse        { return cond_return ( COLLAPSE ); }
-master          { return cond_return ( MASTER ); }
-critical        { return cond_return ( CRITICAL ); }
-barrier         { return cond_return ( BARRIER ); }
-atomic          { return cond_return ( ATOMIC ); }
-flush           { return cond_return ( FLUSH ); }
-threadprivate   { return cond_return ( THREADPRIVATE ); }
-private         { return cond_return ( PRIVATE ); }
-copyprivate     { return cond_return ( COPYPRIVATE ); }
-firstprivate    { return cond_return ( FIRSTPRIVATE ); }
-lastprivate     { return cond_return ( LASTPRIVATE ); }
-default         { return cond_return ( DEFAULT ); }
-shared          { return cond_return ( SHARED ); } 
-none            { return cond_return ( NONE ); } 
-reduction       { return cond_return ( REDUCTION ); }
-copyin          { return cond_return ( COPYIN ); }
-inbranch        { return cond_return ( INBRANCH ); }
-notinbranch     { return cond_return ( NOTINBRANCH ); }
-proc_bind       { return cond_return ( PROC_BIND); }
-allocate        { return ALLOCATE; }
-close           { return cond_return ( CLOSE ); }
-spread          { return cond_return ( SPREAD ); } /* master should already be recognized */
-depend          { return cond_return ( DEPEND ); } 
-in              { return cond_return ( IN ); } 
-out             { return cond_return ( OUT ); } 
-inout           { return cond_return ( INOUT ); } 
-read            { return cond_return ( READ ); }
-write           { return cond_return ( WRITE ); }
-capture         { return cond_return ( CAPTURE ); }
-target          {return cond_return ( TARGET ); }
-mpi             {return cond_return ( MPI ); } /*Experimental keywords to support scaling up to MPI processes */
-mpi:all         {return cond_return ( MPI_ALL ); }
-mpi:master      {return cond_return ( MPI_MASTER ); }
-begin           {return cond_return ( TARGET_BEGIN ); }
-end             {return cond_return ( TARGET_END ); }
-declare         {return cond_return ( DECLARE ); }
-data            {return cond_return ( DATA ); }
-update          {return cond_return ( UPDATE ); }
-map             {return cond_return ( MAP ); }
-device          {return cond_return ( DEVICE ); }
-alloc           {return cond_return ( ALLOC ); }
-to              {return cond_return ( TO ); /* change the user level keyword to conform to  OpenMP 4.0 */}
-from            {return cond_return ( FROM ); }
-tofrom          {return cond_return ( TOFROM ); }
-simd            {return cond_return ( SIMD ); }
-safelen         {return cond_return ( SAFELEN ); }
-simdlen         {return cond_return ( SIMDLEN ); }
-aligned         {return cond_return ( ALIGNED ); }
-linear          {return cond_return ( LINEAR ); }
-uniform         {return cond_return ( UNIFORM ); }
-final           {return cond_return ( FINAL ); }
-priority        {return cond_return ( PRIORITY); }
-dist_data       {return ( DIST_DATA); } /*Extensions for data distribution clause
+ordered         {ECHO; return cond_return ( ORDERED  ); }
+schedule        {ECHO; return cond_return ( SCHEDULE ); }
+static          {ECHO; return ( STATIC ); }  /*keyword in C/C++ */
+dynamic         {ECHO; return cond_return ( DYNAMIC ); } 
+guided          {ECHO; return cond_return ( GUIDED ); }
+runtime         {ECHO; return cond_return ( RUNTIME ); }
+auto            {ECHO; return ( AUTO ); } /*keyword in C/C++ ?*/
+sections        {ECHO; return cond_return  ( SECTIONS ); }
+section         {ECHO; return cond_return ( SECTION ); }
+single          {ECHO; return cond_return ( SINGLE ); }
+nowait          {ECHO; return cond_return ( NOWAIT); }
+for             {ECHO; return ( FOR ); } /*keyword in C/C++ */
+collapse        {ECHO; return cond_return ( COLLAPSE ); }
+master          {ECHO; return cond_return ( MASTER ); }
+critical        {ECHO; return cond_return ( CRITICAL ); }
+barrier         {ECHO; return cond_return ( BARRIER ); }
+atomic          {ECHO; return cond_return ( ATOMIC ); }
+flush           {ECHO; return cond_return ( FLUSH ); }
+threadprivate   {ECHO; return cond_return ( THREADPRIVATE ); }
+private         {ECHO; return cond_return ( PRIVATE ); }
+copyprivate     {ECHO; return cond_return ( COPYPRIVATE ); }
+firstprivate    {ECHO; return cond_return ( FIRSTPRIVATE ); }
+lastprivate     {ECHO; return cond_return ( LASTPRIVATE ); }
+default         {ECHO; return cond_return ( DEFAULT ); }
+shared          {ECHO; return cond_return ( SHARED ); } 
+none            {ECHO; return cond_return ( NONE ); } 
+reduction       {ECHO; return cond_return ( REDUCTION ); }
+copyin          {ECHO; return cond_return ( COPYIN ); }
+inbranch        {ECHO; return cond_return ( INBRANCH ); }
+notinbranch     {ECHO; return cond_return ( NOTINBRANCH ); }
+proc_bind       {ECHO; return cond_return ( PROC_BIND); }
+allocate        {ECHO; return ALLOCATE; }
+close           {ECHO; return cond_return ( CLOSE ); }
+spread          {ECHO; return cond_return ( SPREAD ); } /* master should already be recognized */
+depend          {ECHO; return cond_return ( DEPEND ); } 
+in              {ECHO; return cond_return ( IN ); } 
+out             {ECHO; return cond_return ( OUT ); } 
+inout           {ECHO; return cond_return ( INOUT ); } 
+read            {ECHO; return cond_return ( READ ); }
+write           {ECHO; return cond_return ( WRITE ); }
+capture         {ECHO; return cond_return ( CAPTURE ); }
+target          {ECHO; return cond_return ( TARGET ); }
+mpi             {ECHO; return cond_return ( MPI ); } /*Experimental keywords to support scaling up to MPI processes */
+mpi:all         {ECHO; return cond_return ( MPI_ALL ); }
+mpi:master      {ECHO; return cond_return ( MPI_MASTER ); }
+begin           {ECHO; return cond_return ( TARGET_BEGIN ); }
+end             {ECHO; return cond_return ( TARGET_END ); }
+declare         {ECHO; return cond_return ( DECLARE ); }
+data            {ECHO; return cond_return ( DATA ); }
+update          {ECHO; return cond_return ( UPDATE ); }
+map             {ECHO; return cond_return ( MAP ); }
+device          {ECHO; return cond_return ( DEVICE ); }
+alloc           {ECHO; return cond_return ( ALLOC ); }
+to              {ECHO; return cond_return ( TO ); /* change the user level keyword to conform to  OpenMP 4.0 */}
+from            {ECHO; return cond_return ( FROM ); }
+tofrom          {ECHO; return cond_return ( TOFROM ); }
+simd            {ECHO; return cond_return ( SIMD ); }
+safelen         {ECHO; return cond_return ( SAFELEN ); }
+simdlen         {ECHO; return cond_return ( SIMDLEN ); }
+aligned         {ECHO; return cond_return ( ALIGNED ); }
+linear          {ECHO; return cond_return ( LINEAR ); }
+uniform         {ECHO; return cond_return ( UNIFORM ); }
+final           {ECHO; return cond_return ( FINAL ); }
+priority        {ECHO; return cond_return ( PRIORITY); }
+dist_data       {ECHO; return ( DIST_DATA); } /*Extensions for data distribution clause
 It is tricky to support mixed variable vs. keyword parsing for dist_data() since it is part of variable list parsing 
 We enforce that users won't use variable names colliding with the keywords (no cond_return() is used)
 TODO: later we can relax this restriction. Fine-grain control of cond_return with new flags.
 */
-block           {return ( BLOCK ); }
-duplicate       {return ( DUPLICATE ); }
-cyclic          {return ( CYCLIC ); }
+block           {ECHO; return ( BLOCK ); }
+duplicate       {ECHO; return ( DUPLICATE ); }
+cyclic          {ECHO; return ( CYCLIC ); }
 
-BLOCK           {return ( BLOCK ); }
-DUPLICATE       {return ( DUPLICATE ); }
-CYCLIC          {return ( CYCLIC ); }
+BLOCK           {ECHO; return ( BLOCK ); }
+DUPLICATE       {ECHO; return ( DUPLICATE ); }
+CYCLIC          {ECHO; return ( CYCLIC ); }
 
-"("             { BEGIN(CLAUSE); return '('; }
-")"             { return ')'; }
-","             { return ','; }
+"("             {ECHO; BEGIN(CLAUSE); return '('; }
+")"             {ECHO; return ')'; }
+","             {ECHO; return ','; }
 
-{comment}       { ; }
+{comment}       {ECHO; ; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
 
-<CLAUSE>shared    { BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
-<CLAUSE>none      { BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
-<CLAUSE>master    { BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
-<CLAUSE>close     { BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
-<CLAUSE>spread    { BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
-<CLAUSE>parallel  { printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
-<CLAUSE>inscan    { printf("TOKEN inscan in the clause is found. \n"); return MODIFIER_INSCAN; }
-<CLAUSE>task      { printf("TOKEN task in the clause is found. \n"); return MODIFIER_TASK; }
-<CLAUSE>default   { printf("TOKEN default in the clause is found. \n"); return MODIFIER_DEFAULT; }
-<CLAUSE>omp_default_mem_alloc       	{ printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
-<CLAUSE>omp_large_cap_mem_alloc       	{ printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
-<CLAUSE>omp_const_mem_alloc       		{ printf("TOKEN omp_const_mem_alloc in the clause is found. \n"); 		return CONST_MEM_ALLOC; }
-<CLAUSE>omp_high_bw_mem_alloc       	{ printf("TOKEN omp_high_bw_mem_alloc in the clause is found. \n"); 	return HIGH_BW_MEM_ALLOC; }
-<CLAUSE>omp_low_lat_mem_alloc       	{ printf("TOKEN omp_low_lat_mem_alloc in the clause is found. \n"); 	return LOW_LAT_MEM_ALLOC; }
-<CLAUSE>omp_cgroup_mem_alloc       		{ printf("TOKEN omp_cgroup_mem_alloc in the clause is found. \n"); 		return CGROUP_MEM_ALLOC; }
-<CLAUSE>omp_pteam_mem_alloc       		{ printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
-<CLAUSE>omp_thread_mem_alloc       		{ printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
-<CLAUSE>"+"			{ printf("TOKEN + in the clause is found. \n"); return IDENTIFIER_PLUS; }
-<CLAUSE>"-"       	{ printf("TOKEN - in the clause is found. \n"); return IDENTIFIER_MINUS; }
-<CLAUSE>"*"       	{ printf("TOKEN * in the clause is found. \n"); return IDENTIFIER_MUL; }
-<CLAUSE>"&"       	{ printf("TOKEN & in the clause is found. \n"); return IDENTIFIER_BITAND; }
-<CLAUSE>"|"			{ printf("TOKEN | in the clause is found. \n"); return IDENTIFIER_BITOR; }
-<CLAUSE>"^"       	{ printf("TOKEN ^ in the clause is found. \n"); return IDENTIFIER_BITXOR; }
-<CLAUSE>"&&"		{ printf("TOKEN && in the clause is found. \n"); return IDENTIFIER_LOGAND; }
-<CLAUSE>"||"		{ printf("TOKEN || in the clause is found. \n"); return IDENTIFIER_LOGOR; }
-<CLAUSE>"max"		{ printf("TOKEN max in the clause is found. \n"); return IDENTIFIER_MAX; }
-<CLAUSE>"min"		{ printf("TOKEN min in the clause is found. \n"); return IDENTIFIER_MIN; }
-<CLAUSE>","			{ return ','; }
-<CLAUSE>{blank}		{ ; }
-<CLAUSE>":"			{ BEGIN(EXPR); return ':';}
-<CLAUSE>.			{ BEGIN(EXPR); CurrentString = yytext[0];}
+<CLAUSE>shared    {ECHO; BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
+<CLAUSE>none      {ECHO; BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
+<CLAUSE>master    {ECHO; BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
+<CLAUSE>close     {ECHO; BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
+<CLAUSE>spread    {ECHO; BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
+<CLAUSE>parallel  {ECHO; printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
+<CLAUSE>omp_default_mem_alloc       	{ECHO; printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
+<CLAUSE>omp_large_cap_mem_alloc       	{ECHO; printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
+<CLAUSE>omp_const_mem_alloc       		{ECHO; printf("TOKEN omp_const_mem_alloc in the clause is found. \n"); 		return CONST_MEM_ALLOC; }
+<CLAUSE>omp_high_bw_mem_alloc       	{ECHO; printf("TOKEN omp_high_bw_mem_alloc in the clause is found. \n"); 	return HIGH_BW_MEM_ALLOC; }
+<CLAUSE>omp_low_lat_mem_alloc       	{ECHO; printf("TOKEN omp_low_lat_mem_alloc in the clause is found. \n"); 	return LOW_LAT_MEM_ALLOC; }
+<CLAUSE>omp_cgroup_mem_alloc       		{ECHO; printf("TOKEN omp_cgroup_mem_alloc in the clause is found. \n"); 		return CGROUP_MEM_ALLOC; }
+<CLAUSE>omp_pteam_mem_alloc       		{ECHO; printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
+<CLAUSE>omp_thread_mem_alloc       		{ECHO; printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
+<CLAUSE>inscan    	{ECHO; printf("TOKEN inscan in the clause is found. \n"); return MODIFIER_INSCAN; }
+<CLAUSE>task      	{ECHO; printf("TOKEN task in the clause is found. \n"); return MODIFIER_TASK; }
+<CLAUSE>default   	{ECHO; printf("TOKEN default in the clause is found. \n"); return MODIFIER_DEFAULT; }
+<CLAUSE>"+"			{ECHO; printf("TOKEN + in the clause is found. \n"); return IDENTIFIER_PLUS; }
+<CLAUSE>"-"       	{ECHO; printf("TOKEN - in the clause is found. \n"); return IDENTIFIER_MINUS; }
+<CLAUSE>"*"       	{ECHO; printf("TOKEN * in the clause is found. \n"); return IDENTIFIER_MUL; }
+<CLAUSE>"&"       	{ECHO; printf("TOKEN & in the clause is found. \n"); return IDENTIFIER_BITAND; }
+<CLAUSE>"|"			{ECHO; printf("TOKEN | in the clause is found. \n"); return IDENTIFIER_BITOR; }
+<CLAUSE>"^"       	{ECHO; printf("TOKEN ^ in the clause is found. \n"); return IDENTIFIER_BITXOR; }
+<CLAUSE>"&&"		{ECHO; printf("TOKEN && in the clause is found. \n"); return IDENTIFIER_LOGAND; }
+<CLAUSE>"||"		{ECHO; printf("TOKEN || in the clause is found. \n"); return IDENTIFIER_LOGOR; }
+<CLAUSE>"max"		{ECHO; printf("TOKEN max in the clause is found. \n"); return IDENTIFIER_MAX; }
+<CLAUSE>"min"		{ECHO; printf("TOKEN min in the clause is found. \n"); return IDENTIFIER_MIN; }
+<CLAUSE>","			{ECHO; return ','; }
+<CLAUSE>{blank}		{ECHO; ; }
+<CLAUSE>":"			{ECHO; BEGIN(EXPR); return ':';}
+<CLAUSE>.			{ECHO; BEGIN(EXPR); CurrentString = yytext[0];}
 
 <EXPR>.     {   CurrentChar = yytext[0];
                 ParenLocalCount = 0;
@@ -270,8 +272,8 @@ CYCLIC          {return ( CYCLIC ); }
                             else if (BracketCount == 0) {
                                 omp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
-                                unput(':');
-                                return ALLOCATOR;
+								unput(':');
+                                return EXPR_STRING;
                             }
                             else {
                                 CurrentString.append(1, CurrentChar);
@@ -287,11 +289,13 @@ CYCLIC          {return ( CYCLIC ); }
                 }
             }
 
-expr            { return (EXPRESSION); }
-identifier      { return (IDENTIFIER); /*not in use for now*/ }
+expr            {ECHO; return (EXPRESSION); }
+identifier      {ECHO; return (IDENTIFIER); /*not in use for now*/ }
 
 {blank}*        ;
-.               { return (LEXICALERROR);}
+.               {ECHO; return (LEXICALERROR);}
+
+\n|.       		{ECHO; printf(" unexpected\n");}
 
 %%
 

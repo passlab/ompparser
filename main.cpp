@@ -37,7 +37,7 @@ int main( int argc, const char* argv[] )
 	// const omp_allocator_t *allocator;
     // const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) num_threads(2) firstprivate (foo(x), y), shared (a, b, c[1:10]), copyin (a[foo(goo(x)):20],a,y) default (shared), default (none) if (a) if (parallel : b) proc_bind (master) proc_bind(close) proc_bind(spread) reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
 
-	const char* input = "omp parallel reduction (a : x, y, z)"; // allocate (aa : m, n[1:5])";
+	const char* input = "omp parallel reduction (task, user_defined_value : x, y, z) allocate (user_defined_value : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5])";
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
 	
     OpenMPDirective* openMPAST = parseOpenMP(input);
