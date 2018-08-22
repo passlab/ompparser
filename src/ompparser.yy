@@ -456,19 +456,19 @@ allocate_clause : ALLOCATE {
                     CurrentClause = new OpenMPClause(OMPC_allocate);
                     CurrentDirective->addClause(CurrentClause);
 					CurrentClause->setLabel("ALLOCATE");
-                  } allocator_attributes
+                  } allocate_parameter
                 ;
 
-allocator_attributes : '(' var_list ')'
+allocate_parameter : '(' var_list ')'
                         | '(' allocator_parameter ':' var_list ')'
                         ;
 						
 allocator_parameter : allocator_enum_parameter {}
-					| user_defined_parameter
+					| user_defined_first_parameter
 					;
 
-user_defined_parameter : EXPR_STRING { 
-							CurrentClause->addLangExpr($1);
+user_defined_first_parameter : EXPR_STRING { 
+							CurrentClause->setCustomFirstParameter($1);
 							}
 						  ;
 							
@@ -652,12 +652,12 @@ private_clause : PRIVATE {
                           ;
 
 firstprivate_clause : FIRSTPRIVATE { 
-                            CurrentClause = new OpenMPClause(OMPC_firstprivate);
-                            CurrentDirective->addClause(CurrentClause);
-							CurrentClause->setLabel("FIRSTPRIVATE");
-                            } '(' var_list ')' {
-                            }
-                          ;
+						CurrentClause = new OpenMPClause(OMPC_firstprivate);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("FIRSTPRIVATE");
+						} '(' var_list ')' {
+						}
+					  ;
 
 lastprivate_clause : LASTPRIVATE { 
                                   // ompattribute->addClause(e_lastprivate); 
@@ -685,7 +685,7 @@ reduction_parameter : reduction_identifier {}
 					;
 
 reduction_identifier : reduction_enum_identifier {	}
-					| user_defined_parameter
+					| user_defined_first_parameter
 				  ;
 			  
 reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_inscan); }
@@ -704,7 +704,7 @@ reduction_enum_identifier : IDENTIFIER_PLUS		{ CurrentClause->setReductionClause
 						   | IDENTIFIER_MAX		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_max); }
 						   | IDENTIFIER_MIN		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_min); }
 						;
-
+						
 expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
         | expr_list ',' EXPR_STRING { CurrentClause->addLangExpr($3);}
         ;
@@ -804,11 +804,11 @@ if_clause: IF {
                 CurrentClause = new OpenMPClause(OMPC_if);
                 CurrentDirective->addClause(CurrentClause);
 				CurrentClause->setLabel("IF");
-            } if_clause_attribute
+            } if_clause_parameter
          ;
 
 // expr_list also takes a single expression
-if_clause_attribute : '(' expr_list ')' 
+if_clause_parameter : '(' expr_list ')' 
 				| '(' clause_parameter ':'  expr_list ')' 
 				;
 

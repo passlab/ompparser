@@ -1,5 +1,6 @@
 //
 // Created by Yonghong Yan on 6/15/18.
+// Modified by Chrisogonas
 //
 
 #ifndef OMPPARSER_OPENMPATTRIBUTE_H_H
@@ -21,7 +22,11 @@ class OpenMPClause {
     protected:
 		OpenMPClauseKind kind;
 		std::vector<const char*> lang_expr;
-		std::string label;
+		std::string label; // clause name/label
+		
+		// user-defined parameters
+		std::string customFirstParameter;
+		std::string customSecondParameter;
 
 		// first and second parameters e.g. modifiers and identifiers in reduction clause
 		// most of openmp clauses have 2 paramaters
@@ -30,22 +35,16 @@ class OpenMPClause {
 		{			
 			OpenMPReductionClauseModifier reductionModifier; 		// reduction
 			OpenMPAllocateClauseKind allocator; 					// Allocate allocator
+			OpenMPProcBindClauseKind proc_bindKind;					// proc_bind
+			OpenMPDefaultClauseKind defaultKind;					// default
+			OpenMPIfClauseKind ifKind;								// if
 		};
 		
 		union secondParameter
 		{
-			OpenMPReductionClauseIdentifier reductionIdentifier; 			// reduction
+			OpenMPReductionClauseIdentifier reductionIdentifier;	// reduction
 		};
-				
-		// clauses that accept predefined values
-		union clauseAttributes
-		{
-			OpenMPProcBindClauseKind proc_bindKind;
-			OpenMPDefaultClauseKind defaultKind;	
-			OpenMPIfClauseKind ifKind;
-		};
-		
-		clauseAttributes clauseAttribute;
+
 		firstParameter first_parameter;
 		secondParameter second_parameter;
 	
@@ -62,11 +61,21 @@ class OpenMPClause {
 
 		OpenMPClauseKind getKind() { return kind; }
 		
+		// clause name/label
 		void setLabel(std::string name) { label = name; }
 		std::string getLabel() { return label; }
 		
-		// handling modifier, identifier
+		// handling first and second parameters
 		//
+		// user-defined paramaters
+		// first paramater		
+		void setCustomFirstParameter(std::string value) { customFirstParameter = value; }
+		std::string getCustomFirstParameter() { return customFirstParameter; }
+
+		// second paramater
+		void setCustomSecondParameter(std::string value) { customSecondParameter = value; }
+		std::string getCustomSecondParameter() { return customSecondParameter; }
+		
 		// REDUCTION
 		// set the value for reduction modifier
 		void setReductionClauseModifier(OpenMPReductionClauseModifier v) {
@@ -94,34 +103,34 @@ class OpenMPClause {
 		// PROC_BIND
 		// set the enum value proc_bind e.g. master or close or spread
 		void setProcBindClauseValue(OpenMPProcBindClauseKind v) {
-			clauseAttribute.proc_bindKind = v;
+			first_parameter.proc_bindKind = v;
 		}
 		
 		// get proc_bind value
 		OpenMPProcBindClauseKind getProcBindClauseValue() {
-			return clauseAttribute.proc_bindKind;
+			return first_parameter.proc_bindKind;
 		}
 		
 		// DEFAULT
 		// set the value for default
 		void setDefaultClauseValue(OpenMPDefaultClauseKind v) {
-			clauseAttribute.defaultKind = v;
+			first_parameter.defaultKind = v;
 		}
 
 		// get default value
 		OpenMPDefaultClauseKind getDefaultClauseValue() {
-			return clauseAttribute.defaultKind;
+			return first_parameter.defaultKind;
 		}
 		
 		// 	IF
 		// set the value 
 		void setIfClauseValue(OpenMPIfClauseKind v) {
-			clauseAttribute.ifKind = v;
+			first_parameter.ifKind = v;
 		}
 
 		// get value
 		OpenMPIfClauseKind getIfClauseValue() {
-			return clauseAttribute.ifKind;
+			return first_parameter.ifKind;
 		}
 		
 		// 	ALLOCATE ALLOCATORS
@@ -135,6 +144,62 @@ class OpenMPClause {
 			return first_parameter.allocator;
 		}
 };
+
+class OpenMPDirective {
+
+    protected:
+		OpenMPDirectiveKind kind;
+		std::vector<OpenMPClause*> clauses;
+		std::string label;
+	
+    public:
+		OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
+
+		OpenMPDirectiveKind const getDirectiveKind() { return kind; }
+
+		void setLabel(std::string name) { label = name; }
+		std::string getLabel() { return label; }
+		
+		void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
+
+		OpenMPDirectiveKind getKind() { return kind; }
+
+		std::vector<OpenMPClause*>* getClauses() {
+			return &clauses;
+		}
+
+		/* generate DOT representation of the directive */
+		void generateDOT() {
+
+			std::string filename;
+			filename.append(this->getLabel()).append(".dot");
+			std::cout << "Generating dot file " << filename << std::endl;
+			int i = 0; // for auto-incrementing clauses graph IDs
+
+			// open a file in write mode.
+			ofstream outfile;
+			outfile.open(filename);
+		   
+			// start line to the file 
+			outfile << "digraph G {" << endl;	   
+			
+			if (clauses.size() > 0) {
+				for(auto const& value: clauses) {
+					//outfile << "\t" << kind << " -> " << value->getKind() << ";" << endl;
+					outfile << "\t" << this->label << " -> " << value->getLabel() << "_" << i++ << ";" << endl;
+				}
+			}
+			// close line to the file 
+			outfile << "}" << endl;			
+		
+			// close the opened file.
+			outfile.close();		
+			std::cout << "Generated dot file!\n";
+		}
+};
+
+#endif //OMPPARSER_OPENMPATTRIBUTE_H_H
+
 /*
 // clauses that accept modifier, identifier
 // e.g. reduction clause of parallel directive
@@ -210,58 +275,3 @@ class OpenMPEnumClause : public OpenMPClause {
 	
 };
 */
-
-class OpenMPDirective {
-
-    protected:
-		OpenMPDirectiveKind kind;
-		std::vector<OpenMPClause*> clauses;
-		std::string label;
-	
-    public:
-		OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
-
-		OpenMPDirectiveKind const getDirectiveKind() { return kind; }
-
-		void setLabel(std::string name) { label = name; }
-		std::string getLabel() { return label; }
-		
-		void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
-
-		OpenMPDirectiveKind getKind() { return kind; }
-
-		std::vector<OpenMPClause*>* getClauses() {
-			return &clauses;
-		}
-
-		/* generate DOT representation of the directive */
-		void generateDOT() {
-
-			std::string filename;
-			filename.append(this->getLabel()).append(".dot");
-			std::cout << "Generating dot file " << filename << std::endl;
-			int i = 0; // for auto-incrementing clauses graph IDs
-
-			// open a file in write mode.
-			ofstream outfile;
-			outfile.open(filename);
-		   
-			// start line to the file 
-			outfile << "digraph G {" << endl;	   
-			
-			if (clauses.size() > 0) {
-				for(auto const& value: clauses) {
-					//outfile << "\t" << kind << " -> " << value->getKind() << ";" << endl;
-					outfile << "\t" << this->label << " -> " << value->getLabel() << "_" << i++ << ";" << endl;
-				}
-			}
-			// close line to the file 
-			outfile << "}" << endl;			
-		
-			// close the opened file.
-			outfile.close();		
-			std::cout << "Generated dot file!\n";
-		}
-};
-
-#endif //OMPPARSER_OPENMPATTRIBUTE_H_H
