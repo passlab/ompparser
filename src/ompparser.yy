@@ -44,6 +44,7 @@ extern void omp_lexer_init(const char* str);
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
 void CreateAllocator(string);
+void writeOutput (const char* s);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* CurrentDirective = NULL;
@@ -122,7 +123,7 @@ corresponding C type is union name defaults to YYSTYPE.
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
         ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
         MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
-        IDENTIFIER_PLUS IDENTIFIER_MINUS IDENTIFIER_MUL IDENTIFIER_BITAND IDENTIFIER_BITOR IDENTIFIER_BITXOR IDENTIFIER_LOGAND IDENTIFIER_LOGOR IDENTIFIER_MAX IDENTIFIER_MIN
+        MAX MIN
         ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
 		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
@@ -693,16 +694,16 @@ reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifie
 					| MODIFIER_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_default); }
 					;
 
-reduction_enum_identifier : IDENTIFIER_PLUS		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
-						   | IDENTIFIER_MINUS	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
-						   | IDENTIFIER_MUL		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_mul); }
-						   | IDENTIFIER_BITAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitand); }
-						   | IDENTIFIER_BITOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitor); }
-						   | IDENTIFIER_BITXOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitxor); }
-						   | IDENTIFIER_LOGAND	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logand); }
-						   | IDENTIFIER_LOGOR	{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logor); }
-						   | IDENTIFIER_MAX		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_max); }
-						   | IDENTIFIER_MIN		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_min); }
+reduction_enum_identifier :  '+'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
+						   | '-'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
+						   | '*'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_mul); }
+						   | '&'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitand); }
+						   | '|'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitor); }
+						   | '^'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitxor); }
+						   | LOGAND		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logand); }
+						   | LOGOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logor); }
+						   | MAX		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_max); }
+						   | MIN		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_min); }
 						;
 						
 expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
@@ -1025,25 +1026,79 @@ dimension_field: '[' expression { /* lower_exp = current_exp; */}
                ;
 
 %%
+
+// test results output file
+ofstream outfile;
+string outputFile;
+
 int yyerror(const char *s) {
-    // SgLocatedNode* lnode = isSgLocatedNode(gNode);
-    // assert (lnode);
-    // printf("Error when parsing pragma:\n\t %s \n\t associated with node at line %d\n", orig_str, lnode->get_file_info()->get_line()); 
-    printf(" %s!\n", s);
+    // printf(" %s!\n", s);
+	fprintf(stderr,"error: %s\n",s);
+	writeOutput (s);
     assert(0);
     return 0; // we want to the program to stop on error
 }
+ 
+void writeOutput (const char* s) {
+  if (outfile.is_open())
+  {
+	outfile << "OUTPUT: Fail" << endl;
+    outfile << "\n" << s << "\n";
+    outfile.close();
+  }
+}
 
-// Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input) {
-    
-    printf("Start parsing...\n");
-    
-	cout << input << endl;
+int yywrap()
+{
+	return 1;
+} 
+
+// The directive is simply the lowercase name of the directive under test
+// For single word names e.g. parallel, task, etc., test files are named <directive>.input e.g. parallel.input
+// For multiple word names e.g. parallel for, test file name spaces are replaced with underscores e.g. parallel for test file is parallel_for.input
+// NB: 	all test files have extension .input whereas all output test result files have extension .output e.g. parallel.output
+//		all output files are named automatically by the program based on the directive under test e.g. parallel output is parallel.output
+OpenMPDirective* parseOpenMP(const char* directive) {
+	string line;
+	printf("Start parsing...\n\n");
+	std::string fileName(directive);
+	string inputFile = "../ompparser/tests/" + fileName + ".input";
+	outputFile = "../ompparser/tests/" + fileName + ".output";
 	
-    start_lexer(input);
-    int res = yyparse();
-    end_lexer();
-    
+	outfile.open(outputFile);
+	
+	ifstream myfile (inputFile);
+	
+	if (myfile.is_open())
+	{
+		if (outfile.is_open())
+		{
+			outfile << "TEST RESULTS" << endl;
+			outfile << "==============================" << endl;
+		}		
+		while ( getline (myfile,line) )
+		{
+			cout << "INPUT: " << line << endl;
+			if (outfile.is_open())
+			{
+				outfile << "\nINPUT: " << line << endl;
+			}
+			start_lexer(&line[0]);
+			int res = yyparse();
+			end_lexer();
+			if (outfile.is_open())
+			{
+				outfile << "OUTPUT: Pass" << endl;
+			}			
+		}
+		if (outfile.is_open())
+		{
+			outfile.close();
+		}		
+		myfile.close();
+	} else {
+		cout << "Missing test cases; please ensure you specify correct path to test cases file." << '\n';
+	}
+ 
     return CurrentDirective;
 }

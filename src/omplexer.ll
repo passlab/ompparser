@@ -190,16 +190,16 @@ CYCLIC          {ECHO; return ( CYCLIC ); }
 <CLAUSE>inscan    	{ECHO; printf("TOKEN inscan in the clause is found. \n"); return MODIFIER_INSCAN; }
 <CLAUSE>task      	{ECHO; printf("TOKEN task in the clause is found. \n"); return MODIFIER_TASK; }
 <CLAUSE>default   	{ECHO; printf("TOKEN default in the clause is found. \n"); return MODIFIER_DEFAULT; }
-<CLAUSE>"+"			{ECHO; printf("TOKEN + in the clause is found. \n"); return IDENTIFIER_PLUS; }
-<CLAUSE>"-"       	{ECHO; printf("TOKEN - in the clause is found. \n"); return IDENTIFIER_MINUS; }
-<CLAUSE>"*"       	{ECHO; printf("TOKEN * in the clause is found. \n"); return IDENTIFIER_MUL; }
-<CLAUSE>"&"       	{ECHO; printf("TOKEN & in the clause is found. \n"); return IDENTIFIER_BITAND; }
-<CLAUSE>"|"			{ECHO; printf("TOKEN | in the clause is found. \n"); return IDENTIFIER_BITOR; }
-<CLAUSE>"^"       	{ECHO; printf("TOKEN ^ in the clause is found. \n"); return IDENTIFIER_BITXOR; }
-<CLAUSE>"&&"		{ECHO; printf("TOKEN && in the clause is found. \n"); return IDENTIFIER_LOGAND; }
-<CLAUSE>"||"		{ECHO; printf("TOKEN || in the clause is found. \n"); return IDENTIFIER_LOGOR; }
-<CLAUSE>"max"		{ECHO; printf("TOKEN max in the clause is found. \n"); return IDENTIFIER_MAX; }
-<CLAUSE>"min"		{ECHO; printf("TOKEN min in the clause is found. \n"); return IDENTIFIER_MIN; }
+<CLAUSE>"+"			{ECHO; printf("TOKEN + in the clause is found. \n"); return '+'; }
+<CLAUSE>"-"       	{ECHO; printf("TOKEN - in the clause is found. \n"); return '-'; }
+<CLAUSE>"*"       	{ECHO; printf("TOKEN * in the clause is found. \n"); return '*'; }
+<CLAUSE>"&"       	{ECHO; printf("TOKEN & in the clause is found. \n"); return '&'; }
+<CLAUSE>"|"			{ECHO; printf("TOKEN | in the clause is found. \n"); return '|'; }
+<CLAUSE>"^"       	{ECHO; printf("TOKEN ^ in the clause is found. \n"); return '^'; }
+<CLAUSE>"&&"		{ECHO; printf("TOKEN && in the clause is found. \n"); return LOGAND; }
+<CLAUSE>"||"		{ECHO; printf("TOKEN || in the clause is found. \n"); return LOGOR; }
+<CLAUSE>"max"		{ECHO; printf("TOKEN max in the clause is found. \n"); return MAX; }
+<CLAUSE>"min"		{ECHO; printf("TOKEN min in the clause is found. \n"); return MIN; }
 <CLAUSE>","			{ECHO; return ','; }
 <CLAUSE>{blank}		{ECHO; ; }
 <CLAUSE>":"			{ECHO; BEGIN(EXPR); return ':';}
