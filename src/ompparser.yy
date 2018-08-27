@@ -91,8 +91,6 @@ bool b_within_variable_list  = false;  // a flag to indicate if the program is n
 // 
 static bool arraySection=true; 
 
-
-
 %}
 
 %locations
@@ -111,8 +109,9 @@ corresponding C type is union name defaults to YYSTYPE.
   experimental BEGIN END are defined by default, we use TARGET_BEGIN TARGET_END instead. 
   Liao*/
 %token  OMP PARALLEL IF NUM_THREADS ORDERED SCHEDULE STATIC DYNAMIC GUIDED RUNTIME SECTIONS SINGLE NOWAIT SECTION
+		MONOTONIC NONMONOTONIC
         FOR MASTER CRITICAL BARRIER ATOMIC FLUSH TARGET UPDATE DIST_DATA BLOCK DUPLICATE CYCLIC
-        THREADPRIVATE PRIVATE COPYPRIVATE FIRSTPRIVATE LASTPRIVATE SHARED DEFAULT NONE REDUCTION COPYIN 
+        THREADPRIVATE PRIVATE COPYPRIVATE FIRSTPRIVATE LASTPRIVATE SHARED DEFAULT NONE REDUCTION COPYIN
         TASK TASKWAIT UNTIED COLLAPSE AUTO DECLARE DATA DEVICE MAP ALLOC TO FROM TOFROM PROC_BIND CLOSE SPREAD
         SIMD SAFELEN ALIGNED LINEAR UNIFORM INBRANCH NOTINBRANCH MPI MPI_ALL MPI_MASTER TARGET_BEGIN TARGET_END
         '(' ')' ',' ':' '+' '*' '-' '&' '^' '|' LOGAND LOGOR SHLEFT SHRIGHT PLUSPLUS MINUSMINUS PTR_TO '.'
@@ -126,6 +125,7 @@ corresponding C type is union name defaults to YYSTYPE.
         MAX MIN
         ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
 		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
+		ORDER ATTR_CONCURRENT TRUE FALSE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING ALLOCATOR
@@ -137,7 +137,7 @@ corresponding C type is union name defaults to YYSTYPE.
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
 %type <stype> expression
-%type <itype> schedule_kind
+//%type <itype> schedule_kind
 
 /* start point for the parsing */
 %start openmp_directive
@@ -218,9 +218,8 @@ copyin_clause: COPYIN {
 			  ;
 
 for_directive : /* #pragma */ OMP FOR { 
-                  // ompattribute = buildOmpAttribute(e_for,gNode,true); 
-                  // omptype = e_for; 
-                  // cur_omp_directive=omptype;
+				   CurrentDirective = new OpenMPDirective(OMPD_for);
+				   CurrentDirective->setLabel("FOR");
                 }
                 for_clause_optseq
               ;
@@ -243,7 +242,10 @@ for_clause: private_clause
            | collapse_clause
            | ordered_clause
            | nowait_clause  
+           | allocate_clause
+           | order_clause  
           ; 
+
 
 /* use this for the combined for simd directive */
 for_or_simd_clause : ordered_clause
@@ -257,14 +259,10 @@ for_or_simd_clause : ordered_clause
            | nowait_clause  
           ;
 
-schedule_chunk_opt: /* empty */
-                | ',' expression { 
-                 }
-                ; 
-
 ordered_clause: ORDERED {
-                      // ompattribute->addClause(e_ordered_clause);
-                      // omptype = e_ordered_clause;
+                    CurrentClause = new OpenMPClause(OMPC_ordered);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ORDERED");
                 } ordered_parameter_opt
                ;
 
@@ -273,27 +271,45 @@ ordered_parameter_opt: /* empty */
                    }
                  ;
 
-schedule_clause: SCHEDULE '(' schedule_kind {
-                      // ompattribute->addClause(e_schedule);
-                      // ompattribute->setScheduleKind(static_cast<omp_construct_enum>($3));
-                      // omptype = e_schedule; 
-                    }
-                    schedule_chunk_opt  ')' 
+schedule_clause: SCHEDULE {
+						CurrentClause = new OpenMPClause(OMPC_schedule);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("SCHEDULE");
+                    } schedule_parameter
                  ;
 
-collapse_clause: COLLAPSE {
-                      // ompattribute->addClause(e_collapse);
-                      // omptype = e_collapse;
-                    } '(' expression ')' { 
-                    }
-                  ;
- 
-schedule_kind : STATIC  { /* $$ = e_schedule_static; */ }
-              | DYNAMIC { /* $$ = e_schedule_dynamic; */ }
-              | GUIDED  { /* $$ = e_schedule_guided; */ }
-              | AUTO    { /* $$ = e_schedule_auto; */ }
-              | RUNTIME { /* $$ = e_schedule_runtime; */ }
+schedule_parameter: '(' schedule_kind ')'
+					| '(' schedule_kind ',' schedule_chunk_size ')'
+					| '(' schedule_modifier1 ':' schedule_kind ')'
+					| '(' schedule_modifier1 ':' schedule_kind ',' schedule_chunk_size ')'
+					| '(' schedule_modifier1 ',' schedule_modifier2 ':' schedule_kind ')'
+					| '(' schedule_modifier1 ',' schedule_modifier2 ':' schedule_kind ',' schedule_chunk_size ')'
+                ; 
+
+schedule_chunk_size: expression { };
+
+schedule_modifier1 : MONOTONIC  		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
+					| NONMONOTONIC 		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
+					| SIMD  			{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_simd); }
+
+schedule_modifier2 : MONOTONIC  		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
+					| NONMONOTONIC 		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
+					| SIMD  			{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_simd); }
+					
+schedule_kind : STATIC  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_static); }
+              | DYNAMIC { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_dynamic); }
+              | GUIDED  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_guided); }
+              | AUTO    { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_auto); }
+              | RUNTIME { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_runtime); }
               ;
+
+collapse_clause: COLLAPSE {
+					CurrentClause = new OpenMPClause(OMPC_collapse);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("COLLAPSE");
+				} '(' expression ')' { 
+				}
+			  ;
 
 sections_directive : /* #pragma */ OMP SECTIONS { 
                        // ompattribute = buildOmpAttribute(e_sections,gNode, true); 
@@ -335,8 +351,11 @@ single_clause_seq : single_clause
                   | single_clause_seq single_clause
                   | single_clause_seq ',' single_clause
                   ;
+				  
 nowait_clause: NOWAIT {
-                  // ompattribute->addClause(e_nowait);
+                    CurrentClause = new OpenMPClause(OMPC_nowait);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("NOWAIT");
                 }
               ;
 
@@ -434,7 +453,7 @@ parallel_for_clause_seq : parallel_for_clause
                         ;
 /*
 clause can be any of the clauses accepted by the parallel or for directives, except the
-nowait clause, updated for 4.5.
+nowait clause, updated for 5.0
 */
 parallel_for_clause : if_clause
                     | num_threads_clause
@@ -451,6 +470,7 @@ parallel_for_clause : if_clause
                     | collapse_clause
                     | ordered_clause
                     | allocate_clause
+                    | order_clause
                    ;
 
 allocate_clause : ALLOCATE {
@@ -645,12 +665,12 @@ clause_parameter : ATTR_SHARED 		{ CurrentClause->setDefaultClauseValue(OMPC_DEF
                 ;
     
 private_clause : PRIVATE {
-                            CurrentClause = new OpenMPClause(OMPC_private);
-                            CurrentDirective->addClause(CurrentClause);
-							CurrentClause->setLabel("PRIVATE");
-                            } '(' var_list ')' {
-                            }
-                          ;
+					CurrentClause = new OpenMPClause(OMPC_private);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("PRIVATE");
+					} '(' var_list ')' {
+					}
+				  ;
 
 firstprivate_clause : FIRSTPRIVATE { 
 						CurrentClause = new OpenMPClause(OMPC_firstprivate);
@@ -661,11 +681,30 @@ firstprivate_clause : FIRSTPRIVATE {
 					  ;
 
 lastprivate_clause : LASTPRIVATE { 
-                                  // ompattribute->addClause(e_lastprivate); 
-                                  // omptype = e_lastprivate;
-                                } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
-                              ;
+						CurrentClause = new OpenMPClause(OMPC_lastprivate);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("LASTPRIVATE");
+						} lastprivate_parameter
+					  ;
 
+lastprivate_parameter : '(' var_list ')'
+					| '(' lastprivate_modifier ':' var_list ')'
+					;
+
+lastprivate_modifier : FALSE { CurrentClause->setLastprivateValue(OMPC_LASTPRIVATE_false); }
+					| TRUE { CurrentClause->setLastprivateValue(OMPC_LASTPRIVATE_true); }
+					;
+
+order_clause : ORDER {
+					CurrentClause = new OpenMPClause(OMPC_order);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ORDER");
+					} '(' order_parameter ')' 
+				  ;
+
+order_parameter : ATTR_CONCURRENT	{ CurrentClause->setOrderClauseValue(OMPC_ORDER_concurrent); }
+				;
+				  
 shared_clause : SHARED {
 					CurrentClause = new OpenMPClause(OMPC_shared);
 					CurrentDirective->addClause(CurrentClause);
@@ -968,18 +1007,19 @@ aligned_clause_alignment: ':' expression { }
 
 
 linear_clause :  LINEAR { 
-                         // ompattribute->addClause(e_linear);
-                         // omptype = e_linear; 
-                        }
-                       '(' {b_within_variable_list = true;} variable_list {b_within_variable_list =false;}  linear_clause_step_optseq ')'
+                    CurrentClause = new OpenMPClause(OMPC_linear);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("LINEAR");
+					} linear_parameter
                 ;
 
-linear_clause_step_optseq: /* empty */
-                        | linear_clause_step
-                        ;
+linear_parameter : '(' var_list ')'
+					| '(' var_list ':' linear_step ')'
+					;
 
-linear_clause_step: ':' expression { }
-
+linear_step : expression { }
+			;
+					
 expression : EXPR_STRING
 
 /*  in C

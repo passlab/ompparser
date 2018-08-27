@@ -86,13 +86,9 @@ num_threads     {ECHO; /*Can be either a clause name or a variable name */
                     return ( NUM_THREADS); 
                     */
                 } 
+order         	{ECHO; return cond_return ( ORDER  ); }				
 ordered         {ECHO; return cond_return ( ORDERED  ); }
 schedule        {ECHO; return cond_return ( SCHEDULE ); }
-static          {ECHO; return ( STATIC ); }  /*keyword in C/C++ */
-dynamic         {ECHO; return cond_return ( DYNAMIC ); } 
-guided          {ECHO; return cond_return ( GUIDED ); }
-runtime         {ECHO; return cond_return ( RUNTIME ); }
-auto            {ECHO; return ( AUTO ); } /*keyword in C/C++ ?*/
 sections        {ECHO; return cond_return  ( SECTIONS ); }
 section         {ECHO; return cond_return ( SECTION ); }
 single          {ECHO; return cond_return ( SINGLE ); }
@@ -108,7 +104,7 @@ threadprivate   {ECHO; return cond_return ( THREADPRIVATE ); }
 private         {ECHO; return cond_return ( PRIVATE ); }
 copyprivate     {ECHO; return cond_return ( COPYPRIVATE ); }
 firstprivate    {ECHO; return cond_return ( FIRSTPRIVATE ); }
-lastprivate     {ECHO; return cond_return ( LASTPRIVATE ); }
+lastprivate     {ECHO; return LASTPRIVATE; }
 default         {ECHO; return cond_return ( DEFAULT ); }
 shared          {ECHO; return cond_return ( SHARED ); } 
 none            {ECHO; return cond_return ( NONE ); } 
@@ -143,6 +139,8 @@ to              {ECHO; return cond_return ( TO ); /* change the user level keywo
 from            {ECHO; return cond_return ( FROM ); }
 tofrom          {ECHO; return cond_return ( TOFROM ); }
 simd            {ECHO; return cond_return ( SIMD ); }
+monotonic		{ECHO; return cond_return ( MONOTONIC ); }
+nonmonotonic	{ECHO; return cond_return ( NONMONOTONIC ); }
 safelen         {ECHO; return cond_return ( SAFELEN ); }
 simdlen         {ECHO; return cond_return ( SIMDLEN ); }
 aligned         {ECHO; return cond_return ( ALIGNED ); }
@@ -172,12 +170,17 @@ CYCLIC          {ECHO; return ( CYCLIC ); }
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
-
-<CLAUSE>shared    {ECHO; BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
-<CLAUSE>none      {ECHO; BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
-<CLAUSE>master    {ECHO; BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
-<CLAUSE>close     {ECHO; BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
-<CLAUSE>spread    {ECHO; BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
+<CLAUSE>static    	{ECHO; BEGIN(INITIAL); printf("TOKEN static in the clause is found. \n"); return STATIC; }
+<CLAUSE>dynamic    	{ECHO; BEGIN(INITIAL); printf("TOKEN dynamic in the clause is found. \n"); return DYNAMIC; }
+<CLAUSE>guided    	{ECHO; BEGIN(INITIAL); printf("TOKEN guided in the clause is found. \n"); return GUIDED; }
+<CLAUSE>auto    	{ECHO; BEGIN(INITIAL); printf("TOKEN auto in the clause is found. \n"); return AUTO; }
+<CLAUSE>runtime    	{ECHO; BEGIN(INITIAL); printf("TOKEN runtime in the clause is found. \n"); return RUNTIME; }
+<CLAUSE>shared    	{ECHO; BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
+<CLAUSE>none      	{ECHO; BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
+<CLAUSE>master    	{ECHO; BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
+<CLAUSE>close     	{ECHO; BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
+<CLAUSE>spread    	{ECHO; BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
+<CLAUSE>concurrent  {ECHO; BEGIN(INITIAL); printf("TOKEN concurrent in the clause is found. \n"); return ATTR_CONCURRENT; }
 <CLAUSE>parallel  {ECHO; printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
 <CLAUSE>omp_default_mem_alloc       	{ECHO; printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
 <CLAUSE>omp_large_cap_mem_alloc       	{ECHO; printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
@@ -200,6 +203,8 @@ CYCLIC          {ECHO; return ( CYCLIC ); }
 <CLAUSE>"||"		{ECHO; printf("TOKEN || in the clause is found. \n"); return LOGOR; }
 <CLAUSE>"max"		{ECHO; printf("TOKEN max in the clause is found. \n"); return MAX; }
 <CLAUSE>"min"		{ECHO; printf("TOKEN min in the clause is found. \n"); return MIN; }
+<CLAUSE>"false"			{ECHO; printf("TOKEN 0 in the clause is found. \n"); return FALSE; }
+<CLAUSE>"true"			{ECHO; printf("TOKEN 1 in the clause is found. \n"); return TRUE; }
 <CLAUSE>","			{ECHO; return ','; }
 <CLAUSE>{blank}		{ECHO; ; }
 <CLAUSE>":"			{ECHO; BEGIN(EXPR); return ':';}

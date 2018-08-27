@@ -105,14 +105,23 @@
 #ifndef OPENMP_PROC_BIND_KIND
 #	define OPENMP_PROC_BIND_KIND(Name)
 #endif
+#ifndef OPENMP_ORDER_KIND
+#	define OPENMP_ORDER_KIND(Name)
+#endif
 #ifndef OPENMP_ALLOCATE_KIND
 #	define OPENMP_ALLOCATE_KIND(Name)
+#endif
+#ifndef OPENMP_LASTPRIVATE_KIND
+#	define OPENMP_LASTPRIVATE_KIND(Name)
 #endif
 #ifndef OPENMP_SCHEDULE_KIND
 #	define OPENMP_SCHEDULE_KIND(Name)
 #endif
 #ifndef OPENMP_SCHEDULE_MODIFIER
 #	define OPENMP_SCHEDULE_MODIFIER(Name)
+#endif
+#ifndef OPENMP_SCHEDULE_ENUM_KIND
+#	define OPENMP_SCHEDULE_ENUM_KIND(Name)
 #endif
 #ifndef OPENMP_REDUCTION_KIND
 #	define OPENMP_REDUCTION_KIND(Name)
@@ -259,6 +268,7 @@ OPENMP_CLAUSE(aligned, OMPAlignedClause)
 OPENMP_CLAUSE(copyin,  OMPCopyinClause)
 OPENMP_CLAUSE(copyprivate,  OMPCopyprivateClause)
 OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
+OPENMP_CLAUSE(order, OMPOrderClause)
 OPENMP_CLAUSE(allocate, OMPAllocateClause)
 OPENMP_CLAUSE(schedule, OMPScheduleClause)
 OPENMP_CLAUSE(ordered, OMPOrderedClause)
@@ -324,6 +334,8 @@ OPENMP_FOR_CLAUSE(schedule)
 OPENMP_FOR_CLAUSE(ordered)
 OPENMP_FOR_CLAUSE(nowait)
 OPENMP_FOR_CLAUSE(linear)
+OPENMP_FOR_CLAUSE(allocate)
+OPENMP_FOR_CLAUSE(order)
 
 // Clauses allowed for directive 'omp for simd'.
 OPENMP_FOR_SIMD_CLAUSE(private)
@@ -367,6 +379,9 @@ OPENMP_PROC_BIND_KIND(master)
 OPENMP_PROC_BIND_KIND(close)
 OPENMP_PROC_BIND_KIND(spread)
 
+// Static attributes for 'order' clause.
+OPENMP_ORDER_KIND(concurrent)
+
 // Static attributes for 'allocate' clause - allocator values
 OPENMP_ALLOCATE_KIND(default_storage)		// omp_default_mem_alloc
 OPENMP_ALLOCATE_KIND(large_capacity)		// omp_large_cap_mem_alloc
@@ -378,12 +393,16 @@ OPENMP_ALLOCATE_KIND(team_access)			// omp_pteam_mem_alloc
 OPENMP_ALLOCATE_KIND(thread_access)		// omp_thread_mem_alloc
 //OPENMP_ALLOCATE_KIND(user_defined)	(omp_user_defined_mem_alloc)
 
+// Static attributes for 'lastprivate' clause
+OPENMP_LASTPRIVATE_KIND(false)
+OPENMP_LASTPRIVATE_KIND(true)
+
 // Static attributes for 'schedule' clause.
-OPENMP_SCHEDULE_KIND(static)
-OPENMP_SCHEDULE_KIND(dynamic)
-OPENMP_SCHEDULE_KIND(guided)
-OPENMP_SCHEDULE_KIND(auto)
-OPENMP_SCHEDULE_KIND(runtime)
+OPENMP_SCHEDULE_ENUM_KIND(static)
+OPENMP_SCHEDULE_ENUM_KIND(dynamic)
+OPENMP_SCHEDULE_ENUM_KIND(guided)
+OPENMP_SCHEDULE_ENUM_KIND(auto)
+OPENMP_SCHEDULE_ENUM_KIND(runtime)
 
 // Modifiers for 'schedule' clause.
 OPENMP_SCHEDULE_MODIFIER(monotonic)
@@ -915,9 +934,12 @@ OPENMP_TASKGROUP_CLAUSE(task_reduction)
 #undef OPENMP_LINEAR_KIND
 #undef OPENMP_DEPEND_KIND
 #undef OPENMP_SCHEDULE_MODIFIER
+#undef OPENMP_SCHEDULE_ENUM_KIND
 #undef OPENMP_SCHEDULE_KIND
 #undef OPENMP_PROC_BIND_KIND
+#undef OPENMP_ORDER_KIND
 #undef OPENMP_ALLOCATE_KIND
+#undef OPENMP_LASTPRIVATE_KIND
 #undef OPENMP_DEFAULT_KIND
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT

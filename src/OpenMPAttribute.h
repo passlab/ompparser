@@ -35,18 +35,28 @@ class OpenMPClause {
 		{			
 			OpenMPReductionClauseModifier reductionModifier; 		// reduction
 			OpenMPAllocateClauseKind allocator; 					// Allocate allocator
+			OpenMPLastprivateClauseKind lastPrivate;				// Allocate allocator
 			OpenMPProcBindClauseKind proc_bindKind;					// proc_bind
 			OpenMPDefaultClauseKind defaultKind;					// default
 			OpenMPIfClauseKind ifKind;								// if
+			OpenMPOrderClauseKind orderKind;						// order
+			OpenMPScheduleClauseModifier scheduleModifier;			// schedule 1st modifier e.g. in case of 'for' directive
 		};
 		
 		union secondParameter
 		{
 			OpenMPReductionClauseIdentifier reductionIdentifier;	// reduction
+			OpenMPScheduleClauseModifier scheduleModifier;			// schedule 2nd modifier e.g. in case of 'for' directive
 		};
-
+		
+		union thirdParameter
+		{
+			OpenMPScheduleClauseEnumKind scheduleKind;					// schedule 3rd paramater e.g. in case of 'for' directive
+		};
+		
 		firstParameter first_parameter;
 		secondParameter second_parameter;
+		thirdParameter third_parameter;
 	
     public:
 		OpenMPClause(OpenMPClauseKind k) : kind(k) {};
@@ -110,6 +120,17 @@ class OpenMPClause {
 		OpenMPProcBindClauseKind getProcBindClauseValue() {
 			return first_parameter.proc_bindKind;
 		}
+
+		// ORDER
+		// set the value for order
+		void setOrderClauseValue(OpenMPOrderClauseKind v) {
+			first_parameter.orderKind = v;
+		}
+
+		// get order value
+		OpenMPOrderClauseKind getOrderClauseValue() {
+			return first_parameter.orderKind;
+		}
 		
 		// DEFAULT
 		// set the value for default
@@ -142,6 +163,50 @@ class OpenMPClause {
 		// get value
 		OpenMPAllocateClauseKind getAllocateClauseValue() {
 			return first_parameter.allocator;
+		}
+		
+		// 	LASTPRIVATE
+		// set the value
+		void setLastprivateValue(OpenMPLastprivateClauseKind v) {
+			first_parameter.lastPrivate = v;
+		}
+
+		// get value
+		OpenMPLastprivateClauseKind getLastprivateClauseValue() {
+			return first_parameter.lastPrivate;
+		}
+		
+		// 	SCHEDULE - 1st modifier paramater
+		// set the value
+		void setScheduleFirstModifier(OpenMPScheduleClauseModifier v) {
+			first_parameter.scheduleModifier = v;
+		}
+
+		// get value
+		OpenMPScheduleClauseModifier getScheduleFirstModifier() {
+			return first_parameter.scheduleModifier;
+		}
+		
+		// 	SCHEDULE - 2nd modifier paramater
+		// set the value
+		void setScheduleSecondModifier(OpenMPScheduleClauseModifier v) {
+			second_parameter.scheduleModifier = v;
+		}
+
+		// get value
+		OpenMPScheduleClauseModifier getScheduleSecondModifier() {
+			return second_parameter.scheduleModifier;
+		}
+		
+		// 	SCHEDULE - 3rd paramater (schedule kind)
+		// set the value
+		void setScheduleKindValue(OpenMPScheduleClauseEnumKind v) {
+			third_parameter.scheduleKind = v;
+		}
+
+		// get value
+		OpenMPScheduleClauseEnumKind getScheduleKindValue() {
+			return third_parameter.scheduleKind;
 		}
 };
 
