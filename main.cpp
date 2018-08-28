@@ -45,8 +45,8 @@ int main( int argc, const char* argv[] )
 	
 	// pass the name of the directive for test
 	//const char* input = "parallel"; // ../ompparser/tests/parallel_input.txt
-	//const char* input = "for";
-	const char* input = "parallel_for";
+	const char* input = "for";
+	// const char* input = "parallel_for";
 	
     OpenMPDirective* openMPAST = parseOpenMP(input);
     

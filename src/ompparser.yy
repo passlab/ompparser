@@ -290,17 +290,17 @@ schedule_chunk_size: expression { };
 
 schedule_modifier1 : MONOTONIC  		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
 					| NONMONOTONIC 		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
-					| SIMD  			{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_simd); }
+					| SIMD  			{ printf("AT SIMD...YESSS!!!"); }
 
 schedule_modifier2 : MONOTONIC  		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
 					| NONMONOTONIC 		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
-					| SIMD  			{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_simd); }
+					| SIMD  			{ printf("AT SIMD...YESSS!!!"); } // CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_simd)
 					
 schedule_kind : STATIC  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_static); }
               | DYNAMIC { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_dynamic); }
               | GUIDED  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_guided); }
               | AUTO    { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_auto); }
-              | RUNTIME { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_runtime); }
+              | RUNTIME { printf("AT RUNTIME...YESSS!!!"); } // CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_runtime)
               ;
 
 collapse_clause: COLLAPSE {

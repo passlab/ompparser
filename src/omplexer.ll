@@ -138,9 +138,6 @@ alloc           {ECHO; return cond_return ( ALLOC ); }
 to              {ECHO; return cond_return ( TO ); /* change the user level keyword to conform to  OpenMP 4.0 */}
 from            {ECHO; return cond_return ( FROM ); }
 tofrom          {ECHO; return cond_return ( TOFROM ); }
-simd            {ECHO; return cond_return ( SIMD ); }
-monotonic		{ECHO; return cond_return ( MONOTONIC ); }
-nonmonotonic	{ECHO; return cond_return ( NONMONOTONIC ); }
 safelen         {ECHO; return cond_return ( SAFELEN ); }
 simdlen         {ECHO; return cond_return ( SIMDLEN ); }
 aligned         {ECHO; return cond_return ( ALIGNED ); }
@@ -170,45 +167,48 @@ CYCLIC          {ECHO; return ( CYCLIC ); }
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
-<CLAUSE>static    	{ECHO; BEGIN(INITIAL); printf("TOKEN static in the clause is found. \n"); return STATIC; }
-<CLAUSE>dynamic    	{ECHO; BEGIN(INITIAL); printf("TOKEN dynamic in the clause is found. \n"); return DYNAMIC; }
-<CLAUSE>guided    	{ECHO; BEGIN(INITIAL); printf("TOKEN guided in the clause is found. \n"); return GUIDED; }
-<CLAUSE>auto    	{ECHO; BEGIN(INITIAL); printf("TOKEN auto in the clause is found. \n"); return AUTO; }
-<CLAUSE>runtime    	{ECHO; BEGIN(INITIAL); printf("TOKEN runtime in the clause is found. \n"); return RUNTIME; }
-<CLAUSE>shared    	{ECHO; BEGIN(INITIAL); printf("TOKEN shared in the clause is found. \n"); return ATTR_SHARED; }
-<CLAUSE>none      	{ECHO; BEGIN(INITIAL); printf("TOKEN none in the clause is found. \n"); return ATTR_NONE; }
-<CLAUSE>master    	{ECHO; BEGIN(INITIAL); printf("TOKEN master in the clause is found. \n"); return ATTR_MASTER; }
-<CLAUSE>close     	{ECHO; BEGIN(INITIAL); printf("TOKEN close in the clause is found. \n"); return ATTR_CLOSE; }
-<CLAUSE>spread    	{ECHO; BEGIN(INITIAL); printf("TOKEN spread in the clause is found. \n"); return ATTR_SPREAD; }
-<CLAUSE>concurrent  {ECHO; BEGIN(INITIAL); printf("TOKEN concurrent in the clause is found. \n"); return ATTR_CONCURRENT; }
-<CLAUSE>parallel  {ECHO; printf("TOKEN parallel in the clause is found. \n"); return ATTR_PARALLEL; }
-<CLAUSE>omp_default_mem_alloc       	{ECHO; printf("TOKEN omp_default_mem_alloc in the clause is found. \n"); 	return DEFAULT_MEM_ALLOC; }
-<CLAUSE>omp_large_cap_mem_alloc       	{ECHO; printf("TOKEN omp_large_cap_mem_alloc in the clause is found. \n"); 	return LARGE_CAP_MEM_ALLOC; }
-<CLAUSE>omp_const_mem_alloc       		{ECHO; printf("TOKEN omp_const_mem_alloc in the clause is found. \n"); 		return CONST_MEM_ALLOC; }
-<CLAUSE>omp_high_bw_mem_alloc       	{ECHO; printf("TOKEN omp_high_bw_mem_alloc in the clause is found. \n"); 	return HIGH_BW_MEM_ALLOC; }
-<CLAUSE>omp_low_lat_mem_alloc       	{ECHO; printf("TOKEN omp_low_lat_mem_alloc in the clause is found. \n"); 	return LOW_LAT_MEM_ALLOC; }
-<CLAUSE>omp_cgroup_mem_alloc       		{ECHO; printf("TOKEN omp_cgroup_mem_alloc in the clause is found. \n"); 		return CGROUP_MEM_ALLOC; }
-<CLAUSE>omp_pteam_mem_alloc       		{ECHO; printf("TOKEN omp_pteam_mem_alloc in the clause is found. \n"); 		return PTEAM_MEM_ALLOC; }
-<CLAUSE>omp_thread_mem_alloc       		{ECHO; printf("TOKEN omp_thread_mem_alloc in the clause is found. \n"); 		return THREAD_MEM_ALLOC; }
-<CLAUSE>inscan    	{ECHO; printf("TOKEN inscan in the clause is found. \n"); return MODIFIER_INSCAN; }
-<CLAUSE>task      	{ECHO; printf("TOKEN task in the clause is found. \n"); return MODIFIER_TASK; }
-<CLAUSE>default   	{ECHO; printf("TOKEN default in the clause is found. \n"); return MODIFIER_DEFAULT; }
-<CLAUSE>"+"			{ECHO; printf("TOKEN + in the clause is found. \n"); return '+'; }
-<CLAUSE>"-"       	{ECHO; printf("TOKEN - in the clause is found. \n"); return '-'; }
-<CLAUSE>"*"       	{ECHO; printf("TOKEN * in the clause is found. \n"); return '*'; }
-<CLAUSE>"&"       	{ECHO; printf("TOKEN & in the clause is found. \n"); return '&'; }
-<CLAUSE>"|"			{ECHO; printf("TOKEN | in the clause is found. \n"); return '|'; }
-<CLAUSE>"^"       	{ECHO; printf("TOKEN ^ in the clause is found. \n"); return '^'; }
-<CLAUSE>"&&"		{ECHO; printf("TOKEN && in the clause is found. \n"); return LOGAND; }
-<CLAUSE>"||"		{ECHO; printf("TOKEN || in the clause is found. \n"); return LOGOR; }
-<CLAUSE>"max"		{ECHO; printf("TOKEN max in the clause is found. \n"); return MAX; }
-<CLAUSE>"min"		{ECHO; printf("TOKEN min in the clause is found. \n"); return MIN; }
-<CLAUSE>"false"			{ECHO; printf("TOKEN 0 in the clause is found. \n"); return FALSE; }
-<CLAUSE>"true"			{ECHO; printf("TOKEN 1 in the clause is found. \n"); return TRUE; }
-<CLAUSE>","			{ECHO; return ','; }
-<CLAUSE>{blank}		{ECHO; ; }
-<CLAUSE>":"			{ECHO; BEGIN(EXPR); return ':';}
-<CLAUSE>.			{ECHO; BEGIN(EXPR); CurrentString = yytext[0];}
+<CLAUSE>monotonic   				{ECHO; BEGIN(INITIAL); printf("TOKEN monotonic found. \n"); 	return MONOTONIC; }
+<CLAUSE>nonmonotonic				{ECHO; BEGIN(INITIAL); printf("TOKEN nonmonotonic found. \n"); 	return NONMONOTONIC; }
+<CLAUSE>simd    					{ECHO; BEGIN(INITIAL); printf("TOKEN simd found. \n"); 			return SIMD; }
+<CLAUSE>static    					{ECHO; BEGIN(INITIAL); printf("TOKEN static found. \n"); 		return STATIC; }
+<CLAUSE>dynamic    					{ECHO; BEGIN(INITIAL); printf("TOKEN dynamic found. \n"); 		return DYNAMIC; }
+<CLAUSE>guided    					{ECHO; BEGIN(INITIAL); printf("TOKEN guided found. \n"); 		return GUIDED; }
+<CLAUSE>auto    					{ECHO; BEGIN(INITIAL); printf("TOKEN auto found. \n"); 			return AUTO; }
+<CLAUSE>runtime    					{ECHO; BEGIN(INITIAL); printf("TOKEN runtime found. \n"); 		return RUNTIME; }
+<CLAUSE>shared    					{ECHO; BEGIN(INITIAL); printf("TOKEN shared found. \n"); 		return ATTR_SHARED; }
+<CLAUSE>none      					{ECHO; BEGIN(INITIAL); printf("TOKEN none found. \n"); 			return ATTR_NONE; }
+<CLAUSE>master    					{ECHO; BEGIN(INITIAL); printf("TOKEN master found. \n"); 		return ATTR_MASTER; }
+<CLAUSE>close     					{ECHO; BEGIN(INITIAL); printf("TOKEN close found. \n"); 		return ATTR_CLOSE; }
+<CLAUSE>spread    					{ECHO; BEGIN(INITIAL); printf("TOKEN spread found. \n"); 		return ATTR_SPREAD; }
+<CLAUSE>concurrent  				{ECHO; BEGIN(INITIAL); printf("TOKEN concurrent found. \n"); 	return ATTR_CONCURRENT; }
+<CLAUSE>parallel  					{ECHO; printf("TOKEN parallel found. \n"); 						return ATTR_PARALLEL; }
+<CLAUSE>omp_default_mem_alloc       {ECHO; printf("TOKEN omp_default_mem_alloc found. \n"); 		return DEFAULT_MEM_ALLOC; }
+<CLAUSE>omp_large_cap_mem_alloc    	{ECHO; printf("TOKEN omp_large_cap_mem_alloc found. \n"); 		return LARGE_CAP_MEM_ALLOC; }
+<CLAUSE>omp_const_mem_alloc       	{ECHO; printf("TOKEN omp_const_mem_alloc found. \n"); 			return CONST_MEM_ALLOC; }
+<CLAUSE>omp_high_bw_mem_alloc       {ECHO; printf("TOKEN omp_high_bw_mem_alloc found. \n"); 		return HIGH_BW_MEM_ALLOC; }
+<CLAUSE>omp_low_lat_mem_alloc       {ECHO; printf("TOKEN omp_low_lat_mem_alloc found. \n"); 		return LOW_LAT_MEM_ALLOC; }
+<CLAUSE>omp_cgroup_mem_alloc       	{ECHO; printf("TOKEN omp_cgroup_mem_alloc found. \n"); 			return CGROUP_MEM_ALLOC; }
+<CLAUSE>omp_pteam_mem_alloc       	{ECHO; printf("TOKEN omp_pteam_mem_alloc found. \n"); 			return PTEAM_MEM_ALLOC; }
+<CLAUSE>omp_thread_mem_alloc       	{ECHO; printf("TOKEN omp_thread_mem_alloc found. \n"); 			return THREAD_MEM_ALLOC; }
+<CLAUSE>inscan    					{ECHO; printf("TOKEN inscan found. \n"); 						return MODIFIER_INSCAN; }
+<CLAUSE>task      					{ECHO; printf("TOKEN task found. \n"); 							return MODIFIER_TASK; }
+<CLAUSE>default   					{ECHO; printf("TOKEN default found. \n"); 						return MODIFIER_DEFAULT; }
+<CLAUSE>"+"							{ECHO; printf("TOKEN + found. \n"); 							return '+'; }
+<CLAUSE>"-"       					{ECHO; printf("TOKEN - found. \n"); 							return '-'; }
+<CLAUSE>"*"       					{ECHO; printf("TOKEN * found. \n"); 							return '*'; }
+<CLAUSE>"&"       					{ECHO; printf("TOKEN & found. \n"); 							return '&'; }
+<CLAUSE>"|"							{ECHO; printf("TOKEN | found. \n"); 							return '|'; }
+<CLAUSE>"^"       					{ECHO; printf("TOKEN ^ found. \n"); 							return '^'; }
+<CLAUSE>"&&"						{ECHO; printf("TOKEN && found. \n"); 							return LOGAND; }
+<CLAUSE>"||"						{ECHO; printf("TOKEN || found. \n"); 							return LOGOR; }
+<CLAUSE>"max"						{ECHO; printf("TOKEN max found. \n"); 							return MAX; }
+<CLAUSE>"min"						{ECHO; printf("TOKEN min found. \n"); 							return MIN; }
+<CLAUSE>"false"						{ECHO; printf("TOKEN 0 found. \n"); 							return FALSE; }
+<CLAUSE>"true"						{ECHO; printf("TOKEN 1 found. \n"); 							return TRUE; }
+<CLAUSE>","							{ECHO; return ','; }
+<CLAUSE>{blank}						{ECHO; ; }
+<CLAUSE>":"							{ECHO; BEGIN(EXPR); return ':';}
+<CLAUSE>.							{ECHO; BEGIN(EXPR); CurrentString = yytext[0];}
 
 <EXPR>.     {   CurrentChar = yytext[0];
                 ParenLocalCount = 0;
