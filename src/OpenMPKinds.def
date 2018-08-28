@@ -16,7 +16,7 @@
 #  define OPENMP_DIRECTIVE(Name)
 #endif
 #ifndef OPENMP_DIRECTIVE_EXT
-#define OPENMP_DIRECTIVE_EXT(Name, Str)
+#	define OPENMP_DIRECTIVE_EXT(Name, Str)
 #endif
 #ifndef OPENMP_CLAUSE
 #  define OPENMP_CLAUSE(Name, Class)
@@ -94,31 +94,55 @@
 #  define OPENMP_CRITICAL_CLAUSE(Name)
 #endif
 #ifndef OPENMP_DISTRIBUTE_CLAUSE
-#define OPENMP_DISTRIBUTE_CLAUSE(Name)
+#	define OPENMP_DISTRIBUTE_CLAUSE(Name)
+#endif
+#ifndef OPENMP_IF_KIND
+#  define OPENMP_IF_KIND(Name)
 #endif
 #ifndef OPENMP_DEFAULT_KIND
-#  define OPENMP_DEFAULT_KIND(Name)
+#	define OPENMP_DEFAULT_KIND(Name)
 #endif
 #ifndef OPENMP_PROC_BIND_KIND
-#  define OPENMP_PROC_BIND_KIND(Name)
+#	define OPENMP_PROC_BIND_KIND(Name)
+#endif
+#ifndef OPENMP_ORDER_KIND
+#	define OPENMP_ORDER_KIND(Name)
+#endif
+#ifndef OPENMP_ALLOCATE_KIND
+#	define OPENMP_ALLOCATE_KIND(Name)
+#endif
+#ifndef OPENMP_LASTPRIVATE_KIND
+#	define OPENMP_LASTPRIVATE_KIND(Name)
 #endif
 #ifndef OPENMP_SCHEDULE_KIND
-#define OPENMP_SCHEDULE_KIND(Name)
+#	define OPENMP_SCHEDULE_KIND(Name)
 #endif
 #ifndef OPENMP_SCHEDULE_MODIFIER
-#define OPENMP_SCHEDULE_MODIFIER(Name)
+#	define OPENMP_SCHEDULE_MODIFIER(Name)
+#endif
+#ifndef OPENMP_SCHEDULE_ENUM_KIND
+#	define OPENMP_SCHEDULE_ENUM_KIND(Name)
+#endif
+#ifndef OPENMP_REDUCTION_KIND
+#	define OPENMP_REDUCTION_KIND(Name)
+#endif
+#ifndef OPENMP_REDUCTION_MODIFIER
+#	define OPENMP_REDUCTION_MODIFIER(Name)
+#endif
+#ifndef OPENMP_REDUCTION_IDENTIFIER
+#	define OPENMP_REDUCTION_IDENTIFIER(Name)
 #endif
 #ifndef OPENMP_DEPEND_KIND
-#define OPENMP_DEPEND_KIND(Name)
+#	define OPENMP_DEPEND_KIND(Name)
 #endif
 #ifndef OPENMP_LINEAR_KIND
-#define OPENMP_LINEAR_KIND(Name)
+#	define OPENMP_LINEAR_KIND(Name)
 #endif
 #ifndef OPENMP_MAP_KIND
-#define OPENMP_MAP_KIND(Name)
+#	define OPENMP_MAP_KIND(Name)
 #endif
 #ifndef OPENMP_DIST_SCHEDULE_KIND
-#define OPENMP_DIST_SCHEDULE_KIND(Name)
+#	define OPENMP_DIST_SCHEDULE_KIND(Name)
 #endif
 #ifndef OPENMP_DEFAULTMAP_KIND
 #define OPENMP_DEFAULTMAP_KIND(Name)
@@ -244,6 +268,8 @@ OPENMP_CLAUSE(aligned, OMPAlignedClause)
 OPENMP_CLAUSE(copyin,  OMPCopyinClause)
 OPENMP_CLAUSE(copyprivate,  OMPCopyprivateClause)
 OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
+OPENMP_CLAUSE(order, OMPOrderClause)
+OPENMP_CLAUSE(allocate, OMPAllocateClause)
 OPENMP_CLAUSE(schedule, OMPScheduleClause)
 OPENMP_CLAUSE(ordered, OMPOrderedClause)
 OPENMP_CLAUSE(nowait, OMPNowaitClause)
@@ -286,6 +312,7 @@ OPENMP_PARALLEL_CLAUSE(firstprivate)
 OPENMP_PARALLEL_CLAUSE(shared)
 OPENMP_PARALLEL_CLAUSE(reduction)
 OPENMP_PARALLEL_CLAUSE(copyin)
+OPENMP_PARALLEL_CLAUSE(allocate)
 
 // Clauses allowed for directive 'omp simd'.
 OPENMP_SIMD_CLAUSE(private)
@@ -307,6 +334,8 @@ OPENMP_FOR_CLAUSE(schedule)
 OPENMP_FOR_CLAUSE(ordered)
 OPENMP_FOR_CLAUSE(nowait)
 OPENMP_FOR_CLAUSE(linear)
+OPENMP_FOR_CLAUSE(allocate)
+OPENMP_FOR_CLAUSE(order)
 
 // Clauses allowed for directive 'omp for simd'.
 OPENMP_FOR_SIMD_CLAUSE(private)
@@ -338,6 +367,9 @@ OPENMP_SINGLE_CLAUSE(nowait)
 // Clauses allowed for OpenMP directive 'cancel'.
 OPENMP_CANCEL_CLAUSE(if)
 
+// Static attributes for 'if' clause.
+OPENMP_IF_KIND(parallel)
+
 // Static attributes for 'default' clause.
 OPENMP_DEFAULT_KIND(none)
 OPENMP_DEFAULT_KIND(shared)
@@ -347,12 +379,30 @@ OPENMP_PROC_BIND_KIND(master)
 OPENMP_PROC_BIND_KIND(close)
 OPENMP_PROC_BIND_KIND(spread)
 
+// Static attributes for 'order' clause.
+OPENMP_ORDER_KIND(concurrent)
+
+// Static attributes for 'allocate' clause - allocator values
+OPENMP_ALLOCATE_KIND(default_storage)		// omp_default_mem_alloc
+OPENMP_ALLOCATE_KIND(large_capacity)		// omp_large_cap_mem_alloc
+OPENMP_ALLOCATE_KIND(constant_memory)			// omp_const_mem_alloc
+OPENMP_ALLOCATE_KIND(high_bandwidth)		// omp_high_bw_mem_alloc
+OPENMP_ALLOCATE_KIND(low_latency)		// omp_low_lat_mem_alloc
+OPENMP_ALLOCATE_KIND(group_access)		// omp_cgroup_mem_alloc
+OPENMP_ALLOCATE_KIND(team_access)			// omp_pteam_mem_alloc
+OPENMP_ALLOCATE_KIND(thread_access)		// omp_thread_mem_alloc
+//OPENMP_ALLOCATE_KIND(user_defined)	(omp_user_defined_mem_alloc)
+
+// Static attributes for 'lastprivate' clause
+OPENMP_LASTPRIVATE_KIND(false)
+OPENMP_LASTPRIVATE_KIND(true)
+
 // Static attributes for 'schedule' clause.
-OPENMP_SCHEDULE_KIND(static)
-OPENMP_SCHEDULE_KIND(dynamic)
-OPENMP_SCHEDULE_KIND(guided)
-OPENMP_SCHEDULE_KIND(auto)
-OPENMP_SCHEDULE_KIND(runtime)
+OPENMP_SCHEDULE_ENUM_KIND(static)
+OPENMP_SCHEDULE_ENUM_KIND(dynamic)
+OPENMP_SCHEDULE_ENUM_KIND(guided)
+OPENMP_SCHEDULE_ENUM_KIND(auto)
+OPENMP_SCHEDULE_ENUM_KIND(runtime)
 
 // Modifiers for 'schedule' clause.
 OPENMP_SCHEDULE_MODIFIER(monotonic)
@@ -392,6 +442,7 @@ OPENMP_PARALLEL_FOR_CLAUSE(collapse)
 OPENMP_PARALLEL_FOR_CLAUSE(schedule)
 OPENMP_PARALLEL_FOR_CLAUSE(ordered)
 OPENMP_PARALLEL_FOR_CLAUSE(linear)
+OPENMP_PARALLEL_FOR_CLAUSE(allocate)
 
 // Clauses allowed for OpenMP directive 'parallel for simd'.
 OPENMP_PARALLEL_FOR_SIMD_CLAUSE(if)
@@ -543,6 +594,23 @@ OPENMP_MAP_KIND(tofrom)
 OPENMP_MAP_KIND(delete)
 OPENMP_MAP_KIND(release)
 OPENMP_MAP_KIND(always)
+
+// reduction type modifier for 'reduction' clause.
+OPENMP_REDUCTION_MODIFIER(inscan)
+OPENMP_REDUCTION_MODIFIER(task)
+OPENMP_REDUCTION_MODIFIER(default)
+
+// reduction type identifier for 'reduction' clause. - reduction_plus reduction_minus
+OPENMP_REDUCTION_IDENTIFIER(reduction_plus)
+OPENMP_REDUCTION_IDENTIFIER(reduction_minus)
+OPENMP_REDUCTION_IDENTIFIER(reduction_mul)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitand)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitor)
+OPENMP_REDUCTION_IDENTIFIER(reduction_bitxor)
+OPENMP_REDUCTION_IDENTIFIER(reduction_logand)
+OPENMP_REDUCTION_IDENTIFIER(reduction_logor)
+OPENMP_REDUCTION_IDENTIFIER(reduction_max)
+OPENMP_REDUCTION_IDENTIFIER(reduction_min)
 
 // Clauses allowed for OpenMP directive 'taskloop'.
 OPENMP_TASKLOOP_CLAUSE(if)
@@ -859,14 +927,19 @@ OPENMP_TARGET_TEAMS_DISTRIBUTE_SIMD_CLAUSE(simdlen)
 // Clauses allowed for OpenMP directive 'taskgroup'.
 OPENMP_TASKGROUP_CLAUSE(task_reduction)
 
+#undef OPENMP_IF_KIND
 #undef OPENMP_TASKGROUP_CLAUSE
 #undef OPENMP_TASKLOOP_SIMD_CLAUSE
 #undef OPENMP_TASKLOOP_CLAUSE
 #undef OPENMP_LINEAR_KIND
 #undef OPENMP_DEPEND_KIND
 #undef OPENMP_SCHEDULE_MODIFIER
+#undef OPENMP_SCHEDULE_ENUM_KIND
 #undef OPENMP_SCHEDULE_KIND
 #undef OPENMP_PROC_BIND_KIND
+#undef OPENMP_ORDER_KIND
+#undef OPENMP_ALLOCATE_KIND
+#undef OPENMP_LASTPRIVATE_KIND
 #undef OPENMP_DEFAULT_KIND
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -893,6 +966,9 @@ OPENMP_TASKGROUP_CLAUSE(task_reduction)
 #undef OPENMP_FOR_CLAUSE
 #undef OPENMP_FOR_SIMD_CLAUSE
 #undef OPENMP_MAP_KIND
+#undef OPENMP_REDUCTION_MODIFIER
+#undef OPENMP_REDUCTION_IDENTIFIER
+#undef OPENMP_REDUCTION_KIND
 #undef OPENMP_DISTRIBUTE_CLAUSE
 #undef OPENMP_DIST_SCHEDULE_KIND
 #undef OPENMP_DEFAULTMAP_KIND

@@ -1,0 +1,32 @@
+TEST RESULTS
+==============================
+
+INPUT: omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c)
+OUTPUT: Pass
+
+INPUT: omp parallel num_threads (3*5+4/(7+10)) num_threads(2)
+OUTPUT: Pass
+
+INPUT: omp parallel firstprivate (foo(x), y)
+OUTPUT: Pass
+
+INPUT: omp parallel shared (a, b, c[1:10])
+OUTPUT: Pass
+
+INPUT: omp parallel copyin (a[foo(goo(x)):20],a,y)
+OUTPUT: Pass
+
+INPUT: omp parallel default (shared), default (none)
+OUTPUT: Pass
+
+INPUT: omp parallel if (a) if (parallel : b)
+OUTPUT: Pass
+
+INPUT: omp parallel proc_bind (master) proc_bind(close) proc_bind(spread)
+OUTPUT: Pass
+
+INPUT: omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+OUTPUT: Pass
+
+INPUT: omp parallel allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+OUTPUT: Pass

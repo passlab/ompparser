@@ -3,6 +3,7 @@
 /* Modified by Christian Biesinger 2006 for OpenMP 2.0 */
 /* Modified by Chunhua Liao for OpenMP 3.0 and connect to OmpAttribute, 2008 */
 /* Updated by Chunhua Liao for OpenMP 4.5,  2017 */
+/* Updated by Chrisogonas for OpenMP 5.0, 2018 */
 
 /*
 To debug bison conflicts, use the following command line in the build tree
@@ -42,8 +43,8 @@ extern void omp_lexer_init(const char* str);
 /* Standalone omppartser */
 extern void start_lexer(const char* input);
 extern void end_lexer(void);
-static void parseParameter (const char*);
-static void parseExpression(const char*); 
+void CreateAllocator(string);
+void writeOutput (const char* s);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* CurrentDirective = NULL;
@@ -90,8 +91,6 @@ bool b_within_variable_list  = false;  // a flag to indicate if the program is n
 // 
 static bool arraySection=true; 
 
-
-
 %}
 
 %locations
@@ -110,8 +109,9 @@ corresponding C type is union name defaults to YYSTYPE.
   experimental BEGIN END are defined by default, we use TARGET_BEGIN TARGET_END instead. 
   Liao*/
 %token  OMP PARALLEL IF NUM_THREADS ORDERED SCHEDULE STATIC DYNAMIC GUIDED RUNTIME SECTIONS SINGLE NOWAIT SECTION
+		MONOTONIC NONMONOTONIC
         FOR MASTER CRITICAL BARRIER ATOMIC FLUSH TARGET UPDATE DIST_DATA BLOCK DUPLICATE CYCLIC
-        THREADPRIVATE PRIVATE COPYPRIVATE FIRSTPRIVATE LASTPRIVATE SHARED DEFAULT NONE REDUCTION COPYIN 
+        THREADPRIVATE PRIVATE COPYPRIVATE FIRSTPRIVATE LASTPRIVATE SHARED DEFAULT NONE REDUCTION COPYIN
         TASK TASKWAIT UNTIED COLLAPSE AUTO DECLARE DATA DEVICE MAP ALLOC TO FROM TOFROM PROC_BIND CLOSE SPREAD
         SIMD SAFELEN ALIGNED LINEAR UNIFORM INBRANCH NOTINBRANCH MPI MPI_ALL MPI_MASTER TARGET_BEGIN TARGET_END
         '(' ')' ',' ':' '+' '*' '-' '&' '^' '|' LOGAND LOGOR SHLEFT SHRIGHT PLUSPLUS MINUSMINUS PTR_TO '.'
@@ -120,10 +120,15 @@ corresponding C type is union name defaults to YYSTYPE.
         XOR_ASSIGN2 OR_ASSIGN2 DEPEND IN OUT INOUT MERGEABLE
         LEXICALERROR IDENTIFIER 
         READ WRITE CAPTURE SIMDLEN FINAL PRIORITY
+        ATTR_SHARED ATTR_NONE ATTR_PARALLEL ATTR_MASTER ATTR_CLOSE ATTR_SPREAD
+        MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
+        MAX MIN
+        ALLOCATE DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC 
+		CGROUP_MEM_ALLOC PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
+		ORDER ATTR_CONCURRENT TRUE FALSE
 /*We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */
 %token <itype> ICONSTANT   
-%token <stype> EXPRESSION ID_EXPRESSION RAW_STRING TESTEXPR 
-
+%token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING ALLOCATOR
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
 %left '+' '-'
@@ -131,8 +136,8 @@ corresponding C type is union name defaults to YYSTYPE.
 
 /* nonterminals names, types for semantic values, only for nonterminals representing expressions!! not for clauses with expressions.
  */
-%type <stype> expression clause_parameter
-%type <itype> schedule_kind
+%type <stype> expression
+//%type <itype> schedule_kind
 
 /* start point for the parsing */
 %start openmp_directive
@@ -170,6 +175,7 @@ openmp_directive : parallel_directive
 
 parallel_directive : /* #pragma */ OMP PARALLEL {
                        CurrentDirective = new OpenMPDirective(OMPD_parallel);
+					   CurrentDirective->setLabel("PARALLEL");
                      }
                      parallel_clause_optseq 
                    ;
@@ -183,18 +189,11 @@ parallel_clause_seq : parallel_clause
                     | parallel_clause_seq ',' parallel_clause
                     ;
 
-proc_bind_clause : PROC_BIND '(' MASTER ')' { 
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_master); 
-                      }
-                    | PROC_BIND '(' CLOSE ')' {
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_close); 
-                      }
-                    | PROC_BIND '(' SPREAD ')' {
-                        // ompattribute->addClause(e_proc_bind);
-                        // ompattribute->setProcBindPolicy (e_proc_bind_spread); 
-                      }
+proc_bind_clause : PROC_BIND { 
+                        CurrentClause = new OpenMPClause(OMPC_proc_bind);
+                        CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("PROC_BIND");
+                      } '(' clause_parameter ')'
                     ;
 
 /*  follow the order in the 4.5 specification  */ 
@@ -203,25 +202,24 @@ parallel_clause : if_clause
                 | default_clause
                 | private_clause
                 | firstprivate_clause
-                | share_clause
+                | shared_clause
                 | copyin_clause
                 | reduction_clause
                 | proc_bind_clause
+                | allocate_clause
                 ;
 
 copyin_clause: COPYIN {
-                            CurrentClause = new OpenMPClause(OMPC_copyin);
-                            CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                parseParameter(strdup($3));
-                            }
-                          ;
-
+				CurrentClause = new OpenMPClause(OMPC_copyin);
+				CurrentDirective->addClause(CurrentClause);
+				CurrentClause->setLabel("COPYIN");
+				} '(' var_list ')' {
+				}
+			  ;
 
 for_directive : /* #pragma */ OMP FOR { 
-                  // ompattribute = buildOmpAttribute(e_for,gNode,true); 
-                  // omptype = e_for; 
-                  // cur_omp_directive=omptype;
+				   CurrentDirective = new OpenMPDirective(OMPD_for);
+				   CurrentDirective->setLabel("FOR");
                 }
                 for_clause_optseq
               ;
@@ -244,7 +242,10 @@ for_clause: private_clause
            | collapse_clause
            | ordered_clause
            | nowait_clause  
+           | allocate_clause
+           | order_clause  
           ; 
+
 
 /* use this for the combined for simd directive */
 for_or_simd_clause : ordered_clause
@@ -258,14 +259,10 @@ for_or_simd_clause : ordered_clause
            | nowait_clause  
           ;
 
-schedule_chunk_opt: /* empty */
-                | ',' expression { 
-                 }
-                ; 
-
 ordered_clause: ORDERED {
-                      // ompattribute->addClause(e_ordered_clause);
-                      // omptype = e_ordered_clause;
+                    CurrentClause = new OpenMPClause(OMPC_ordered);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ORDERED");
                 } ordered_parameter_opt
                ;
 
@@ -274,27 +271,45 @@ ordered_parameter_opt: /* empty */
                    }
                  ;
 
-schedule_clause: SCHEDULE '(' schedule_kind {
-                      // ompattribute->addClause(e_schedule);
-                      // ompattribute->setScheduleKind(static_cast<omp_construct_enum>($3));
-                      // omptype = e_schedule; 
-                    }
-                    schedule_chunk_opt  ')' 
+schedule_clause: SCHEDULE {
+						CurrentClause = new OpenMPClause(OMPC_schedule);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("SCHEDULE");
+                    } schedule_parameter
                  ;
 
-collapse_clause: COLLAPSE {
-                      // ompattribute->addClause(e_collapse);
-                      // omptype = e_collapse;
-                    } '(' expression ')' { 
-                    }
-                  ;
- 
-schedule_kind : STATIC  { /* $$ = e_schedule_static; */ }
-              | DYNAMIC { /* $$ = e_schedule_dynamic; */ }
-              | GUIDED  { /* $$ = e_schedule_guided; */ }
-              | AUTO    { /* $$ = e_schedule_auto; */ }
-              | RUNTIME { /* $$ = e_schedule_runtime; */ }
+schedule_parameter: '(' schedule_kind ')'
+					| '(' schedule_kind ',' schedule_chunk_size ')'
+					| '(' schedule_modifier1 ':' schedule_kind ')'
+					| '(' schedule_modifier1 ':' schedule_kind ',' schedule_chunk_size ')'
+					| '(' schedule_modifier1 ',' schedule_modifier2 ':' schedule_kind ')'
+					| '(' schedule_modifier1 ',' schedule_modifier2 ':' schedule_kind ',' schedule_chunk_size ')'
+                ; 
+
+schedule_chunk_size: expression { };
+
+schedule_modifier1 : MONOTONIC  		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
+					| NONMONOTONIC 		{ CurrentClause->setScheduleFirstModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
+					| SIMD  			{ printf("AT SIMD...YESSS!!!"); }
+
+schedule_modifier2 : MONOTONIC  		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_monotonic); }
+					| NONMONOTONIC 		{ CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_nonmonotonic); }
+					| SIMD  			{ printf("AT SIMD...YESSS!!!"); } // CurrentClause->setScheduleSecondModifier(OMPC_SCHEDULE_MODIFIER_simd)
+					
+schedule_kind : STATIC  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_static); }
+              | DYNAMIC { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_dynamic); }
+              | GUIDED  { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_guided); }
+              | AUTO    { CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_auto); }
+              | RUNTIME { printf("AT RUNTIME...YESSS!!!"); } // CurrentClause->setScheduleKindValue(OMPC_SCHEDULE_ENUM_KIND_runtime)
               ;
+
+collapse_clause: COLLAPSE {
+					CurrentClause = new OpenMPClause(OMPC_collapse);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("COLLAPSE");
+				} '(' expression ')' { 
+				}
+			  ;
 
 sections_directive : /* #pragma */ OMP SECTIONS { 
                        // ompattribute = buildOmpAttribute(e_sections,gNode, true); 
@@ -336,8 +351,11 @@ single_clause_seq : single_clause
                   | single_clause_seq single_clause
                   | single_clause_seq ',' single_clause
                   ;
+				  
 nowait_clause: NOWAIT {
-                  // ompattribute->addClause(e_nowait);
+                    CurrentClause = new OpenMPClause(OMPC_nowait);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("NOWAIT");
                 }
               ;
 
@@ -371,7 +389,7 @@ task_clause : unique_task_clause
             | default_clause
             | private_clause
             | firstprivate_clause
-            | share_clause
+            | shared_clause
             | depend_clause
             | if_clause
             ;
@@ -420,6 +438,7 @@ dependence_type : IN {
 
 parallel_for_directive : /* #pragma */ OMP PARALLEL FOR { 
                             CurrentDirective = new OpenMPDirective(OMPD_parallel_for);
+							CurrentDirective->setLabel("PARALLEL_FOR");
                          } parallel_for_clauseoptseq
                        ;
 
@@ -434,14 +453,14 @@ parallel_for_clause_seq : parallel_for_clause
                         ;
 /*
 clause can be any of the clauses accepted by the parallel or for directives, except the
-nowait clause, updated for 4.5.
+nowait clause, updated for 5.0
 */
 parallel_for_clause : if_clause
                     | num_threads_clause
                     | default_clause
                     | private_clause
                     | firstprivate_clause
-                    | share_clause
+                    | shared_clause
                     | copyin_clause
                     | reduction_clause
                     | proc_bind_clause
@@ -450,7 +469,39 @@ parallel_for_clause : if_clause
                     | schedule_clause 
                     | collapse_clause
                     | ordered_clause
+                    | allocate_clause
+                    | order_clause
                    ;
+
+allocate_clause : ALLOCATE {
+                    CurrentClause = new OpenMPClause(OMPC_allocate);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ALLOCATE");
+                  } allocate_parameter
+                ;
+
+allocate_parameter : '(' var_list ')'
+                        | '(' allocator_parameter ':' var_list ')'
+                        ;
+						
+allocator_parameter : allocator_enum_parameter {}
+					| user_defined_first_parameter
+					;
+
+user_defined_first_parameter : EXPR_STRING { 
+							CurrentClause->setCustomFirstParameter($1);
+							}
+						  ;
+							
+allocator_enum_parameter : DEFAULT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_default_storage); }
+						  | LARGE_CAP_MEM_ALLOC		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_large_capacity); }
+						  | CONST_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_constant_memory); }
+						  | HIGH_BW_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_high_bandwidth); }
+						  | LOW_LAT_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_low_latency); }	
+						  | CGROUP_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_group_access); }	
+						  | PTEAM_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_team_access); }
+						  | THREAD_MEM_ALLOC 		{ CurrentClause->setAllocatorValue(OMPC_ALLOCATE_thread_access); }	
+						;
 
 parallel_for_simd_directive : /* #pragma */ OMP PARALLEL FOR SIMD { 
                            // ompattribute = buildOmpAttribute(e_parallel_for_simd, gNode, true); 
@@ -476,7 +527,7 @@ parallel_for_simd_clause: copyin_clause
                     | lastprivate_clause
                     | reduction_clause
                     | collapse_clause
-                    | share_clause
+                    | shared_clause
                     | if_clause
                     | num_threads_clause
                     | proc_bind_clause
@@ -503,7 +554,7 @@ parallel_sections_clause : copyin_clause
                          | private_clause
                          | firstprivate_clause
                          | lastprivate_clause
-                         | share_clause
+                         | shared_clause
                          | reduction_clause
                          | if_clause
                          | num_threads_clause
@@ -513,7 +564,7 @@ parallel_sections_clause : copyin_clause
 master_directive : /* #pragma */ OMP MASTER { 
                      // ompattribute = buildOmpAttribute(e_master, gNode, true);
                      // cur_omp_directive = e_master; 
-}
+					}
                  ;
 
 critical_directive : /* #pragma */ OMP CRITICAL {
@@ -538,7 +589,7 @@ region_phrase : '(' ID_EXPRESSION ')' {
 barrier_directive : /* #pragma */ OMP BARRIER { 
                       // ompattribute = buildOmpAttribute(e_barrier,gNode, true); 
                       // cur_omp_directive = e_barrier;
-}
+					}
                   ;
 
 taskwait_directive : /* #pragma */ OMP TASKWAIT { 
@@ -599,53 +650,109 @@ threadprivate_directive : /* #pragma */ OMP THREADPRIVATE {
                         ;
 
 default_clause : DEFAULT { 
-                        //curClause = addClause("default", curDirective);
-                      } clause_parameter
-                    ;
+					CurrentClause = new OpenMPClause(OMPC_default);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("DEFAULT");
+				  } '(' clause_parameter ')'
+				;
 
-                   
+clause_parameter : ATTR_SHARED 		{ CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_shared); }
+                |  ATTR_NONE 		{ CurrentClause->setDefaultClauseValue(OMPC_DEFAULT_none); }
+                |  ATTR_PARALLEL 	{ CurrentClause->setIfClauseValue(OMPC_IF_parallel); }
+                |  ATTR_MASTER 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_master); }
+                |  ATTR_CLOSE 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_close); }
+                |  ATTR_SPREAD 		{ CurrentClause->setProcBindClauseValue(OMPC_PROC_BIND_spread); }
+                ;
+    
 private_clause : PRIVATE {
-                            CurrentClause = new OpenMPClause(OMPC_private);
-                            CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                parseParameter(strdup($3));
-                            }
-                          ;
+					CurrentClause = new OpenMPClause(OMPC_private);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("PRIVATE");
+					} '(' var_list ')' {
+					}
+				  ;
 
 firstprivate_clause : FIRSTPRIVATE { 
-                            CurrentClause = new OpenMPClause(OMPC_firstprivate);
-                            CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                parseParameter(strdup($3));
-                            }
-                          ;
+						CurrentClause = new OpenMPClause(OMPC_firstprivate);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("FIRSTPRIVATE");
+						} '(' var_list ')' {
+						}
+					  ;
 
 lastprivate_clause : LASTPRIVATE { 
-                                  // ompattribute->addClause(e_lastprivate); 
-                                  // omptype = e_lastprivate;
-                                } '(' {b_within_variable_list = true;} variable_list ')' {b_within_variable_list = false;}
-                              ;
+						CurrentClause = new OpenMPClause(OMPC_lastprivate);
+						CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("LASTPRIVATE");
+						} lastprivate_parameter
+					  ;
 
-share_clause : SHARED {
-                            CurrentClause = new OpenMPClause(OMPC_shared);
-                            CurrentDirective->addClause(CurrentClause);
-                            } clause_parameter {
-                                parseParameter(strdup($3));
-                            }
-                          ;
+lastprivate_parameter : '(' var_list ')'
+					| '(' lastprivate_modifier ':' var_list ')'
+					;
+
+lastprivate_modifier : FALSE { CurrentClause->setLastprivateValue(OMPC_LASTPRIVATE_false); }
+					| TRUE { CurrentClause->setLastprivateValue(OMPC_LASTPRIVATE_true); }
+					;
+
+order_clause : ORDER {
+					CurrentClause = new OpenMPClause(OMPC_order);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("ORDER");
+					} '(' order_parameter ')' 
+				  ;
+
+order_parameter : ATTR_CONCURRENT	{ CurrentClause->setOrderClauseValue(OMPC_ORDER_concurrent); }
+				;
+				  
+shared_clause : SHARED {
+					CurrentClause = new OpenMPClause(OMPC_shared);
+					CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("SHARED");
+					} '(' var_list ')'
+				  ;
 
 reduction_clause : REDUCTION { 
-                        //curClause = addClause("reduction", curDirective);
-                        } clause_parameter
-                      ;
+                        CurrentClause = new OpenMPClause(OMPC_reduction);
+                        CurrentDirective->addClause(CurrentClause);
+						CurrentClause->setLabel("REDUCTION");
+					} '(' reduction_parameter ':' var_list ')' {
+					}
+					;
 
-clause_parameter : RAW_STRING {
-                        ;
-                    }
-                   | TESTEXPR {
-                        $$ = $1;
-                    }
-                        ;
+reduction_parameter : reduction_identifier {}
+					| reduction_modifier ',' reduction_identifier {}
+					;
+
+reduction_identifier : reduction_enum_identifier {	}
+					| user_defined_first_parameter
+				  ;
+			  
+reduction_modifier : MODIFIER_INSCAN 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_inscan); }
+					| MODIFIER_TASK 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_task); }
+					| MODIFIER_DEFAULT 	{ CurrentClause->setReductionClauseModifier(OMPC_REDUCTION_MODIFIER_default); }
+					;
+
+reduction_enum_identifier :  '+'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
+						   | '-'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_minus); }
+						   | '*'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_mul); }
+						   | '&'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitand); }
+						   | '|'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitor); }
+						   | '^'		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_bitxor); }
+						   | LOGAND		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logand); }
+						   | LOGOR		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_logor); }
+						   | MAX		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_max); }
+						   | MIN		{ CurrentClause->setReductionClauseIdentifier(OMPC_REDUCTION_IDENTIFIER_reduction_min); }
+						;
+						
+expr_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
+        | expr_list ',' EXPR_STRING { CurrentClause->addLangExpr($3);}
+        ;
+
+var_list : EXPR_STRING { CurrentClause->addLangExpr($1); }
+        | var_list ',' EXPR_STRING {
+          CurrentClause->addLangExpr($3); }
+        ;
 
 target_data_directive: /* pragma */ OMP TARGET DATA {
                        // ompattribute = buildOmpAttribute(e_target_data, gNode,true);
@@ -732,20 +839,24 @@ end_clause: TARGET_END {
                            // omptype = e_end;
                     }
                     ;
+                   
+if_clause: IF { 
+                CurrentClause = new OpenMPClause(OMPC_if);
+                CurrentDirective->addClause(CurrentClause);
+				CurrentClause->setLabel("IF");
+            } if_clause_parameter
+         ;
 
-                    
-if_clause: IF {
-                           // ompattribute->addClause(e_if);
-                           // omptype = e_if;
-             } '(' expression ')' {
-             }
-             ;
+// expr_list also takes a single expression
+if_clause_parameter : '(' expr_list ')' 
+				| '(' clause_parameter ':'  expr_list ')' 
+				;
 
 num_threads_clause: NUM_THREADS {
                             CurrentClause = new OpenMPClause(OMPC_num_threads);
                             CurrentDirective->addClause(CurrentClause);
-                         } clause_parameter {
-                            parseExpression(strdup($3));
+							CurrentClause->setLabel("NUM_THREADS");
+                         } '(' expr_list ')' {
                          }
                       ;
 map_clause: MAP {
@@ -896,19 +1007,20 @@ aligned_clause_alignment: ':' expression { }
 
 
 linear_clause :  LINEAR { 
-                         // ompattribute->addClause(e_linear);
-                         // omptype = e_linear; 
-                        }
-                       '(' {b_within_variable_list = true;} variable_list {b_within_variable_list =false;}  linear_clause_step_optseq ')'
+                    CurrentClause = new OpenMPClause(OMPC_linear);
+                    CurrentDirective->addClause(CurrentClause);
+					CurrentClause->setLabel("LINEAR");
+					} linear_parameter
                 ;
 
-linear_clause_step_optseq: /* empty */
-                        | linear_clause_step
-                        ;
+linear_parameter : '(' var_list ')'
+					| '(' var_list ':' linear_step ')'
+					;
 
-linear_clause_step: ':' expression { }
-
-expression : RAW_STRING
+linear_step : expression { }
+			;
+					
+expression : EXPR_STRING
 
 /*  in C
 variable-list : identifier
@@ -952,104 +1064,81 @@ dimension_field: '[' expression { /* lower_exp = current_exp; */}
                       } 
                   ']'
                ;
-/* commenting out experimental stuff
-Optional data distribution clause: dist_data(dim1_policy, dim2_policy, dim3_policy)
-mixed keyword or variable parsing is tricky TODO 
-one or more dimensions, each has a policy
-reset current_exp to avoid leaving stale values
-Optional (exp) for some policy                   
-id_expression_opt_dimension: ID_EXPRESSION { if (!addVar((const char*)$1)) YYABORT; } dimension_field_optseq id_expression_opt_dist_data
-                           ;
-id_expression_opt_dist_data: empty 
-                           | DIST_DATA '(' dist_policy_seq ')'
-                           ;
-dist_policy_seq: dist_policy_per_dim
-               | dist_policy_seq ',' dist_policy_per_dim
-               ;
-dist_policy_per_dim: DUPLICATE  { ompattribute->appendDistDataPolicy(array_symbol, e_duplicate, NULL); }
-                   | BLOCK dist_size_opt { ompattribute->appendDistDataPolicy(array_symbol, e_block, current_exp );  current_exp = NULL;}
-                   | CYCLIC dist_size_opt { ompattribute->appendDistDataPolicy(array_symbol, e_cyclic, current_exp ); current_exp = NULL;}
-                   ;
-dist_size_opt: empty {current_exp = NULL;}
-             | '(' expression ')'
-             ;
-*/
 
 %%
+
+// test results output file
+ofstream outfile;
+string outputFile;
+
 int yyerror(const char *s) {
-    // SgLocatedNode* lnode = isSgLocatedNode(gNode);
-    // assert (lnode);
-    // printf("Error when parsing pragma:\n\t %s \n\t associated with node at line %d\n", orig_str, lnode->get_file_info()->get_line()); 
-    printf(" %s!\n", s);
+    // printf(" %s!\n", s);
+	fprintf(stderr,"error: %s\n",s);
+	writeOutput (s);
     assert(0);
     return 0; // we want to the program to stop on error
 }
-
-/* OmpAttribute* getParsedDirective() {
-    return ompattribute;
+ 
+void writeOutput (const char* s) {
+  if (outfile.is_open())
+  {
+	outfile << "OUTPUT: Fail" << endl;
+    outfile << "\n" << s << "\n";
+    outfile.close();
+  }
 }
-*/
 
-// Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input) {
-    
-    printf("Start parsing...\n");
-    
-    start_lexer(input);
-    int res = yyparse();
-    end_lexer();
-    
+int yywrap()
+{
+	return 1;
+} 
+
+// The directive is simply the lowercase name of the directive under test
+// For single word names e.g. parallel, task, etc., test files are named <directive>.input e.g. parallel.input
+// For multiple word names e.g. parallel for, test file name spaces are replaced with underscores e.g. parallel for test file is parallel_for.input
+// NB: 	all test files have extension .input whereas all output test result files have extension .output e.g. parallel.output
+//		all output files are named automatically by the program based on the directive under test e.g. parallel output is parallel.output
+OpenMPDirective* parseOpenMP(const char* directive) {
+	string line;
+	printf("Start parsing...\n\n");
+	std::string fileName(directive);
+	string inputFile = "../ompparser/tests/" + fileName + ".input";
+	outputFile = "../ompparser/tests/" + fileName + ".output";
+	
+	outfile.open(outputFile);
+	
+	ifstream myfile (inputFile);
+	
+	if (myfile.is_open())
+	{
+		if (outfile.is_open())
+		{
+			outfile << "TEST RESULTS" << endl;
+			outfile << "==============================" << endl;
+		}		
+		while ( getline (myfile,line) )
+		{
+			cout << "INPUT: " << line << endl;
+			if (outfile.is_open())
+			{
+				outfile << "\nINPUT: " << line << endl;
+			}
+			start_lexer(&line[0]);
+			int res = yyparse();
+			end_lexer();
+			if (outfile.is_open())
+			{
+				outfile << "OUTPUT: Pass" << endl;
+			}			
+		}
+		if (outfile.is_open())
+		{
+			outfile.close();
+		}		
+		myfile.close();
+	} else {
+		cout << "Missing test cases; please ensure you specify correct path to test cases file." << '\n';
+	}
+ 
     return CurrentDirective;
 }
-
-static void parseParameter (const char* input) {
-    
-    // later create a new function to handle special case.
-    /*
-    if (strcmp(input, "shared") == 0) {
-        addClause("shared", curClause);
-        return NULL;
-    }
-    else if (strcmp(input, "none") == 0) {
-        addClause("none", curClause);
-        return NULL;
-    }
-    */
-
-    printf("Start splitting raw strings...\n");
-
-    std::string CurrentString(input);
-    std::cout << CurrentString << "\n";
-    std::string* clip = new std::string("");
-    int counter = 0;
-    for (int i = 0; i < CurrentString.size(); i++) {
-        if (CurrentString[i] == '(') {
-            clip->append(1, CurrentString[i]);
-            counter++;
-        }
-        else if (CurrentString[i] == ')') {
-            clip->append(1, CurrentString[i]);
-            counter--;
-        }
-        else if (CurrentString[i] == ',' && counter == 0) {
-            CurrentClause->addLangExpr((const char*)clip->c_str());
-            clip = new std::string("");
-        }
-        else {
-            if (CurrentString[i] != ' ' || counter != 0) {
-                clip->append(1, CurrentString[i]);
-            }
-        }
-    };
-    if (clip->size() != 0) {
-        CurrentClause->addLangExpr((const char*)clip->c_str());
-    };
-}
-
-static void parseExpression(const char* input) {
-
-    CurrentClause->addLangExpr(input);
-}
-
-
-

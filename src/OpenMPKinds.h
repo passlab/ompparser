@@ -35,6 +35,14 @@ enum OpenMPClauseKind {
   OMPC_unknown
 };
 
+/// OpenMP attributes for 'if' clause.
+enum OpenMPIfClauseKind {
+#define OPENMP_IF_KIND(Name) \
+  OMPC_IF_##Name,
+#include "OpenMPKinds.def"
+  OMPC_IF_unknown
+};
+
 /// OpenMP attributes for 'default' clause.
 enum OpenMPDefaultClauseKind {
 #define OPENMP_DEFAULT_KIND(Name) \
@@ -51,12 +59,37 @@ enum OpenMPProcBindClauseKind {
   OMPC_PROC_BIND_unknown
 };
 
+/// OpenMP attributes for 'order' clause.
+enum OpenMPOrderClauseKind {
+#define OPENMP_ORDER_KIND(Name) \
+  OMPC_ORDER_##Name,
+#include "OpenMPKinds.def"
+  OMPC_ORDER_unknown
+};
+
+/// OpenMP attributes for 'Allocate' clause.
+enum OpenMPAllocateClauseKind {
+#define OPENMP_ALLOCATE_KIND(Name) \
+  OMPC_ALLOCATE_##Name,
+#include "OpenMPKinds.def"
+  OMPC_ALLOCATE_unknown
+};
+
+/// OpenMP attributes for 'lastprivate' clause.
+enum OpenMPLastprivateClauseKind {
+#define OPENMP_LASTPRIVATE_KIND(Name) \
+  OMPC_LASTPRIVATE_##Name,
+#include "OpenMPKinds.def"
+  OMPC_LASTPRIVATE_unknown
+};
+
 /// OpenMP attributes for 'schedule' clause.
 enum OpenMPScheduleClauseKind {
 #define OPENMP_SCHEDULE_KIND(Name) \
   OMPC_SCHEDULE_##Name,
 #include "OpenMPKinds.def"
-  OMPC_SCHEDULE_unknown
+  OMPC_SCHEDULE_unknown,
+  OMPC_SCHEDULE_kind
 };
 
 /// OpenMP modifiers for 'schedule' clause.
@@ -66,6 +99,42 @@ enum OpenMPScheduleClauseModifier {
   OMPC_SCHEDULE_MODIFIER_##Name,
 #include "OpenMPKinds.def"
   OMPC_SCHEDULE_MODIFIER_last
+};
+
+/// OpenMP kind for 'schedule' clause.
+enum OpenMPScheduleClauseEnumKind {
+  OMPC_SCHEDULE_KIND_unknown = OMPC_SCHEDULE_kind,
+#define OPENMP_SCHEDULE_ENUM_KIND(Name) \
+  OMPC_SCHEDULE_ENUM_KIND_##Name,
+#include "OpenMPKinds.def"
+  OMPC_SCHEDULE_ENUM_KIND_last
+};
+
+/// OpenMP attributes for 'reduction' clause.
+enum OpenMPReductionClauseKind {
+#define OPENMP_REDUCTION_KIND(Name) \
+  OMPC_REDUCTION_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_modifier,
+  OMPC_REDUCTION_identifier
+};
+
+/// OpenMP modifiers for 'reduction' clause.
+enum OpenMPReductionClauseModifier {
+  OMPC_REDUCTION_MODIFIER_unknown = OMPC_REDUCTION_modifier,
+#define OPENMP_REDUCTION_MODIFIER(Name) \
+  OMPC_REDUCTION_MODIFIER_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_MODIFIER_last
+};
+
+/// OpenMP identifiers for 'reduction' clause.
+enum OpenMPReductionClauseIdentifier {
+  OMPC_REDUCTION_IDENTIFIER_unknown = OMPC_REDUCTION_identifier,
+#define OPENMP_REDUCTION_IDENTIFIER(Name) \
+  OMPC_REDUCTION_IDENTIFIER_##Name,
+#include "OpenMPKinds.def"
+  OMPC_REDUCTION_IDENTIFIER_last
 };
 
 /// OpenMP attributes for 'depend' clause.
