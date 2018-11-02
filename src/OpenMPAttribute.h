@@ -9,334 +9,487 @@
 #include <fstream>
 #include <iostream>
 
-#include <OpenMPKinds.h>
+#include "OpenMPKinds.h"
 #include <vector>
 #include <string>
 #include <stdio.h>
 #include <string.h>
+#include <map>
+#include <cassert>
 
 using namespace std;
+/**
+ * The superclass for all the clauses.
+ */
+class OpenMPClause
+{
+  protected:
+	OpenMPClauseKind kind;
+	std::vector<const char *> expressions;
+	std::string label;
 
-class OpenMPClause {
-    
-    protected:
-		OpenMPClauseKind kind;
-		std::vector<const char*> lang_expr;
-		std::string label; // clause name/label
-		
-		// user-defined parameters
-		std::string customFirstParameter;
-		std::string customSecondParameter;
+  public:
+	OpenMPClause(OpenMPClauseKind k) : kind(k){};
+	OpenMPClauseKind getKind();
 
-		// first and second parameters e.g. modifiers and identifiers in reduction clause
-		// most of openmp clauses have 2 paramaters
-		//
-		union firstParameter
-		{			
-			OpenMPReductionClauseModifier reductionModifier; 		// reduction
-			OpenMPAllocateClauseKind allocator; 					// Allocate allocator
-			OpenMPLastprivateClauseKind lastPrivate;				// Allocate allocator
-			OpenMPProcBindClauseKind proc_bindKind;					// proc_bind
-			OpenMPDefaultClauseKind defaultKind;					// default
-			OpenMPIfClauseKind ifKind;								// if
-			OpenMPOrderClauseKind orderKind;						// order
-			OpenMPScheduleClauseModifier scheduleModifier;			// schedule 1st modifier e.g. in case of 'for' directive
-		};
-		
-		union secondParameter
-		{
-			OpenMPReductionClauseIdentifier reductionIdentifier;	// reduction
-			OpenMPScheduleClauseModifier scheduleModifier;			// schedule 2nd modifier e.g. in case of 'for' directive
-		};
-		
-		union thirdParameter
-		{
-			OpenMPScheduleClauseEnumKind scheduleKind;					// schedule 3rd paramater e.g. in case of 'for' directive
-		};
-		
-		firstParameter first_parameter;
-		secondParameter second_parameter;
-		thirdParameter third_parameter;
-	
-    public:
-		OpenMPClause(OpenMPClauseKind k) : kind(k) {};
-		OpenMPClauseKind const getClauseKind() { return kind; }
+	// a list of clause language expressions, variables, etc that are not parsed by the ompparser
+	void addExpression(const char *expression);
+	std::vector<const char *> getExpressions();
 
-		/* a list of language expressions, variables, etc that are not parsed by the ompparser */
-		void addLangExpr(const char * expr) { lang_expr.push_back(expr); }
-		
-		std::vector<const char*>* getExpr() {
-		   return &lang_expr;
-		} 
-
-		OpenMPClauseKind getKind() { return kind; }
-		
-		// clause name/label
-		void setLabel(std::string name) { label = name; }
-		std::string getLabel() { return label; }
-		
-		// handling first and second parameters
-		//
-		// user-defined paramaters
-		// first paramater		
-		void setCustomFirstParameter(std::string value) { customFirstParameter = value; }
-		std::string getCustomFirstParameter() { return customFirstParameter; }
-
-		// second paramater
-		void setCustomSecondParameter(std::string value) { customSecondParameter = value; }
-		std::string getCustomSecondParameter() { return customSecondParameter; }
-		
-		// REDUCTION
-		// set the value for reduction modifier
-		void setReductionClauseModifier(OpenMPReductionClauseModifier v) {
-			first_parameter.reductionModifier = v;
-		}
-		
-		// get reduction modifier value
-		OpenMPReductionClauseModifier getReductionClauseModifier() {
-			return first_parameter.reductionModifier;
-		}
-		
-		// set the value for reduction identifier
-		void setReductionClauseIdentifier(OpenMPReductionClauseIdentifier v) {
-			second_parameter.reductionIdentifier = v;
-		}
-		
-		// get reduction identifier value
-		OpenMPReductionClauseIdentifier getReductionClauseIdentifier() {
-			return second_parameter.reductionIdentifier;
-		}
-		
-		
-		// Handling clauses predefined attributes
-		//
-		// PROC_BIND
-		// set the enum value proc_bind e.g. master or close or spread
-		void setProcBindClauseValue(OpenMPProcBindClauseKind v) {
-			first_parameter.proc_bindKind = v;
-		}
-		
-		// get proc_bind value
-		OpenMPProcBindClauseKind getProcBindClauseValue() {
-			return first_parameter.proc_bindKind;
-		}
-
-		// ORDER
-		// set the value for order
-		void setOrderClauseValue(OpenMPOrderClauseKind v) {
-			first_parameter.orderKind = v;
-		}
-
-		// get order value
-		OpenMPOrderClauseKind getOrderClauseValue() {
-			return first_parameter.orderKind;
-		}
-		
-		// DEFAULT
-		// set the value for default
-		void setDefaultClauseValue(OpenMPDefaultClauseKind v) {
-			first_parameter.defaultKind = v;
-		}
-
-		// get default value
-		OpenMPDefaultClauseKind getDefaultClauseValue() {
-			return first_parameter.defaultKind;
-		}
-		
-		// 	IF
-		// set the value 
-		void setIfClauseValue(OpenMPIfClauseKind v) {
-			first_parameter.ifKind = v;
-		}
-
-		// get value
-		OpenMPIfClauseKind getIfClauseValue() {
-			return first_parameter.ifKind;
-		}
-		
-		// 	ALLOCATE ALLOCATORS
-		// set the value
-		void setAllocatorValue(OpenMPAllocateClauseKind v) {
-			first_parameter.allocator = v;
-		}
-
-		// get value
-		OpenMPAllocateClauseKind getAllocateClauseValue() {
-			return first_parameter.allocator;
-		}
-		
-		// 	LASTPRIVATE
-		// set the value
-		void setLastprivateValue(OpenMPLastprivateClauseKind v) {
-			first_parameter.lastPrivate = v;
-		}
-
-		// get value
-		OpenMPLastprivateClauseKind getLastprivateClauseValue() {
-			return first_parameter.lastPrivate;
-		}
-		
-		// 	SCHEDULE - 1st modifier paramater
-		// set the value
-		void setScheduleFirstModifier(OpenMPScheduleClauseModifier v) {
-			first_parameter.scheduleModifier = v;
-		}
-
-		// get value
-		OpenMPScheduleClauseModifier getScheduleFirstModifier() {
-			return first_parameter.scheduleModifier;
-		}
-		
-		// 	SCHEDULE - 2nd modifier paramater
-		// set the value
-		void setScheduleSecondModifier(OpenMPScheduleClauseModifier v) {
-			second_parameter.scheduleModifier = v;
-		}
-
-		// get value
-		OpenMPScheduleClauseModifier getScheduleSecondModifier() {
-			return second_parameter.scheduleModifier;
-		}
-		
-		// 	SCHEDULE - 3rd paramater (schedule kind)
-		// set the value
-		void setScheduleKindValue(OpenMPScheduleClauseEnumKind v) {
-			third_parameter.scheduleKind = v;
-		}
-
-		// get value
-		OpenMPScheduleClauseEnumKind getScheduleKindValue() {
-			return third_parameter.scheduleKind;
-		}
+	// clause name/label
+	std::string getLabel();
 };
 
-class OpenMPDirective {
+/**
+ * The class for all the OpenMP directives
+ */
+class OpenMPDirective
+{
+  protected:
+	OpenMPDirectiveKind kind;
 
-    protected:
-		OpenMPDirectiveKind kind;
-		std::vector<OpenMPClause*> clauses;
-		std::string label;
-	
-    public:
-		OpenMPDirective(OpenMPDirectiveKind k) : kind(k) {};
+	/* the map to store all the clauses of the directive */
+	map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses;
 
-		OpenMPDirectiveKind const getDirectiveKind() { return kind; }
+	/**
+	 * This method searches the clauses map to see whether an OpenMPClause object exists in the map and whether it
+	 * has the exact same kind and parameters as the arguments of the call to this method.
+	 */
+	//		OpenMPClause *searchOpenMPClause(OpenMPClauseKind kind, ...); // initial proposed/discussed template
+	OpenMPClause *searchOpenMPClause(OpenMPClause * clause);
 
-		void setLabel(std::string name) { label = name; }
-		std::string getLabel() { return label; }
-		
-		void addClause(OpenMPClause * clause) { clauses.push_back(clause);}
+	/**
+	 * Get vector<OpenMPClause> list of all clauses of a certain OpenMPClauseKind
+	 * 
+	 */	
+	vector<OpenMPClause *> * getOpenMPClausesList(OpenMPClauseKind kind);
 
-		OpenMPDirectiveKind getKind() { return kind; }
+	/** add a clause of specific kind and has several parameters (first, second, third, etc).
+	 * This method should first search the clauses map to see whether an OpenMPClause object exists in the map and whether it
+	 * has exactly the same kind and parameters as the arguments of the call to this method. If so, it should only return 
+	 * that OpenMPClause object, otherwise, it should create a new OpenMPClause object and insert in the map 
+	 * */
+	// std::vector<OpenMPClause *> findOpenMPClause(OpenMPClauseKind kind, ...); // discussed template
+		std::vector<OpenMPClause *> * findOpenMPClause(OpenMPClause * clause);
 
-		std::vector<OpenMPClause*>* getClauses() {
-			return &clauses;
-		}
+  public:
+	OpenMPDirective(OpenMPDirectiveKind k) : kind(k){};
+	OpenMPDirectiveKind getKind();
+	map<OpenMPClauseKind, std::vector<OpenMPClause *> *> getClauses();
 
-		/* generate DOT representation of the directive */
-		void generateDOT() {
+	// merge expressions
+	OpenMPClause * mergeExpressions(OpenMPClause * vector_clause, OpenMPClause * new_clause);
 
-			std::string filename;
-			filename.append(this->getLabel()).append(".dot");
-			std::cout << "Generating dot file " << filename << std::endl;
-			int i = 0; // for auto-incrementing clauses graph IDs
+	// clause name/label
+	std::string getLabel();
 
-			// open a file in write mode.
-			ofstream outfile;
-			outfile.open(filename);
-		   
-			// start line to the file 
-			outfile << "digraph G {" << endl;	   
-			
-			if (clauses.size() > 0) {
-				for(auto const& value: clauses) {
-					//outfile << "\t" << kind << " -> " << value->getKind() << ";" << endl;
-					outfile << "\t" << this->label << " -> " << value->getLabel() << "_" << i++ << ";" << endl;
-				}
-			}
-			// close line to the file 
-			outfile << "}" << endl;			
-		
-			// close the opened file.
-			outfile.close();		
-			std::cout << "Generated dot file!\n";
-		}
+	/* generate DOT representation of the directive */
+	void generateDOT();
+};
+
+// reduction clause
+class OpenMPReductionClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPReductionClauseModifier reductionModifier;	 // modifier
+	OpenMPReductionClauseIdentifier reductionIdentifier; // identifier
+	char *userDefinedIdentifier;						 /* user defined identifier if it is used */
+
+  public:
+	OpenMPReductionClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// REDUCTION - modifier
+	void setReductionClauseModifier(OpenMPReductionClauseModifier v);
+	OpenMPReductionClauseModifier getReductionClauseModifier();
+
+	// REDUCTION - identifier
+	void setReductionClauseIdentifier(OpenMPReductionClauseIdentifier v);
+	OpenMPReductionClauseIdentifier getReductionClauseIdentifier();
+
+	void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; };
+	char *getUserDefinedIdentifier();
+};
+
+// in_reduction clause
+class OpenMPInReductionClause : public OpenMPClause
+{
+  protected:
+	OpenMPReductionClauseIdentifier reductionIdentifier; // identifier
+	char *userDefinedIdentifier;						 /* user defined identifier if it is used */
+  public:
+	OpenMPInReductionClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// REDUCTION - identifier
+	void setReductionClauseIdentifier(OpenMPReductionClauseIdentifier v);
+	OpenMPReductionClauseIdentifier getReductionClauseIdentifier();
+
+	void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; }
+	char *getUserDefinedIdentifier();
+};
+
+// allocate
+class OpenMPAllocateClause : public OpenMPClause
+{
+  protected:
+	OpenMPAllocateClauseKind allocator; // Allocate allocator
+	char *userDefinedAllocator;						 /* user defined value if it is used */
+
+  public:
+	OpenMPAllocateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// 	ALLOCATE ALLOCATORS
+	void setAllocatorValue(OpenMPAllocateClauseKind v);
+	OpenMPAllocateClauseKind getAllocateClauseValue();
+
+	void setUserDefinedAllocator(char *udt_value) { userDefinedAllocator = udt_value; }
+	char *getUserDefinedAllocator();	
+};
+
+// Lastprivate Clause
+class OpenMPLastprivateClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPLastprivateClauseKind lastPrivate; // lastPrivate
+
+  public:
+	OpenMPLastprivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// 	LASTPRIVATE
+	void setLastprivateValue(OpenMPLastprivateClauseKind v);
+	OpenMPLastprivateClauseKind getLastprivateClauseValue();
+};
+
+// ProcBind Clause
+class OpenMPProcBindClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPProcBindClauseKind proc_bindKind; // proc_bind
+
+  public:
+	OpenMPProcBindClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// PROC_BIND
+	void setProcBindClauseValue(OpenMPProcBindClauseKind v);
+	OpenMPProcBindClauseKind getProcBindClauseValue();
+	//void addProcBindClauseKind(OpenMPProcBindClauseKind v);
+};
+
+// Default Clause
+class OpenMPDefaultClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPDefaultClauseKind defaultKind; // default
+
+  public:
+	OpenMPDefaultClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// DEFAULT
+	void setDefaultClauseValue(OpenMPDefaultClauseKind v);
+	OpenMPDefaultClauseKind getDefaultClauseValue();
+};
+
+// if Clause
+class OpenMPIfClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPIfClauseKind ifKind; // if
+
+  public:
+	OpenMPIfClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// 	IF
+	void setIfClauseValue(OpenMPIfClauseKind v);
+	OpenMPIfClauseKind getIfClauseValue();
+};
+
+// Bind Clause
+class OpenMPBindClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPBindClauseKind bindKind; // bind
+
+  public:
+	OpenMPBindClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// 	BIND
+	void setBindClauseValue(OpenMPBindClauseKind v);
+	OpenMPBindClauseKind getBindClauseValue();
+};
+
+// Order Clause
+class OpenMPOrderClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPOrderClauseKind orderKind; // order
+
+  public:
+	OpenMPOrderClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// ORDER
+	void setOrderClauseValue(OpenMPOrderClauseKind v);
+	OpenMPOrderClauseKind getOrderClauseValue();
+};
+
+// Schedule Clause
+class OpenMPScheduleClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPScheduleClauseModifier scheduleModifier1; // schedule 1st modifier e.g. in case of 'for' directive
+	OpenMPScheduleClauseModifier scheduleModifier2; // schedule 2nd modifier e.g. in case of 'for' directive
+	OpenMPScheduleClauseEnumKind scheduleKind;		// schedule 3rd parameter e.g. in case of 'for' directive
+
+  public:
+	OpenMPScheduleClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// 	SCHEDULE - 1st modifier paramater
+	void setScheduleFirstModifier(OpenMPScheduleClauseModifier v);
+	OpenMPScheduleClauseModifier getScheduleFirstModifier();
+
+	// 	SCHEDULE - 2nd modifier paramater
+	void setScheduleSecondModifier(OpenMPScheduleClauseModifier v);
+	OpenMPScheduleClauseModifier getScheduleSecondModifier();
+
+	// 	SCHEDULE - 3rd paramater (schedule kind)
+	void setScheduleKindValue(OpenMPScheduleClauseEnumKind v);
+	OpenMPScheduleClauseEnumKind getScheduleKindValue();
+};
+
+// Dist_Schedule Clause
+class OpenMPDistScheduleClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPScheduleClauseEnumKind scheduleKind; // schedule 3rd parameter e.g. in case of 'for' directive
+	int schedule_chunk_size;
+
+  public:
+	OpenMPDistScheduleClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Depend Clause
+class OpenMPDependClause : public OpenMPClause
+{
+
+  protected:
+	OpenMPDependClauseKind dependType; // depend type value
+
+  public:
+	OpenMPDependClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+
+	// DEPEND
+	void setDependDependenceType(OpenMPDependClauseKind v);
+	OpenMPDependClauseKind getDependDependenceType();
+};
+
+// Copyin Clause
+class OpenMPCopyinClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPCopyinClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Ordered Clause
+class OpenMPOrderedClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPOrderedClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Collapse Clause
+class OpenMPCollapseClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPCollapseClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Nowait Clause
+class OpenMPNowaitClause : public OpenMPClause
+{
+
+  public:
+	OpenMPNowaitClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Copyprivate Clause
+class OpenMPCopyprivateClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPCopyprivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Detach Clause
+class OpenMPDetachClause : public OpenMPClause
+{
+
+  protected:
+	const char *user_defined_event_handler;
+
+  public:
+	OpenMPDetachClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Affinity Clause
+class OpenMPAffinityClause : public OpenMPClause
+{
+
+  protected:
+	// TODO - Define aff_modifier and its getters and setters
+
+  public:
+	OpenMPAffinityClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Inclusive Clause
+class OpenMPInclusiveClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPInclusiveClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Exclusive Clause
+class OpenMPExclusiveClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPExclusiveClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Private Clause
+class OpenMPPrivateClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPPrivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// FirstPrivate Clause
+class OpenMPFirstprivateClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPFirstprivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Shared Clause
+class OpenMPSharedClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPSharedClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Final Clause
+class OpenMPFinalClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPFinalClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Untied Clause
+class OpenMPUntiedClause : public OpenMPClause
+{
+
+  public:
+	OpenMPUntiedClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Mergeable Clause
+class OpenMPMergeableClause : public OpenMPClause
+{
+
+  public:
+	OpenMPMergeableClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Numthreads Clause
+class OpenMPNumthreadsClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPNumthreadsClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Priority Clause
+class OpenMPPriorityClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPPriorityClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Safelen Clause
+class OpenMPSafelenClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPSafelenClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Simdlen Clause
+class OpenMPSimdlenClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPSimdlenClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Aligned Clause
+class OpenMPAlignedClause : public OpenMPClause
+{
+
+  protected:
+	// TODO - separate var list from expressions
+
+  public:
+	OpenMPAlignedClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Nontemporal Clause
+class OpenMPNontemporalClause : public OpenMPClause
+{
+
+  protected:
+  public:
+	OpenMPNontemporalClause(OpenMPClauseKind k) : OpenMPClause(k) {}
+};
+
+// Aligned Clause
+class OpenMPLinearClause : public OpenMPClause
+{
+
+  protected:
+	// TODO - separate var list from expressions
+
+  public:
+	OpenMPLinearClause(OpenMPClauseKind k) : OpenMPClause(k) {}
 };
 
 #endif //OMPPARSER_OPENMPATTRIBUTE_H_H
-
-/*
-// clauses that accept modifier, identifier
-// e.g. reduction clause of parallel directive
-class OpenMPIdentifierModifierClause : public OpenMPClause {
-
-	protected:
-		OpenMPReductionClauseModifier reductionModifier;	
-		OpenMPReductionClauseIdentifier reductionIdentifier;
-		
-	public:
-	
-		OpenMPIdentifierModifierClause(OpenMPClauseKind kind): OpenMPClause(kind) {};
-		
-		// set the value for reduction modifier
-		void setReductionClauseModifier(OpenMPReductionClauseModifier v) {
-			reductionModifier = v;
-		}
-		
-		// get reduction modifier value
-		OpenMPReductionClauseModifier getReductionClauseModifier() {
-			return reductionModifier;
-		}
-		
-		// set the value for reduction identifier
-		void setReductionClauseIdentifier(OpenMPReductionClauseIdentifier v) {
-			reductionIdentifier = v;
-		}
-		
-		// get reduction identifier value
-		OpenMPReductionClauseIdentifier getReductionClauseIdentifier() {
-			return reductionIdentifier;
-		}
-	
-};
-
-// clauses that accept predefined values
-// e.g. proc_bind and shared clauses of parallel directive
-class OpenMPEnumClause : public OpenMPClause {
-
-	protected:
-		union clauseOptions
-		{	
-			OpenMPProcBindClauseKind proc_bindKind;
-			OpenMPDefaultClauseKind defaultKind;			
-		};
-		
-		string allocator; 
-		clauseOptions clauseItem;
-		
-    public:
-
-		OpenMPEnumClause(OpenMPClauseKind kind): OpenMPClause(kind) {};
-		
-		// set the enum value proc_bind e.g. master or close or spread
-		void setProcBindClauseValue(OpenMPProcBindClauseKind v) {
-			clauseItem.proc_bindKind = v;
-		}
-		
-		// get proc_bind value
-		OpenMPProcBindClauseKind getProcBindClauseValue() {
-			return clauseItem.proc_bindKind;
-		}
-		
-		// set the value for default
-		void setDefaultClauseValue(OpenMPDefaultClauseKind v) {
-			clauseItem.defaultKind = v;
-		}
-
-		// get default value
-		OpenMPDefaultClauseKind getDefaultClauseValue() {
-			return clauseItem.defaultKind;
-		}
-	
-};
-*/

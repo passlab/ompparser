@@ -90,6 +90,12 @@
 #ifndef OPENMP_TASKLOOP_SIMD_CLAUSE
 #  define OPENMP_TASKLOOP_SIMD_CLAUSE(Name)
 #endif
+#ifndef OPENMP_LOOP_CLAUSE
+#  define OPENMP_LOOP_CLAUSE(Name)
+#endif
+#ifndef OPENMP_SCAN_CLAUSE
+#  define OPENMP_SCAN_CLAUSE(Name)
+#endif
 #ifndef OPENMP_CRITICAL_CLAUSE
 #  define OPENMP_CRITICAL_CLAUSE(Name)
 #endif
@@ -98,6 +104,9 @@
 #endif
 #ifndef OPENMP_IF_KIND
 #  define OPENMP_IF_KIND(Name)
+#endif
+#ifndef OPENMP_BIND_KIND
+#  define OPENMP_BIND_KIND(Name)
 #endif
 #ifndef OPENMP_DEFAULT_KIND
 #	define OPENMP_DEFAULT_KIND(Name)
@@ -202,6 +211,8 @@ OPENMP_DIRECTIVE(parallel)
 OPENMP_DIRECTIVE(task)
 OPENMP_DIRECTIVE(simd)
 OPENMP_DIRECTIVE(for)
+OPENMP_DIRECTIVE(loop)
+OPENMP_DIRECTIVE(scan)
 OPENMP_DIRECTIVE(sections)
 OPENMP_DIRECTIVE(section)
 OPENMP_DIRECTIVE(single)
@@ -252,10 +263,14 @@ OPENMP_DIRECTIVE_EXT(target_teams_distribute_simd, "target teams distribute simd
 
 // OpenMP clauses.
 OPENMP_CLAUSE(if, OMPIfClause)
+OPENMP_CLAUSE(bind, OMPBindClause)
+OPENMP_CLAUSE(inclusive, OMPInclusiveClause)
+OPENMP_CLAUSE(exclusive, OMPExclusiveClause)
 OPENMP_CLAUSE(final, OMPFinalClause)
 OPENMP_CLAUSE(num_threads, OMPNumThreadsClause)
 OPENMP_CLAUSE(safelen, OMPSafelenClause)
 OPENMP_CLAUSE(simdlen, OMPSimdlenClause)
+OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
 OPENMP_CLAUSE(collapse, OMPCollapseClause)
 OPENMP_CLAUSE(default, OMPDefaultClause)
 OPENMP_CLAUSE(private, OMPPrivateClause)
@@ -301,6 +316,8 @@ OPENMP_CLAUSE(use_device_ptr, OMPUseDevicePtrClause)
 OPENMP_CLAUSE(is_device_ptr, OMPIsDevicePtrClause)
 OPENMP_CLAUSE(task_reduction,  OMPTaskReductionClause)
 OPENMP_CLAUSE(in_reduction,  OMPInReductionClause)
+OPENMP_CLAUSE(detach, OMPDetachClause)
+OPENMP_CLAUSE(affinity, OMPAffinityClause)
 
 // Clauses allowed for OpenMP directive 'parallel'.
 OPENMP_PARALLEL_CLAUSE(if)
@@ -315,14 +332,17 @@ OPENMP_PARALLEL_CLAUSE(copyin)
 OPENMP_PARALLEL_CLAUSE(allocate)
 
 // Clauses allowed for directive 'omp simd'.
-OPENMP_SIMD_CLAUSE(private)
-OPENMP_SIMD_CLAUSE(lastprivate)
-OPENMP_SIMD_CLAUSE(linear)
-OPENMP_SIMD_CLAUSE(aligned)
+OPENMP_SIMD_CLAUSE(if)
 OPENMP_SIMD_CLAUSE(safelen)
 OPENMP_SIMD_CLAUSE(simdlen)
-OPENMP_SIMD_CLAUSE(collapse)
+OPENMP_SIMD_CLAUSE(linear)
+OPENMP_SIMD_CLAUSE(aligned)
+OPENMP_SIMD_CLAUSE(nontemporal)
+OPENMP_SIMD_CLAUSE(private)
+OPENMP_SIMD_CLAUSE(lastprivate)
 OPENMP_SIMD_CLAUSE(reduction)
+OPENMP_SIMD_CLAUSE(collapse)
+OPENMP_SIMD_CLAUSE(order)
 
 // Clauses allowed for directive 'omp for'.
 OPENMP_FOR_CLAUSE(private)
@@ -351,6 +371,17 @@ OPENMP_FOR_SIMD_CLAUSE(linear)
 OPENMP_FOR_SIMD_CLAUSE(aligned)
 OPENMP_FOR_SIMD_CLAUSE(ordered)
 
+// Clauses allowed for directive 'omp loop'.
+OPENMP_LOOP_CLAUSE(bind)
+OPENMP_LOOP_CLAUSE(collapse)
+OPENMP_LOOP_CLAUSE(order)
+OPENMP_LOOP_CLAUSE(private)
+OPENMP_LOOP_CLAUSE(reduction)
+
+// Clauses allowed for directive 'omp scan'.
+OPENMP_SCAN_CLAUSE(inclusive)
+OPENMP_SCAN_CLAUSE(exclusive)
+
 // Clauses allowed for OpenMP directive 'omp sections'.
 OPENMP_SECTIONS_CLAUSE(private)
 OPENMP_SECTIONS_CLAUSE(lastprivate)
@@ -363,12 +394,20 @@ OPENMP_SINGLE_CLAUSE(private)
 OPENMP_SINGLE_CLAUSE(firstprivate)
 OPENMP_SINGLE_CLAUSE(copyprivate)
 OPENMP_SINGLE_CLAUSE(nowait)
+OPENMP_SINGLE_CLAUSE(allocate)
 
 // Clauses allowed for OpenMP directive 'cancel'.
 OPENMP_CANCEL_CLAUSE(if)
 
 // Static attributes for 'if' clause.
 OPENMP_IF_KIND(parallel)
+OPENMP_IF_KIND(simd)
+OPENMP_IF_KIND(task)
+
+// Static attributes for 'bind' clause.
+OPENMP_BIND_KIND(teams)
+OPENMP_BIND_KIND(parallel)
+OPENMP_BIND_KIND(thread)
 
 // Static attributes for 'default' clause.
 OPENMP_DEFAULT_KIND(none)
@@ -385,13 +424,12 @@ OPENMP_ORDER_KIND(concurrent)
 // Static attributes for 'allocate' clause - allocator values
 OPENMP_ALLOCATE_KIND(default_storage)		// omp_default_mem_alloc
 OPENMP_ALLOCATE_KIND(large_capacity)		// omp_large_cap_mem_alloc
-OPENMP_ALLOCATE_KIND(constant_memory)			// omp_const_mem_alloc
+OPENMP_ALLOCATE_KIND(constant_memory)		// omp_const_mem_alloc
 OPENMP_ALLOCATE_KIND(high_bandwidth)		// omp_high_bw_mem_alloc
-OPENMP_ALLOCATE_KIND(low_latency)		// omp_low_lat_mem_alloc
-OPENMP_ALLOCATE_KIND(group_access)		// omp_cgroup_mem_alloc
+OPENMP_ALLOCATE_KIND(low_latency)			// omp_low_lat_mem_alloc
+OPENMP_ALLOCATE_KIND(group_access)			// omp_cgroup_mem_alloc
 OPENMP_ALLOCATE_KIND(team_access)			// omp_pteam_mem_alloc
-OPENMP_ALLOCATE_KIND(thread_access)		// omp_thread_mem_alloc
-//OPENMP_ALLOCATE_KIND(user_defined)	(omp_user_defined_mem_alloc)
+OPENMP_ALLOCATE_KIND(thread_access)			// omp_thread_mem_alloc
 
 // Static attributes for 'lastprivate' clause
 OPENMP_LASTPRIVATE_KIND(false)
@@ -419,6 +457,7 @@ OPENMP_DEFAULTMAP_MODIFIER(tofrom)
 OPENMP_DEPEND_KIND(in)
 OPENMP_DEPEND_KIND(out)
 OPENMP_DEPEND_KIND(inout)
+OPENMP_DEPEND_KIND(mutexinoutset)
 OPENMP_DEPEND_KIND(source)
 OPENMP_DEPEND_KIND(sink)
 
@@ -443,6 +482,7 @@ OPENMP_PARALLEL_FOR_CLAUSE(schedule)
 OPENMP_PARALLEL_FOR_CLAUSE(ordered)
 OPENMP_PARALLEL_FOR_CLAUSE(linear)
 OPENMP_PARALLEL_FOR_CLAUSE(allocate)
+OPENMP_PARALLEL_FOR_CLAUSE(order)
 
 // Clauses allowed for OpenMP directive 'parallel for simd'.
 OPENMP_PARALLEL_FOR_SIMD_CLAUSE(if)
@@ -478,15 +518,18 @@ OPENMP_PARALLEL_SECTIONS_CLAUSE(lastprivate)
 // Clauses allowed for OpenMP directive 'task'.
 OPENMP_TASK_CLAUSE(if)
 OPENMP_TASK_CLAUSE(final)
+OPENMP_TASK_CLAUSE(untied)
 OPENMP_TASK_CLAUSE(default)
+OPENMP_TASK_CLAUSE(mergeable)
 OPENMP_TASK_CLAUSE(private)
 OPENMP_TASK_CLAUSE(firstprivate)
 OPENMP_TASK_CLAUSE(shared)
-OPENMP_TASK_CLAUSE(untied)
-OPENMP_TASK_CLAUSE(mergeable)
+OPENMP_TASK_CLAUSE(in_reduction)
 OPENMP_TASK_CLAUSE(depend)
 OPENMP_TASK_CLAUSE(priority)
-OPENMP_TASK_CLAUSE(in_reduction)
+OPENMP_TASK_CLAUSE(allocate)
+OPENMP_TASK_CLAUSE(affinity)
+OPENMP_TASK_CLAUSE(detach)
 
 // Clauses allowed for OpenMP directive 'atomic'.
 OPENMP_ATOMIC_CLAUSE(read)
@@ -928,9 +971,12 @@ OPENMP_TARGET_TEAMS_DISTRIBUTE_SIMD_CLAUSE(simdlen)
 OPENMP_TASKGROUP_CLAUSE(task_reduction)
 
 #undef OPENMP_IF_KIND
+#undef OPENMP_BIND_KIND
 #undef OPENMP_TASKGROUP_CLAUSE
 #undef OPENMP_TASKLOOP_SIMD_CLAUSE
 #undef OPENMP_TASKLOOP_CLAUSE
+#undef OPENMP_LOOP_CLAUSE
+#undef OPENMP_SCAN_CLAUSE
 #undef OPENMP_LINEAR_KIND
 #undef OPENMP_DEPEND_KIND
 #undef OPENMP_SCHEDULE_MODIFIER

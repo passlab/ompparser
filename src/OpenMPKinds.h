@@ -43,6 +43,14 @@ enum OpenMPIfClauseKind {
   OMPC_IF_unknown
 };
 
+/// OpenMP attributes for 'bind' clause.
+enum OpenMPBindClauseKind {
+#define OPENMP_BIND_KIND(Name) \
+  OMPC_BIND_##Name,
+#include "OpenMPKinds.def"
+  OMPC_BIND_unknown
+};
+
 /// OpenMP attributes for 'default' clause.
 enum OpenMPDefaultClauseKind {
 #define OPENMP_DEFAULT_KIND(Name) \
