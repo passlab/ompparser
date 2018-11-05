@@ -1,26 +1,24 @@
-//
-// Created by Yonghong Yan on 6/15/18.
-// Modified by Chrisogonas O. Mc'Odhiambo
-//
-
-#include "OpenMPAttribute.h"
+#include "OpenMPAST.h"
 #include <algorithm>
 
 using namespace std;
 
-// Clause implementations
-OpenMPClauseKind OpenMPClause::getKind() { return kind; }
-
-/* a list of language expressions, variables, etc that are not parsed by the ompparser */
-void OpenMPClause::addExpression(const char *expression) { expressions.push_back(expression); }
-
-std::vector<const char *> OpenMPClause::getExpressions()
-{
-	return expressions;
+/**
+ * a list of language expressions, variables, etc that are not parsed by the ompparser
+ */
+void addExpression(const char *expression, int line = 0, int col = 0) {
+    //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
+	expressions.push_back(expression);
+    locations.push_back(SourceLocation(line, col));
 }
 
-// clause name/label
-std::string OpenMPClause::getLabel() { return label; }
+std::string OpenMPClause::toString( ) {
+    /* TODO maybe we have a better way to associate an enum with a string, so we
+     * can just search from a array indexed by OpenMPClauseKind to return the string here
+     */
+	if (this.kind == OMPC_num_threads) return "num_threads";
+	return "none";
+}
 
 // REDUCTION
 // set the value for reduction modifier
