@@ -17,301 +17,111 @@
 
 /// OpenMP directives.
 enum OpenMPDirectiveKind {
-#define OPENMP_DIRECTIVE(Name) \
-  OMPD_##Name,
-#define OPENMP_DIRECTIVE_EXT(Name, Str) \
-  OMPD_##Name,
-#include "OpenMPKinds.def"
-  OMPD_unknown
+#define OPENMP_DIRECTIVE(Name) OMPD_##Name,
+#define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
+    OPENMP_DIRECTIVE(parallel)
+    OPENMP_DIRECTIVE(unknown)
+#undef OPENMP_DIRECTIVE
+#undef OPENMP_DIRECTIVE_EXT
 };
 
 /// OpenMP clauses.
 enum OpenMPClauseKind {
-#define OPENMP_CLAUSE(Name, Class) \
-  OMPC_##Name,
-#include "OpenMPKinds.def"
-  OMPC_threadprivate,
-  OMPC_uniform,
-  OMPC_unknown
+#define OPENMP_CLAUSE(Name, Class) OMPC_##Name,
+// OpenMP clauses.
+    OPENMP_CLAUSE(if, OMPIfClause)
+    OPENMP_CLAUSE(num_threads, OMPNumThreadsClause)
+    OPENMP_CLAUSE(default, OMPDefaultClause)
+    OPENMP_CLAUSE(private, OMPPrivateClause)
+    OPENMP_CLAUSE(firstprivate, OMPFirstprivateClause)
+    OPENMP_CLAUSE(shared,  OMPSharedClause)
+    OPENMP_CLAUSE(copyin,  OMPCopyinClause)
+    OPENMP_CLAUSE(reduction,  OMPReductionClause)
+    OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
+    OPENMP_CLAUSE(allocate, OMPAllocateClause)
+
+    OPENMP_CLAUSE(unknown, OMPUnknownClause)
+#undef OPENMP_CLAUSE
 };
 
 /// OpenMP attributes for 'if' clause.
 enum OpenMPIfClauseKind {
-#define OPENMP_IF_KIND(Name) \
-  OMPC_IF_##Name,
-#include "OpenMPKinds.def"
-  OMPC_IF_unknown
-};
+#define OPENMP_IF_KIND(Name) OMPC_IF_##Name,
+    OPENMP_IF_KIND(parallel)
+    OPENMP_IF_KIND(simd)
+    OPENMP_IF_KIND(task)
 
-/// OpenMP attributes for 'bind' clause.
-enum OpenMPBindClauseKind {
-#define OPENMP_BIND_KIND(Name) \
-  OMPC_BIND_##Name,
-#include "OpenMPKinds.def"
-  OMPC_BIND_unknown
+    OPENMP_IF_KIND(unknown)
+#undef OPENMP_IF_KIND
 };
 
 /// OpenMP attributes for 'default' clause.
 enum OpenMPDefaultClauseKind {
-#define OPENMP_DEFAULT_KIND(Name) \
-  OMPC_DEFAULT_##Name,
-#include "OpenMPKinds.def"
-  OMPC_DEFAULT_unknown
+#define OPENMP_DEFAULT_KIND(Name) OMPC_DEFAULT_##Name,
+    /* private and firstprivate are only for fortran */
+    OPENMP_DEFAULT_KIND(private)
+    OPENMP_DEFAULT_KIND(firstprivate)
+    OPENMP_DEFAULT_KIND(shared)
+    OPENMP_DEFAULT_KIND(none)
+
+    OPENMP_DEFAULT_KIND(unknown)
+#undef OPENMP_DEFAULT_KIND
 };
 
 /// OpenMP attributes for 'proc_bind' clause.
 enum OpenMPProcBindClauseKind {
-#define OPENMP_PROC_BIND_KIND(Name) \
-  OMPC_PROC_BIND_##Name,
-#include "OpenMPKinds.def"
-  OMPC_PROC_BIND_unknown
-};
+#define OPENMP_PROC_BIND_KIND(Name) OMPC_PROC_BIND_##Name,
+    OPENMP_PROC_BIND_KIND(master)
+    OPENMP_PROC_BIND_KIND(close)
+    OPENMP_PROC_BIND_KIND(spread)
 
-/// OpenMP attributes for 'order' clause.
-enum OpenMPOrderClauseKind {
-#define OPENMP_ORDER_KIND(Name) \
-  OMPC_ORDER_##Name,
-#include "OpenMPKinds.def"
-  OMPC_ORDER_unknown
+    OPENMP_PROC_BIND_KIND(unknown)
+#undef OPENMP_PROC_BIND_KIND
 };
 
 /// OpenMP attributes for 'Allocate' clause.
-enum OpenMPAllocateClauseKind {
-#define OPENMP_ALLOCATE_KIND(Name) \
-  OMPC_ALLOCATE_##Name,
-#include "OpenMPKinds.def"
-  OMPC_ALLOCATE_unknown
+enum OpenMPAllocateClauseAllocator {
+#define OPENMP_ALLOCATE_ALLOCATOR(Name) OMPC_ALLOCATE_ALLOCATOR_##Name,
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(unknown)
+#undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
 
-/// OpenMP attributes for 'lastprivate' clause.
-enum OpenMPLastprivateClauseKind {
-#define OPENMP_LASTPRIVATE_KIND(Name) \
-  OMPC_LASTPRIVATE_##Name,
-#include "OpenMPKinds.def"
-  OMPC_LASTPRIVATE_unknown
-};
-
-/// OpenMP attributes for 'schedule' clause.
-enum OpenMPScheduleClauseKind {
-#define OPENMP_SCHEDULE_KIND(Name) \
-  OMPC_SCHEDULE_##Name,
-#include "OpenMPKinds.def"
-  OMPC_SCHEDULE_unknown,
-  OMPC_SCHEDULE_kind
-};
-
-/// OpenMP modifiers for 'schedule' clause.
-enum OpenMPScheduleClauseModifier {
-  OMPC_SCHEDULE_MODIFIER_unknown = OMPC_SCHEDULE_unknown,
-#define OPENMP_SCHEDULE_MODIFIER(Name) \
-  OMPC_SCHEDULE_MODIFIER_##Name,
-#include "OpenMPKinds.def"
-  OMPC_SCHEDULE_MODIFIER_last
-};
-
-/// OpenMP kind for 'schedule' clause.
-enum OpenMPScheduleClauseEnumKind {
-  OMPC_SCHEDULE_KIND_unknown = OMPC_SCHEDULE_kind,
-#define OPENMP_SCHEDULE_ENUM_KIND(Name) \
-  OMPC_SCHEDULE_ENUM_KIND_##Name,
-#include "OpenMPKinds.def"
-  OMPC_SCHEDULE_ENUM_KIND_last
-};
-
-/// OpenMP attributes for 'reduction' clause.
-enum OpenMPReductionClauseKind {
-#define OPENMP_REDUCTION_KIND(Name) \
-  OMPC_REDUCTION_##Name,
-#include "OpenMPKinds.def"
-  OMPC_REDUCTION_modifier,
-  OMPC_REDUCTION_identifier
-};
-
-/// OpenMP modifiers for 'reduction' clause.
+/// modifiers for 'reduction' clause.
 enum OpenMPReductionClauseModifier {
-  OMPC_REDUCTION_MODIFIER_unknown = OMPC_REDUCTION_modifier,
-#define OPENMP_REDUCTION_MODIFIER(Name) \
-  OMPC_REDUCTION_MODIFIER_##Name,
-#include "OpenMPKinds.def"
-  OMPC_REDUCTION_MODIFIER_last
+#define OPENMP_REDUCTION_MODIFIER(Name) OMPC_REDUCTION_MODIFIER_##Name,
+    OPENMP_REDUCTION_MODIFIER(inscan)
+    OPENMP_REDUCTION_MODIFIER(task)
+    OPENMP_REDUCTION_MODIFIER(default)
+#undef OPENMP_REDUCTION_MODIFIER
 };
 
-/// OpenMP identifiers for 'reduction' clause.
+/// identifiers for 'reduction' clause.
 enum OpenMPReductionClauseIdentifier {
-  OMPC_REDUCTION_IDENTIFIER_unknown = OMPC_REDUCTION_identifier,
-#define OPENMP_REDUCTION_IDENTIFIER(Name) \
-  OMPC_REDUCTION_IDENTIFIER_##Name,
-#include "OpenMPKinds.def"
-  OMPC_REDUCTION_IDENTIFIER_last
+#define OPENMP_REDUCTION_IDENTIFIER(Name) OMPC_REDUCTION_IDENTIFIER_##Name,
+    OPENMP_REDUCTION_IDENTIFIER(reduction_plus)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_minus)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_mul)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_bitand)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_bitor)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_bitxor)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_logand)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_logor)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_eqv) /* only for Fortran */
+    OPENMP_REDUCTION_IDENTIFIER(reduction_neqv) /* only for Fortran */
+    OPENMP_REDUCTION_IDENTIFIER(reduction_max)
+    OPENMP_REDUCTION_IDENTIFIER(reduction_min)
+    OPENMP_REDUCTION_IDENTIFIER(user)
+#undef OPENMP_REDUCTION_IDENTIFIER
 };
-
-/// OpenMP attributes for 'depend' clause.
-enum OpenMPDependClauseKind {
-#define OPENMP_DEPEND_KIND(Name) \
-  OMPC_DEPEND_##Name,
-#include "OpenMPKinds.def"
-  OMPC_DEPEND_unknown
-};
-
-/// OpenMP attributes for 'linear' clause.
-enum OpenMPLinearClauseKind {
-#define OPENMP_LINEAR_KIND(Name) \
-  OMPC_LINEAR_##Name,
-#include "OpenMPKinds.def"
-  OMPC_LINEAR_unknown
-};
-
-/// OpenMP mapping kind for 'map' clause.
-enum OpenMPMapClauseKind {
-#define OPENMP_MAP_KIND(Name) \
-  OMPC_MAP_##Name,
-#include "OpenMPKinds.def"
-  OMPC_MAP_unknown
-};
-
-/// OpenMP attributes for 'dist_schedule' clause.
-enum OpenMPDistScheduleClauseKind {
-#define OPENMP_DIST_SCHEDULE_KIND(Name) OMPC_DIST_SCHEDULE_##Name,
-#include "OpenMPKinds.def"
-  OMPC_DIST_SCHEDULE_unknown
-};
-
-/// OpenMP attributes for 'defaultmap' clause.
-enum OpenMPDefaultmapClauseKind {
-#define OPENMP_DEFAULTMAP_KIND(Name) \
-  OMPC_DEFAULTMAP_##Name,
-#include "OpenMPKinds.def"
-  OMPC_DEFAULTMAP_unknown
-};
-
-/// OpenMP modifiers for 'defaultmap' clause.
-enum OpenMPDefaultmapClauseModifier {
-  OMPC_DEFAULTMAP_MODIFIER_unknown = OMPC_DEFAULTMAP_unknown,
-#define OPENMP_DEFAULTMAP_MODIFIER(Name) \
-  OMPC_DEFAULTMAP_MODIFIER_##Name,
-#include "OpenMPKinds.def"
-  OMPC_DEFAULTMAP_MODIFIER_last
-};
-
-/// Scheduling data for loop-based OpenMP directives.
-struct OpenMPScheduleTy final {
-  OpenMPScheduleClauseKind Schedule = OMPC_SCHEDULE_unknown;
-  OpenMPScheduleClauseModifier M1 = OMPC_SCHEDULE_MODIFIER_unknown;
-  OpenMPScheduleClauseModifier M2 = OMPC_SCHEDULE_MODIFIER_unknown;
-};
-
-OpenMPDirectiveKind getOpenMPDirectiveKind(const char * Str);
-const char *getOpenMPDirectiveName(OpenMPDirectiveKind Kind);
-
-OpenMPClauseKind getOpenMPClauseKind(const char * Str);
-const char *getOpenMPClauseName(OpenMPClauseKind Kind);
-
-unsigned getOpenMPSimpleClauseType(OpenMPClauseKind Kind, const char * Str);
-const char *getOpenMPSimpleClauseTypeName(OpenMPClauseKind Kind, unsigned Type);
-
-bool isAllowedClauseForDirective(OpenMPDirectiveKind DKind,
-                                 OpenMPClauseKind CKind);
-
-/// Checks if the specified directive is a directive with an associated
-/// loop construct.
-/// \param DKind Specified directive.
-/// \return true - the directive is a loop-associated directive like 'omp simd'
-/// or 'omp for' directive, otherwise - false.
-bool isOpenMPLoopDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a worksharing directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a worksharing directive like 'omp for',
-/// otherwise - false.
-bool isOpenMPWorksharingDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a taskloop directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a worksharing directive like 'omp taskloop',
-/// otherwise - false.
-bool isOpenMPTaskLoopDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a parallel-kind directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a parallel-like directive like 'omp
-/// parallel', otherwise - false.
-bool isOpenMPParallelDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a target code offload directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a target code offload directive like
-/// 'omp target', 'omp target parallel', 'omp target xxx'
-/// otherwise - false.
-bool isOpenMPTargetExecutionDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a target data offload directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a target data offload directive like
-/// 'omp target data', 'omp target update', 'omp target enter data',
-/// 'omp target exit data'
-/// otherwise - false.
-bool isOpenMPTargetDataManagementDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified composite/combined directive constitutes a teams
-/// directive in the outermost nest.  For example
-/// 'omp teams distribute' or 'omp teams distribute parallel for'.
-/// \param DKind Specified directive.
-/// \return true - the directive has teams on the outermost nest, otherwise -
-/// false.
-bool isOpenMPNestingTeamsDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a teams-kind directive.  For example,
-/// 'omp teams distribute' or 'omp target teams'.
-/// \param DKind Specified directive.
-/// \return true - the directive is a teams-like directive, otherwise - false.
-bool isOpenMPTeamsDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a simd directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a simd directive like 'omp simd',
-/// otherwise - false.
-bool isOpenMPSimdDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified directive is a distribute directive.
-/// \param DKind Specified directive.
-/// \return true - the directive is a distribute-directive like 'omp
-/// distribute',
-/// otherwise - false.
-bool isOpenMPDistributeDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified composite/combined directive constitutes a
-/// distribute directive in the outermost nest.  For example,
-/// 'omp distribute parallel for' or 'omp distribute'.
-/// \param DKind Specified directive.
-/// \return true - the directive has distribute on the outermost nest.
-/// otherwise - false.
-bool isOpenMPNestingDistributeDirective(OpenMPDirectiveKind DKind);
-
-/// Checks if the specified clause is one of private clauses like
-/// 'private', 'firstprivate', 'reduction' etc..
-/// \param Kind Clause kind.
-/// \return true - the clause is a private clause, otherwise - false.
-bool isOpenMPPrivate(OpenMPClauseKind Kind);
-
-/// Checks if the specified clause is one of threadprivate clauses like
-/// 'threadprivate', 'copyin' or 'copyprivate'.
-/// \param Kind Clause kind.
-/// \return true - the clause is a threadprivate clause, otherwise - false.
-bool isOpenMPThreadPrivate(OpenMPClauseKind Kind);
-
-/// Checks if the specified directive kind is one of tasking directives - task,
-/// taskloop or taksloop simd.
-bool isOpenMPTaskingDirective(OpenMPDirectiveKind Kind);
-
-/// Checks if the specified directive kind is one of the composite or combined
-/// directives that need loop bound sharing across loops outlined in nested
-/// functions
-bool isOpenMPLoopBoundSharingDirective(OpenMPDirectiveKind Kind);
-
-/// Return the captured regions of an OpenMP directive.
-void getOpenMPCaptureRegions(
-   // llvm::SmallVectorImpl<OpenMPDirectiveKind> &CaptureRegions,
-    OpenMPDirectiveKind DKind);
 
 #endif
 
