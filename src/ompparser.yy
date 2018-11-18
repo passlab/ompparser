@@ -54,13 +54,13 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 %token  OMP PARALLEL
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE
-        NONE MASTER CLOSE SPREAD INSCAN TASK
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK
+        NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
-        ALLOCATOR_DEFAULT ALLOCATOR_LARGE_CAP ALLOCATOR_CONS_MEM ALLOCATOR_HIGH_BW ALLOCATOR_LOW_LAT ALLOCATOR_CGROUP
-        ALLOCATOR_PTEAM ALLOCATOR_THREAD
+        DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
+        PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
 %token <itype> ICONSTANT
-%token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING
+%token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
 %left '<' '>' '=' "!=" "<=" ">="
 %left '+' '-'
@@ -77,10 +77,10 @@ corresponding C type is union name defaults to YYSTYPE.
 expression : EXPR_STRING { currentClause->addLangExpr($1); }
 variable :   EXPR_STRING { currentClause->addLangExpr($1); } /* we use expression for variable so far */
 
-expr_list : expression
+/*expr_list : expression
         | expr_list ',' expression
         ;
-
+*/
 var_list : variable
         | var_list ',' variable
         ;
@@ -104,7 +104,7 @@ parallel_clause_seq : parallel_clause
                     ;
 parallel_clause : if_clause
                 | num_threads_clause
-                | default_clause
+                /*| default_clause*/
                 | private_clause
                 | firstprivate_clause
                 | shared_clause
@@ -123,7 +123,7 @@ if_parameter :  PARALLEL ':' {
               | SIMD ':' {
                 currentClause = currentDirective->addOpenMPClause(OMPC_if, OMPC_IF_simd);
                 } expression { ; }
-              | SIMD ':' {
+              | TASK ':' {
                 currentClause = currentDirective->addOpenMPClause(OMPC_if, OMPC_IF_task);
                 } expression { ; }
               | EXPR_STRING {
@@ -146,28 +146,28 @@ proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
 
 proc_bind_parameter : MASTER    { currentClause = currentDirective->addOpenMPClause(OMPC_proc_bind, OMPC_PROC_BIND_master); }
                     | CLOSE   { currentClause = currentDirective->addOpenMPClause(OMPC_proc_bind, OMPC_PROC_BIND_close); }
-                    | SPREAD  { currentClause = currentDirective->addOpenMPClause(OMPC_proc_bind, MPC_PROC_BIND_spread); }
+                    | SPREAD  { currentClause = currentDirective->addOpenMPClause(OMPC_proc_bind, OMPC_PROC_BIND_spread); }
                     ;
 
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
-allocate_parameter :   VAR_STRING  { currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($2);  }
+allocate_parameter :   VAR_STRING  { currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
                      | VAR_STRING "," {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($2); }
+                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); }
                        var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 
-allocator_parameter : DEFAULT_MEM_ALLOC 		    { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, MPC_ALLOCATE_default_storage); }
-						  | LARGE_CAP_MEM_ALLOC		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_large_capacity); }
-						  | CONST_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, MPC_ALLOCATE_constant_memory); }
-						  | HIGH_BW_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_high_bandwidth); }
-						  | LOW_LAT_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_low_latency); }
-						  | CGROUP_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_group_access); }
-						  | PTEAM_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_team_access); }
-						  | THREAD_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_thread_access); }
-						  | VAR_STRING              { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_user_defined;
-						                              currentClause->setUserDefinedAllocator($1); }
+allocator_parameter : DEFAULT_MEM_ALLOC 		    { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_default); }
+						  | LARGE_CAP_MEM_ALLOC		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_large_cap); }
+						  | CONST_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cons_mem); }
+						  | HIGH_BW_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_high_bw); }
+						  | LOW_LAT_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_low_lat); }
+						  | CGROUP_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cgroup); }
+						  | PTEAM_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_pteam); }
+						  | THREAD_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_thread); }
+						/*  | VAR_STRING              { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user);
+						                              currentClause->setUserDefinedAllocator($1); } */
 						;
 
 private_clause : PRIVATE {
@@ -187,7 +187,7 @@ shared_clause : SHARED {
 					} '(' var_list ')'
 				  ;
 
-reduction_clause : REDUCTION { firstParameter = unknown; } '(' reduction_parameter ':' var_list ')' {
+reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_IDENTIFIER_unknown; } '(' reduction_parameter ':' var_list ')' {
 					}
 					;
 
@@ -196,12 +196,12 @@ reduction_parameter : reduction_identifier {}
 					;
 
 reduction_identifier : reduction_enum_identifier {	}
-					| user_defined_first_parameter
+					| VAR_STRING
 				  ;
 
 reduction_modifier : MODIFIER_INSCAN 	{ firstParameter = OMPC_REDUCTION_MODIFIER_inscan; }
 					| MODIFIER_TASK 	{ firstParameter = OMPC_REDUCTION_MODIFIER_task; }
-					| MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default); }
+					| MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default; }
 					;
 
 reduction_enum_identifier :  '+'		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_reduction_plus); }
@@ -221,7 +221,7 @@ reduction_enum_identifier :  '+'		{ currentClause = currentDirective->addOpenMPC
 int yyerror(const char *s) {
     // printf(" %s!\n", s);
 	fprintf(stderr,"error: %s\n",s);
-	writeOutput (s);
+	// writeOutput (s);
     assert(0);
     return 0; // we want to the program to stop on error
 }
@@ -230,3 +230,15 @@ int yywrap()
 {
 	return 1;
 } 
+
+// Standalone ompparser
+OpenMPDirective* parseOpenMP(const char* input) {
+    
+    printf("Start parsing...\n");
+    
+    start_lexer(input);
+    int res = yyparse();
+    end_lexer();
+    
+    return currentDirective;
+}

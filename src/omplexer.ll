@@ -73,6 +73,7 @@ omp             { return OMP; }
 parallel        { return PARALLEL; }
 task            { return TASK; }
 if              { return IF; }
+simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
 default         { return DEFAULT; }
 private         { return PRIVATE; }
@@ -92,21 +93,21 @@ master          { return MASTER; }
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
-<ALLOCATE_STATE>omp_default_mem_alloc       { return ALLOCATOR_DEFAULT; }
-<ALLOCATE_STATE>omp_large_cap_mem_alloc    	{ return ALLOCATOR_LARGE_CAP; }
-<ALLOCATE_STATE>omp_const_mem_alloc       	{ return ALLOCATOR_CONS_MEM; }
-<ALLOCATE_STATE>omp_high_bw_mem_alloc       { return ALLOCATOR_HIGH_BW; }
-<ALLOCATE_STATE>omp_low_lat_mem_alloc       { return ALLOCATOR_LOW_LAT; }
-<ALLOCATE_STATE>omp_cgroup_mem_alloc       	{ return ALLOCATOR_CGROUP; }
-<ALLOCATE_STATE>omp_pteam_mem_alloc       	{ return ALLOCATOR_PTEAM; }
-<ALLOCATE_STATE>omp_thread_mem_alloc        { return ALLOCATOR_THREAD; }
+<ALLOCATE_STATE>omp_default_mem_alloc       { return DEFAULT_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_large_cap_mem_alloc    	{ return LARGE_CAP_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_const_mem_alloc       	{ return CONST_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_high_bw_mem_alloc       { return HIGH_BW_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_low_lat_mem_alloc       { return LOW_LAT_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_cgroup_mem_alloc       	{ return CGROUP_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_pteam_mem_alloc       	{ return PTEAM_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_thread_mem_alloc        { return THREAD_MEM_ALLOC; }
 
-<REDUCTION_STATE>inscan    					{ return INSCAN;}
-<REDUCTION_STATE>task      					{ return TASK;}
-<REDUCTION_STATE>default   					{ return ;}
+<REDUCTION_STATE>inscan    					{ return MODIFIER_INSCAN;}
+<REDUCTION_STATE>task      					{ return MODIFIER_TASK;}
+<REDUCTION_STATE>default   					{ return MODIFIER_DEFAULT;}
 
 ":"							                { BEGIN(EXPR_STATE); return ':';}
-<CLAUSE>.         { BEGIN(EXPR); CurrentString = yytext[0];}
+<CLAUSE>.         { BEGIN(EXPR_STATE); CurrentString = yytext[0];}
 
 <EXPR_STATE>.     {   CurrentChar = yytext[0];
                 ParenLocalCount = 0;
@@ -115,7 +116,8 @@ master          { return MASTER; }
                 for (;;) {
                     switch (CurrentChar) {
                         case EOF :
-                            return LEXICALERROR;
+                            /*return LEXICALERROR*/;
+                            return -1;
 
                         case '(' :
                             ParenLocalCount++;
@@ -195,7 +197,7 @@ master          { return MASTER; }
 expr            {return (EXPRESSION); }
 
 {blank}*        ;
-.               {return (LEXICALERROR);}
+.               {/*return (LEXICALERROR);*/ return -1;}
 
 \n|.       		{printf(" unexpected\n");}
 
