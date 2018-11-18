@@ -81,7 +81,7 @@ enum OpenMPProcBindClauseKind {
 
 /// OpenMP attributes for 'Allocate' clause.
 enum OpenMPAllocateClauseAllocator {
-#define OPENMP_ALLOCATE_ALLOCATOR(Name) OMPC_ALLOCATE_ALLOCATOR_##Name,
+#define OPENMP_ALLOCATE_ALLOCATOR_KIND(Name) OMPC_ALLOCATE_ALLOCATOR_##Name,
     OPENMP_ALLOCATE_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
     OPENMP_ALLOCATE_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
     OPENMP_ALLOCATE_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
@@ -120,6 +120,7 @@ enum OpenMPReductionClauseIdentifier {
     OPENMP_REDUCTION_IDENTIFIER(reduction_max)
     OPENMP_REDUCTION_IDENTIFIER(reduction_min)
     OPENMP_REDUCTION_IDENTIFIER(user)
+    OPENMP_REDUCTION_IDENTIFIER(unknown)
 #undef OPENMP_REDUCTION_IDENTIFIER
 };
 

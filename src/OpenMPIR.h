@@ -20,6 +20,7 @@ class SourceLocation {
     int getLine ( ) { return line; };
     int getColumn ( ) { return column; };
 
+    protected:
     SourceLocation(int _line = 0, int _col = 0) : line(_line), column(_col) { } ;
 };
 
@@ -43,7 +44,11 @@ public:
 
     // a list of expressions or variables that are language-specific for the clause, ompparser does not parse them,
     // instead, it only stores them as strings
-    void addLangExpr(const char *expression, int line = 0, int col = 0);
+    void addLangExpr(const char *expression, int line = 0, int col = 0) {
+    //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
+	expressions.push_back(expression);
+    //locations.push_back(SourceLocation(line, col));
+    };
 
     std::vector<const char *> &getExpressions() { return expressions; };
 
@@ -96,7 +101,7 @@ protected:
      * @param ...
      * @return
      */
-    OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
+    //OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
 
     /**
      * normalize all the clause of a specific kind
@@ -118,6 +123,9 @@ public:
 
     /* generate DOT representation of the directive */
     void generateDOT();
+
+    // To call this method directly to add new clause, it can't be protected.
+    OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
 };
 
 // reduction clause
@@ -133,7 +141,7 @@ public:
 
     OpenMPReductionClause(OpenMPClauseKind k, OpenMPReductionClauseModifier _modifier,
                           OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(k),
-                                         modifer(_modifer), identifier(_identifier) { };
+                                         modifier(_modifier), identifier(_identifier) { };
 
     OpenMPReductionClauseModifier getModifier() { return modifier; };
 
@@ -178,20 +186,6 @@ public:
     char *getUserDefinedAllocator() { return userDefinedAllocator; };
 };
 
-// Lastprivate Clause
-class OpenMPLastprivateClause : public OpenMPClause {
-
-protected:
-    OpenMPLastprivateClauseKind lastPrivate; // lastPrivate
-
-public:
-    OpenMPLastprivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-
-    // 	LASTPRIVATE
-    void setLastprivateValue(OpenMPLastprivateClauseKind v);
-
-    OpenMPLastprivateClauseKind getLastprivateClauseValue();
-};
 
 // ProcBind Clause
 class OpenMPProcBindClause : public OpenMPClause {
@@ -215,7 +209,7 @@ protected:
 
 public:
     OpenMPDefaultClause(OpenMPClauseKind k, OpenMPDefaultClauseKind _defaultKind) :
-            OpenMPClause(k), deafultKind(_defaultKind) { };
+            OpenMPClause(k), defaultKind(_defaultKind) { };
 
     OpenMPDefaultClauseKind getDefaultClauseKind() {return defaultKind; };
 };
@@ -231,7 +225,7 @@ public:
             OpenMPClause(k), ifKind(_ifKind) { };
 
     OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
-    void setIfClauseKind(OpenMPIfClauseKind ifKind) { this.ifKind = ifKind; };
+    void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
 };
 
 // Copyin Clause
