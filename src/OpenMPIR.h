@@ -14,18 +14,26 @@
 
 using namespace std;
 
+enum OpenMPBaseLang {
+    Lang_C,
+    Lang_Cplusplus,
+    Lang_Fortran,
+};
+
 class SourceLocation {
     int line;
     int column;
     int getLine ( ) { return line; };
     int getColumn ( ) { return column; };
 
-    protected:
+    public:
     SourceLocation(int _line = 0, int _col = 0) : line(_line), column(_col) { } ;
 };
 
 /**
- * The baseclass for all the clause classes.
+ * The class or baseclass for all the clause classes. For all the clauses that only take 0 to multiple expression or
+ * variables, we use this class to create objects. For all other clauses, which requires at least one parameters,
+ * we will have an inherit class from this one, and the superclass contains fields for the parameters
  */
 class OpenMPClause : public SourceLocation {
 protected:
@@ -45,9 +53,9 @@ public:
     // a list of expressions or variables that are language-specific for the clause, ompparser does not parse them,
     // instead, it only stores them as strings
     void addLangExpr(const char *expression, int line = 0, int col = 0) {
-    //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
-	expressions.push_back(expression);
-    //locations.push_back(SourceLocation(line, col));
+        //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
+	    expressions.push_back(expression);
+        locations.push_back(SourceLocation(line, col));
     };
 
     std::vector<const char *> &getExpressions() { return expressions; };
@@ -61,6 +69,7 @@ public:
 class OpenMPDirective : public SourceLocation  {
 protected:
     OpenMPDirectiveKind kind;
+    OpenMPBaseLang lang;
 
     /* the map to store clauses of the directive, for each clause, we store a vector of OpenMPClause objects
      * since there could be multiple clause objects for those clauses that take parameters, e.g. reduction clause
@@ -78,10 +87,10 @@ protected:
      * This method searches the clauses map to see whether one or more OpenMPClause objects of the specified kind
      * parameters exist in the directive, if so it returns the objects that match.
      * @param kind clause kind
-     * @param ... clause parameters
+     * @param parameters clause parameters
      * @return
      */
-    std::vector<OpenMPClause *> searchOpenMPClause(OpenMPClauseKind kind, ...);
+    std::vector<OpenMPClause *> searchOpenMPClause(OpenMPClauseKind kind, int num, int * parameters);
 
     /**
      * Search and add a clause of kind and parameters specified by the variadic parameters.
@@ -98,10 +107,10 @@ protected:
      * NOTE: if only partial parameters are provided as keys to search for a clause, the function will only
      * return the first one that matches. Thus, the method should NOT be called with partial parameters of a specific clause
      * @param kind
-     * @param ...
+     * @param parameters clause parameters, number of parameters should be determined by the kind
      * @return
      */
-    //OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
+    OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, int * parameters);
 
     /**
      * normalize all the clause of a specific kind
@@ -111,13 +120,14 @@ protected:
     void * normalizeClause(OpenMPClauseKind kind);
 
 public:
-    OpenMPDirective(OpenMPDirectiveKind k , int _line = 0, int _col = 0) : SourceLocation(_line, _col), kind(k) {};
+    OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_C, int _line = 0, int _col = 0) :
+            SourceLocation(_line, _col), kind(k), lang(_lang) {};
 
     OpenMPDirectiveKind getKind() { return kind; };
 
-    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> &getClauses();
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &clauses; };
 
-    std::vector<OpenMPClause *> &getClauses(OpenMPClauseKind kind);
+    std::vector<OpenMPClause *> *getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
 
     std::string toString();
 
@@ -137,34 +147,17 @@ protected:
     char *userDefinedIdentifier;                // user defined identifier if it is used
 
 public:
-    OpenMPReductionClause(OpenMPClauseKind k) : OpenMPClause(k) { }
+    OpenMPReductionClause( ) : OpenMPClause(OMPC_reduction) { }
 
-    OpenMPReductionClause(OpenMPClauseKind k, OpenMPReductionClauseModifier _modifier,
-                          OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(k),
-                                         modifier(_modifier), identifier(_identifier) { };
+    OpenMPReductionClause(OpenMPReductionClauseModifier _modifier,
+                          OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(OMPC_reduction),
+                                         modifier(_modifier), identifier(_identifier), userDefinedIdentifier (NULL) { };
 
     OpenMPReductionClauseModifier getModifier() { return modifier; };
 
     OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
 
     void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; };
-
-    char *getUserDefinedIdentifier() { return userDefinedIdentifier; };
-};
-
-// in_reduction clause
-class OpenMPInReductionClause : public OpenMPClause {
-protected:
-    OpenMPReductionClauseIdentifier identifier; // identifier
-    char *userDefinedIdentifier;                         /* user defined identifier if it is used */
-public:
-    OpenMPInReductionClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-    OpenMPInReductionClause(OpenMPClauseKind k,
-                            OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(k), identifier(_identifier) { };
-
-    OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
-
-    void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; }
 
     char *getUserDefinedIdentifier() { return userDefinedIdentifier; };
 };
@@ -176,8 +169,8 @@ protected:
     char *userDefinedAllocator;                         /* user defined value if it is used */
 
 public:
-    OpenMPAllocateClause(OpenMPClauseKind k, OpenMPAllocateClauseAllocator _allocator) :
-            OpenMPClause(k), allocator(_allocator) { };
+    OpenMPAllocateClause(OpenMPAllocateClauseAllocator _allocator) :
+            OpenMPClause(OMPC_allocate), allocator(_allocator), userDefinedAllocator (NULL) { };
 
     OpenMPAllocateClauseAllocator getAllocator() { return allocator; };
 
@@ -194,8 +187,8 @@ protected:
     OpenMPProcBindClauseKind proc_bindKind; // proc_bind
 
 public:
-    OpenMPProcBindClause(OpenMPClauseKind k, OpenMPProcBindClauseKind pbkind) :
-            OpenMPClause(k), proc_bindKind(pbkind) { };
+    OpenMPProcBindClause(OpenMPProcBindClauseKind pbkind) :
+            OpenMPClause(OMPC_proc_bind), proc_bindKind(pbkind) { };
 
     OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bindKind; };
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
@@ -208,8 +201,8 @@ protected:
     OpenMPDefaultClauseKind defaultKind; // default
 
 public:
-    OpenMPDefaultClause(OpenMPClauseKind k, OpenMPDefaultClauseKind _defaultKind) :
-            OpenMPClause(k), defaultKind(_defaultKind) { };
+    OpenMPDefaultClause(OpenMPDefaultClauseKind _defaultKind) :
+            OpenMPClause(OMPC_default), defaultKind(_defaultKind) { };
 
     OpenMPDefaultClauseKind getDefaultClauseKind() {return defaultKind; };
 };
@@ -221,51 +214,10 @@ protected:
     OpenMPIfClauseKind ifKind; // if
 
 public:
-    OpenMPIfClause(OpenMPClauseKind k, OpenMPIfClauseKind _ifKind) :
-            OpenMPClause(k), ifKind(_ifKind) { };
+    OpenMPIfClause(OpenMPIfClauseKind _ifKind) :
+            OpenMPClause(OMPC_if), ifKind(_ifKind) { };
 
     OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
     void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
 };
-
-// Copyin Clause
-class OpenMPCopyinClause : public OpenMPClause {
-
-protected:
-public:
-    OpenMPCopyinClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-};
-
-// Private Clause
-class OpenMPPrivateClause : public OpenMPClause {
-
-protected:
-public:
-    OpenMPPrivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-};
-
-// FirstPrivate Clause
-class OpenMPFirstprivateClause : public OpenMPClause {
-
-protected:
-public:
-    OpenMPFirstprivateClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-};
-
-// Shared Clause
-class OpenMPSharedClause : public OpenMPClause {
-
-protected:
-public:
-    OpenMPSharedClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-};
-
-// Numthreads Clause
-class OpenMPNumthreadsClause : public OpenMPClause {
-
-protected:
-public:
-    OpenMPNumthreadsClause(OpenMPClauseKind k) : OpenMPClause(k) {}
-};
-
 #endif //OMPPARSER_OPENMPAST_H

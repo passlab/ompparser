@@ -51,6 +51,7 @@ enum OpenMPIfClauseKind {
     OPENMP_IF_KIND(simd)
     OPENMP_IF_KIND(task)
 
+    OPENMP_IF_KIND(unspecified)
     OPENMP_IF_KIND(unknown)
 #undef OPENMP_IF_KIND
 };
@@ -107,18 +108,18 @@ enum OpenMPReductionClauseModifier {
 /// identifiers for 'reduction' clause.
 enum OpenMPReductionClauseIdentifier {
 #define OPENMP_REDUCTION_IDENTIFIER(Name) OMPC_REDUCTION_IDENTIFIER_##Name,
-    OPENMP_REDUCTION_IDENTIFIER(reduction_plus)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_minus)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_mul)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_bitand)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_bitor)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_bitxor)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_logand)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_logor)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_eqv) /* only for Fortran */
-    OPENMP_REDUCTION_IDENTIFIER(reduction_neqv) /* only for Fortran */
-    OPENMP_REDUCTION_IDENTIFIER(reduction_max)
-    OPENMP_REDUCTION_IDENTIFIER(reduction_min)
+    OPENMP_REDUCTION_IDENTIFIER(plus)
+    OPENMP_REDUCTION_IDENTIFIER(minus)
+    OPENMP_REDUCTION_IDENTIFIER(mul)
+    OPENMP_REDUCTION_IDENTIFIER(bitand)
+    OPENMP_REDUCTION_IDENTIFIER(bitor)
+    OPENMP_REDUCTION_IDENTIFIER(bitxor)
+    OPENMP_REDUCTION_IDENTIFIER(logand)
+    OPENMP_REDUCTION_IDENTIFIER(logor)
+    OPENMP_REDUCTION_IDENTIFIER(eqv) /* only for Fortran */
+    OPENMP_REDUCTION_IDENTIFIER(neqv) /* only for Fortran */
+    OPENMP_REDUCTION_IDENTIFIER(max)
+    OPENMP_REDUCTION_IDENTIFIER(min)
     OPENMP_REDUCTION_IDENTIFIER(user)
     OPENMP_REDUCTION_IDENTIFIER(unknown)
 #undef OPENMP_REDUCTION_IDENTIFIER
