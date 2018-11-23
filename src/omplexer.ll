@@ -88,28 +88,51 @@ close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
 master          { return MASTER; }
 
+"("             { BEGIN(CLAUSE_STATE); return '('; }
+")"             { return ')'; }
+","             { return ','; }
+
 {comment}       {; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
 
-<ALLOCATE_STATE>omp_default_mem_alloc       { return DEFAULT_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_large_cap_mem_alloc    	{ return LARGE_CAP_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_const_mem_alloc       	{ return CONST_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_high_bw_mem_alloc       { return HIGH_BW_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_low_lat_mem_alloc       { return LOW_LAT_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_cgroup_mem_alloc       	{ return CGROUP_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_pteam_mem_alloc       	{ return PTEAM_MEM_ALLOC; }
-<ALLOCATE_STATE>omp_thread_mem_alloc        { return THREAD_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_default_mem_alloc/{blank}*:       { return DEFAULT_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_large_cap_mem_alloc/{blank}*:     { return LARGE_CAP_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_const_mem_alloc/{blank}*:         { return CONST_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_high_bw_mem_alloc/{blank}*:       { return HIGH_BW_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_low_lat_mem_alloc/{blank}*:       { return LOW_LAT_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_cgroup_mem_alloc/{blank}*:        { return CGROUP_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
+<ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
+<ALLOCATE_STATE>"("                         { return '('; }
+<ALLOCATE_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
+<ALLOCATE_STATE>{blank}*                    { ; }
+<ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-<REDUCTION_STATE>inscan    					{ return MODIFIER_INSCAN;}
-<REDUCTION_STATE>task      					{ return MODIFIER_TASK;}
-<REDUCTION_STATE>default   					{ return MODIFIER_DEFAULT;}
+<REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
+<REDUCTION_STATE>task/{blank}*,				{ return MODIFIER_TASK; }
+<REDUCTION_STATE>default/{blank}*,			{ return MODIFIER_DEFAULT; }
+<REDUCTION_STATE>"("                        { return '('; }
+<REDUCTION_STATE>","                        { return ','; }
+<REDUCTION_STATE>":"                        { BEGIN(EXPR_STATE); return ':'; }
+<REDUCTION_STATE>"+"                        { return '+'; }
+<REDUCTION_STATE>"-"                        { return '-'; }
+<REDUCTION_STATE>"*"                        { return '*'; }
+<REDUCTION_STATE>"&"                        { return '&'; }
+<REDUCTION_STATE>"|"                        { return '|'; }
+<REDUCTION_STATE>"^"                        { return '^'; }
+<REDUCTION_STATE>"&&"                       { return LOGAND; }
+<REDUCTION_STATE>"||"                       { return LOGOR; }
+<REDUCTION_STATE>min/{blank}*:              { return MIN; }
+<REDUCTION_STATE>max/{blank}*:              { return MAX; }
+<REDUCTION_STATE>{blank}*                   { ; }
+<REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-":"							                { BEGIN(EXPR_STATE); return ':';}
-<CLAUSE>.         { BEGIN(EXPR_STATE); CurrentString = yytext[0];}
+":"							                { BEGIN(EXPR_STATE); return ':'; }
+<CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-<EXPR_STATE>.     {   CurrentChar = yytext[0];
+<EXPR_STATE>.   { CurrentChar = yytext[0];
                 ParenLocalCount = 0;
                 ParenGlobalCount = 1;
                 BracketCount = 0;

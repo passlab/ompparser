@@ -74,8 +74,8 @@ corresponding C type is union name defaults to YYSTYPE.
 %%
 
 /* lang-dependent expression is only used in clause, at this point, the currentClause object should already be created. */
-expression : EXPR_STRING { currentClause->addLangExpr($1); }
-variable :   EXPR_STRING { currentClause->addLangExpr($1); } /* we use expression for variable so far */
+expression : EXPR_STRING { std::cout << $1 << "\n"; currentClause->addLangExpr($1); }
+variable :   EXPR_STRING { std::cout << $1 << "\n"; currentClause->addLangExpr($1); } /* we use expression for variable so far */
 
 /*expr_list : expression
         | expr_list ',' expression
@@ -88,8 +88,8 @@ var_list : variable
 openmp_directive : parallel_directive 
                  ;
 
-parallel_directive : OMP PARALLEL {
-                       currentDirective = new OpenMPDirective(OMPD_parallel);
+parallel_directive : OMP  PARALLEL {
+                        currentDirective = new OpenMPDirective(OMPD_parallel);
                      }
                      parallel_clause_optseq 
                    ;
@@ -151,10 +151,9 @@ proc_bind_parameter : MASTER    { currentClause = currentDirective->addOpenMPCla
 
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
-allocate_parameter :   VAR_STRING  { currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
-                     | VAR_STRING "," {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); }
-                       var_list
+allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
+                     | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
+                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($3); }
                      | allocator_parameter ':' { ; } var_list
                       ;
 
@@ -166,7 +165,7 @@ allocator_parameter : DEFAULT_MEM_ALLOC 		    { currentClause = currentDirective
 						  | CGROUP_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cgroup); }
 						  | PTEAM_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_pteam); }
 						  | THREAD_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_thread); }
-						  | VAR_STRING              { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
+						  | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
 						;
 
 private_clause : PRIVATE {
@@ -191,11 +190,11 @@ reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_IDENTIFIER_unknow
 					;
 
 reduction_parameter : reduction_identifier {}
-					| reduction_modifier ',' reduction_identifier {}
+					| reduction_modifier ',' reduction_identifier
 					;
 
 reduction_identifier : reduction_enum_identifier {	}
-					| VAR_STRING
+					| EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
 				  ;
 
 reduction_modifier : MODIFIER_INSCAN 	{ firstParameter = OMPC_REDUCTION_MODIFIER_inscan; }
@@ -213,7 +212,6 @@ reduction_enum_identifier :  '+'		{ currentClause = currentDirective->addOpenMPC
 						   | LOGOR		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logor); }
 						   | MAX		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_max); }
 						   | MIN		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
-						   | VAR_STRING { currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
 						;
 
 %%
