@@ -104,7 +104,7 @@ parallel_clause_seq : parallel_clause
                     ;
 parallel_clause : if_clause
                 | num_threads_clause
-                /*| default_clause*/
+                | default_clause
                 | private_clause
                 | firstprivate_clause
                 | shared_clause
@@ -141,6 +141,14 @@ copyin_clause: COPYIN {
                 currentClause = currentDirective->addOpenMPClause(OMPC_copyin);
 				} '(' var_list ')'
 			  ;
+
+default_clause : DEFAULT '(' default_parameter ')' { } ;
+
+default_parameter : SHARED { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_shared); }
+                    | NONE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
+                    | FIRSTPRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
+                    | PRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
+
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
 

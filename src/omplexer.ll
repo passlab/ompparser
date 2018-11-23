@@ -4,6 +4,7 @@
 %x EXPR_STATE
 %x CLAUSE_STATE
 %x ALLOCATE_STATE
+%x DEFAULT_STATE
 %x IF_STATE
 %x PROC_BIND_STATE
 %x REDUCTION_STATE
@@ -75,7 +76,7 @@ task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
-default         { return DEFAULT; }
+default         { BEGIN(DEFAULT_STATE); return DEFAULT; }
 private         { return PRIVATE; }
 firstprivate    { return FIRSTPRIVATE; }
 shared          { return SHARED; }
@@ -118,13 +119,23 @@ master          { return MASTER; }
 <IF_STATE>{blank}*                    { ; }
 <IF_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-<PROC_BIND_STATE>master          { return MASTER; }
-<PROC_BIND_STATE>close              { return CLOSE; }
-<PROC_BIND_STATE>spread              { return SPREAD; }
-<PROC_BIND_STATE>"("                         { return '('; }
-<PROC_BIND_STATE>")"                         { BEGIN(INITIAL); return ')'; }
-<PROC_BIND_STATE>{blank}*                    { ; }
-<PROC_BIND_STATE>.                           { return -1; }
+<PROC_BIND_STATE>master                     { return MASTER; }
+<PROC_BIND_STATE>close                      { return CLOSE; }
+<PROC_BIND_STATE>spread                     { return SPREAD; }
+<PROC_BIND_STATE>"("                        { return '('; }
+<PROC_BIND_STATE>")"                        { BEGIN(INITIAL); return ')'; }
+<PROC_BIND_STATE>{blank}*                   { ; }
+<PROC_BIND_STATE>.                          { return -1; }
+
+<DEFAULT_STATE>shared                       { return SHARED; }
+<DEFAULT_STATE>none                         { return NONE; }
+<DEFAULT_STATE>firstprivate                 { return FIRSTPRIVATE; }
+<DEFAULT_STATE>private                      { return PRIVATE; }
+<DEFAULT_STATE>"("                          { return '('; }
+<DEFAULT_STATE>")"                          { BEGIN(INITIAL); return ')'; }
+<DEFAULT_STATE>{blank}*                     { ; }
+<DEFAULT_STATE>.                            { return -1; }
+
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
 <REDUCTION_STATE>task/{blank}*,				{ return MODIFIER_TASK; }
