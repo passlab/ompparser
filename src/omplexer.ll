@@ -4,11 +4,11 @@
 %x EXPR_STATE
 %x CLAUSE_STATE
 %x ALLOCATE_STATE
+%x IF_STATE
+%x PROC_BIND_STATE
 %x REDUCTION_STATE
 
 %{
-#undef ECHO
-#define ECHO printf ("[%s]\n", yytext)
 
 /* DQ (12/10/2016): This is a technique to suppress warnings in generated code that we want to be an error elsewhere in ROSE. 
    See https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html for more detail.
@@ -72,7 +72,7 @@ comment         [\/\/].*
 omp             { return OMP; }
 parallel        { return PARALLEL; }
 task            { return TASK; }
-if              { return IF; }
+if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
 default         { return DEFAULT; }
@@ -82,7 +82,7 @@ shared          { return SHARED; }
 none            { return NONE; }
 reduction       { BEGIN(REDUCTION_STATE); return REDUCTION; }
 copyin          { return COPYIN; }
-proc_bind       { return PROC_BIND; }
+proc_bind       { BEGIN(PROC_BIND_STATE); return PROC_BIND; }
 allocate        { BEGIN(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
@@ -109,6 +109,22 @@ master          { return MASTER; }
 <ALLOCATE_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
 <ALLOCATE_STATE>{blank}*                    { ; }
 <ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+<IF_STATE>parallel{blank}*/:          { return PARALLEL; }
+<IF_STATE>simd{blank}*/:              { return SIMD; }
+<IF_STATE>task{blank}*/:              { return TASK; }
+<IF_STATE>"("                         { return '('; }
+<IF_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
+<IF_STATE>{blank}*                    { ; }
+<IF_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+<PROC_BIND_STATE>master          { return MASTER; }
+<PROC_BIND_STATE>close              { return CLOSE; }
+<PROC_BIND_STATE>spread              { return SPREAD; }
+<PROC_BIND_STATE>"("                         { return '('; }
+<PROC_BIND_STATE>")"                         { BEGIN(INITIAL); return ')'; }
+<PROC_BIND_STATE>{blank}*                    { ; }
+<PROC_BIND_STATE>.                           { return -1; }
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
 <REDUCTION_STATE>task/{blank}*,				{ return MODIFIER_TASK; }

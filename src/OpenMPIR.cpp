@@ -45,6 +45,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 newClause = new OpenMPIfClause(ifKind);
                 currentClauses->push_back(newClause);
             }
+            break;
         }
         case OMPC_default : {
             OpenMPDefaultClauseKind defaultKind = (OpenMPDefaultClauseKind) va_arg(args, int);
@@ -56,6 +57,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             } else { /* could be an error since if clause may only appear once */
                 std::cerr << "Cannot have two default clause for the directive " << kind << ", ignored\n";
             }
+            break;
         }
         case OMPC_num_threads :
         case OMPC_private :
@@ -118,6 +120,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             } else { /* could be an error since if clause may only appear once */
                 std::cerr << "Cannot have two proc_bind clauses for the directive " << kind << ", ignored\n";
             }
+            break;
         }
         case OMPC_allocate : {
             OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
@@ -144,6 +147,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                     ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(userDefinedAllocator);
                 currentClauses->push_back(newClause);
             }
+            break;
         }
     }
 end:
