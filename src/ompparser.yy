@@ -165,7 +165,7 @@ allocator_parameter : DEFAULT_MEM_ALLOC 		    { currentClause = currentDirective
 						  | CGROUP_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cgroup); }
 						  | PTEAM_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_pteam); }
 						  | THREAD_MEM_ALLOC 		{ currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_thread); }
-						  | EXPR_STRING              { currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
+						  | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
 						;
 
 private_clause : PRIVATE {
@@ -190,11 +190,11 @@ reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_IDENTIFIER_unknow
 					;
 
 reduction_parameter : reduction_identifier {}
-					| reduction_modifier ',' reduction_identifier {}
+					| reduction_modifier ',' reduction_identifier
 					;
 
 reduction_identifier : reduction_enum_identifier {	}
-					| VAR_STRING
+					| EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
 				  ;
 
 reduction_modifier : MODIFIER_INSCAN 	{ firstParameter = OMPC_REDUCTION_MODIFIER_inscan; }
@@ -212,7 +212,6 @@ reduction_enum_identifier :  '+'		{ currentClause = currentDirective->addOpenMPC
 						   | LOGOR		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logor); }
 						   | MAX		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_max); }
 						   | MIN		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
-						   | VAR_STRING { currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
 						;
 
 %%

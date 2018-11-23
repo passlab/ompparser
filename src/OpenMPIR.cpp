@@ -106,6 +106,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                     ((OpenMPReductionClause*)newClause)->setUserDefinedIdentifier(userDefinedIdentifier);
                 currentClauses->push_back(newClause);
             }
+            break;
         }
         case OMPC_proc_bind : {
             OpenMPProcBindClauseKind pbKind = (OpenMPProcBindClauseKind) va_arg(args, int);
