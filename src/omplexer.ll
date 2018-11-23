@@ -88,6 +88,10 @@ close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
 master          { return MASTER; }
 
+"("             { BEGIN(CLAUSE_STATE); return '('; }
+")"             { return ')'; }
+","             { return ','; }
+
 {comment}       {; }
 
 
@@ -101,15 +105,19 @@ master          { return MASTER; }
 <ALLOCATE_STATE>omp_cgroup_mem_alloc       	{ return CGROUP_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_pteam_mem_alloc       	{ return PTEAM_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_thread_mem_alloc        { return THREAD_MEM_ALLOC; }
+<ALLOCATE_STATE>"("                         { return '('; }
+<ALLOCATE_STATE>":"                         { BEGIN(EXPR_STATE); }
+<ALLOCATE_STATE>{blank}*                    { ; }
+<ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 <REDUCTION_STATE>inscan    					{ return MODIFIER_INSCAN;}
 <REDUCTION_STATE>task      					{ return MODIFIER_TASK;}
 <REDUCTION_STATE>default   					{ return MODIFIER_DEFAULT;}
 
-":"							                { BEGIN(EXPR_STATE); return ':';}
-<CLAUSE>.         { BEGIN(EXPR_STATE); CurrentString = yytext[0];}
+":"							                { BEGIN(EXPR_STATE); return ':'; }
+<CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0];}
 
-<EXPR_STATE>.     {   CurrentChar = yytext[0];
+<EXPR_STATE>.   { CurrentChar = yytext[0];
                 ParenLocalCount = 0;
                 ParenGlobalCount = 1;
                 BracketCount = 0;

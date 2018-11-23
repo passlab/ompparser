@@ -43,6 +43,7 @@ int main( int argc, const char* argv[] )
 	// const char* input = "omp parallel reduction (task, user_defined_value : x, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))";
 
 	const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
+	//const char* input = "omp parallel private (a, b, c)";
 	
 	
     OpenMPDirective* openMPAST = parseOpenMP(input);

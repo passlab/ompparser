@@ -11,7 +11,13 @@ using namespace std;
  * @return
  */
 OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
-    std::vector<OpenMPClause *> *currentClauses = getClauses(kind);
+
+    // Check whether the given kind of clause exists first.
+    // If not, create an empty vector.
+    if (clauses.count(kind) == 0) {
+        clauses.insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(kind, new std::vector<OpenMPClause*>));
+    };
+    std::vector<OpenMPClause*>* currentClauses = getClauses(kind);
     va_list args;
     va_start(args, kind);
     OpenMPClause * newClause = NULL;
@@ -56,6 +62,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_firstprivate :
         case OMPC_shared :
         case OMPC_copyin : {
+
             if (currentClauses->size() == 0) {
                 newClause = new OpenMPClause(kind);
                 currentClauses = new std::vector<OpenMPClause*>();
@@ -69,6 +76,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                     newClause = currentClauses->at(0);
                 }
             }
+
+            break;
         }
         case OMPC_reduction : {
             OpenMPReductionClauseModifier modifier = (OpenMPReductionClauseModifier) va_arg(args, int);
