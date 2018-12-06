@@ -1,4 +1,4 @@
-%option prefix="omp_"
+%option prefix="openmp_"
 /*%option outfile="lex.yy.c"*/
 %option stack
 %x EXPR_STATE
@@ -19,9 +19,9 @@
 #endif
 
 /* lex requires me to use extern "C" here */
-extern "C" int omp_wrap() { return 1; }
+extern "C" int openmp_wrap() { return 1; }
 
-extern int omp_lex();
+extern int openmp_lex();
 
 #include <stdio.h>
 #include <string>
@@ -181,7 +181,7 @@ master          { return MASTER; }
                             if (ParenGlobalCount == 0) {
                                 BEGIN(INITIAL);
                                 if (CurrentString.size() != 0) {
-                                    omp_lval.stype = strdup(CurrentString.c_str());
+                                    openmp_lval.stype = strdup(CurrentString.c_str());
                                     CurrentString = "";
                                     unput(')');
                                     return EXPR_STRING;
@@ -200,7 +200,7 @@ master          { return MASTER; }
                                 return ',';
                             }
                             else if (ParenLocalCount == 0) {
-                                omp_lval.stype = strdup(CurrentString.c_str());
+                                openmp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
                                 unput(',');
                                 return EXPR_STRING;
@@ -225,7 +225,7 @@ master          { return MASTER; }
                                 return ':';
                             }
                             else if (BracketCount == 0) {
-                                omp_lval.stype = strdup(CurrentString.c_str());
+                                openmp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
 								unput(':');
                                 return EXPR_STRING;
@@ -255,22 +255,22 @@ expr            {return (EXPRESSION); }
 
 
 /* yy_push_state can't be called outside of this file, provide a wrapper */
-extern void omp_parse_expr() {
+extern void openmp_parse_expr() {
         yy_push_state(EXPR_STATE);
 }
 
 /* entry point invoked by callers to start scanning for a string */
-extern void omp_lexer_init(const char* str) {
+extern void openmp_lexer_init(const char* str) {
   ompparserinput = str;
-  /* We have omp_ suffix for all flex functions */
-  omp_restart(omp_in);
+  /* We have openmp_ suffix for all flex functions */
+  openmp_restart(openmp_in);
 }
 /*Conditional return ID_EXPRESSION or input based on the context*/
 static int cond_return (int input)
 {
   if (b_within_variable_list)
   {
-    omp_lval.stype = strdup(yytext);
+    openmp_lval.stype = strdup(yytext);
     return ID_EXPRESSION;
   }
   else

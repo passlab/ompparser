@@ -1,6 +1,6 @@
 /* OpenMP C/C++/Fortran Grammar */
 
-%name-prefix "omp_"
+%name-prefix "openmp_"
 %defines
 %error-verbose
 
@@ -15,10 +15,10 @@
 #include <string.h>
 
 /*the scanner function*/
-extern int omp_lex(); 
+extern int openmp_lex(); 
 
 /*A customized initialization function for the scanner, str is the string to be scanned.*/
-extern void omp_lexer_init(const char* str);
+extern void openmp_lexer_init(const char* str);
 
 /* Standalone ompparser */
 extern void start_lexer(const char* input);
@@ -33,8 +33,8 @@ static int thirdParameter;
 static int fourthParameter;
 
 /* Treat the entire expression as a string for now */
-extern void omp_parse_expr();
-static int omp_error(const char*);
+extern void openmp_parse_expr();
+static int openmp_error(const char*);
 static const char* orig_str;
 
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
