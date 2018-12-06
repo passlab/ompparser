@@ -39,7 +39,8 @@ set(ompparser_targets ompparser)
 # Install headers and libraries
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/ompparser_config.h
-        OpenMPIR.h
+        src/OpenMPIR.h
+        src/OpenMPKinds.h
         DESTINATION include)
 install(TARGETS ${ompparser_targets}
         LIBRARY DESTINATION lib
