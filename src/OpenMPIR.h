@@ -220,4 +220,13 @@ public:
     OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
     void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    extern  OpenMPDirective * parseOpenMP(const char *);
+#ifdef __cplusplus
+}
+#endif
+
 #endif //OMPPARSER_OPENMPAST_H
