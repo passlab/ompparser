@@ -22,6 +22,7 @@
 extern "C" int openmp_wrap() { return 1; }
 
 extern int openmp_lex();
+extern void * (*exprParse)(const char*);
 
 #include <stdio.h>
 #include <string>
