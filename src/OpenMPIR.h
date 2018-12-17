@@ -43,6 +43,8 @@ protected:
      * the expression/localtionLine/locationColumn are the same index are one record for an expression and its location
      */
     std::vector<const char *> expressions;
+    std::vector<const void *> expressionNodes;
+
     std::vector<SourceLocation> locations;
 
 public:
