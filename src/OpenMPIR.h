@@ -224,7 +224,7 @@ public:
 #ifdef __cplusplus
 extern "C" {
 #endif
-    extern  OpenMPDirective * parseOpenMP(const char *);
+    extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char * expr));
 #ifdef __cplusplus
 }
 #endif
