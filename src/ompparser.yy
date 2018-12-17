@@ -36,6 +36,7 @@ static int fourthParameter;
 extern void openmp_parse_expr();
 static int openmp_error(const char*);
 static const char* orig_str;
+void * (*exprParse)(const char*) = NULL;
 
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
 %}
@@ -238,10 +239,10 @@ int yywrap()
 } 
 
 // Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input) {
+OpenMPDirective* parseOpenMP(const char* input, void * _exprParse(const char*)) {
     
     printf("Start parsing...\n");
-    
+    exprParse = _exprParse;
     start_lexer(input);
     int res = yyparse();
     end_lexer();
