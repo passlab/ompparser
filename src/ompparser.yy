@@ -75,7 +75,7 @@ corresponding C type is union name defaults to YYSTYPE.
 %%
 
 /* lang-dependent expression is only used in clause, at this point, the currentClause object should already be created. */
-expression : EXPR_STRING { std::cout << $1 << "\n"; currentClause->addLangExpr($1); }
+expression : EXPR_STRING { std::cout << $1 << "\n"; currentClause->addLangExpr($1); void * astnode = exprParse)($1); }
 variable :   EXPR_STRING { std::cout << $1 << "\n"; currentClause->addLangExpr($1); } /* we use expression for variable so far */
 
 /*expr_list : expression
