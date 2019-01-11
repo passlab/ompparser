@@ -3,7 +3,7 @@
 #include <string.h>
 #include <iostream>
 
-extern OpenMPDirective* parseOpenMP(const char*);
+extern OpenMPDirective* parseOpenMP(const char*, void * _exprParse(const char*));
 
 void output(OpenMPDirective*);
 
@@ -43,7 +43,7 @@ int main( int argc, const char* argv[] ) {
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
 	
 	
-    OpenMPDirective* openMPAST = parseOpenMP(input);
+    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     
     //output(openMPAST);
     printf("\n");
