@@ -34,6 +34,8 @@ class SourceLocation {
  * The class or baseclass for all the clause classes. For all the clauses that only take 0 to multiple expression or
  * variables, we use this class to create objects. For all other clauses, which requires at least one parameters,
  * we will have an inherit class from this one, and the superclass contains fields for the parameters
+ *
+ * We will need to know all the clauses that directly use this class for their objects: private, shared, firstprivate
  */
 class OpenMPClause : public SourceLocation {
 protected:
@@ -62,7 +64,7 @@ public:
 
     std::vector<const char *>* getExpressions() { return &expressions; };
 
-    std::string toString();
+    virtual std::string toString();
 
 };
 
