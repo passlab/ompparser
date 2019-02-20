@@ -168,13 +168,7 @@ std::string OpenMPDirective::generatePragmaString() {
             std::vector<OpenMPClause*>* current_clauses = it->second;
             std::vector<OpenMPClause*>::iterator clauseIter;
             for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                std::string clause_string = "(";
-                clause_string += (*clauseIter)->expressionToString();
-                //result += (*clauseIter)->toString();
-                clause_string += ") ";
-                if (clause_string.size() > 3) {
-                    result += clause_string;
-                }
+                result += (*clauseIter)->toString();
             }
         }
         result = result.substr(0, result.size()-1);
@@ -220,10 +214,25 @@ std::string OpenMPClause::toString() {
 
     switch (this->getKind()) {
         case OMPC_private:
-            result += "private (";
+            result += "private ";
+            break;
+        case OMPC_firstprivate:
+            result += "firstprivate ";
+            break;
+        case OMPC_shared:
+            result += "shared ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
     }
+
+    std::string clause_string = "(";
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    }
+
+    return result;
 
 }
