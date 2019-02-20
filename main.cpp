@@ -13,6 +13,10 @@ void output(OpenMPDirective* node) {
 	//node->generateDOT(); // node->getLabel()
 
     std::cout << "\nDirective: " << node->getKind() << "\n";
+
+    std::string unparsing_string = node->generatePragmaString();
+    std::cout << unparsing_string << "\n";
+
     /*
     std::vector<OpenMPClause*>* clauses = node->getClauses();
     if (clauses != NULL) {
@@ -45,7 +49,7 @@ int main( int argc, const char* argv[] ) {
 	
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     
-    //output(openMPAST);
+    output(openMPAST);
     printf("\n");
 
 

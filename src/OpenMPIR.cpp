@@ -155,6 +155,60 @@ end:
     return newClause;
 }
 
+std::string OpenMPDirective::generatePragmaString() {
 
+    std::string result = "omp ";
 
+    result += this->toString() + " ";
 
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
+    if (clauses != NULL) {
+        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
+        for (it = clauses->begin(); it != clauses->end(); it++) {
+            std::vector<OpenMPClause*>* current_clauses = it->second;
+            std::vector<OpenMPClause*>::iterator clauseIter;
+            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
+                //result += (*clauseIter)->toString();
+                std::vector<const char*>* expr = (*clauseIter)->getExpressions();
+                if (expr != NULL) {
+                    std::vector<const char*>::iterator itExpr;
+                    for (itExpr = expr->begin(); itExpr != expr->end(); itExpr++) {
+                        std::cout << "        Parameter: " << *itExpr << "\n";
+                    }
+                }
+            }
+
+        }
+    }
+
+    return result;
+};
+
+std::string OpenMPDirective::toString() {
+
+    std::string result;
+
+    switch (this->getKind()) {
+        case OMPD_parallel:
+            result += "parallel ";
+            break;
+        default:
+            printf("The directive enum is not supported yet.\n");
+    };
+
+    return result;
+}
+
+std::string OpenMPClause::toString() {
+
+    std::string result;
+
+    switch (this->getKind()) {
+        case OMPC_private:
+            result += "private (";
+            break;
+        default:
+            printf("The clause enum is not supported yet.\n");
+    }
+
+}

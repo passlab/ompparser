@@ -60,9 +60,10 @@ public:
         locations.push_back(SourceLocation(line, col));
     };
 
-    std::vector<const char *> &getExpressions() { return expressions; };
+    std::vector<const char *>* getExpressions() { return &expressions; };
 
     std::string toString();
+
 };
 
 /**
@@ -135,6 +136,8 @@ public:
 
     /* generate DOT representation of the directive */
     void generateDOT();
+
+    std::string generatePragmaString();
 
     // To call this method directly to add new clause, it can't be protected.
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
