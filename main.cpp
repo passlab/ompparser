@@ -17,25 +17,6 @@ void output(OpenMPDirective* node) {
     std::string unparsing_string = node->generatePragmaString();
     std::cout << unparsing_string << "\n";
 
-    /*
-    std::vector<OpenMPClause*>* clauses = node->getClauses();
-    if (clauses != NULL) {
-        std::vector<OpenMPClause*>::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            //std::cout << "    Clause: " << (*it)->getLabel() << "\n"; // (*it)->getKind()
-			//std::cout << "        1st UDT Parameter: " << (*it)->getCustomFirstParameter() << "\n";
-			//std::cout << "        2nd UDT Parameter: " << (*it)->getCustomSecondParameter()  << "\n";
-            std::vector<const char*>* expr = (*it)->getExpr();
-            if (expr != NULL) {
-                std::vector<const char*>::iterator itExpr;
-                for (itExpr = expr->begin(); itExpr != expr->end(); itExpr++) {
-                    std::cout << "        Parameter: " << *itExpr << "\n";
-                }
-            }
-
-        }
-    }
-    */
 }
 
 int main( int argc, const char* argv[] ) {

@@ -159,7 +159,7 @@ std::string OpenMPDirective::generatePragmaString() {
 
     std::string result = "omp ";
 
-    result += this->toString() + " ";
+    result += this->toString();
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
@@ -168,17 +168,16 @@ std::string OpenMPDirective::generatePragmaString() {
             std::vector<OpenMPClause*>* current_clauses = it->second;
             std::vector<OpenMPClause*>::iterator clauseIter;
             for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
+                std::string clause_string = "(";
+                clause_string += (*clauseIter)->expressionToString();
                 //result += (*clauseIter)->toString();
-                std::vector<const char*>* expr = (*clauseIter)->getExpressions();
-                if (expr != NULL) {
-                    std::vector<const char*>::iterator itExpr;
-                    for (itExpr = expr->begin(); itExpr != expr->end(); itExpr++) {
-                        std::cout << "        Parameter: " << *itExpr << "\n";
-                    }
+                clause_string += ") ";
+                if (clause_string.size() > 3) {
+                    result += clause_string;
                 }
             }
-
         }
+        result = result.substr(0, result.size()-1);
     }
 
     return result;
@@ -198,6 +197,22 @@ std::string OpenMPDirective::toString() {
 
     return result;
 }
+
+std::string OpenMPClause::expressionToString() {
+
+    std::string result;
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            result += std::string(*it) + ", ";
+        };
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
 
 std::string OpenMPClause::toString() {
 

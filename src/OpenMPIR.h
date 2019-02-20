@@ -66,6 +66,8 @@ public:
 
     virtual std::string toString();
 
+    std::string expressionToString();
+
 };
 
 /**
