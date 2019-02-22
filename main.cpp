@@ -11,6 +11,7 @@ void output(OpenMPDirective* node) {
     
     std::string unparsing_string = node->generatePragmaString();
     std::cout << unparsing_string << "\n";
+    node->generateDOT();
 
 }
 

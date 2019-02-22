@@ -236,3 +236,75 @@ std::string OpenMPClause::toString() {
     return result;
 
 }
+
+void OpenMPDirective::generateDOT() {
+
+    std::string directive_kind = this->toString();
+
+    std::string current_line = "graph OpenMPIR_" + directive_kind + " {\n";
+
+    std::string filename = "OpenMPIR_" + directive_kind.substr(0, directive_kind.size()-1) + ".dot";
+    std::ofstream output(filename.c_str());
+
+    output << current_line.c_str();
+
+    current_line = "";
+
+    if (current_line == "") {
+        output << directive_kind.c_str() << "\n";
+    }
+
+
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
+    if (clauses != NULL) {
+        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
+        for (it = clauses->begin(); it != clauses->end(); it++) {
+            std::vector<OpenMPClause*>* current_clauses = it->second;
+            std::vector<OpenMPClause*>::iterator clauseIter;
+            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
+                (*clauseIter)->generateDOT(output, directive_kind);
+            }
+        }
+    }
+
+    output << "}\n";
+
+};
+
+void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_kind) {
+
+    std::string current_line;
+    std::string clause_kind;
+    switch (this->getKind()) {
+        case OMPC_private:
+            clause_kind = "private ";
+            break;
+        case OMPC_firstprivate:
+            clause_kind = "firstprivate ";
+            break;
+        case OMPC_shared:
+            clause_kind = "shared ";
+            break;
+        default:
+            printf("The clause enum is not supported yet.\n");
+    }
+    current_line = "\t" + directive_kind + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int idx = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind.substr(0, clause_kind.size()-1) + "_expr" + std::to_string(idx) + " [label=\"" + std::string(*it) + "\"]\n";
+            idx += 1;
+            current_line = "\t\t " + clause_kind + "-- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+        };
+    }
+
+}
+
+
+

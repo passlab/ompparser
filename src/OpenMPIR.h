@@ -65,8 +65,8 @@ public:
     std::vector<const char *>* getExpressions() { return &expressions; };
 
     virtual std::string toString();
-
     std::string expressionToString();
+    virtual void generateDOT(std::ofstream&, std::string);
 
 };
 
