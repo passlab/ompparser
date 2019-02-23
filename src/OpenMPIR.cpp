@@ -250,12 +250,6 @@ void OpenMPDirective::generateDOT() {
 
     current_line = "";
 
-    if (current_line == "") {
-        output << directive_kind.c_str() << "\n";
-    }
-
-
-
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
         std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
@@ -266,6 +260,10 @@ void OpenMPDirective::generateDOT() {
                 (*clauseIter)->generateDOT(output, directive_kind);
             }
         }
+    }
+
+    if (current_line == "") {
+        output << directive_kind.c_str() << "\n";
     }
 
     output << "}\n";
@@ -297,9 +295,11 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
         int idx = 0;
         std::string expr_name;
         for (it = expr->begin(); it != expr->end(); it++) {
-            expr_name = clause_kind.substr(0, clause_kind.size()-1) + "_expr" + std::to_string(idx) + " [label=\"" + std::string(*it) + "\"]\n";
+            expr_name = clause_kind.substr(0, clause_kind.size()-1) + "_expr" + std::to_string(idx);
             idx += 1;
-            current_line = "\t\t " + clause_kind + "-- " + expr_name + "\n";
+            current_line = "\t\t" + clause_kind + "-- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = "\t\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
             dot_file << current_line.c_str();
         };
     }
