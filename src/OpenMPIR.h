@@ -188,6 +188,22 @@ public:
     char *getUserDefinedAllocator() { return userDefinedAllocator; };
 };
 
+// lastprivate
+class OpenMPLastprivateClause : public OpenMPClause {
+protected:
+    OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
+    char *userDefinedModifier;                         /* user defined value if it is used */
+
+public:
+    OpenMPLastprivateClause(OpenMPLastprivateClauseModifier _modifier) :
+            OpenMPClause(OMPC_lastprivate), modifier(_modifier), userDefinedModifier (NULL) { };
+
+    OpenMPLastprivateClauseModifier getModifier() { return modifier; };
+
+    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+
+    char *getUserDefinedModifier() { return userDefinedModifier; };
+};
 
 // ProcBind Clause
 class OpenMPProcBindClause : public OpenMPClause {

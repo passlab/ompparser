@@ -54,9 +54,10 @@ corresponding C type is union name defaults to YYSTYPE.
           void* ptype; /* For expressions or variables */
         }
 
-%token  OMP PARALLEL
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK
-        NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
+%token  OMP PARALLEL FOR
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE 
+        LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME/*YAYING*/
+        NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
@@ -86,23 +87,40 @@ var_list : variable
         | var_list ',' variable
         ;
 
-openmp_directive : parallel_directive 
+openmp_directive : parallel_directive
+		 | for_directive
                  ;
 
 parallel_directive : OMP  PARALLEL {
-                        currentDirective = new OpenMPDirective(OMPD_parallel);
+                        currentDirective = new OpenMPDirective(OMPD_parallel); 
                      }
                      parallel_clause_optseq 
+                   ;
+/*YAYING*/
+for_directive : OMP  FOR {
+                        currentDirective = new OpenMPDirective(OMPD_for);printf("create a directive\n");	
+                     }
+                     for_clause_optseq 
                    ;
 
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
                        ;
 
+for_clause_optseq : /*empty*/
+	          | for_clause_seq {printf("i am in for\n");}
+                  ;
+
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
                     ;
+
+for_clause_seq : for_clause
+               | for_clause_seq for_clause
+               | for_clause_seq "," for_clause
+               ;
+
 parallel_clause : if_clause
                 | num_threads_clause
                 | default_clause
@@ -114,6 +132,19 @@ parallel_clause : if_clause
                 | proc_bind_clause
                 | allocate_clause
                 ;
+
+for_clause : private_clause
+	   | firstprivate_clause 
+	   | lastprivate_clause 
+	   | linear_clause
+	   | reduction_clause
+//	   | schedule_clause
+	   | collapse_clause 
+	   | ordered_clause
+	   | nowait_clause
+	   | allocate_clause 
+	   | order_clause 
+	   ;
 
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
@@ -149,6 +180,7 @@ default_parameter : SHARED { currentClause = currentDirective->addOpenMPClause(O
                     | NONE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
                     | FIRSTPRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
                     | PRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
+		     ;
 
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
@@ -188,6 +220,52 @@ firstprivate_clause : FIRSTPRIVATE {
 						} '(' var_list ')' {
 						}
 					  ;
+	   
+lastprivate_clause : LASTPRIVATE '('  lastprivate_parameter')';
+
+lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);} var_list
+		      |	EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }
+                      | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
+                         currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($3); }
+		      ;
+
+linear_clause : LINEAR '('  lastprivate_parameter')';
+
+lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);} var_list
+		      |	EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }
+                      | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
+                         currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($3); }
+		      ;
+
+collapse_clause: COLLAPSE { currentClause = currentDirective->addOpenMPClause(OMPC_collapse);} '(' var_list ')' {
+						}
+					  ;
+
+ordered_clause: ORDERED {currentClause = currentDirective->addOpenMPClause(OMPC_ordered);} '(' var_list ')'
+              | ORDERED {currentClause = currentDirective->addOpenMPClause(OMPC_ordered);}
+			  ;
+
+nowait_clause: NOWAIT {currentClause = currentDirective->addOpenMPClause(OMPC_nowait);}
+			  ;
+
+order_clause: ORDER  {currentClause = currentDirective->addOpenMPClause(OMPC_order);} '(' var_list ')'
+		          ;
+
+linear_clause: LINEAR {currentClause = currentDirective->addOpenMPClause(OMPC_linear);} '(' var_list ')'
+			  ;
+
+//schedule_clause: SCHEDULE {firstParameter = OMPC_SCHEDULE_IDENTIFIER_unknown;}'(' schedule_parameter ':' var_list ')' {
+//					}
+//					;
+
+//schedule_parameter : schedule_kind {}
+//		   | schedule_modifier ',' schedule_kind
+//		   ;
+
+
+//schdule_kind : schedule_enum_kind {	}
+//	     | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_for, firstParameter, OMPC_FOR_IDENTIFIER_user, $1); }
+//		   ;
 
 shared_clause : SHARED {
                 currentClause = currentDirective->addOpenMPClause(OMPC_shared);

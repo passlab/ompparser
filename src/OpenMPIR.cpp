@@ -63,7 +63,11 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_private :
         case OMPC_firstprivate :
         case OMPC_shared :
-        case OMPC_copyin : {
+        case OMPC_copyin :
+	case OMPC_collapse :
+	case OMPC_ordered :
+	case OMPC_order :
+	case OMPC_nowait :		    {
 
             if (currentClauses->size() == 0) {
                 newClause = new OpenMPClause(kind);
@@ -122,6 +126,33 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
+	case OMPC_lastprivate : {
+	    OpenMPLastprivateClauseModifier modifier = (OpenMPLastprivateClauseModifier) va_arg(args,int);
+            char * userDefinedModifier = NULL;
+            if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)  userDefinedModifier = va_arg(args, char*);
+	    if (currentClauses->size() == 0) {
+	        newClause = new OpenMPLastprivateClause(modifier);
+                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)
+                    ((OpenMPLastprivateClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+	        currentClauses = new std::vector<OpenMPClause*>();
+                currentClauses->push_back(newClause);
+		clauses[kind] = currentClauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
+                        if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier&&
+                            strcasecmp(userDefinedModifier, ((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
+                           newClause = (*it);
+                           goto end;
+                    }
+               }
+                    newClause = new OpenMPLastprivateClause(modifier);
+                    if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)
+                       ((OpenMPLastprivateClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+                    currentClauses->push_back(newClause);
+	
+	         }
+                 break;
+				 }
         case OMPC_allocate : {
             OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
             char * userDefinedAllocator = NULL;
@@ -185,6 +216,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_parallel:
             result += "parallel ";
             break;
+        case OMPD_for:
+            result += "for ";
+            break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -221,6 +255,33 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_shared:
             result += "shared ";
+            break;
+	case OMPC_lastprivate:
+            result += "lastprivate ";
+            break;
+        case OMPC_linear:
+            result += "linear ";
+            break;
+        case OMPC_reduction:
+            result += "reduction ";
+            break;
+        case OMPC_schedule:
+            result += "schedule ";
+            break;
+        case OMPC_collapse:
+            result += "collapse ";
+            break;
+        case OMPC_ordered:
+            result += "ordered ";
+            break;
+        case OMPC_nowait:
+            result += "nowait ";
+            break;
+        case OMPC_allocate:
+            result += "allocate ";
+            break;
+        case OMPC_order:
+            result += "order ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -283,6 +344,33 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
             break;
         case OMPC_shared:
             clause_kind = "shared ";
+            break;
+	case OMPC_lastprivate:
+            clause_kind += "lastprivate ";
+            break;
+        case OMPC_linear:
+            clause_kind += "linear ";
+            break;
+        case OMPC_reduction:
+            clause_kind += "reduction ";
+            break;
+        case OMPC_schedule:
+            clause_kind += "schedule ";
+            break;
+        case OMPC_collapse:
+            clause_kind += "collapse ";
+            break;
+        case OMPC_ordered:
+            clause_kind += "ordered ";
+            break;
+        case OMPC_nowait:
+            clause_kind += "nowait ";
+            break;
+        case OMPC_allocate:
+            clause_kind += "allocate ";
+            break;
+        case OMPC_order:
+            clause_kind += "order ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

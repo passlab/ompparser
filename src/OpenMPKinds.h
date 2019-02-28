@@ -20,6 +20,7 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE(Name) OMPD_##Name,
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
+    OPENMP_DIRECTIVE(for) /*YAYING*/
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -39,6 +40,14 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(reduction,  OMPReductionClause)
     OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
     OPENMP_CLAUSE(allocate, OMPAllocateClause)
+
+    OPENMP_CLAUSE(lastprivate, OMPLastprivateClause)
+    OPENMP_CLAUSE(collapse, OMPCollapseClause)
+    OPENMP_CLAUSE(ordered, OMPOrderedClause)
+    OPENMP_CLAUSE(nowait, OMPNowaitClause)
+    OPENMP_CLAUSE(order, OMPOrderClause)
+    OPENMP_CLAUSE(linear, OMPLinearClause)
+    OPENMP_CLAUSE(schedule, OMPScheduleClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
@@ -121,9 +130,42 @@ enum OpenMPReductionClauseIdentifier {
     OPENMP_REDUCTION_IDENTIFIER(max)
     OPENMP_REDUCTION_IDENTIFIER(min)
     OPENMP_REDUCTION_IDENTIFIER(user)
+
     OPENMP_REDUCTION_IDENTIFIER(unknown)
 #undef OPENMP_REDUCTION_IDENTIFIER
 };
 
+/// modifiers for 'lastprivate' clause.
+enum OpenMPLastprivateClauseModifier {
+#define OPENMP_LASTPRIVATE_MODIFIER(Name) OMPC_LASTPRIVATE_MODIFIER_##Name,
+
+    OPENMP_LASTPRIVATE_MODIFIER(conditional)
+    OPENMP_LASTPRIVATE_MODIFIER(user)
+
+    OPENMP_LASTPRIVATE_MODIFIER(unknow)
+#undef OPENMP_REDUCTION_MODIFIER
+};
+
+enum OpenMPScheduleClauseModifier {
+#define OPENMP_SCHEDULE_MODIFIER(Name) OMPC_SCHEDULE_MODIFIER_##Name,
+    OPENMP_SCHEDULE_MODIFIER(monotonic)
+    OPENMP_SCHEDULE_MODIFIER(nonmonotonic)
+    OPENMP_SCHEDULE_MODIFIER(unknow)
+#undef OPENMP_REDUCTION_MODIFIER
+};
+
+/// OpenMP attributes for 'schedule' clause.
+enum OpenMPScheduleClauseKind {
+#define OPENMP_SCHEDULE_KIND(Name) OMPC_SCHEDULE_##Name,
+
+    OPENMP_SCHEDULE_KIND(static)
+    OPENMP_SCHEDULE_KIND(dynamic)
+    OPENMP_SCHEDULE_KIND(guided)
+    OPENMP_SCHEDULE_KIND(auto)
+    OPENMP_SCHEDULE_KIND(runtime)
+
+    OPENMP_SCHEDULE_KIND(unknown)
+#undef OPENMP_SCHEDULE_KIND
+};
 #endif
 

@@ -8,6 +8,13 @@
 %x IF_STATE
 %x PROC_BIND_STATE
 %x REDUCTION_STATE
+%x LASTPRIVATE_STATE
+%x LINEAR_STATE
+%x SCHEDULE_STATE
+%x COLLAPSE_STATE
+%x ORDERED_STATE
+
+
 
 %{
 
@@ -71,7 +78,9 @@ newline         [\n]
 comment         [\/\/].*
 
 %%
-omp             { return OMP; }
+omp             { return OMP; }  
+
+
 parallel        { return PARALLEL; }
 task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
@@ -88,7 +97,15 @@ proc_bind       { BEGIN(PROC_BIND_STATE); return PROC_BIND; }
 allocate        { BEGIN(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
-master          { return MASTER; }
+master          { return MASTER; } /*YAYING */
+for             { return FOR;}
+lastprivate     { BEGIN(LASTPRIVATE_STATE); return LASTPRIVATE;}
+linear          { BEGIN(LINEAR_STATE); return LINEAR;}
+schedule        { BEGIN(SCHEDULE_STATE); return SCHEDULE;}
+collapse        { BEGIN(COLLAPSE_STATE);return COLLAPSE;}
+ordered		{ BEGIN(ORDERED_STATE);return ORDERED;}
+nowait          { return NOWAIT;}
+order           { return ORDER;}
 
 "("             { BEGIN(CLAUSE_STATE); return '('; }
 ")"             { return ')'; }
@@ -107,18 +124,18 @@ master          { return MASTER; }
 <ALLOCATE_STATE>omp_cgroup_mem_alloc/{blank}*:        { return CGROUP_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
-<ALLOCATE_STATE>"("                         { return '('; }
-<ALLOCATE_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
-<ALLOCATE_STATE>{blank}*                    { ; }
-<ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ALLOCATE_STATE>"("                	              { return '('; }
+<ALLOCATE_STATE>":"  	                 	      { BEGIN(EXPR_STATE); return ':'; }
+<ALLOCATE_STATE>{blank}*                    	      { ; }
+<ALLOCATE_STATE>.                           	      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-<IF_STATE>parallel{blank}*/:          { return PARALLEL; }
-<IF_STATE>simd{blank}*/:              { return SIMD; }
-<IF_STATE>task{blank}*/:              { return TASK; }
-<IF_STATE>"("                         { return '('; }
-<IF_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
-<IF_STATE>{blank}*                    { ; }
-<IF_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<IF_STATE>parallel{blank}*/:    		      { return PARALLEL; }
+<IF_STATE>simd{blank}*/:      		              { return SIMD; }
+<IF_STATE>task{blank}*/:         		      { return TASK; }
+<IF_STATE>"("                  			      { return '('; }
+<IF_STATE>":"                  			      { BEGIN(EXPR_STATE); return ':'; }
+<IF_STATE>{blank}*             			      { ; }
+<IF_STATE>.                    			      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 <PROC_BIND_STATE>master                     { return MASTER; }
 <PROC_BIND_STATE>close                      { return CLOSE; }
@@ -139,8 +156,8 @@ master          { return MASTER; }
 
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
-<REDUCTION_STATE>task/{blank}*,				{ return MODIFIER_TASK; }
-<REDUCTION_STATE>default/{blank}*,			{ return MODIFIER_DEFAULT; }
+<REDUCTION_STATE>task/{blank}*,	      	    { return MODIFIER_TASK; }
+<REDUCTION_STATE>default/{blank}*,	    { return MODIFIER_DEFAULT; }
 <REDUCTION_STATE>"("                        { return '('; }
 <REDUCTION_STATE>","                        { return ','; }
 <REDUCTION_STATE>":"                        { BEGIN(EXPR_STATE); return ':'; }
@@ -157,7 +174,50 @@ master          { return MASTER; }
 <REDUCTION_STATE>{blank}*                   { ; }
 <REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-":"							                { BEGIN(EXPR_STATE); return ':'; }
+
+<LASTPRIVATE_STATE>conditional/{blank}*,    { return MODIFIER_CONDITIONAL;}
+<LASTPRIVATE_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<LASTPRIVATE_STATE>"("                      { return '('; }
+<LASTPRIVATE_STATE>")"                      { BEGIN(INITIAL); return ')';}
+<LASTPRIVATE_STATE>{blank}*                 { ; }
+<LASTPRIVATE_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+
+<LINEAR_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<LINEAR_STATE>"("                      { return '('; }
+<LINEAR_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<LINEAR_STATE>{blank}*                 { ; }
+<LINEAR_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+
+<SCHEDULE_STATE>monotonic/{blank}*,              { return MODIFIER_MONOTONIC;}
+<SCHEDULE_STATE>nomonotonic/{blank}*,            { return MODIFIER_NOMONOTONIC;}
+<SCHEDULE_STATE>simd/{blank}*,                   { return SIMD;}
+<SCHEDULE_STATE>static/{blank}*,                 { return STATIC;}
+<SCHEDULE_STATE>dynamic/{blank}*,                { return DYNAMIC;}
+<SCHEDULE_STATE>guided/{blank}*,                 { return GUIDED;}
+<SCHEDULE_STATE>auto/{blank}*,                   { return AUTO;}
+<SCHEDULE_STATE>runtime/{blank}*,                { return RUNTIME;}
+<SCHEDULE_STATE>","                    { return ','; }
+<SCHEDULE_STATE>":"                    { BEGIN(EXPR_STATE); return ':';}
+<SCHEDULE_STATE>"("                    { return '('; }
+<SCHEDULE_STATE>")"                    { BEGIN(INITIAL); return ')'; }
+<SCHEDULE_STATE>{blank}*               	{ ; }
+<SCHEDULE_STATE>.                      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+<COLLAPSE_STATE>"("                      { return '('; }
+<COLLAPSE_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<COLLAPSE_STATE>{blank}*                 { ; }
+<COLLAPSE_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+<ORDERED_STATE>"("                      { return '('; }
+<ORDERED_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<ORDERED_STATE>{blank}*                 { ; }
+<ORDERED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+
+
+":"                                    { BEGIN(EXPR_STATE); return ':'; }
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 <EXPR_STATE>.   { CurrentChar = yytext[0];
