@@ -147,6 +147,18 @@ public:
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
 };
 
+class OpenMPEndDirective : public OpenMPDirective {
+
+protected:
+    OpenMPDirectiveKind pairedKind;
+
+
+public:
+    OpenMPDirective* setPairedDirective(std::vector <OpenMPDirective*>*);
+    OpenMPDirectiveKind getPairedDirectiveKind() { return pairedKind; };
+
+};
+
 // reduction clause
 class OpenMPReductionClause : public OpenMPClause {
 
@@ -245,6 +257,11 @@ public:
     OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
     void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
 };
+
+// Fortran specific functions.
+// find the matching END construct.
+
+
 
 #ifdef __cplusplus
 extern "C" {

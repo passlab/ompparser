@@ -61,6 +61,7 @@ corresponding C type is union name defaults to YYSTYPE.
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
+        END
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -229,7 +230,12 @@ lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirecti
                          currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($3); }
 		      ;
 
-linear_clause : LINEAR '('  lastprivate_parameter')';
+linear_clause : LINEAR '('  linear_parameter')' ;
+
+linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_linear); currentClause->addLangExpr($1);  }
+                 | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
+                   currentClause = currentDirective->addOpenMPClause(OMPC_linear); currentClause->addLangExpr($3); }
+		 ;
 
 lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);} var_list
 		      |	EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }

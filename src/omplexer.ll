@@ -1,6 +1,7 @@
 %option prefix="openmp_"
 /*%option outfile="lex.yy.c"*/
 %option stack
+%option caseless
 %x EXPR_STATE
 %x CLAUSE_STATE
 %x ALLOCATE_STATE
@@ -107,11 +108,15 @@ ordered		{ BEGIN(ORDERED_STATE);return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 
+
+end             { return END; }
+
+
 "("             { BEGIN(CLAUSE_STATE); return '('; }
 ")"             { return ')'; }
 ","             { return ','; }
 
-{comment}       {; }
+{comment}       { ; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
