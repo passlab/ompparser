@@ -175,17 +175,17 @@ public:
 class OpenMPAllocateClause : public OpenMPClause {
 protected:
     OpenMPAllocateClauseAllocator allocator; // Allocate allocator
-    char *userDefinedAllocator;                         /* user defined value if it is used */
+    std::string user_defined_allocator;                         /* user defined value if it is used */
 
 public:
     OpenMPAllocateClause(OpenMPAllocateClauseAllocator _allocator) :
-            OpenMPClause(OMPC_allocate), allocator(_allocator), userDefinedAllocator (NULL) { };
+            OpenMPClause(OMPC_allocate), allocator(_allocator), user_defined_allocator ("") { };
 
     OpenMPAllocateClauseAllocator getAllocator() { return allocator; };
 
-    void setUserDefinedAllocator(char *_allocator) { userDefinedAllocator = _allocator; }
+    void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
 
-    char *getUserDefinedAllocator() { return userDefinedAllocator; };
+    std::string getUserDefinedAllocator() { return user_defined_allocator; };
 };
 
 

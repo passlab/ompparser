@@ -161,8 +161,8 @@ proc_bind_parameter : MASTER    { currentClause = currentDirective->addOpenMPCla
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
 allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
-                     | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($3); }
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";
+                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); } var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 

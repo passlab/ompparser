@@ -124,27 +124,30 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         }
         case OMPC_allocate : {
             OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
-            char * userDefinedAllocator = NULL;
-            if (allocator == OMPC_ALLOCATE_ALLOCATOR_user) userDefinedAllocator = va_arg(args, char *);
+            char* user_defined_allocator = NULL;
+            if (allocator == OMPC_ALLOCATE_ALLOCATOR_user) user_defined_allocator = va_arg(args, char *);
             if (currentClauses->size() == 0) {
                 newClause = new OpenMPAllocateClause(allocator);
                 if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(userDefinedAllocator);
+                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(user_defined_allocator);
                 currentClauses = new std::vector<OpenMPClause*>();
                 currentClauses->push_back(newClause);
                 clauses[kind] = currentClauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
-                    if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator &&
-                            strcasecmp(userDefinedAllocator, ((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                    std::string current_user_defined_allocator_expression;
+                    if (user_defined_allocator) {
+                        current_user_defined_allocator_expression = std::string(user_defined_allocator);
+                    };
+                    if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
                         newClause = (*it);
                         goto end;
                     }
                 }
-                /* could fine the matching object for this clause */
+                /* could find the matching object for this clause */
                 newClause = new OpenMPAllocateClause(allocator);
                 if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(userDefinedAllocator);
+                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(user_defined_allocator);
                 currentClauses->push_back(newClause);
             }
             break;
@@ -213,6 +216,9 @@ std::string OpenMPClause::toString() {
     std::string result;
 
     switch (this->getKind()) {
+        case OMPC_allocate:
+            result += "allocate ";
+            break;
         case OMPC_private:
             result += "private ";
             break;
@@ -283,6 +289,9 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
             break;
         case OMPC_shared:
             clause_kind = "shared ";
+            break;
+        case OMPC_allocate:
+            clause_kind = "allocate ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
