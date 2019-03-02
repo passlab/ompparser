@@ -181,23 +181,23 @@ end             { return END; }
 
 
 <LASTPRIVATE_STATE>conditional/{blank}*,    { return MODIFIER_CONDITIONAL;}
-<LASTPRIVATE_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
 <LASTPRIVATE_STATE>"("                      { return '('; }
-<LASTPRIVATE_STATE>")"                      { BEGIN(INITIAL); return ')';}
+<LASTPRIVATE_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
 <LASTPRIVATE_STATE>{blank}*                 { ; }
 <LASTPRIVATE_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-
-<LINEAR_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
 <LINEAR_STATE>"("                      { return '('; }
-<LINEAR_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<LINEAR_STATE>val{blank}*              { return MODOFIER_VAL; }
+<LINEAR_STATE>ref{blank}*              { return MODOFIER_REF; }
+<LINEAR_STATE>uval{blank}*             { return MODOFIER_UVAL; }
+<LINEAR_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
 <LINEAR_STATE>{blank}*                 { ; }
 <LINEAR_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 
 <SCHEDULE_STATE>monotonic/{blank}*,              { return MODIFIER_MONOTONIC;}
 <SCHEDULE_STATE>nomonotonic/{blank}*,            { return MODIFIER_NOMONOTONIC;}
-<SCHEDULE_STATE>simd/{blank}*,                   { return SIMD;}
+<SCHEDULE_STATE>simd/{blank}*,                   { return MODIFIER_SIMD;}
 <SCHEDULE_STATE>static/{blank}*,                 { return STATIC;}
 <SCHEDULE_STATE>dynamic/{blank}*,                { return DYNAMIC;}
 <SCHEDULE_STATE>guided/{blank}*,                 { return GUIDED;}
@@ -206,7 +206,6 @@ end             { return END; }
 <SCHEDULE_STATE>","                    { return ','; }
 <SCHEDULE_STATE>":"                    { BEGIN(EXPR_STATE); return ':';}
 <SCHEDULE_STATE>"("                    { return '('; }
-<SCHEDULE_STATE>")"                    { BEGIN(INITIAL); return ')'; }
 <SCHEDULE_STATE>{blank}*               	{ ; }
 <SCHEDULE_STATE>.                      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 

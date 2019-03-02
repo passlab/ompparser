@@ -143,26 +143,44 @@ enum OpenMPLastprivateClauseModifier {
     OPENMP_LASTPRIVATE_MODIFIER(user)
 
     OPENMP_LASTPRIVATE_MODIFIER(unknow)
-#undef OPENMP_REDUCTION_MODIFIER
+#undef OPENMP_LASTPRIVATE_MODIFIER
 };
 
+/// modifiers for 'linear' clause.
+enum OpenMPLinearClauseModifier {
+#define OPENMP_LINEAR_MODIFIER(Name) OMPC_LINEAR_MODIFIER_##Name,
+
+    OPENMP_LINEAR_MODIFIER(val)
+    OPENMP_LINEAR_MODIFIER(ref)
+    OPENMP_LINEAR_MODIFIER(uval)
+    OPENMP_LINEAR_MODIFIER(user)
+
+    OPENMP_LINEAR_MODIFIER(unknow)
+#undef OPENMP_LINEAR_MODIFIER
+};
+
+/// modifiers for 'schedule' clause.
 enum OpenMPScheduleClauseModifier {
 #define OPENMP_SCHEDULE_MODIFIER(Name) OMPC_SCHEDULE_MODIFIER_##Name,
     OPENMP_SCHEDULE_MODIFIER(monotonic)
     OPENMP_SCHEDULE_MODIFIER(nonmonotonic)
+    OPENMP_SCHEDULE_MODIFIER(simd)
+    OPENMP_SCHEDULE_MODIFIER(user)
+
     OPENMP_SCHEDULE_MODIFIER(unknow)
-#undef OPENMP_REDUCTION_MODIFIER
+#undef OPENMP_SCHEDULE_MODIFIER
 };
 
 /// OpenMP attributes for 'schedule' clause.
 enum OpenMPScheduleClauseKind {
-#define OPENMP_SCHEDULE_KIND(Name) OMPC_SCHEDULE_##Name,
+#define OPENMP_SCHEDULE_KIND(Name) OMPC_SCHEDULE_KIND_##Name,
 
     OPENMP_SCHEDULE_KIND(static)
     OPENMP_SCHEDULE_KIND(dynamic)
     OPENMP_SCHEDULE_KIND(guided)
     OPENMP_SCHEDULE_KIND(auto)
     OPENMP_SCHEDULE_KIND(runtime)
+    OPENMP_SCHEDULE_KIND(user)
 
     OPENMP_SCHEDULE_KIND(unknown)
 #undef OPENMP_SCHEDULE_KIND

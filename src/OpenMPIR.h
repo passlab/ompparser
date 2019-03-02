@@ -200,7 +200,7 @@ public:
     char *getUserDefinedAllocator() { return userDefinedAllocator; };
 };
 
-// lastprivate
+// lastprivate Clause
 class OpenMPLastprivateClause : public OpenMPClause {
 protected:
     OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
@@ -215,6 +215,48 @@ public:
     void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
 
     char *getUserDefinedModifier() { return userDefinedModifier; };
+};
+
+
+// linear Clause
+class OpenMPLinearClause : public OpenMPClause {
+protected:
+    OpenMPLinearClauseModifier modifier; // linear modifier
+    char *userDefinedModifier;                         /* user defined value if it is used */
+
+public:
+    OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
+            OpenMPClause(OMPC_linear), modifier(_modifier), userDefinedModifier (NULL) { };
+
+    OpenMPLinearClauseModifier getModifier() { return modifier; };
+
+    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+
+    char *getUserDefinedModifier() { return userDefinedModifier; };
+};
+
+// schedule Clause
+class OpenMPScheduleClause : public OpenMPClause {
+
+protected:
+    OpenMPScheduleClauseModifier modifier;     // modifier
+    OpenMPScheduleClauseKind schedulekind; // identifier
+    char *userDefinedKind;                // user defined identifier if it is used
+
+public:
+    OpenMPScheduleClause( ) : OpenMPClause(OMPC_schedule) { }
+
+    OpenMPScheduleClause(OpenMPScheduleClauseModifier _modifier,
+                          OpenMPScheduleClauseKind _schedulekind) : OpenMPClause(OMPC_schedule),
+                                         modifier(_modifier), schedulekind(_schedulekind), userDefinedKind (NULL) { };
+
+    OpenMPScheduleClauseModifier getModifier() { return modifier; };
+
+    OpenMPScheduleClauseKind getKind() { return schedulekind; };
+
+    void setUserDefinedKind(char *schedulekind) { userDefinedKind = schedulekind; };
+
+    char *getUserDefinedKind() { return userDefinedKind; };
 };
 
 // ProcBind Clause

@@ -56,7 +56,8 @@ corresponding C type is union name defaults to YYSTYPE.
 
 %token  OMP PARALLEL FOR
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE 
-        LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME/*YAYING*/
+        LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
+/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -109,7 +110,7 @@ parallel_clause_optseq : /* empty */
                        ;
 
 for_clause_optseq : /*empty*/
-	          | for_clause_seq {printf("i am in for\n");}
+	          | for_clause_seq 
                   ;
 
 parallel_clause_seq : parallel_clause
@@ -139,7 +140,7 @@ for_clause : private_clause
 	   | lastprivate_clause 
 	   | linear_clause
 	   | reduction_clause
-//	   | schedule_clause
+	   | schedule_clause
 	   | collapse_clause 
 	   | ordered_clause
 	   | nowait_clause
@@ -194,8 +195,8 @@ proc_bind_parameter : MASTER    { currentClause = currentDirective->addOpenMPCla
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
 allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
-                     | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($3); }
+                     | EXPR_STRING ','  {std::cout << $1 << "\n";} {
+                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); }var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 
@@ -222,26 +223,32 @@ firstprivate_clause : FIRSTPRIVATE {
 						}
 					  ;
 	   
-lastprivate_clause : LASTPRIVATE '('  lastprivate_parameter')';
+lastprivate_clause : LASTPRIVATE '(' lastprivate_parameter')';
 
-lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);} var_list
-		      |	EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }
-                      | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($3); }
+lastprivate_parameter : EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }
+                      | EXPR_STRING  ',' {std::cout << $1 << "\n";} {
+                         currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1); } var_list
+                      | lastprivate_modifier ':'{;} var_list
 		      ;
 
-linear_clause : LINEAR '('  linear_parameter')' ;
+lastprivate_modifier : MODIFIER_CONDITIONAL { currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);}
+	             | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate, OMPC_LASTPRIVATE_MODIFIER_user, $1); }
+                     ;
+
+linear_clause : LINEAR '('  linear_parameter ')'
+              | LINEAR '('  linear_parameter ':' var_list')'
+	      ;
 
 linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_linear); currentClause->addLangExpr($1);  }
-                 | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
-                   currentClause = currentDirective->addOpenMPClause(OMPC_linear); currentClause->addLangExpr($3); }
+                 | EXPR_STRING ','  {std::cout << $1 << "\n";} {currentClause = currentDirective->addOpenMPClause(OMPC_linear); currentClause->addLangExpr($1); } var_list
+                 | linear_modifier '(' var_list ')'
 		 ;
 
-lastprivate_parameter : MODIFIER_CONDITIONAL ':'{ currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);} var_list
-		      |	EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($1);  }
-                      | var_list ',' EXPR_STRING {std::cout << $3 << "\n";} {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_lastprivate); currentClause->addLangExpr($3); }
-		      ;
+linear_modifier : MODOFIER_VAL { currentClause = currentDirective->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
+                | MODOFIER_REF { currentClause = currentDirective->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_ref); }
+                | MODOFIER_UVAL { currentClause = currentDirective->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_uval); }
+                | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_user, $1); }
+                ;
 
 collapse_clause: COLLAPSE { currentClause = currentDirective->addOpenMPClause(OMPC_collapse);} '(' var_list ')' {
 						}
@@ -257,22 +264,38 @@ nowait_clause: NOWAIT {currentClause = currentDirective->addOpenMPClause(OMPC_no
 order_clause: ORDER  {currentClause = currentDirective->addOpenMPClause(OMPC_order);} '(' var_list ')'
 		          ;
 
-linear_clause: LINEAR {currentClause = currentDirective->addOpenMPClause(OMPC_linear);} '(' var_list ')'
-			  ;
 
-//schedule_clause: SCHEDULE {firstParameter = OMPC_SCHEDULE_IDENTIFIER_unknown;}'(' schedule_parameter ':' var_list ')' {
-//					}
-//					;
+schedule_clause: SCHEDULE {firstParameter = OMPC_SCHEDULE_KIND_unknown;secondParameter = OMPC_SCHEDULE_KIND_unknown;}'(' schedule_parameter ')' {
+					}
+					;
 
-//schedule_parameter : schedule_kind {}
-//		   | schedule_modifier ',' schedule_kind
-//		   ;
+schedule_parameter : schedule_kind {}
+		   | schedule_modifier ':' schedule_kind
+		   ;
 
 
-//schdule_kind : schedule_enum_kind {	}
-//	     | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_for, firstParameter, OMPC_FOR_IDENTIFIER_user, $1); }
-//		   ;
+schedule_kind : schedule_enum_kind {	}
+             | schedule_enum_kind ',' var_list
+	     | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter,secondParameter, OMPC_SCHEDULE_KIND_user, $1); }
+	     ;
 
+schedule_modifier : schedule_enum_modifier ',' schedule_modifier2
+                  | schedule_enum_modifier
+                  ;
+schedule_modifier2 : MODIFIER_MONOTONIC {secondParameter = OMPC_SCHEDULE_MODIFIER_monotonic;}
+                       | MODIFIER_NOMONOTONIC {secondParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}
+                       | MODIFIER_SIMD {secondParameter = OMPC_SCHEDULE_MODIFIER_simd;}
+                       ;
+schedule_enum_modifier : MODIFIER_MONOTONIC {firstParameter = OMPC_SCHEDULE_MODIFIER_monotonic;}
+                       | MODIFIER_NOMONOTONIC {firstParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}
+                       | MODIFIER_SIMD {firstParameter = OMPC_SCHEDULE_MODIFIER_simd;}
+                       ;
+schedule_enum_kind : STATIC     { currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_static); }
+                   | DYNAMIC    {currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_dynamic);}
+                   | GUIDED     {currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_guided);}
+                   | AUTO       {currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_auto);}
+                   | RUNTIME    {currentClause = currentDirective->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_runtime);}
+                   ;  
 shared_clause : SHARED {
                 currentClause = currentDirective->addOpenMPClause(OMPC_shared);
 					} '(' var_list ')'
@@ -291,9 +314,9 @@ reduction_identifier : reduction_enum_identifier {	}
 				  ;
 
 reduction_modifier : MODIFIER_INSCAN 	{ firstParameter = OMPC_REDUCTION_MODIFIER_inscan; }
-					| MODIFIER_TASK 	{ firstParameter = OMPC_REDUCTION_MODIFIER_task; }
-					| MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default; }
-					;
+		   | MODIFIER_TASK 	{ firstParameter = OMPC_REDUCTION_MODIFIER_task; }
+		   | MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default; }
+		   ;
 
 reduction_enum_identifier :  '+'		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_plus); }
 						   | '-'		{ currentClause = currentDirective->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_minus); }

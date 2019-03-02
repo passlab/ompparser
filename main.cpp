@@ -27,7 +27,7 @@ int main( int argc, const char* argv[] ) {
 
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (no, allo, cator)";
 	
-        const char* input = "omp for collapse(a) order(dasfe) nowait ordered(sd)";
+        const char* input = "omp for collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e) schedule(static)";
    
 
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
