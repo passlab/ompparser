@@ -62,7 +62,7 @@ corresponding C type is union name defaults to YYSTYPE.
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
-        END
+        END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -113,7 +113,7 @@ metadirective_clause : when_clause
                 ;
 
 when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when); }
-                '(' expression ':' { ((OpenMPWhenClause*)currentClause)->setContextSelector(currentClause->getExpressions()->back());
+                '(' context_selector_specification ':' { /*((OpenMPWhenClause*)currentClause)->setContextSelector(currentClause->getExpressions()->back());*/
                 current_parent_directive = currentDirective;
                 current_parent_clause = currentClause;
                 } sub_directive { currentDirective->setParentConstruct(currentClause);
@@ -126,10 +126,49 @@ when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when
 
 sub_directive : openmp_directive;
 
+context_selector_specification : trait_set_selector
+                | context_selector_specification trait_set_selector
+                | context_selector_specification ',' trait_set_selector
+                ;
+
+trait_set_selector : trait_set_selector_name '=' '{' trait_selector_list '}'
+                ;
+
+trait_set_selector_name : USER
+                | CONSTRUCT
+                | DEVICE
+                | IMPLEMENTATION
+                ;
+
+trait_selector_list : trait_selector
+                | trait_selector_list trait_selector
+                | trait_selector_list ',' trait_selector
+                ;
+
+trait_selector : condition_selector
+                | parallel_selector
+                ;
+
+condition_selector : CONDITION '(' expression ')'
+                ;
+
+parallel_selector : PARALLEL
+                | PARALLEL '(' parallel_selector_parameter ')'
+                ;
+
+parallel_selector_parameter : trait_score ':' parallel_clause_optseq
+                | parallel_clause_optseq
+                ;
+
+trait_score : SCORE '(' expression ')'
+                ;
+
+
+
 parallel_directive : PARALLEL {
                         currentDirective = new OpenMPDirective(OMPD_parallel);
                      }
-                     parallel_clause_optseq 
+                     parallel_clause_optseq
                    ;
 
 parallel_clause_optseq : /* empty */

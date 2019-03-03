@@ -94,9 +94,13 @@ spread          { return SPREAD; } /* master should already be recognized */
 master          { return MASTER; }
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 end             { return END; }
+score           { return SCORE; }
+condition       { return CONDITION; }
 
-"("             { yy_push_state(EXPR_STATE); return '('; }
+"("             { return '('; }
 ")"             { return ')'; }
+":"             { return ':'; }
+"}"             { yy_pop_state(); return '}'; }
 ","             { return ','; }
 
 {comment}       { ; }
@@ -165,11 +169,17 @@ end             { return END; }
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
+<WHEN_STATE>"="                             { return '='; }
+<WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; }
+<WHEN_STATE>"}"                             { return '}'; }
+<WHEN_STATE>user                            { return USER; }
+<WHEN_STATE>construct                       { return CONSTRUCT; }
+<WHEN_STATE>device                          { return DEVICE; }
+<WHEN_STATE>implementation                  { return IMPLEMENTATION; }
 <WHEN_STATE>{blank}*                        { ; }
-<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); CurrentString = yytext[0]; }
 
 
-":"							                { BEGIN(EXPR_STATE); return ':'; }
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 <EXPR_STATE>.   { CurrentChar = yytext[0];
@@ -261,7 +271,7 @@ end             { return END; }
 expr            {return (EXPRESSION); }
 
 {blank}*        ;
-.               {/*return (LEXICALERROR);*/ return -1;}
+.               { yy_push_state(EXPR_STATE); CurrentString = yytext[0]; }
 
 \n|.       		{printf(" unexpected\n");}
 

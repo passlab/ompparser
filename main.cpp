@@ -22,7 +22,7 @@ int main( int argc, const char* argv[] ) {
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
 
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) allocate (xx) allocate (no, allo, cator)";
-	const char* input = "omp metadirective when ( { construct = {target} } : parallel private (a, bb)) default(none) default (parallel shared (c, dd))";
+	const char* input = "omp metadirective when ( user = { condition (a < 4) } : parallel private (a, bb)) when ( construct = {parallel (score(4) : private (e) )} : parallel private (a, bb)) default(none) default (parallel shared (c, dd))";
 
 	
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
