@@ -26,7 +26,8 @@ extern void end_lexer(void);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* currentDirective = NULL;
-static OpenMPClause * currentClause = NULL;
+static OpenMPClause* currentClause = NULL;
+static SourceLocation* current_parent_construct = NULL;
 static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
@@ -54,8 +55,8 @@ corresponding C type is union name defaults to YYSTYPE.
           void* ptype; /* For expressions or variables */
         }
 
-%token  OMP PARALLEL
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK
+%token  OMP PARALLEL METADIRECTIVE
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK WHEN
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -87,10 +88,38 @@ var_list : variable
         | var_list ',' variable
         ;
 
-openmp_directive : parallel_directive 
+openmp_directive : parallel_directive
+                | metadirective_directive
                  ;
 
-parallel_directive : OMP  PARALLEL {
+metadirective_directive : METADIRECTIVE {
+                        currentDirective = new OpenMPDirective(OMPD_metadirective);
+                     }
+                     metadirective_clause_optseq
+                   ;
+
+metadirective_clause_optseq : /* empty */
+                       | metadirective_clause_seq
+                       ;
+
+metadirective_clause_seq : metadirective_clause
+                    | metadirective_clause_seq metadirective_clause
+                    | metadirective_clause_seq ',' metadirective_clause
+                    ;
+
+metadirective_clause : when_clause
+                | default_clause
+                ;
+
+when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when); }
+                '(' expression ':' { current_parent_construct = currentDirective;
+                } sub_directive { currentDirective->setParentConstruct(current_parent_construct);
+                currentDirective = (OpenMPDirective*)current_parent_construct;
+                current_parent_construct = NULL; } ')' { } ;
+
+sub_directive : openmp_directive;
+
+parallel_directive : PARALLEL {
                         currentDirective = new OpenMPDirective(OMPD_parallel);
                      }
                      parallel_clause_optseq 
@@ -150,6 +179,8 @@ default_parameter : SHARED { currentClause = currentDirective->addOpenMPClause(O
                     | NONE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
                     | FIRSTPRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
                     | PRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
+                    | sub_directive
+                    ;
 
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;

@@ -26,8 +26,13 @@ class SourceLocation {
     int getLine ( ) { return line; };
     int getColumn ( ) { return column; };
 
+    SourceLocation* parent_construct;
+
     public:
-    SourceLocation(int _line = 0, int _col = 0) : line(_line), column(_col) { } ;
+    SourceLocation(int _line = 0, int _col = 0, SourceLocation* _parent_construct = NULL) : line(_line), column(_col), parent_construct(_parent_construct) { } ;
+    SourceLocation* setParentConstruct(SourceLocation* _parent_construct) { parent_construct = _parent_construct; };
+    SourceLocation* getParentConstruct() { return parent_construct; };
+
 };
 
 /**

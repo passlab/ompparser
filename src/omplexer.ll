@@ -9,6 +9,7 @@
 %x IF_STATE
 %x PROC_BIND_STATE
 %x REDUCTION_STATE
+%x WHEN_STATE
 
 %{
 
@@ -72,13 +73,14 @@ newline         [\n]
 comment         [\/\/].*
 
 %%
-omp             { return OMP; }
+omp             { ; }
 parallel        { return PARALLEL; }
+metadirective   { return METADIRECTIVE; }
 task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
-default         { BEGIN(DEFAULT_STATE); return DEFAULT; }
+default         { yy_push_state(DEFAULT_STATE); return DEFAULT; }
 private         { return PRIVATE; }
 firstprivate    { return FIRSTPRIVATE; }
 shared          { return SHARED; }
@@ -90,9 +92,10 @@ allocate        { BEGIN(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
 master          { return MASTER; }
+when            { yy_push_state(WHEN_STATE); return WHEN; }
 end             { return END; }
 
-"("             { BEGIN(CLAUSE_STATE); return '('; }
+"("             { yy_push_state(EXPR_STATE); return '('; }
 ")"             { return ')'; }
 ","             { return ','; }
 
@@ -135,9 +138,9 @@ end             { return END; }
 <DEFAULT_STATE>firstprivate                 { return FIRSTPRIVATE; }
 <DEFAULT_STATE>private                      { return PRIVATE; }
 <DEFAULT_STATE>"("                          { return '('; }
-<DEFAULT_STATE>")"                          { BEGIN(INITIAL); return ')'; }
+<DEFAULT_STATE>")"                          { yy_pop_state(); return ')'; }
 <DEFAULT_STATE>{blank}*                     { ; }
-<DEFAULT_STATE>.                            { return -1; }
+<DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); }
 
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
@@ -158,6 +161,13 @@ end             { return END; }
 <REDUCTION_STATE>max/{blank}*:              { return MAX; }
 <REDUCTION_STATE>{blank}*                   { ; }
 <REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+
+<WHEN_STATE>"("                             { return '('; }
+<WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
+<WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
+<WHEN_STATE>{blank}*                        { ; }
+<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+
 
 ":"							                { BEGIN(EXPR_STATE); return ':'; }
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
@@ -182,7 +192,7 @@ end             { return END; }
                             ParenLocalCount--;
                             ParenGlobalCount--;
                             if (ParenGlobalCount == 0) {
-                                BEGIN(INITIAL);
+                                yy_pop_state();
                                 if (CurrentString.size() != 0) {
                                     openmp_lval.stype = strdup(CurrentString.c_str());
                                     CurrentString = "";
@@ -228,6 +238,7 @@ end             { return END; }
                                 return ':';
                             }
                             else if (BracketCount == 0) {
+                                yy_pop_state();
                                 openmp_lval.stype = strdup(CurrentString.c_str());
                                 CurrentString = "";
 								unput(':');

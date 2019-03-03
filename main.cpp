@@ -9,9 +9,9 @@ void output(OpenMPDirective*);
 
 void output(OpenMPDirective* node) {
     
-    std::string unparsing_string = node->generatePragmaString();
-    std::cout << unparsing_string << "\n";
-    node->generateDOT();
+    //std::string unparsing_string = node->generatePragmaString();
+    //std::cout << unparsing_string << "\n";
+    //node->generateDOT();
 
 }
 
@@ -21,9 +21,9 @@ int main( int argc, const char* argv[] ) {
 
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
 
-	const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) allocate (xx) allocate (no, allo, cator)";
-	//const char* input = "omp parallel allocate (xx) allocate (no, allo, cator)";
-	
+	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) allocate (xx) allocate (no, allo, cator)";
+	const char* input = "omp metadirective when ( { construct = {target} } : parallel private (a, bb)) default(none) default (parallel shared (c, dd))";
+
 	
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     

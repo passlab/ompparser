@@ -63,6 +63,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_private :
         case OMPC_firstprivate :
         case OMPC_shared :
+        case OMPC_when :
         case OMPC_copyin : {
 
             if (currentClauses->size() == 0) {

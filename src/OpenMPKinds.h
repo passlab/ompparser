@@ -20,6 +20,7 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE(Name) OMPD_##Name,
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
+    OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -39,6 +40,9 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(reduction,  OMPReductionClause)
     OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
     OPENMP_CLAUSE(allocate, OMPAllocateClause)
+
+// OpenMP clause for MetaDirective
+    OPENMP_CLAUSE(when, OMPWhenClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
