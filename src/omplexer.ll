@@ -38,9 +38,9 @@ Liao 12/10/2009 */
 #define YY_NO_POP_STATE
 
 static const char* ompparserinput = NULL;
-static std::string CurrentString;
-static int ParenLocalCount, ParenGlobalCount, BracketCount;
-static char CurrentChar;
+static std::string current_string;
+static int parenthesis_local_count, parenthesis_global_count, bracket_count;
+static char current_char;
 
 /* Liao 6/11/2010,
 OpenMP does not preclude the use of clause names as regular variable names.
@@ -119,7 +119,7 @@ condition       { return CONDITION; }
 <ALLOCATE_STATE>"("                         { return '('; }
 <ALLOCATE_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
 <ALLOCATE_STATE>{blank}*                    { ; }
-<ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ALLOCATE_STATE>.                           { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
 <IF_STATE>parallel{blank}*/:          { return PARALLEL; }
 <IF_STATE>simd{blank}*/:              { return SIMD; }
@@ -127,7 +127,7 @@ condition       { return CONDITION; }
 <IF_STATE>"("                         { return '('; }
 <IF_STATE>":"                         { BEGIN(EXPR_STATE); return ':'; }
 <IF_STATE>{blank}*                    { ; }
-<IF_STATE>.                           { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<IF_STATE>.                           { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
 <PROC_BIND_STATE>master                     { return MASTER; }
 <PROC_BIND_STATE>close                      { return CLOSE; }
@@ -164,7 +164,7 @@ condition       { return CONDITION; }
 <REDUCTION_STATE>min/{blank}*:              { return MIN; }
 <REDUCTION_STATE>max/{blank}*:              { return MAX; }
 <REDUCTION_STATE>{blank}*                   { ; }
-<REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
@@ -177,35 +177,35 @@ condition       { return CONDITION; }
 <WHEN_STATE>device                          { return DEVICE; }
 <WHEN_STATE>implementation                  { return IMPLEMENTATION; }
 <WHEN_STATE>{blank}*                        { ; }
-<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); CurrentString = yytext[0]; }
+<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
-<CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<CLAUSE_STATE>. { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
-<EXPR_STATE>.   { CurrentChar = yytext[0];
-                ParenLocalCount = 0;
-                ParenGlobalCount = 1;
-                BracketCount = 0;
+<EXPR_STATE>.   { current_char = yytext[0];
+                parenthesis_local_count = 0;
+                parenthesis_global_count = 1;
+                bracket_count = 0;
                 for (;;) {
-                    switch (CurrentChar) {
+                    switch (current_char) {
                         case EOF :
                             /*return LEXICALERROR*/;
                             return -1;
 
                         case '(' :
-                            ParenLocalCount++;
-                            ParenGlobalCount++;
-                            CurrentString.append(1, CurrentChar);
+                            parenthesis_local_count++;
+                            parenthesis_global_count++;
+                            current_string.append(1, current_char);
                             break;
 
                         case ')' :
-                            ParenLocalCount--;
-                            ParenGlobalCount--;
-                            if (ParenGlobalCount == 0) {
+                            parenthesis_local_count--;
+                            parenthesis_global_count--;
+                            if (parenthesis_global_count == 0) {
                                 yy_pop_state();
-                                if (CurrentString.size() != 0) {
-                                    openmp_lval.stype = strdup(CurrentString.c_str());
-                                    CurrentString = "";
+                                if (current_string.size() != 0) {
+                                    openmp_lval.stype = strdup(current_string.c_str());
+                                    current_string = "";
                                     unput(')');
                                     return EXPR_STRING;
                                 }
@@ -214,64 +214,64 @@ condition       { return CONDITION; }
                                 };
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             };
                             break;
 
                         case ',' :
-                            if (CurrentString == "") {
+                            if (current_string == "") {
                                 return ',';
                             }
-                            else if (ParenLocalCount == 0) {
-                                openmp_lval.stype = strdup(CurrentString.c_str());
-                                CurrentString = "";
+                            else if (parenthesis_local_count == 0) {
+                                openmp_lval.stype = strdup(current_string.c_str());
+                                current_string = "";
                                 unput(',');
                                 return EXPR_STRING;
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             };
                             break;
 
                         case '[' :
-                            BracketCount++;
-                            CurrentString.append(1, CurrentChar);
+                            bracket_count++;
+                            current_string.append(1, current_char);
                             break;
 
                         case ']' :
-                            BracketCount--;
-                            CurrentString.append(1, CurrentChar);
+                            bracket_count--;
+                            current_string.append(1, current_char);
                             break;
 
                         case ':' :
-                            if (CurrentString == "") {
+                            if (current_string == "") {
                                 return ':';
                             }
-                            else if (BracketCount == 0) {
+                            else if (bracket_count == 0) {
                                 yy_pop_state();
-                                openmp_lval.stype = strdup(CurrentString.c_str());
-                                CurrentString = "";
+                                openmp_lval.stype = strdup(current_string.c_str());
+                                current_string = "";
 								unput(':');
                                 return EXPR_STRING;
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             }
                             break;
 
                         default :
-                            if (CurrentChar != ' ' || ParenLocalCount != 0) {
-                                CurrentString.append(1, CurrentChar);
+                            if (current_char != ' ' || parenthesis_local_count != 0) {
+                                current_string.append(1, current_char);
                             }
                     }
-                    CurrentChar = yyinput();
+                    current_char = yyinput();
                 }
             }
 
 expr            {return (EXPRESSION); }
 
 {blank}*        ;
-.               { yy_push_state(EXPR_STATE); CurrentString = yytext[0]; }
+.               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 \n|.       		{printf(" unexpected\n");}
 
