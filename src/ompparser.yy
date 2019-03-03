@@ -116,7 +116,7 @@ when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when
                 '(' context_selector_specification ':' { /*((OpenMPWhenClause*)currentClause)->setContextSelector(currentClause->getExpressions()->back());*/
                 current_parent_directive = currentDirective;
                 current_parent_clause = currentClause;
-                } sub_directive { currentDirective->setParentConstruct(currentClause);
+                } when_sub_directive { currentDirective->setParentConstruct(currentClause);
                 ((OpenMPWhenClause*)current_parent_clause)->setSubDirective(currentDirective);
                 currentDirective = current_parent_directive;
                 currentClause = current_parent_clause;
@@ -124,7 +124,9 @@ when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when
                 current_parent_clause = NULL;
                 } ')' { } ;
 
-sub_directive : openmp_directive;
+when_sub_directive : openmp_directive
+                | { ; }
+                ;
 
 context_selector_specification : trait_set_selector
                 | context_selector_specification trait_set_selector
@@ -225,9 +227,11 @@ default_parameter : SHARED { currentClause = currentDirective->addOpenMPClause(O
                     | NONE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
                     | FIRSTPRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
                     | PRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
-                    | sub_directive
+                    | default_sub_directive
                     ;
 
+default_sub_directive : openmp_directive
+                    ;
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
 
