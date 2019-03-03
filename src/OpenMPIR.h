@@ -30,7 +30,7 @@ class SourceLocation {
 
     public:
     SourceLocation(int _line = 0, int _col = 0, SourceLocation* _parent_construct = NULL) : line(_line), column(_col), parent_construct(_parent_construct) { } ;
-    SourceLocation* setParentConstruct(SourceLocation* _parent_construct) { parent_construct = _parent_construct; };
+    void setParentConstruct(SourceLocation* _parent_construct) { parent_construct = _parent_construct; };
     SourceLocation* getParentConstruct() { return parent_construct; };
 
 };
@@ -205,6 +205,24 @@ public:
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 };
 
+// When Clause
+class OpenMPWhenClause : public OpenMPClause {
+protected:
+    OpenMPDirective* sub_directive; // sub directive inside the WHEN clause
+    std::string context_selector; // the context selector inside the WHEN clause
+
+public:
+    OpenMPWhenClause( ) : OpenMPClause(OMPC_when) { };
+
+    OpenMPWhenClause(OpenMPDirective* _sub_directive) :
+            OpenMPClause(OMPC_when), sub_directive(_sub_directive), context_selector("") { };
+
+    OpenMPDirective* getSubDirective() { return sub_directive; };
+    void setSubDirective(OpenMPDirective* _sub_directive) { sub_directive = _sub_directive; };
+    void setContextSelector(const char* _context_selector) { context_selector = std::string(_context_selector); }
+
+    std::string getContextSelector() { return context_selector; };
+};
 
 // ProcBind Clause
 class OpenMPProcBindClause : public OpenMPClause {

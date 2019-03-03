@@ -27,7 +27,8 @@ extern void end_lexer(void);
 //The directive/clause that are being parsed
 static OpenMPDirective* currentDirective = NULL;
 static OpenMPClause* currentClause = NULL;
-static SourceLocation* current_parent_construct = NULL;
+static OpenMPDirective* current_parent_directive = NULL;
+static OpenMPClause* current_parent_clause = NULL;
 static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
@@ -112,10 +113,16 @@ metadirective_clause : when_clause
                 ;
 
 when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when); }
-                '(' expression ':' { current_parent_construct = currentDirective;
-                } sub_directive { currentDirective->setParentConstruct(current_parent_construct);
-                currentDirective = (OpenMPDirective*)current_parent_construct;
-                current_parent_construct = NULL; } ')' { } ;
+                '(' expression ':' { ((OpenMPWhenClause*)currentClause)->setContextSelector(currentClause->getExpressions()->back());
+                current_parent_directive = currentDirective;
+                current_parent_clause = currentClause;
+                } sub_directive { currentDirective->setParentConstruct(currentClause);
+                ((OpenMPWhenClause*)current_parent_clause)->setSubDirective(currentDirective);
+                currentDirective = current_parent_directive;
+                currentClause = current_parent_clause;
+                current_parent_directive = NULL;
+                current_parent_clause = NULL;
+                } ')' { } ;
 
 sub_directive : openmp_directive;
 

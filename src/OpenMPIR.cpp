@@ -63,7 +63,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_private :
         case OMPC_firstprivate :
         case OMPC_shared :
-        case OMPC_when :
         case OMPC_copyin : {
 
             if (currentClauses->size() == 0) {
@@ -151,6 +150,15 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                     ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(user_defined_allocator);
                 currentClauses->push_back(newClause);
             }
+            break;
+        }
+        case OMPC_when: {
+            if (currentClauses->size() == 0) {
+                currentClauses = new std::vector<OpenMPClause *>();
+                clauses[kind] = currentClauses;
+            };
+            newClause = new OpenMPWhenClause();
+            currentClauses->push_back(newClause);
             break;
         }
     }
