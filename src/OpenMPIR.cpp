@@ -63,6 +63,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_private :
         case OMPC_firstprivate :
         case OMPC_shared :
+        case OMPC_num_teams :
+ 	case OMPC_thread_limit :
         case OMPC_copyin : {
 
             if (currentClauses->size() == 0) {
@@ -185,6 +187,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_parallel:
             result += "parallel ";
             break;
+        case OMPD_teams:
+	    result += "teams " ;
+	break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -221,6 +226,24 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_shared:
             result += "shared ";
+            break;
+	case OMPC_num_teams:
+            result += "num_teams ";
+            break;
+        case OMPC_num_threads:
+            result += "num_threads ";
+            break;
+	case OMPC_thread_limit:
+            result += "thread_limit ";;
+            break;
+	case OMPC_default:
+            result += "default ";
+            break;
+	case OMPC_reduction:
+            result += "reduction ";
+            break;
+	case OMPC_allocate:
+            result += "allocate ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -283,6 +306,24 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
             break;
         case OMPC_shared:
             clause_kind = "shared ";
+            break;
+  case OMPC_num_threads:
+            clause_kind = "num_threads ";
+            break;
+  case OMPC_num_teams:
+            clause_kind = "num_teams ";
+            break;
+case OMPC_thread_limit:
+            clause_kind = "thread_limit ";
+            break;
+case OMPC_default:
+            clause_kind = "default ";
+            break;
+case OMPC_reduction:
+            clause_kind = "reduction ";
+            break;
+case OMPC_allocate:
+            clause_kind = "allocate ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

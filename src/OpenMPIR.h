@@ -34,8 +34,6 @@ class SourceLocation {
  * The class or baseclass for all the clause classes. For all the clauses that only take 0 to multiple expression or
  * variables, we use this class to create objects. For all other clauses, which requires at least one parameters,
  * we will have an inherit class from this one, and the superclass contains fields for the parameters
- *
- * We will need to know all the clauses that directly use this class for their objects: private, shared, firstprivate
  */
 class OpenMPClause : public SourceLocation {
 protected:
@@ -61,13 +59,16 @@ public:
 	    expressions.push_back(expression);
         locations.push_back(SourceLocation(line, col));
     };
-
-    std::vector<const char *>* getExpressions() { return &expressions; };
+    
+std::vector<const char *>* getExpressions() { return &expressions; };
 
     virtual std::string toString();
     std::string expressionToString();
     virtual void generateDOT(std::ofstream&, std::string);
+/*
+    std::vector<const char *> &getExpressions() { return expressions; };
 
+    std::string toString();*/
 };
 
 /**
@@ -140,23 +141,9 @@ public:
 
     /* generate DOT representation of the directive */
     void generateDOT();
-
     std::string generatePragmaString();
-
     // To call this method directly to add new clause, it can't be protected.
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
-};
-
-class OpenMPEndDirective : public OpenMPDirective {
-
-protected:
-    OpenMPDirectiveKind pairedKind;
-
-
-public:
-    OpenMPDirective* setPairedDirective(std::vector <OpenMPDirective*>*);
-    OpenMPDirectiveKind getPairedDirectiveKind() { return pairedKind; };
-
 };
 
 // reduction clause
@@ -241,11 +228,6 @@ public:
     OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
     void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
 };
-
-// Fortran specific functions.
-// find the matching END construct.
-
-
 
 #ifdef __cplusplus
 extern "C" {

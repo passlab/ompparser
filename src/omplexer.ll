@@ -1,7 +1,6 @@
 %option prefix="openmp_"
 /*%option outfile="lex.yy.c"*/
 %option stack
-%option caseless
 %x EXPR_STATE
 %x CLAUSE_STATE
 %x ALLOCATE_STATE
@@ -78,6 +77,8 @@ task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
+num_teams       { return NUM_TEAMS; }
+thread_limit    { return THREAD_LIMIT; }
 default         { BEGIN(DEFAULT_STATE); return DEFAULT; }
 private         { return PRIVATE; }
 firstprivate    { return FIRSTPRIVATE; }
@@ -90,13 +91,15 @@ allocate        { BEGIN(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
 master          { return MASTER; }
-end             { return END; }
+teams           { return TEAMS; }
+
+
 
 "("             { BEGIN(CLAUSE_STATE); return '('; }
 ")"             { return ')'; }
 ","             { return ','; }
 
-{comment}       { ; }
+{comment}       {; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }

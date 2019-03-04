@@ -616,13 +616,14 @@ OPENMP_TARGET_UPDATE_CLAUSE(nowait)
 OPENMP_TARGET_UPDATE_CLAUSE(depend)
 
 // Clauses allowed for OpenMP directive 'teams'.
+OPENMP_TEAMS_CLAUSE(num_teams)
+OPENMP_TEAMS_CLAUSE(thread_limit)
 OPENMP_TEAMS_CLAUSE(default)
 OPENMP_TEAMS_CLAUSE(private)
 OPENMP_TEAMS_CLAUSE(firstprivate)
 OPENMP_TEAMS_CLAUSE(shared)
 OPENMP_TEAMS_CLAUSE(reduction)
-OPENMP_TEAMS_CLAUSE(num_teams)
-OPENMP_TEAMS_CLAUSE(thread_limit)
+OPENMP_TEAMS_CLAUSE(allocate)
 
 // Clauses allowed for OpenMP directive 'ordered'.
 OPENMP_ORDERED_CLAUSE(threads)
