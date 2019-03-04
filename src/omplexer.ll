@@ -1,7 +1,6 @@
 %option prefix="openmp_"
 /*%option outfile="lex.yy.c"*/
 %option stack
-%option caseless
 %x EXPR_STATE
 %x CLAUSE_STATE
 %x ALLOCATE_STATE
@@ -89,6 +88,8 @@ task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
+num_teams       { return NUM_TEAMS; }
+thread_limit    { return THREAD_LIMIT; }
 default         { yy_push_state(DEFAULT_STATE); return DEFAULT; }
 private         { return PRIVATE; }
 firstprivate    { return FIRSTPRIVATE; }
@@ -100,7 +101,7 @@ proc_bind       { yy_push_state(PROC_BIND_STATE); return PROC_BIND; }
 allocate        { yy_push_state(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
-
+teams           { return TEAMS; }
 master          { return MASTER; } /*YAYING */
 for             { return FOR;}
 lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
@@ -132,7 +133,7 @@ condition       { return CONDITION; }
 "}"             { yy_pop_state(); return '}'; }
 ","             { return ','; }
 
-{comment}       { ; }
+{comment}       {; }
 
 
 {newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
@@ -146,6 +147,7 @@ condition       { return CONDITION; }
 <ALLOCATE_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
 <ALLOCATE_STATE>"("                	              { return '('; }
+<ALLOCATE_STATE>")"                                   { yy_pop_state(); return ')'; }
 <ALLOCATE_STATE>":"  	                 	      { yy_push_state(EXPR_STATE); return ':'; }
 <ALLOCATE_STATE>{blank}*                    	      { ; }
 <ALLOCATE_STATE>.                           	      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
@@ -154,6 +156,7 @@ condition       { return CONDITION; }
 <IF_STATE>simd{blank}*/:      		              { return SIMD; }
 <IF_STATE>task{blank}*/:         		      { return TASK; }
 <IF_STATE>"("                  			      { return '('; }
+<IF_STATE>")"                                         { yy_pop_state(); return ')'; }
 <IF_STATE>":"                  			      { yy_push_state(EXPR_STATE); return ':'; }
 <IF_STATE>{blank}*             			      { ; }
 <IF_STATE>.                    			      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }

@@ -65,7 +65,10 @@ corresponding C type is union name defaults to YYSTYPE.
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
+        TEAMS
+        NUM_TEAMS THREAD_LIMIT
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE
+
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -96,6 +99,7 @@ openmp_directive : parallel_directive
                  | metadirective_directive
 		 | for_directive
 		 | simd_directive
+                 | teams_directive
                  ;
 
 
@@ -190,9 +194,17 @@ simd_directive :  SIMD {
                      }
                      simd_clause_optseq 
                    ;
+teams_directive : TEAMS {
+                        currentDirective = new OpenMPDirective(OMPD_teams);
+                     }
+                      teams_clause_optseq
+                   ;
 
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
+                       ;
+teams_clause_optseq : /* empty */
+                       | teams_clause_seq
                        ;
 
 for_clause_optseq : /*empty*/
@@ -206,6 +218,11 @@ simd_clause_optseq : /*empty*/
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
+                    ;
+
+teams_clause_seq : teams_clause
+                    | teams_clause_seq teams_clause
+                    | teams_clause_seq ',' teams_clause
                     ;
 
 for_clause_seq : for_clause
@@ -227,6 +244,15 @@ parallel_clause : if_clause
                 | copyin_clause
                 | reduction_clause
                 | proc_bind_clause
+                | allocate_clause
+                ;
+teams_clause : num_teams_clause
+                | thread_limit_clause
+                | default_clause
+                | private_clause
+                | firstprivate_clause
+                | shared_clause
+                | reduction_clause
                 | allocate_clause
                 ;
 
@@ -278,7 +304,14 @@ num_threads_clause: NUM_THREADS {
                             currentClause = currentDirective->addOpenMPClause(OMPC_num_threads);
                          } '(' expression ')'
                       ;
-
+num_teams_clause: NUM_TEAMS {
+                            currentClause = currentDirective->addOpenMPClause(OMPC_num_teams);
+                         } '(' expression ')'
+                      ;
+thread_limit_clause: THREAD_LIMIT {
+                            currentClause = currentDirective->addOpenMPClause(OMPC_thread_limit);
+                         } '(' expression ')'
+                      ;
 copyin_clause: COPYIN {
                 currentClause = currentDirective->addOpenMPClause(OMPC_copyin);
 				} '(' var_list ')'

@@ -25,6 +25,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(metadirective)
 
     OPENMP_DIRECTIVE(unknown)
+    OPENMP_DIRECTIVE(teams)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
 };
@@ -43,6 +44,8 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(reduction,  OMPReductionClause)
     OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
     OPENMP_CLAUSE(allocate, OMPAllocateClause)
+    OPENMP_CLAUSE(num_teams, OMPNumTeamsClause)
+    OPENMP_CLAUSE(thread_limit, OMPThreadLimitClause)
 
     OPENMP_CLAUSE(lastprivate, OMPLastprivateClause)
     OPENMP_CLAUSE(collapse, OMPCollapseClause)
