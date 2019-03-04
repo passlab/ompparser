@@ -116,8 +116,9 @@ safelen		{ return SAFELEN;}
 simdlen		{ return SIMDLEN;}
 nontemporal	{ return NONTEMPORAL;}
 aligned		{ yy_push_state(ALIGNED_STATE);return ALIGNED;}
-
-
+uniform         { return UNIFORM;}
+inbranch        { return INBRANCH;}
+notinbranch     { return NOTINBRANCH;}
 
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 

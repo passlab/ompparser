@@ -100,6 +100,7 @@ openmp_directive : parallel_directive
 		 | for_directive
 		 | simd_directive
                  | teams_directive
+		 | for_simd_directive
                  ;
 
 
@@ -194,6 +195,11 @@ simd_directive :  SIMD {
                      }
                      simd_clause_optseq 
                    ;
+for_simd_directive :  FOR SIMD{
+                        current_directive = new OpenMPDirective(OMPD_for_simd);	
+                     }
+                     for_simd_clause_optseq
+                   ;
 teams_directive : TEAMS {
                         current_directive = new OpenMPDirective(OMPD_teams);
                      }
@@ -214,7 +220,9 @@ for_clause_optseq : /*empty*/
 simd_clause_optseq : /*empty*/
 	          | simd_clause_seq 
                   ;
-
+for_simd_clause_optseq : /*empty*/
+	               | for_simd_clause_seq 
+                       ;
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
@@ -234,6 +242,11 @@ simd_clause_seq : simd_clause
                 | simd_clause_seq simd_clause
                 | simd_clause_seq "," simd_clause
                 ;
+
+for_simd_clause_seq : for_simd_clause
+                    | for_simd_clause_seq for_simd_clause
+                    | for_simd_clause_seq "," for_simd_clause
+                    ;
 
 parallel_clause : if_clause
                 | num_threads_clause
@@ -282,6 +295,24 @@ simd_clause : if_clause
 	    | order_clause 
 	    ;
 
+for_simd_clause : if_clause
+                | safelen_clause
+                | simdlen_clause
+                | linear_clause
+                | aligned_clause
+                | private_clause
+                | firstprivate_clause 
+                | lastprivate_clause
+         	| reduction_clause
+	        | schedule_clause
+	        | collapse_clause 
+	        | ordered_clause
+	        | nowait_clause
+	        | allocate_clause 
+                | order_clause
+                | nontemporal_clause
+                ;
+  
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
 

@@ -21,7 +21,8 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
     OPENMP_DIRECTIVE(for) 
-    OPENMP_DIRECTIVE(simd)/*YAYING*/
+    OPENMP_DIRECTIVE(simd)
+    OPENMP_DIRECTIVE(for_simd)/*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
 
     OPENMP_DIRECTIVE(unknown)

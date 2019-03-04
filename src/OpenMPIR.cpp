@@ -64,9 +64,9 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_firstprivate :
         case OMPC_shared :
         case OMPC_num_teams :
- 	    case OMPC_thread_limit :
+ 	case OMPC_thread_limit :
         case OMPC_copyin :
-	    case OMPC_collapse :
+	case OMPC_collapse :
         case OMPC_ordered :
         case OMPC_order :
         case OMPC_nowait :
@@ -302,6 +302,8 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_simd:
             result += "simd ";
+        case OMPD_for_simd:
+            result += "for_simd ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -445,25 +447,25 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
     std::string clause_kind;
     switch (this->getKind()) {
         case OMPC_private:
-            clause_kind = "private ";
+            clause_kind += "private ";
             break;
         case OMPC_firstprivate:
-            clause_kind = "firstprivate ";
+            clause_kind += "firstprivate ";
             break;
         case OMPC_shared:
-            clause_kind = "shared ";
+            clause_kind += "shared ";
             break;
-  case OMPC_num_threads:
-            clause_kind = "num_threads ";
+        case OMPC_num_threads:
+            clause_kind += "num_threads ";
             break;
-  case OMPC_num_teams:
-            clause_kind = "num_teams ";
+        case OMPC_num_teams:
+            clause_kind += "num_teams ";
             break;
-case OMPC_thread_limit:
-            clause_kind = "thread_limit ";
+        case OMPC_thread_limit:
+            clause_kind += "thread_limit ";
             break;
-case OMPC_default:
-            clause_kind = "default ";
+        case OMPC_default:
+            clause_kind += "default ";
             break;
 	case OMPC_lastprivate:
             clause_kind += "lastprivate ";
