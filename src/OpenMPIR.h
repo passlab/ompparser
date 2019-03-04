@@ -205,9 +205,9 @@ public:
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
 
-    void setuser_defined_modifier(char *_modifier) { user_defined_modifier = _modifier; }
+    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
 
-    char *getuser_defined_modifier() { return user_defined_modifier; };
+    char *getUserDefinedModifier() { return user_defined_modifier; };
 };
 
 
@@ -223,9 +223,9 @@ public:
 
     OpenMPLinearClauseModifier getModifier() { return modifier; };
 
-    void setuser_defined_modifier(char *_modifier) { user_defined_modifier = _modifier; }
+    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
 
-    char *getuser_defined_modifier() { return user_defined_modifier; };
+    char *getUserDefinedModifier() { return user_defined_modifier; };
 };
 
 // schedule Clause
@@ -247,9 +247,9 @@ public:
 
     OpenMPScheduleClauseKind getKind() { return schedulekind; };
 
-    void setuser_defined_kind(char *schedulekind) { user_defined_kind = schedulekind; };
+    void setUserDefinedKind(char *schedulekind) { user_defined_kind = schedulekind; };
 
-    char *getuser_defined_kind() { return user_defined_kind; };
+    char *getUserDefinedKind() { return user_defined_kind; };
 };
 
 // When Clause
