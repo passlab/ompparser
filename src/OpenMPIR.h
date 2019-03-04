@@ -197,17 +197,17 @@ public:
 class OpenMPLastprivateClause : public OpenMPClause {
 protected:
     OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
-    char *userDefinedModifier;                         /* user defined value if it is used */
+    char *user_defined_modifier;                         /* user defined value if it is used */
 
 public:
     OpenMPLastprivateClause(OpenMPLastprivateClauseModifier _modifier) :
-            OpenMPClause(OMPC_lastprivate), modifier(_modifier), userDefinedModifier (NULL) { };
+            OpenMPClause(OMPC_lastprivate), modifier(_modifier), user_defined_modifier (NULL) { };
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
 
-    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+    void setuser_defined_modifier(char *_modifier) { user_defined_modifier = _modifier; }
 
-    char *getUserDefinedModifier() { return userDefinedModifier; };
+    char *getuser_defined_modifier() { return user_defined_modifier; };
 };
 
 
@@ -215,17 +215,17 @@ public:
 class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
-    char *userDefinedModifier;                         /* user defined value if it is used */
+    char *user_defined_modifier;                         /* user defined value if it is used */
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
-            OpenMPClause(OMPC_linear), modifier(_modifier), userDefinedModifier (NULL) { };
+            OpenMPClause(OMPC_linear), modifier(_modifier), user_defined_modifier (NULL) { };
 
     OpenMPLinearClauseModifier getModifier() { return modifier; };
 
-    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+    void setuser_defined_modifier(char *_modifier) { user_defined_modifier = _modifier; }
 
-    char *getUserDefinedModifier() { return userDefinedModifier; };
+    char *getuser_defined_modifier() { return user_defined_modifier; };
 };
 
 // schedule Clause
@@ -234,22 +234,22 @@ class OpenMPScheduleClause : public OpenMPClause {
 protected:
     OpenMPScheduleClauseModifier modifier;     // modifier
     OpenMPScheduleClauseKind schedulekind; // identifier
-    char *userDefinedKind;                // user defined identifier if it is used
+    char *user_defined_kind;                // user defined identifier if it is used
 
 public:
     OpenMPScheduleClause( ) : OpenMPClause(OMPC_schedule) { }
 
     OpenMPScheduleClause(OpenMPScheduleClauseModifier _modifier,
                           OpenMPScheduleClauseKind _schedulekind) : OpenMPClause(OMPC_schedule),
-                                         modifier(_modifier), schedulekind(_schedulekind), userDefinedKind (NULL) { };
+                                         modifier(_modifier), schedulekind(_schedulekind), user_defined_kind (NULL) { };
 
     OpenMPScheduleClauseModifier getModifier() { return modifier; };
 
     OpenMPScheduleClauseKind getKind() { return schedulekind; };
 
-    void setUserDefinedKind(char *schedulekind) { userDefinedKind = schedulekind; };
+    void setuser_defined_kind(char *schedulekind) { user_defined_kind = schedulekind; };
 
-    char *getUserDefinedKind() { return userDefinedKind; };
+    char *getuser_defined_kind() { return user_defined_kind; };
 };
 
 // When Clause
@@ -275,13 +275,13 @@ public:
 class OpenMPProcBindClause : public OpenMPClause {
 
 protected:
-    OpenMPProcBindClauseKind proc_bindKind; // proc_bind
+    OpenMPProcBindClauseKind proc_bind_kind; // proc_bind
 
 public:
-    OpenMPProcBindClause(OpenMPProcBindClauseKind pbkind) :
-            OpenMPClause(OMPC_proc_bind), proc_bindKind(pbkind) { };
+    OpenMPProcBindClause(OpenMPProcBindClauseKind _proc_bind_kind) :
+            OpenMPClause(OMPC_proc_bind), proc_bind_kind(_proc_bind_kind) { };
 
-    OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bindKind; };
+    OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bind_kind; };
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 
@@ -289,27 +289,27 @@ public:
 class OpenMPDefaultClause : public OpenMPClause {
 
 protected:
-    OpenMPDefaultClauseKind defaultKind; // default
+    OpenMPDefaultClauseKind default_kind; // default
 
 public:
-    OpenMPDefaultClause(OpenMPDefaultClauseKind _defaultKind) :
-            OpenMPClause(OMPC_default), defaultKind(_defaultKind) { };
+    OpenMPDefaultClause(OpenMPDefaultClauseKind _default_kind) :
+            OpenMPClause(OMPC_default), default_kind(_default_kind) { };
 
-    OpenMPDefaultClauseKind getDefaultClauseKind() {return defaultKind; };
+    OpenMPDefaultClauseKind getDefaultClauseKind() {return default_kind; };
 };
 
 // if Clause
 class OpenMPIfClause : public OpenMPClause {
 
 protected:
-    OpenMPIfClauseKind ifKind; // if
+    OpenMPIfClauseKind if_kind; // if
 
 public:
-    OpenMPIfClause(OpenMPIfClauseKind _ifKind) :
-            OpenMPClause(OMPC_if), ifKind(_ifKind) { };
+    OpenMPIfClause(OpenMPIfClauseKind _if_kind) :
+            OpenMPClause(OMPC_if), if_kind(_if_kind) { };
 
-    OpenMPIfClauseKind getIfClauseKind() { return ifKind; };
-    void setIfClauseKind(OpenMPIfClauseKind ifKind) { this->ifKind = ifKind; };
+    OpenMPIfClauseKind getIfClauseKind() { return if_kind; };
+    void setIfClauseKind(OpenMPIfClauseKind if_kind) { this->if_kind = if_kind; };
 };
 
 #ifdef __cplusplus
