@@ -400,7 +400,7 @@ OPENMP_SECTIONS_CLAUSE(nowait)
 // Clauses allowed for directive 'omp single'.
 OPENMP_SINGLE_CLAUSE(private)
 OPENMP_SINGLE_CLAUSE(firstprivate)
-OPENMP_SINGLE_CLAUSE(copyprivate)OPENMP_LASTPRIVATE_MODIFIER
+OPENMP_SINGLE_CLAUSE(copyprivate)
 OPENMP_SINGLE_CLAUSE(nowait)
 OPENMP_SINGLE_CLAUSE(allocate)
 
