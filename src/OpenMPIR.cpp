@@ -67,7 +67,11 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 	case OMPC_collapse :
 	case OMPC_ordered :
 	case OMPC_order :
-	case OMPC_nowait :		    {
+	case OMPC_nowait :
+	case OMPC_safelen :
+	case OMPC_simdlen :
+	case OMPC_aligned :
+	case OMPC_nontemporal :		    {
 
             if (currentClauses->size() == 0) {
                 newClause = new OpenMPClause(kind);
@@ -279,6 +283,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_for:
             result += "for ";
             break;
+        case OMPD_simd:
+            result += "simd ";
+            break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -342,6 +349,18 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_order:
             result += "order ";
+            break;
+	case OMPC_safelen:
+            result += "safelen ";
+            break;
+	case OMPC_simdlen:
+            result += "simdlen ";
+            break;
+	case OMPC_aligned:
+            result += "aligned ";
+            break;
+	case OMPC_nontemporal:
+            result += "nontemporal ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -431,6 +450,18 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
             break;
         case OMPC_order:
             clause_kind += "order ";
+            break;	
+	case OMPC_safelen:
+            clause_kind += "safelen ";
+            break;
+	case OMPC_simdlen:
+            clause_kind += "simdlen ";
+            break;
+	case OMPC_aligned:
+            clause_kind += "aligned ";
+            break;
+	case OMPC_nontemporal:
+            clause_kind += "nontemporal ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

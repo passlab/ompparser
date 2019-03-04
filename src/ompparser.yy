@@ -57,7 +57,7 @@ corresponding C type is union name defaults to YYSTYPE.
 %token  OMP PARALLEL FOR
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE 
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
-/*YAYING*/
+        SAFELEN SIMDLEN ALIGNED NONTEMPORAL/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -91,6 +91,7 @@ var_list : variable
 
 openmp_directive : parallel_directive
 		 | for_directive
+		 | simd_directive
                  ;
 
 parallel_directive : OMP  PARALLEL {
@@ -100,9 +101,15 @@ parallel_directive : OMP  PARALLEL {
                    ;
 /*YAYING*/
 for_directive : OMP  FOR {
-                        currentDirective = new OpenMPDirective(OMPD_for);printf("create a directive\n");	
+                        currentDirective = new OpenMPDirective(OMPD_for);	
                      }
                      for_clause_optseq 
+                   ;
+
+simd_directive : OMP  SIMD {
+                        currentDirective = new OpenMPDirective(OMPD_simd);	
+                     }
+                     simd_clause_optseq 
                    ;
 
 parallel_clause_optseq : /* empty */
@@ -111,6 +118,10 @@ parallel_clause_optseq : /* empty */
 
 for_clause_optseq : /*empty*/
 	          | for_clause_seq 
+                  ;
+
+simd_clause_optseq : /*empty*/
+	          | simd_clause_seq 
                   ;
 
 parallel_clause_seq : parallel_clause
@@ -122,6 +133,11 @@ for_clause_seq : for_clause
                | for_clause_seq for_clause
                | for_clause_seq "," for_clause
                ;
+
+simd_clause_seq : simd_clause
+                | simd_clause_seq simd_clause
+                | simd_clause_seq "," simd_clause
+                ;
 
 parallel_clause : if_clause
                 | num_threads_clause
@@ -147,6 +163,19 @@ for_clause : private_clause
 	   | allocate_clause 
 	   | order_clause 
 	   ;
+
+simd_clause : if_clause
+	    | safelen_clause
+	    | simdlen_clause
+	    | linear_clause
+	    | aligned_clause
+	    | nontemporal_clause
+	    | private_clause
+	    | lastprivate_clause 
+	    | reduction_clause
+	    | collapse_clause 
+	    | order_clause 
+	    ;
 
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
@@ -249,6 +278,27 @@ linear_modifier : MODOFIER_VAL { currentClause = currentDirective->addOpenMPClau
                 | MODOFIER_UVAL { currentClause = currentDirective->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_uval); }
                 | EXPR_STRING { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_user, $1); }
                 ;
+
+aligned_clause : ALIGNED '('  aligned_parameter ')'
+               | ALIGNED '('  aligned_parameter ':' var_list')'
+	       ;
+
+aligned_parameter : EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_aligned); currentClause->addLangExpr($1);  }
+                  | EXPR_STRING ','  {std::cout << $1 << "\n";} {currentClause = currentDirective->addOpenMPClause(OMPC_aligned); currentClause->addLangExpr($1); } var_list
+                  | linear_modifier '(' var_list ')'
+		  ;
+
+safelen_clause: SAFELEN { currentClause = currentDirective->addOpenMPClause(OMPC_safelen);} '(' var_list ')' {
+						}
+					  ;
+
+simdlen_clause: SIMDLEN { currentClause = currentDirective->addOpenMPClause(OMPC_simdlen);} '(' var_list ')' {
+						}
+					  ;
+
+nontemporal_clause: NONTEMPORAL { currentClause = currentDirective->addOpenMPClause(OMPC_nontemporal);} '(' var_list ')' {
+						}
+					  ;
 
 collapse_clause: COLLAPSE { currentClause = currentDirective->addOpenMPClause(OMPC_collapse);} '(' var_list ')' {
 						}

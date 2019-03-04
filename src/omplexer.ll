@@ -14,6 +14,7 @@
 %x SCHEDULE_STATE
 %x COLLAPSE_STATE
 %x ORDERED_STATE
+%x ALIGNED_STATE
 
 
 
@@ -107,6 +108,11 @@ collapse        { BEGIN(COLLAPSE_STATE);return COLLAPSE;}
 ordered		{ BEGIN(ORDERED_STATE);return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
+simd            { return SIMD;}
+safelen		{ return SAFELEN;}
+simdlen		{ return SIMDLEN;}
+nontemporal	{ return NONTEMPORAL;}
+aligned		{ BEGIN(ALIGNED_STATE);return ALIGNED;}
 
 
 end             { return END; }
@@ -218,8 +224,15 @@ end             { return END; }
 <ORDERED_STATE>")"                      { BEGIN(INITIAL); return ')'; }
 <ORDERED_STATE>{blank}*                 { ; }
 <ORDERED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ORDERED_STATE>"("                      { return '('; }
+<ORDERED_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<ORDERED_STATE>{blank}*                 { ; }
+<ORDERED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
-
+<ALIGNED_STATE>"("                      { return '('; }
+<ALIGNED_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<ALIGNED_STATE>{blank}*                 { ; }
+<ALIGNED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
 
 ":"                                    { BEGIN(EXPR_STATE); return ':'; }
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }

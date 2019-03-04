@@ -20,7 +20,8 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE(Name) OMPD_##Name,
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
-    OPENMP_DIRECTIVE(for) /*YAYING*/
+    OPENMP_DIRECTIVE(for) 
+    OPENMP_DIRECTIVE(simd)/*YAYING*/
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -48,6 +49,11 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(order, OMPOrderClause)
     OPENMP_CLAUSE(linear, OMPLinearClause)
     OPENMP_CLAUSE(schedule, OMPScheduleClause)
+
+    OPENMP_CLAUSE(safelen, OMPSafelenClause)
+    OPENMP_CLAUSE(simdlen, OMPSimdlenClause)
+    OPENMP_CLAUSE(aligned, OMPAlignedClause)
+    OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
