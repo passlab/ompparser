@@ -15,7 +15,7 @@
 %x COLLAPSE_STATE
 %x ORDERED_STATE
 %x ALIGNED_STATE
-
+%x WHEN_STATE
 
 
 %{
@@ -45,9 +45,9 @@ Liao 12/10/2009 */
 #define YY_NO_POP_STATE
 
 static const char* ompparserinput = NULL;
-static std::string CurrentString;
-static int ParenLocalCount, ParenGlobalCount, BracketCount;
-static char CurrentChar;
+static std::string current_string;
+static int parenthesis_local_count, parenthesis_global_count, bracket_count;
+static char current_char;
 
 /* Liao 6/11/2010,
 OpenMP does not preclude the use of clause names as regular variable names.
@@ -80,46 +80,56 @@ newline         [\n]
 comment         [\/\/].*
 
 %%
-omp             { return OMP; }  
 
 
+omp             { ; }
 parallel        { return PARALLEL; }
+metadirective   { return METADIRECTIVE; }
 task            { return TASK; }
 if              { BEGIN(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
-default         { BEGIN(DEFAULT_STATE); return DEFAULT; }
+default         { yy_push_state(DEFAULT_STATE); return DEFAULT; }
 private         { return PRIVATE; }
 firstprivate    { return FIRSTPRIVATE; }
 shared          { return SHARED; }
 none            { return NONE; }
-reduction       { BEGIN(REDUCTION_STATE); return REDUCTION; }
+reduction       { yy_push_state(REDUCTION_STATE); return REDUCTION; }
 copyin          { return COPYIN; }
-proc_bind       { BEGIN(PROC_BIND_STATE); return PROC_BIND; }
-allocate        { BEGIN(ALLOCATE_STATE); return ALLOCATE; }
+proc_bind       { yy_push_state(PROC_BIND_STATE); return PROC_BIND; }
+allocate        { yy_push_state(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
+
 master          { return MASTER; } /*YAYING */
 for             { return FOR;}
-lastprivate     { BEGIN(LASTPRIVATE_STATE); return LASTPRIVATE;}
-linear          { BEGIN(LINEAR_STATE); return LINEAR;}
-schedule        { BEGIN(SCHEDULE_STATE); return SCHEDULE;}
-collapse        { BEGIN(COLLAPSE_STATE);return COLLAPSE;}
-ordered		{ BEGIN(ORDERED_STATE);return ORDERED;}
+lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
+linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
+schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
+collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
+ordered		{ yy_push_state(ORDERED_STATE);return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 simd            { return SIMD;}
 safelen		{ return SAFELEN;}
 simdlen		{ return SIMDLEN;}
 nontemporal	{ return NONTEMPORAL;}
-aligned		{ BEGIN(ALIGNED_STATE);return ALIGNED;}
+aligned		{ yy_push_state(ALIGNED_STATE);return ALIGNED;}
 
+
+
+when            { yy_push_state(WHEN_STATE); return WHEN; }
 
 end             { return END; }
+score           { return SCORE; }
+condition       { return CONDITION; }
 
 
-"("             { BEGIN(CLAUSE_STATE); return '('; }
+
+"("             { return '('; }
 ")"             { return ')'; }
+":"             { return ':'; }
+"}"             { yy_pop_state(); return '}'; }
 ","             { return ','; }
 
 {comment}       { ; }
@@ -136,23 +146,23 @@ end             { return END; }
 <ALLOCATE_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
 <ALLOCATE_STATE>"("                	              { return '('; }
-<ALLOCATE_STATE>":"  	                 	      { BEGIN(EXPR_STATE); return ':'; }
+<ALLOCATE_STATE>":"  	                 	      { yy_push_state(EXPR_STATE); return ':'; }
 <ALLOCATE_STATE>{blank}*                    	      { ; }
-<ALLOCATE_STATE>.                           	      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ALLOCATE_STATE>.                           	      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <IF_STATE>parallel{blank}*/:    		      { return PARALLEL; }
 <IF_STATE>simd{blank}*/:      		              { return SIMD; }
 <IF_STATE>task{blank}*/:         		      { return TASK; }
 <IF_STATE>"("                  			      { return '('; }
-<IF_STATE>":"                  			      { BEGIN(EXPR_STATE); return ':'; }
+<IF_STATE>":"                  			      { yy_push_state(EXPR_STATE); return ':'; }
 <IF_STATE>{blank}*             			      { ; }
-<IF_STATE>.                    			      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<IF_STATE>.                    			      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <PROC_BIND_STATE>master                     { return MASTER; }
 <PROC_BIND_STATE>close                      { return CLOSE; }
 <PROC_BIND_STATE>spread                     { return SPREAD; }
 <PROC_BIND_STATE>"("                        { return '('; }
-<PROC_BIND_STATE>")"                        { BEGIN(INITIAL); return ')'; }
+<PROC_BIND_STATE>")"                        { yy_pop_state(); return ')'; }
 <PROC_BIND_STATE>{blank}*                   { ; }
 <PROC_BIND_STATE>.                          { return -1; }
 
@@ -161,17 +171,17 @@ end             { return END; }
 <DEFAULT_STATE>firstprivate                 { return FIRSTPRIVATE; }
 <DEFAULT_STATE>private                      { return PRIVATE; }
 <DEFAULT_STATE>"("                          { return '('; }
-<DEFAULT_STATE>")"                          { BEGIN(INITIAL); return ')'; }
+<DEFAULT_STATE>")"                          { yy_pop_state(); return ')'; }
 <DEFAULT_STATE>{blank}*                     { ; }
-<DEFAULT_STATE>.                            { return -1; }
-
+<DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); } /* So far, only for default in metadirective meaning that a new directive is coming up. */
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
 <REDUCTION_STATE>task/{blank}*,	      	    { return MODIFIER_TASK; }
 <REDUCTION_STATE>default/{blank}*,	    { return MODIFIER_DEFAULT; }
 <REDUCTION_STATE>"("                        { return '('; }
+<REDUCTION_STATE>")"                        { yy_pop_state(); return ')'; }
 <REDUCTION_STATE>","                        { return ','; }
-<REDUCTION_STATE>":"                        { BEGIN(EXPR_STATE); return ':'; }
+<REDUCTION_STATE>":"                        { yy_push_state(EXPR_STATE); return ':'; }
 <REDUCTION_STATE>"+"                        { return '+'; }
 <REDUCTION_STATE>"-"                        { return '-'; }
 <REDUCTION_STATE>"*"                        { return '*'; }
@@ -183,22 +193,24 @@ end             { return END; }
 <REDUCTION_STATE>min/{blank}*:              { return MIN; }
 <REDUCTION_STATE>max/{blank}*:              { return MAX; }
 <REDUCTION_STATE>{blank}*                   { ; }
-<REDUCTION_STATE>.                          { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<REDUCTION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
 <LASTPRIVATE_STATE>conditional/{blank}*,    { return MODIFIER_CONDITIONAL;}
 <LASTPRIVATE_STATE>"("                      { return '('; }
-<LASTPRIVATE_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<LASTPRIVATE_STATE>")"                      { yy_pop_state(); return ')'; }
+<LASTPRIVATE_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
 <LASTPRIVATE_STATE>{blank}*                 { ; }
-<LASTPRIVATE_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<LASTPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <LINEAR_STATE>"("                      { return '('; }
+<LINEAR_STATE>")"                      { yy_pop_state(); return ')'; }
 <LINEAR_STATE>val{blank}*              { return MODOFIER_VAL; }
 <LINEAR_STATE>ref{blank}*              { return MODOFIER_REF; }
 <LINEAR_STATE>uval{blank}*             { return MODOFIER_UVAL; }
-<LINEAR_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<LINEAR_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
 <LINEAR_STATE>{blank}*                 { ; }
-<LINEAR_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<LINEAR_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
 <SCHEDULE_STATE>monotonic/{blank}*,              { return MODIFIER_MONOTONIC;}
@@ -210,57 +222,70 @@ end             { return END; }
 <SCHEDULE_STATE>auto/{blank}*,                   { return AUTO;}
 <SCHEDULE_STATE>runtime/{blank}*,                { return RUNTIME;}
 <SCHEDULE_STATE>","                    { return ','; }
-<SCHEDULE_STATE>":"                    { BEGIN(EXPR_STATE); return ':';}
+<SCHEDULE_STATE>":"                    { yy_push_state(EXPR_STATE); return ':';}
 <SCHEDULE_STATE>"("                    { return '('; }
+<SCHEDULE_STATE>")"                      { yy_pop_state(); return ')'; }
 <SCHEDULE_STATE>{blank}*               	{ ; }
-<SCHEDULE_STATE>.                      { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<SCHEDULE_STATE>.                      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <COLLAPSE_STATE>"("                      { return '('; }
-<COLLAPSE_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<COLLAPSE_STATE>")"                      { yy_pop_state(); return ')'; }
 <COLLAPSE_STATE>{blank}*                 { ; }
-<COLLAPSE_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<COLLAPSE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ORDERED_STATE>"("                      { return '('; }
-<ORDERED_STATE>")"                      { BEGIN(INITIAL); return ')'; }
+<ORDERED_STATE>")"                      { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                 { ; }
-<ORDERED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
-<ORDERED_STATE>"("                      { return '('; }
-<ORDERED_STATE>")"                      { BEGIN(INITIAL); return ')'; }
-<ORDERED_STATE>{blank}*                 { ; }
-<ORDERED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ORDERED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ALIGNED_STATE>"("                      { return '('; }
-<ALIGNED_STATE>":"                      { BEGIN(EXPR_STATE); return ':';}
+<ALIGNED_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
+<ALIGNED_STATE>")"                      { yy_pop_state(); return ')'; }
 <ALIGNED_STATE>{blank}*                 { ; }
-<ALIGNED_STATE>.                        { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+<ALIGNED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-":"                                    { BEGIN(EXPR_STATE); return ':'; }
-<CLAUSE_STATE>. { BEGIN(EXPR_STATE); CurrentString = yytext[0]; }
+":"                                     { yy_push_state(EXPR_STATE); return ':'; }
 
-<EXPR_STATE>.   { CurrentChar = yytext[0];
-                ParenLocalCount = 0;
-                ParenGlobalCount = 1;
-                BracketCount = 0;
+<WHEN_STATE>"("                             { return '('; }
+<WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
+<WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
+<WHEN_STATE>"="                             { return '='; }
+<WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */
+<WHEN_STATE>"}"                             { return '}'; }
+<WHEN_STATE>user                            { return USER; }
+<WHEN_STATE>construct                       { return CONSTRUCT; }
+<WHEN_STATE>device                          { return DEVICE; }
+<WHEN_STATE>implementation                  { return IMPLEMENTATION; }
+<WHEN_STATE>{blank}*                        { ; }
+<WHEN_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+
+<CLAUSE_STATE>. { BEGIN(EXPR_STATE); current_string = yytext[0]; }
+
+<EXPR_STATE>.   { current_char = yytext[0];
+                parenthesis_local_count = 0;
+                parenthesis_global_count = 1;
+                bracket_count = 0;
                 for (;;) {
-                    switch (CurrentChar) {
+                    switch (current_char) {
                         case EOF :
                             /*return LEXICALERROR*/;
                             return -1;
 
                         case '(' :
-                            ParenLocalCount++;
-                            ParenGlobalCount++;
-                            CurrentString.append(1, CurrentChar);
+                            parenthesis_local_count++;
+                            parenthesis_global_count++;
+                            current_string.append(1, current_char);
                             break;
 
                         case ')' :
-                            ParenLocalCount--;
-                            ParenGlobalCount--;
-                            if (ParenGlobalCount == 0) {
-                                BEGIN(INITIAL);
-                                if (CurrentString.size() != 0) {
-                                    openmp_lval.stype = strdup(CurrentString.c_str());
-                                    CurrentString = "";
+                            parenthesis_local_count--;
+                            parenthesis_global_count--;
+                            if (parenthesis_global_count == 0) {
+                                yy_pop_state();
+                                if (current_string.size() != 0) {
+                                    openmp_lval.stype = strdup(current_string.c_str());
+                                    current_string = "";
                                     unput(')');
                                     return EXPR_STRING;
                                 }
@@ -269,63 +294,64 @@ end             { return END; }
                                 };
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             };
                             break;
 
                         case ',' :
-                            if (CurrentString == "") {
+                            if (current_string == "") {
                                 return ',';
                             }
-                            else if (ParenLocalCount == 0) {
-                                openmp_lval.stype = strdup(CurrentString.c_str());
-                                CurrentString = "";
+                            else if (parenthesis_local_count == 0) {
+                                openmp_lval.stype = strdup(current_string.c_str());
+                                current_string = "";
                                 unput(',');
                                 return EXPR_STRING;
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             };
                             break;
 
                         case '[' :
-                            BracketCount++;
-                            CurrentString.append(1, CurrentChar);
+                            bracket_count++;
+                            current_string.append(1, current_char);
                             break;
 
                         case ']' :
-                            BracketCount--;
-                            CurrentString.append(1, CurrentChar);
+                            bracket_count--;
+                            current_string.append(1, current_char);
                             break;
 
                         case ':' :
-                            if (CurrentString == "") {
+                            if (current_string == "") {
                                 return ':';
                             }
-                            else if (BracketCount == 0) {
-                                openmp_lval.stype = strdup(CurrentString.c_str());
-                                CurrentString = "";
+                            else if (bracket_count == 0) {
+                                yy_pop_state();
+                                openmp_lval.stype = strdup(current_string.c_str());
+                                current_string = "";
 								unput(':');
                                 return EXPR_STRING;
                             }
                             else {
-                                CurrentString.append(1, CurrentChar);
+                                current_string.append(1, current_char);
                             }
                             break;
 
                         default :
-                            if (CurrentChar != ' ' || ParenLocalCount != 0) {
-                                CurrentString.append(1, CurrentChar);
+                            if (current_char != ' ' || parenthesis_local_count != 0) {
+                                current_string.append(1, current_char);
                             }
                     }
-                    CurrentChar = yyinput();
+                    current_char = yyinput();
                 }
             }
 
 expr            {return (EXPRESSION); }
 
 {blank}*        ;
-.               {/*return (LEXICALERROR);*/ return -1;}
+.               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 \n|.       		{printf(" unexpected\n");}
 

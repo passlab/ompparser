@@ -26,7 +26,9 @@ extern void end_lexer(void);
 
 //The directive/clause that are being parsed
 static OpenMPDirective* currentDirective = NULL;
-static OpenMPClause * currentClause = NULL;
+static OpenMPClause* currentClause = NULL;
+static OpenMPDirective* current_parent_directive = NULL;
+static OpenMPClause* current_parent_clause = NULL;
 static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
@@ -54,15 +56,16 @@ corresponding C type is union name defaults to YYSTYPE.
           void* ptype; /* For expressions or variables */
         }
 
-%token  OMP PARALLEL FOR
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE 
+
+%token  OMP PARALLEL FOR METADIRECTIVE
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE  WHEN
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED NONTEMPORAL/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
-        END
+        END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -90,23 +93,99 @@ var_list : variable
         ;
 
 openmp_directive : parallel_directive
+                 | metadirective_directive
 		 | for_directive
 		 | simd_directive
                  ;
 
-parallel_directive : OMP  PARALLEL {
-                        currentDirective = new OpenMPDirective(OMPD_parallel); 
+
+metadirective_directive : METADIRECTIVE {
+                        currentDirective = new OpenMPDirective(OMPD_metadirective);
                      }
-                     parallel_clause_optseq 
+                     metadirective_clause_optseq
+                   ;
+
+metadirective_clause_optseq : /* empty */
+                       | metadirective_clause_seq
+                       ;
+
+metadirective_clause_seq : metadirective_clause
+                    | metadirective_clause_seq metadirective_clause
+                    | metadirective_clause_seq ',' metadirective_clause
+                    ;
+
+metadirective_clause : when_clause
+                | default_clause
+                ;
+
+when_clause : WHEN { currentClause = currentDirective->addOpenMPClause(OMPC_when); }
+                '(' context_selector_specification ':' { /*((OpenMPWhenClause*)currentClause)->setContextSelector(currentClause->getExpressions()->back());*/
+                current_parent_directive = currentDirective;
+                current_parent_clause = currentClause;
+                } when_sub_directive { currentDirective->setParentConstruct(currentClause);
+                ((OpenMPWhenClause*)current_parent_clause)->setSubDirective(currentDirective);
+                currentDirective = current_parent_directive;
+                currentClause = current_parent_clause;
+                current_parent_directive = NULL;
+                current_parent_clause = NULL;
+                } ')' { } ;
+
+when_sub_directive : openmp_directive
+                | { ; }
+                ;
+
+context_selector_specification : trait_set_selector
+                | context_selector_specification trait_set_selector
+                | context_selector_specification ',' trait_set_selector
+                ;
+
+trait_set_selector : trait_set_selector_name '=' '{' trait_selector_list '}'
+                ;
+
+trait_set_selector_name : USER
+                | CONSTRUCT
+                | DEVICE
+                | IMPLEMENTATION
+                ;
+
+trait_selector_list : trait_selector
+                | trait_selector_list trait_selector
+                | trait_selector_list ',' trait_selector
+                ;
+
+trait_selector : condition_selector
+                | parallel_selector
+                ;
+
+condition_selector : CONDITION '(' expression ')'
+                ;
+
+parallel_selector : PARALLEL
+                | PARALLEL '(' parallel_selector_parameter ')'
+                ;
+
+parallel_selector_parameter : trait_score ':' parallel_clause_optseq
+                | parallel_clause_optseq
+                ;
+
+trait_score : SCORE '(' expression ')'
+                ;
+
+
+
+parallel_directive : PARALLEL {
+                        currentDirective = new OpenMPDirective(OMPD_parallel);
+                     }
+                     parallel_clause_optseq
                    ;
 /*YAYING*/
-for_directive : OMP  FOR {
+for_directive :  FOR {
                         currentDirective = new OpenMPDirective(OMPD_for);	
                      }
                      for_clause_optseq 
                    ;
 
-simd_directive : OMP  SIMD {
+simd_directive :  SIMD {
                         currentDirective = new OpenMPDirective(OMPD_simd);	
                      }
                      simd_clause_optseq 
@@ -211,8 +290,12 @@ default_parameter : SHARED { currentClause = currentDirective->addOpenMPClause(O
                     | NONE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
                     | FIRSTPRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
                     | PRIVATE { currentClause = currentDirective->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
-		     ;
+                    | default_sub_directive
+                    ;
 
+
+default_sub_directive : openmp_directive
+                    ;
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
 
@@ -224,8 +307,8 @@ proc_bind_parameter : MASTER    { currentClause = currentDirective->addOpenMPCla
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
 allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1);  }
-                     | EXPR_STRING ','  {std::cout << $1 << "\n";} {
-                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); }var_list
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";
+                         currentClause = currentDirective->addOpenMPClause(OMPC_allocate); currentClause->addLangExpr($1); } var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 

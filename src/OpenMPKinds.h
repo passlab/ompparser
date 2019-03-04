@@ -22,6 +22,8 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(parallel)
     OPENMP_DIRECTIVE(for) 
     OPENMP_DIRECTIVE(simd)/*YAYING*/
+    OPENMP_DIRECTIVE(metadirective)
+
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -54,6 +56,9 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(simdlen, OMPSimdlenClause)
     OPENMP_CLAUSE(aligned, OMPAlignedClause)
     OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
+
+// OpenMP clause for MetaDirective
+    OPENMP_CLAUSE(when, OMPWhenClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
