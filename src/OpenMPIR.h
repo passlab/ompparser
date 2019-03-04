@@ -26,8 +26,13 @@ class SourceLocation {
     int getLine ( ) { return line; };
     int getColumn ( ) { return column; };
 
+    SourceLocation* parent_construct;
+
     public:
-    SourceLocation(int _line = 0, int _col = 0) : line(_line), column(_col) { } ;
+    SourceLocation(int _line = 0, int _col = 0, SourceLocation* _parent_construct = NULL) : line(_line), column(_col), parent_construct(_parent_construct) { } ;
+    void setParentConstruct(SourceLocation* _parent_construct) { parent_construct = _parent_construct; };
+    SourceLocation* getParentConstruct() { return parent_construct; };
+
 };
 
 /**
@@ -174,19 +179,97 @@ public:
 class OpenMPAllocateClause : public OpenMPClause {
 protected:
     OpenMPAllocateClauseAllocator allocator; // Allocate allocator
-    char *userDefinedAllocator;                         /* user defined value if it is used */
+    std::string user_defined_allocator;                         /* user defined value if it is used */
 
 public:
     OpenMPAllocateClause(OpenMPAllocateClauseAllocator _allocator) :
-            OpenMPClause(OMPC_allocate), allocator(_allocator), userDefinedAllocator (NULL) { };
+            OpenMPClause(OMPC_allocate), allocator(_allocator), user_defined_allocator ("") { };
 
     OpenMPAllocateClauseAllocator getAllocator() { return allocator; };
 
-    void setUserDefinedAllocator(char *_allocator) { userDefinedAllocator = _allocator; }
+    void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
 
-    char *getUserDefinedAllocator() { return userDefinedAllocator; };
+    std::string getUserDefinedAllocator() { return user_defined_allocator; };
 };
 
+
+// lastprivate Clause
+class OpenMPLastprivateClause : public OpenMPClause {
+protected:
+    OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
+    char *userDefinedModifier;                         /* user defined value if it is used */
+
+public:
+    OpenMPLastprivateClause(OpenMPLastprivateClauseModifier _modifier) :
+            OpenMPClause(OMPC_lastprivate), modifier(_modifier), userDefinedModifier (NULL) { };
+
+    OpenMPLastprivateClauseModifier getModifier() { return modifier; };
+
+    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+
+    char *getUserDefinedModifier() { return userDefinedModifier; };
+};
+
+
+// linear Clause
+class OpenMPLinearClause : public OpenMPClause {
+protected:
+    OpenMPLinearClauseModifier modifier; // linear modifier
+    char *userDefinedModifier;                         /* user defined value if it is used */
+
+public:
+    OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
+            OpenMPClause(OMPC_linear), modifier(_modifier), userDefinedModifier (NULL) { };
+
+    OpenMPLinearClauseModifier getModifier() { return modifier; };
+
+    void setUserDefinedModifier(char *_modifier) { userDefinedModifier = _modifier; }
+
+    char *getUserDefinedModifier() { return userDefinedModifier; };
+};
+
+// schedule Clause
+class OpenMPScheduleClause : public OpenMPClause {
+
+protected:
+    OpenMPScheduleClauseModifier modifier;     // modifier
+    OpenMPScheduleClauseKind schedulekind; // identifier
+    char *userDefinedKind;                // user defined identifier if it is used
+
+public:
+    OpenMPScheduleClause( ) : OpenMPClause(OMPC_schedule) { }
+
+    OpenMPScheduleClause(OpenMPScheduleClauseModifier _modifier,
+                          OpenMPScheduleClauseKind _schedulekind) : OpenMPClause(OMPC_schedule),
+                                         modifier(_modifier), schedulekind(_schedulekind), userDefinedKind (NULL) { };
+
+    OpenMPScheduleClauseModifier getModifier() { return modifier; };
+
+    OpenMPScheduleClauseKind getKind() { return schedulekind; };
+
+    void setUserDefinedKind(char *schedulekind) { userDefinedKind = schedulekind; };
+
+    char *getUserDefinedKind() { return userDefinedKind; };
+};
+
+// When Clause
+class OpenMPWhenClause : public OpenMPClause {
+protected:
+    OpenMPDirective* sub_directive; // sub directive inside the WHEN clause
+    std::string context_selector; // the context selector inside the WHEN clause
+
+public:
+    OpenMPWhenClause( ) : OpenMPClause(OMPC_when) { };
+
+    OpenMPWhenClause(OpenMPDirective* _sub_directive) :
+            OpenMPClause(OMPC_when), sub_directive(_sub_directive), context_selector("") { };
+
+    OpenMPDirective* getSubDirective() { return sub_directive; };
+    void setSubDirective(OpenMPDirective* _sub_directive) { sub_directive = _sub_directive; };
+    void setContextSelector(const char* _context_selector) { context_selector = std::string(_context_selector); }
+
+    std::string getContextSelector() { return context_selector; };
+};
 
 // ProcBind Clause
 class OpenMPProcBindClause : public OpenMPClause {

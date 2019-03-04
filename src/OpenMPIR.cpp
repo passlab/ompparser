@@ -65,7 +65,15 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_shared :
         case OMPC_num_teams :
  	case OMPC_thread_limit :
-        case OMPC_copyin : {
+        case OMPC_copyin :
+	case OMPC_collapse :
+	case OMPC_ordered :
+	case OMPC_order :
+	case OMPC_nowait :
+	case OMPC_safelen :
+	case OMPC_simdlen :
+	case OMPC_aligned :
+	case OMPC_nontemporal :		    {
 
             if (currentClauses->size() == 0) {
                 newClause = new OpenMPClause(kind);
@@ -124,31 +132,130 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-        case OMPC_allocate : {
-            OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
-            char * userDefinedAllocator = NULL;
-            if (allocator == OMPC_ALLOCATE_ALLOCATOR_user) userDefinedAllocator = va_arg(args, char *);
+
+	case OMPC_lastprivate : {
+	    OpenMPLastprivateClauseModifier modifier = (OpenMPLastprivateClauseModifier) va_arg(args,int);
+            char * userDefinedModifier = NULL;
+            if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)  userDefinedModifier = va_arg(args, char*);
+	    if (currentClauses->size() == 0) {
+	        newClause = new OpenMPLastprivateClause(modifier);
+                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)
+                    ((OpenMPLastprivateClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+	        currentClauses = new std::vector<OpenMPClause*>();
+                currentClauses->push_back(newClause);
+		clauses[kind] = currentClauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
+                        if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier&&
+                            strcasecmp(userDefinedModifier, ((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
+                           newClause = (*it);
+                           goto end;
+                    }
+               }
+                    newClause = new OpenMPLastprivateClause(modifier);
+                    if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)
+                       ((OpenMPLastprivateClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+                    currentClauses->push_back(newClause);
+	
+	         }
+                 break;
+				 }
+
+        case OMPC_linear :      {
+	    OpenMPLinearClauseModifier modifier = (OpenMPLinearClauseModifier) va_arg(args,int);
+            char * userDefinedModifier = NULL;
+            if (modifier == OMPC_LINEAR_MODIFIER_user)  userDefinedModifier = va_arg(args, char*);
+	    if (currentClauses->size() == 0) {
+	        newClause = new OpenMPLinearClause(modifier);
+                if (modifier == OMPC_LINEAR_MODIFIER_user)
+                    ((OpenMPLinearClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+	        currentClauses = new std::vector<OpenMPClause*>();
+                currentClauses->push_back(newClause);
+		clauses[kind] = currentClauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
+                        if (((OpenMPLinearClause*)(*it))->getModifier() == modifier&&
+                            strcasecmp(userDefinedModifier, ((OpenMPLinearClause*)(*it))->getUserDefinedModifier()) == 0) {
+                           newClause = (*it);
+                           goto end;
+                    }
+               }
+                    newClause = new OpenMPLinearClause(modifier);
+                    if (modifier == OMPC_LINEAR_MODIFIER_user)
+                       ((OpenMPLinearClause*)newClause)->setUserDefinedModifier(userDefinedModifier);
+                    currentClauses->push_back(newClause);
+	
+	         }
+                 break;        
+        }
+
+        case OMPC_schedule : {
+            OpenMPScheduleClauseModifier modifier = (OpenMPScheduleClauseModifier) va_arg(args, int);
+            OpenMPScheduleClauseKind schedulekind = (OpenMPScheduleClauseKind) va_arg(args, int);
+            char * userDefinedKind = NULL;
+            if (schedulekind == OMPC_SCHEDULE_KIND_user) userDefinedKind = va_arg(args, char *);
             if (currentClauses->size() == 0) {
-                newClause = new OpenMPAllocateClause(allocator);
-                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(userDefinedAllocator);
+                newClause = new OpenMPScheduleClause(modifier, schedulekind);
+                if (schedulekind == OMPC_SCHEDULE_KIND_user)
+                    ((OpenMPScheduleClause*)newClause)->setUserDefinedKind(userDefinedKind);
                 currentClauses = new std::vector<OpenMPClause*>();
                 currentClauses->push_back(newClause);
                 clauses[kind] = currentClauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
-                    if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator &&
-                            strcasecmp(userDefinedAllocator, ((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                    if (((OpenMPScheduleClause*)(*it))->getModifier() == modifier &&
+                        ((OpenMPScheduleClause*)(*it))->getKind() == schedulekind &&
+                        strcasecmp(userDefinedKind, ((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
                         newClause = (*it);
                         goto end;
                     }
                 }
                 /* could fine the matching object for this clause */
-                newClause = new OpenMPAllocateClause(allocator);
-                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(userDefinedAllocator);
+                newClause = new OpenMPScheduleClause(modifier, schedulekind);
+                if (schedulekind == OMPC_SCHEDULE_KIND_user)
+                    ((OpenMPScheduleClause*)newClause)->setUserDefinedKind(userDefinedKind);
                 currentClauses->push_back(newClause);
             }
+            break;
+        }
+
+        case OMPC_allocate : {
+            OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
+            char* user_defined_allocator = NULL;
+            if (allocator == OMPC_ALLOCATE_ALLOCATOR_user) user_defined_allocator = va_arg(args, char *);
+            if (currentClauses->size() == 0) {
+                newClause = new OpenMPAllocateClause(allocator);
+                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
+                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(user_defined_allocator);
+                currentClauses = new std::vector<OpenMPClause*>();
+                currentClauses->push_back(newClause);
+                clauses[kind] = currentClauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = currentClauses->begin(); it != currentClauses->end(); ++it) {
+                    std::string current_user_defined_allocator_expression;
+                    if (user_defined_allocator) {
+                        current_user_defined_allocator_expression = std::string(user_defined_allocator);
+                    };
+                    if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                        newClause = (*it);
+                        goto end;
+                    }
+                }
+                /* could find the matching object for this clause */
+                newClause = new OpenMPAllocateClause(allocator);
+                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
+                    ((OpenMPAllocateClause*)newClause)->setUserDefinedAllocator(user_defined_allocator);
+                currentClauses->push_back(newClause);
+            }
+            break;
+        }
+        case OMPC_when: {
+            if (currentClauses->size() == 0) {
+                currentClauses = new std::vector<OpenMPClause *>();
+                clauses[kind] = currentClauses;
+            };
+            newClause = new OpenMPWhenClause();
+            currentClauses->push_back(newClause);
             break;
         }
     }
@@ -189,7 +296,13 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_teams:
 	    result += "teams " ;
-	break;
+	    break;
+        case OMPD_for:
+            result += "for ";
+            break;
+        case OMPD_simd:
+            result += "simd ";
+            break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -218,6 +331,9 @@ std::string OpenMPClause::toString() {
     std::string result;
 
     switch (this->getKind()) {
+        case OMPC_allocate:
+            result += "allocate ";
+            break;
         case OMPC_private:
             result += "private ";
             break;
@@ -239,11 +355,41 @@ std::string OpenMPClause::toString() {
 	case OMPC_default:
             result += "default ";
             break;
-	case OMPC_reduction:
+	case OMPC_lastprivate:
+            result += "lastprivate ";
+            break;
+        case OMPC_linear:
+            result += "linear ";
+            break;
+        case OMPC_reduction:
             result += "reduction ";
             break;
-	case OMPC_allocate:
-            result += "allocate ";
+        case OMPC_schedule:
+            result += "schedule ";
+            break;
+        case OMPC_collapse:
+            result += "collapse ";
+            break;
+        case OMPC_ordered:
+            result += "ordered ";
+            break;
+        case OMPC_nowait:
+            result += "nowait ";
+            break;
+        case OMPC_order:
+            result += "order ";
+            break;
+	case OMPC_safelen:
+            result += "safelen ";
+            break;
+	case OMPC_simdlen:
+            result += "simdlen ";
+            break;
+	case OMPC_aligned:
+            result += "aligned ";
+            break;
+	case OMPC_nontemporal:
+            result += "nontemporal ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -319,11 +465,44 @@ case OMPC_thread_limit:
 case OMPC_default:
             clause_kind = "default ";
             break;
-case OMPC_reduction:
-            clause_kind = "reduction ";
+	case OMPC_lastprivate:
+            clause_kind += "lastprivate ";
             break;
-case OMPC_allocate:
-            clause_kind = "allocate ";
+        case OMPC_linear:
+            clause_kind += "linear ";
+            break;
+        case OMPC_reduction:
+            clause_kind += "reduction ";
+            break;
+        case OMPC_schedule:
+            clause_kind += "schedule ";
+            break;
+        case OMPC_collapse:
+            clause_kind += "collapse ";
+            break;
+        case OMPC_ordered:
+            clause_kind += "ordered ";
+            break;
+        case OMPC_nowait:
+            clause_kind += "nowait ";
+            break;
+        case OMPC_allocate:
+            clause_kind += "allocate ";
+            break;
+        case OMPC_order:
+            clause_kind += "order ";
+            break;	
+	case OMPC_safelen:
+            clause_kind += "safelen ";
+            break;
+	case OMPC_simdlen:
+            clause_kind += "simdlen ";
+            break;
+	case OMPC_aligned:
+            clause_kind += "aligned ";
+            break;
+	case OMPC_nontemporal:
+            clause_kind += "nontemporal ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

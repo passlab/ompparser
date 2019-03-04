@@ -20,6 +20,10 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE(Name) OMPD_##Name,
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
+    OPENMP_DIRECTIVE(for) 
+    OPENMP_DIRECTIVE(simd)/*YAYING*/
+    OPENMP_DIRECTIVE(metadirective)
+
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)
 #undef OPENMP_DIRECTIVE
@@ -42,6 +46,22 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(allocate, OMPAllocateClause)
     OPENMP_CLAUSE(num_teams, OMPNumTeamsClause)
     OPENMP_CLAUSE(thread_limit, OMPThreadLimitClause)
+
+    OPENMP_CLAUSE(lastprivate, OMPLastprivateClause)
+    OPENMP_CLAUSE(collapse, OMPCollapseClause)
+    OPENMP_CLAUSE(ordered, OMPOrderedClause)
+    OPENMP_CLAUSE(nowait, OMPNowaitClause)
+    OPENMP_CLAUSE(order, OMPOrderClause)
+    OPENMP_CLAUSE(linear, OMPLinearClause)
+    OPENMP_CLAUSE(schedule, OMPScheduleClause)
+
+    OPENMP_CLAUSE(safelen, OMPSafelenClause)
+    OPENMP_CLAUSE(simdlen, OMPSimdlenClause)
+    OPENMP_CLAUSE(aligned, OMPAlignedClause)
+    OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
+
+// OpenMP clause for MetaDirective
+    OPENMP_CLAUSE(when, OMPWhenClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
@@ -124,9 +144,60 @@ enum OpenMPReductionClauseIdentifier {
     OPENMP_REDUCTION_IDENTIFIER(max)
     OPENMP_REDUCTION_IDENTIFIER(min)
     OPENMP_REDUCTION_IDENTIFIER(user)
+
     OPENMP_REDUCTION_IDENTIFIER(unknown)
 #undef OPENMP_REDUCTION_IDENTIFIER
 };
 
+/// modifiers for 'lastprivate' clause.
+enum OpenMPLastprivateClauseModifier {
+#define OPENMP_LASTPRIVATE_MODIFIER(Name) OMPC_LASTPRIVATE_MODIFIER_##Name,
+
+    OPENMP_LASTPRIVATE_MODIFIER(conditional)
+    OPENMP_LASTPRIVATE_MODIFIER(user)
+
+    OPENMP_LASTPRIVATE_MODIFIER(unknow)
+#undef OPENMP_LASTPRIVATE_MODIFIER
+};
+
+/// modifiers for 'linear' clause.
+enum OpenMPLinearClauseModifier {
+#define OPENMP_LINEAR_MODIFIER(Name) OMPC_LINEAR_MODIFIER_##Name,
+
+    OPENMP_LINEAR_MODIFIER(val)
+    OPENMP_LINEAR_MODIFIER(ref)
+    OPENMP_LINEAR_MODIFIER(uval)
+    OPENMP_LINEAR_MODIFIER(user)
+
+    OPENMP_LINEAR_MODIFIER(unknow)
+#undef OPENMP_LINEAR_MODIFIER
+};
+
+/// modifiers for 'schedule' clause.
+enum OpenMPScheduleClauseModifier {
+#define OPENMP_SCHEDULE_MODIFIER(Name) OMPC_SCHEDULE_MODIFIER_##Name,
+    OPENMP_SCHEDULE_MODIFIER(monotonic)
+    OPENMP_SCHEDULE_MODIFIER(nonmonotonic)
+    OPENMP_SCHEDULE_MODIFIER(simd)
+    OPENMP_SCHEDULE_MODIFIER(user)
+
+    OPENMP_SCHEDULE_MODIFIER(unknow)
+#undef OPENMP_SCHEDULE_MODIFIER
+};
+
+/// OpenMP attributes for 'schedule' clause.
+enum OpenMPScheduleClauseKind {
+#define OPENMP_SCHEDULE_KIND(Name) OMPC_SCHEDULE_KIND_##Name,
+
+    OPENMP_SCHEDULE_KIND(static)
+    OPENMP_SCHEDULE_KIND(dynamic)
+    OPENMP_SCHEDULE_KIND(guided)
+    OPENMP_SCHEDULE_KIND(auto)
+    OPENMP_SCHEDULE_KIND(runtime)
+    OPENMP_SCHEDULE_KIND(user)
+
+    OPENMP_SCHEDULE_KIND(unknown)
+#undef OPENMP_SCHEDULE_KIND
+};
 #endif
 
