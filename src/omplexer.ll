@@ -144,8 +144,7 @@ condition       { return CONDITION; }
 <DEFAULT_STATE>"("                          { return '('; }
 <DEFAULT_STATE>")"                          { yy_pop_state(); return ')'; }
 <DEFAULT_STATE>{blank}*                     { ; }
-<DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); }
-
+<DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); } /* So far, only for default in metadirective meaning that a new directive is coming up. */
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
 <REDUCTION_STATE>task/{blank}*,				{ return MODIFIER_TASK; }
@@ -170,7 +169,7 @@ condition       { return CONDITION; }
 <WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
 <WHEN_STATE>"="                             { return '='; }
-<WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; }
+<WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */
 <WHEN_STATE>"}"                             { return '}'; }
 <WHEN_STATE>user                            { return USER; }
 <WHEN_STATE>construct                       { return CONSTRUCT; }
