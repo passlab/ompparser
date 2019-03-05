@@ -361,9 +361,6 @@ std::string OpenMPClause::toString() {
         case OMPC_linear:
             result += "linear ";
             break;
-        case OMPC_reduction:
-            result += "reduction ";
-            break;
         case OMPC_schedule:
             result += "schedule ";
             break;
@@ -405,6 +402,77 @@ std::string OpenMPClause::toString() {
     return result;
 
 }
+
+std::string OpenMPReductionClause::toString() {
+
+    std::string result = "reduction ";
+    std::string clause_string = "(";
+    OpenMPReductionClauseModifier modifier = this->getModifier();
+    OpenMPReductionClauseIdentifier identifier = this->getIdentifier();
+    switch (modifier) {
+        case OMPC_REDUCTION_MODIFIER_default:
+            clause_string += "default";
+            break;
+        case OMPC_REDUCTION_MODIFIER_inscan:
+            clause_string += "inscan";
+            break;
+        case OMPC_REDUCTION_MODIFIER_task:
+            clause_string += "task";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += ", ";
+    };
+    switch (identifier) {
+        case OMPC_REDUCTION_IDENTIFIER_plus:
+            clause_string += "+";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_minus:
+            clause_string += "-";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_mul:
+            clause_string += "*";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitand:
+            clause_string += "&";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitor:
+            clause_string += "|";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitxor:
+            clause_string += "^";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_logand:
+            clause_string += "&&";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_logor:
+            clause_string += "||";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_min:
+            clause_string += "min";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_max:
+            clause_string += "max";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_user:
+            clause_string += std::string(this->getUserDefinedIdentifier());
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += " : ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+    return result;
+};
 
 void OpenMPDirective::generateDOT() {
 

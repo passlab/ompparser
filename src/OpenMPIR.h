@@ -173,6 +173,8 @@ public:
     void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; };
 
     char *getUserDefinedIdentifier() { return userDefinedIdentifier; };
+
+    std::string toString();
 };
 
 // allocate

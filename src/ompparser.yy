@@ -123,7 +123,7 @@ metadirective_clause : when_clause
                 ;
 
 when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_when); }
-                '(' context_selector_specification ':' { /*((OpenMPWhenClause*)current_clause)->setContextSelector(current_clause->getExpressions()->back());*/
+                '(' context_selector_specification ':' {
                 current_parent_directive = current_directive;
                 current_parent_clause = current_clause;
                 } when_sub_directive { current_directive->setParentConstruct(current_clause);
