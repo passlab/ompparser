@@ -81,7 +81,9 @@ int main( int argc, const char* argv[] ) {
 	//const char* input = "omp simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e)";
  
 	//const char* input = "omp for lastprivate(conditional:i, last, private)";
-        const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
+        //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
+        //const char* input = "omp declare simdlen(4) linear(s,f,e)  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
+        const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
         printf("\n");

@@ -14,6 +14,7 @@
 %x COLLAPSE_STATE
 %x ORDERED_STATE
 %x ALIGNED_STATE
+%x DIST_SCHEDULE_STATE
 %x WHEN_STATE
 
 
@@ -116,9 +117,12 @@ safelen		{ return SAFELEN;}
 simdlen		{ return SIMDLEN;}
 nontemporal	{ return NONTEMPORAL;}
 aligned		{ yy_push_state(ALIGNED_STATE);return ALIGNED;}
+declare         { return DECLARE;}
 uniform         { return UNIFORM;}
 inbranch        { return INBRANCH;}
 notinbranch     { return NOTINBRANCH;}
+distribute      { return DISTRIBUTE;}
+dist_schedule   { yy_push_state(DIST_SCHEDULE_STATE); return DIST_SCHEDULE;}
 
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 
@@ -247,6 +251,13 @@ condition       { return CONDITION; }
 <ALIGNED_STATE>")"                      { yy_pop_state(); return ')'; }
 <ALIGNED_STATE>{blank}*                 { ; }
 <ALIGNED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<DIST_SCHEDULE_STATE>static/{blank}*          {return STATIC;}
+<DIST_SCHEDULE_STATE>"("                      { return '('; }
+<DIST_SCHEDULE_STATE>","                        { return ','; }
+<DIST_SCHEDULE_STATE>")"                      { yy_pop_state(); return ')'; }
+<DIST_SCHEDULE_STATE>{blank}*                 { ; }
+<DIST_SCHEDULE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 ":"                                     { yy_push_state(EXPR_STATE); return ':'; }
 

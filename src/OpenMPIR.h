@@ -228,6 +228,26 @@ public:
     char *getUserDefinedModifier() { return user_defined_modifier; };
 };
 
+// dist_schedule Clause
+class OpenMPDistscheduleClause : public OpenMPClause {
+	
+protected:
+    OpenMPDistscheduleClauseKind dist_schedule_kind;     // kind
+    char *user_defined_kind;                // user defined identifier if it is used
+
+public:
+    OpenMPDistscheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
+
+    OpenMPDistscheduleClause(OpenMPDistscheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind), user_defined_kind (NULL) { };
+
+    OpenMPDistscheduleClauseKind getKind() { return dist_schedule_kind; };
+
+    void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
+
+    char *getUserDefinedKind() { return user_defined_kind; };
+};
+
+
 // schedule Clause
 class OpenMPScheduleClause : public OpenMPClause {
 

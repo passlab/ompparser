@@ -22,7 +22,9 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(parallel)
     OPENMP_DIRECTIVE(for) 
     OPENMP_DIRECTIVE(simd)
-    OPENMP_DIRECTIVE(for_simd)/*YAYING*/
+    OPENMP_DIRECTIVE(for_simd)
+    OPENMP_DIRECTIVE(declare)
+    OPENMP_DIRECTIVE(distribute)/*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
 
     OPENMP_DIRECTIVE(unknown)
@@ -61,6 +63,11 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(aligned, OMPAlignedClause)
     OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
 
+    OPENMP_CLAUSE(uniform, OMPUniformClause)
+    OPENMP_CLAUSE(inbranch, OMPInbranchClause)
+    OPENMP_CLAUSE(notinbranch, OMPNotinbranchClause)
+
+    OPENMP_CLAUSE(dist_schedule, OMPDistscheduleClause)
 // OpenMP clause for MetaDirective
     OPENMP_CLAUSE(when, OMPWhenClause)
 
@@ -199,6 +206,17 @@ enum OpenMPScheduleClauseKind {
 
     OPENMP_SCHEDULE_KIND(unknown)
 #undef OPENMP_SCHEDULE_KIND
+};
+
+/// OpenMP attributes for 'dist_schedule' clause.
+enum OpenMPDistscheduleClauseKind {
+#define OPENMP_DISTSCHEDULE_KIND(Name) OMPC_DISTSCHEDULE_KIND_##Name,
+
+    OPENMP_DISTSCHEDULE_KIND(static)
+    OPENMP_DISTSCHEDULE_KIND(user)
+
+    OPENMP_DISTSCHEDULE_KIND(unknown)
+#undef OPENMP_DISTSCHEDULE_KIND
 };
 #endif
 

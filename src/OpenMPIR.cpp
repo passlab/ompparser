@@ -73,7 +73,10 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_safelen :
         case OMPC_simdlen :
         case OMPC_aligned :
-        case OMPC_nontemporal : {
+        case OMPC_nontemporal :
+        case OMPC_uniform :
+        case OMPC_inbranch :
+        case OMPC_notinbranch : {
 
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPClause(kind);
@@ -188,7 +191,33 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 	         }
                  break;        
         }
-
+        case OMPC_dist_schedule : {
+            OpenMPDistscheduleClauseKind dist_schedule_kind = (OpenMPDistscheduleClauseKind) va_arg(args,int);
+            char * user_defined_kind = NULL;
+            if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)  user_defined_kind = va_arg(args, char*);
+	    if (current_clauses->size() == 0) {
+	        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+                if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)
+                    ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+	        current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+		clauses[kind] = current_clauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind&&
+                            strcasecmp(user_defined_kind, ((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                           new_clause = (*it);
+                           goto end;
+                    }
+               }
+                    new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+                    if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)
+                       ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+                    current_clauses->push_back(new_clause);
+	
+	         }
+                 break; 
+        }
         case OMPC_schedule : {
             OpenMPScheduleClauseModifier modifier = (OpenMPScheduleClauseModifier) va_arg(args, int);
             OpenMPScheduleClauseKind schedulekind = (OpenMPScheduleClauseKind) va_arg(args, int);
@@ -305,6 +334,12 @@ std::string OpenMPDirective::toString() {
         case OMPD_for_simd:
             result += "for_simd ";
             break;
+        case OMPD_declare:
+            result += "declare ";
+            break;
+        case OMPD_distribute:
+            result += "distribute ";
+            break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -392,6 +427,18 @@ std::string OpenMPClause::toString() {
             break;
 	case OMPC_nontemporal:
             result += "nontemporal ";
+            break;
+	case OMPC_uniform:
+            result += "uniform ";
+            break;
+	case OMPC_inbranch:
+            result += "inbranch ";
+            break;
+	case OMPC_notinbranch:
+            result += "notinbranch ";
+            break;
+	case OMPC_dist_schedule:
+            result += "dist_schedule ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -505,6 +552,18 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, std::string directive_ki
             break;
 	case OMPC_nontemporal:
             clause_kind += "nontemporal ";
+            break;
+	case OMPC_uniform:
+            clause_kind += "uniform ";
+            break;
+	case OMPC_inbranch:
+            clause_kind += "inbranch ";
+            break;
+	case OMPC_notinbranch:
+            clause_kind += "notinbranch ";
+            break;
+	case OMPC_dist_schedule:
+            clause_kind += "dist_schedule ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

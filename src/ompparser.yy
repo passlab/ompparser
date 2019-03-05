@@ -57,10 +57,10 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 
-%token  OMP PARALLEL FOR METADIRECTIVE
+%token  OMP PARALLEL FOR METADIRECTIVE DECLARE DISTRIBUTE
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE  WHEN
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
-        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH/*YAYING*/
+        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -101,6 +101,8 @@ openmp_directive : parallel_directive
 		 | simd_directive
                  | teams_directive
 		 | for_simd_directive
+                 | declare_directive
+                 | distribute_directive
                  ;
 
 
@@ -200,6 +202,18 @@ for_simd_directive :  FOR SIMD{
                      }
                      for_simd_clause_optseq
                    ;
+declare_directive :  DECLARE{
+                        current_directive = new OpenMPDirective(OMPD_declare);	
+                     }
+                     declare_clause_optseq
+                   ;
+
+distribute_directive : DISTRIBUTE{
+                        current_directive = new OpenMPDirective(OMPD_distribute);	
+                     }
+                     distribute_clause_optseq
+                   ;
+
 teams_directive : TEAMS {
                         current_directive = new OpenMPDirective(OMPD_teams);
                      }
@@ -222,6 +236,12 @@ simd_clause_optseq : /*empty*/
                   ;
 for_simd_clause_optseq : /*empty*/
 	               | for_simd_clause_seq 
+                       ;
+declare_clause_optseq : /*empty*/
+	               | declare_clause_seq 
+                       ;
+distribute_clause_optseq : /*empty*/
+	               | distribute_clause_seq 
                        ;
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
@@ -247,7 +267,14 @@ for_simd_clause_seq : for_simd_clause
                     | for_simd_clause_seq for_simd_clause
                     | for_simd_clause_seq "," for_simd_clause
                     ;
-
+declare_clause_seq : declare_clause
+                   | declare_clause_seq declare_clause
+                   | declare_clause_seq "," declare_clause
+                   ;
+distribute_clause_seq : distribute_clause
+                      | distribute_clause_seq distribute_clause
+                      | distribute_clause_seq "," declare_clause
+                      ; 
 parallel_clause : if_clause
                 | num_threads_clause
                 | default_clause
@@ -312,7 +339,23 @@ for_simd_clause : if_clause
                 | order_clause
                 | nontemporal_clause
                 ;
-  
+ 
+declare_clause : simdlen_clause
+	       | linear_clause
+	       | aligned_clause
+      	       | uniform_clause
+	       | inbranch_clause
+	       | notinbranch_clause 
+	       ;
+ 
+distribute_clause : private_clause
+                  | firstprivate_clause 
+                  | lastprivate_clause
+	          | collapse_clause
+	          | dist_schedule_clause 
+ 	          | allocate_clause 
+                  ;
+
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
 
@@ -461,7 +504,19 @@ nowait_clause: NOWAIT {current_clause = current_directive->addOpenMPClause(OMPC_
 order_clause: ORDER  {current_clause = current_directive->addOpenMPClause(OMPC_order);} '(' var_list ')'
 		          ;
 
+uniform_clause: UNIFORM  {current_clause = current_directive->addOpenMPClause(OMPC_uniform);} '(' var_list ')'
+		          ;
 
+inbranch_clause: INBRANCH {current_clause = current_directive->addOpenMPClause(OMPC_inbranch);}
+                          ;
+
+notinbranch_clause: NOTINBRANCH {current_clause = current_directive->addOpenMPClause(OMPC_notinbranch);}
+                          ;
+dist_schedule_clause : DIST_SCHEDULE '('dist_schedule_parameter')'{}
+                     ;
+dist_schedule_parameter : STATIC {current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static);}
+                        | STATIC {current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static);} ',' var_list
+	                ;
 schedule_clause: SCHEDULE {firstParameter = OMPC_SCHEDULE_KIND_unknown;secondParameter = OMPC_SCHEDULE_KIND_unknown;}'(' schedule_parameter ')' {
 					}
 					;
