@@ -69,7 +69,7 @@ std::vector<const char *>* getExpressions() { return &expressions; };
 
     virtual std::string toString();
     std::string expressionToString();
-    virtual void generateDOT(std::ofstream&, std::string);
+    virtual void generateDOT(std::ofstream&, int, int, std::string);
 /*
     std::vector<const char *> &getExpressions() { return expressions; };
 
@@ -145,6 +145,7 @@ public:
     std::string toString();
 
     /* generate DOT representation of the directive */
+    void generateDOT(std::ofstream&, int, int, std::string);
     void generateDOT();
     std::string generatePragmaString();
     // To call this method directly to add new clause, it can't be protected.
@@ -175,6 +176,7 @@ public:
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // allocate

@@ -9,49 +9,10 @@ void output(OpenMPDirective*);
 
 void output(OpenMPDirective* node) {
 
-        std::string unparsing_string = node->generatePragmaString();
-        std::cout << unparsing_string << "\n";
+    std::string unparsing_string = node->generatePragmaString();
+    std::cout << unparsing_string << "\n";
 	node->generateDOT();
-	
-	/*printf("This is DIRECTIVE: ");
-	//enum enum_dir = node->getKind();
-	std::cout << node->getKind() << "\n";
-	if (node->getKind() == OMPD_parallel) {
-		printf("omp parallel \n");*/
 
-	/*printf("This is DIRECTIVE: ");
-	//enum enum_dir = node->getKind();
-	std::cout << node->getKind() << "\n";
-	if (node->getKind() == OMPD_teams) {
-		printf("omp teams \n");
-	}*/
-	
-
-
-    
-	// get graph
-	//node->generateDOT(); // node->getLabel()
-
-   // std::cout << "\nDirective: " << node->getKind() << "\n";
-    
-   /* std::vector<OpenMPClause*>* clauses = node->getClauses();
-    if (clauses != NULL) {
-        std::vector<OpenMPClause*>::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            //std::cout << "    Clause: " << (*it)->getLabel() << "\n"; // (*it)->getKind()
-			//std::cout << "        1st UDT Parameter: " << (*it)->getCustomFirstParameter() << "\n";
-			//std::cout << "        2nd UDT Parameter: " << (*it)->getCustomSecondParameter()  << "\n";
-            std::vector<const char*>* expr = (*it)->getExpr();
-            if (expr != NULL) {
-                std::vector<const char*>::iterator itExpr;
-                for (itExpr = expr->begin(); itExpr != expr->end(); itExpr++) {
-                    std::cout << "        Parameter: " << *itExpr << "\n";
-                }
-            }
-
-        }
-    }*/
-    
 }
 
 int main( int argc, const char* argv[] ) {
@@ -64,15 +25,9 @@ int main( int argc, const char* argv[] ) {
 
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
 
-
-	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
-
 	//const char* input = "OMP parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
 
-
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (no, allo, cator)";
-
-	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
 
 	//const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) allocate (xx) allocate (no, allo, cator)";
 	//const char* input = "omp metadirective when ( user = { condition (b < 14) } : ) when ( user = { condition (a < 4) } : parallel private (a, bb)) when ( construct = {parallel (score(4) : private (e) )} : parallel private (a, bb)) default(none) default (parallel shared (c, dd))";
