@@ -67,7 +67,27 @@ enum OpenMPClauseKind {
 #undef OPENMP_CLAUSE
 };
 
-/// OpenMP attributes for 'if' clause.
+// context selector set for 'when' clause.
+enum OpenMPWhenClauseSelectorSet {
+#define OPENMP_WHEN_SELECTOR_SET(Name) OMPC_WHEN_SELECTOR_SET_##Name,
+    OPENMP_WHEN_SELECTOR_SET(user)
+    OPENMP_WHEN_SELECTOR_SET(construct)
+    OPENMP_WHEN_SELECTOR_SET(device)
+    OPENMP_WHEN_SELECTOR_SET(implementation)
+    OPENMP_WHEN_SELECTOR_SET(unknown)
+#undef OPENMP_WHEN_SELECTOR
+};
+
+// context selector for 'when' clause.
+enum OpenMPWhenClauseSelector {
+#define OPENMP_WHEN_SELECTOR(Name) OMPC_WHEN_SELECTOR_##Name,
+    OPENMP_WHEN_SELECTOR(condition)
+    OPENMP_WHEN_SELECTOR(score)
+    OPENMP_WHEN_SELECTOR(unknown)
+#undef OPENMP_WHEN_SELECTOR
+};
+
+// OpenMP attributes for 'if' clause.
 enum OpenMPIfClauseKind {
 #define OPENMP_IF_KIND(Name) OMPC_IF_##Name,
     OPENMP_IF_KIND(parallel)
