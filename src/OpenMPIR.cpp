@@ -94,28 +94,34 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_reduction : {
             OpenMPReductionClauseModifier modifier = (OpenMPReductionClauseModifier) va_arg(args, int);
             OpenMPReductionClauseIdentifier identifier = (OpenMPReductionClauseIdentifier) va_arg(args, int);
-            char * userDefinedIdentifier = NULL;
-            if (identifier == OMPC_REDUCTION_IDENTIFIER_user) userDefinedIdentifier = va_arg(args, char *);
+            char * user_defined_identifier = NULL;
+            if (identifier == OMPC_REDUCTION_IDENTIFIER_user) user_defined_identifier = va_arg(args, char *);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPReductionClause(modifier, identifier);
-                if (identifier == OMPC_REDUCTION_IDENTIFIER_user)
-                    ((OpenMPReductionClause*)new_clause)->setUserDefinedIdentifier(userDefinedIdentifier);
+                if (identifier == OMPC_REDUCTION_IDENTIFIER_user && user_defined_identifier) {
+                    ((OpenMPReductionClause *) new_clause)->setUserDefinedIdentifier(user_defined_identifier);
+                };
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
                 clauses[kind] = current_clauses;
             } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); it++) {
+                    std::string current_user_defined_identifier_expression;
+                    if (user_defined_identifier) {
+                        current_user_defined_identifier_expression = std::string(user_defined_identifier);
+                    };
                     if (((OpenMPReductionClause*)(*it))->getModifier() == modifier &&
-                        ((OpenMPReductionClause*)(*it))->getIdentifier() == identifier &&
-                        strcasecmp(userDefinedIdentifier, ((OpenMPReductionClause*)(*it))->getUserDefinedIdentifier()) == 0) {
+                    ((OpenMPReductionClause*)(*it))->getIdentifier() == identifier &&
+                    current_user_defined_identifier_expression.compare(((OpenMPReductionClause*)(*it))->getUserDefinedIdentifier()) == 0) {
                         new_clause = (*it);
                         goto end;
                     }
                 }
+
                 /* could fine the matching object for this clause */
                 new_clause = new OpenMPReductionClause(modifier, identifier);
                 if (identifier == OMPC_REDUCTION_IDENTIFIER_user)
-                    ((OpenMPReductionClause*)new_clause)->setUserDefinedIdentifier(userDefinedIdentifier);
+                    ((OpenMPReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
                 current_clauses->push_back(new_clause);
             }
             break;
@@ -457,7 +463,7 @@ std::string OpenMPReductionClause::toString() {
             clause_string += "max";
             break;
         case OMPC_REDUCTION_IDENTIFIER_user:
-            clause_string += std::string(this->getUserDefinedIdentifier());
+            clause_string += this->getUserDefinedIdentifier();
             break;
         default:
             ;

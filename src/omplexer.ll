@@ -179,8 +179,8 @@ condition       { return CONDITION; }
 <DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); } /* So far, only for default in metadirective meaning that a new directive is coming up. */
 
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
-<REDUCTION_STATE>task/{blank}*,	      	    { return MODIFIER_TASK; }
-<REDUCTION_STATE>default/{blank}*,	    { return MODIFIER_DEFAULT; }
+<REDUCTION_STATE>task/{blank}*,             { return MODIFIER_TASK; }
+<REDUCTION_STATE>default/{blank}*,          { return MODIFIER_DEFAULT; }
 <REDUCTION_STATE>"("                        { return '('; }
 <REDUCTION_STATE>")"                        { yy_pop_state(); return ')'; }
 <REDUCTION_STATE>","                        { return ','; }

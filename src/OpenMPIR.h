@@ -157,22 +157,22 @@ class OpenMPReductionClause : public OpenMPClause {
 protected:
     OpenMPReductionClauseModifier modifier;     // modifier
     OpenMPReductionClauseIdentifier identifier; // identifier
-    char *userDefinedIdentifier;                // user defined identifier if it is used
+    std::string user_defined_identifier;                // user defined identifier if it is used
 
 public:
     OpenMPReductionClause( ) : OpenMPClause(OMPC_reduction) { }
 
     OpenMPReductionClause(OpenMPReductionClauseModifier _modifier,
                           OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(OMPC_reduction),
-                                         modifier(_modifier), identifier(_identifier), userDefinedIdentifier (NULL) { };
+                                         modifier(_modifier), identifier(_identifier), user_defined_identifier ("") { };
 
     OpenMPReductionClauseModifier getModifier() { return modifier; };
 
     OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; };
+    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
 
-    char *getUserDefinedIdentifier() { return userDefinedIdentifier; };
+    std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
     std::string toString();
 };
