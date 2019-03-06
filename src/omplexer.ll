@@ -14,6 +14,9 @@
 %x COLLAPSE_STATE
 %x ORDERED_STATE
 %x ALIGNED_STATE
+%x DIST_SCHEDULE_STATE
+%x BIND_STATE
+%X ALLOCATOR_STATE
 %x WHEN_STATE
 
 
@@ -85,7 +88,7 @@ omp             { ; }
 parallel        { return PARALLEL; }
 metadirective   { return METADIRECTIVE; }
 task            { return TASK; }
-if              { BEGIN(IF_STATE); return IF; }
+if              { yy_push_state(IF_STATE); return IF; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
 num_teams       { return NUM_TEAMS; }
@@ -116,8 +119,27 @@ safelen		{ return SAFELEN;}
 simdlen		{ return SIMDLEN;}
 nontemporal	{ return NONTEMPORAL;}
 aligned		{ yy_push_state(ALIGNED_STATE);return ALIGNED;}
+declare         { return DECLARE;}
+uniform         { return UNIFORM;}
+inbranch        { return INBRANCH;}
+notinbranch     { return NOTINBRANCH;}
+distribute      { return DISTRIBUTE;}
+dist_schedule   { yy_push_state(DIST_SCHEDULE_STATE); return DIST_SCHEDULE;}
+loop            { return LOOP;}
+bind            { yy_push_state(BIND_STATE); return BIND;}
+scan            { return SCAN;}
+inclusive       { return INCLUSIVE;}
+exclusive       { return EXCLUSIVE;}
+sections        { return SECTIONS;}
+section         { return SECTION;}
+single          { return SINGLE;}
+copyprivate     { return COPYPRIVATE;}
+cancel          { return CANCEL;}
+taskgroup       { return TASKGROUP;}
+allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR;}
 
-
+cancellation    { return CANCELLATION;}
+point           { return POINT;}
 
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 
@@ -155,6 +177,7 @@ condition       { return CONDITION; }
 <IF_STATE>parallel{blank}*/:    		      { return PARALLEL; }
 <IF_STATE>simd{blank}*/:      		              { return SIMD; }
 <IF_STATE>task{blank}*/:         		      { return TASK; }
+<IF_STATE>cancel{blank}*/:         		      { return CANCEL; }
 <IF_STATE>"("                  			      { return '('; }
 <IF_STATE>")"                                         { yy_pop_state(); return ')'; }
 <IF_STATE>":"                  			      { yy_push_state(EXPR_STATE); return ':'; }
@@ -247,10 +270,37 @@ condition       { return CONDITION; }
 <ALIGNED_STATE>{blank}*                 { ; }
 <ALIGNED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
+<DIST_SCHEDULE_STATE>static/{blank}*          {return STATIC;}
+<DIST_SCHEDULE_STATE>"("                      { return '('; }
+<DIST_SCHEDULE_STATE>","                      { return ','; }
+<DIST_SCHEDULE_STATE>")"                      { yy_pop_state(); return ')'; }
+<DIST_SCHEDULE_STATE>{blank}*                 { ; }
+<DIST_SCHEDULE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<BIND_STATE>teams                      { return TEAMS; }
+<BIND_STATE>parallel                   { return PARALLEL; }
+<BIND_STATE>thread                     { return THREAD; }
+<BIND_STATE>"("                        { return '('; }
+<BIND_STATE>")"                        { yy_pop_state(); return ')'; }
+<BIND_STATE>{blank}*                   { ; }
+<BIND_STATE>.                          { return -1; }
+
+<ALLOCATOR_STATE>omp_default_mem_alloc/{blank}*:       { return DEFAULT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_large_cap_mem_alloc/{blank}*:     { return LARGE_CAP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_const_mem_alloc/{blank}*:         { return CONST_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_high_bw_mem_alloc/{blank}*:       { return HIGH_BW_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_low_lat_mem_alloc/{blank}*:       { return LOW_LAT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_cgroup_mem_alloc/{blank}*:        { return CGROUP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
+<ALLOCATOR_STATE>"("                	               { return '('; }
+<ALLOCATOR_STATE>")"                                   { yy_pop_state(); return ')'; }
+<ALLOCATOR_STATE>.                                     { return -1; }
+
 ":"                                     { yy_push_state(EXPR_STATE); return ':'; }
 
 <WHEN_STATE>"("                             { return '('; }
-<WHEN_STATE>":"                             { yy_pop_state(); return ':'; }
+<WHEN_STATE>":"                             { yy_push_state(INITIAL); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
 <WHEN_STATE>"="                             { return '='; }
 <WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */

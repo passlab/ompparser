@@ -21,7 +21,21 @@ enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
     OPENMP_DIRECTIVE(parallel)
     OPENMP_DIRECTIVE(for) 
-    OPENMP_DIRECTIVE(simd)/*YAYING*/
+    OPENMP_DIRECTIVE(simd)
+    OPENMP_DIRECTIVE(for_simd)
+    OPENMP_DIRECTIVE(declare)
+    OPENMP_DIRECTIVE(distribute)
+    OPENMP_DIRECTIVE(distribute_simd)
+    OPENMP_DIRECTIVE(distribute_parallel_for)
+    OPENMP_DIRECTIVE(distribute_parallel_for_simd)
+    OPENMP_DIRECTIVE(loop)
+    OPENMP_DIRECTIVE(scan)
+    OPENMP_DIRECTIVE(sections)
+    OPENMP_DIRECTIVE(section)
+    OPENMP_DIRECTIVE(single) 
+    OPENMP_DIRECTIVE(cancel)
+    OPENMP_DIRECTIVE(cancellation_point)
+    OPENMP_DIRECTIVE(allocate)      /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
 
     OPENMP_DIRECTIVE(unknown)
@@ -60,6 +74,24 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(aligned, OMPAlignedClause)
     OPENMP_CLAUSE(nontemporal, OMPNontemporalClause)
 
+    OPENMP_CLAUSE(uniform, OMPUniformClause)
+    OPENMP_CLAUSE(inbranch, OMPInbranchClause)
+    OPENMP_CLAUSE(notinbranch, OMPNotinbranchClause)
+
+    OPENMP_CLAUSE(dist_schedule, OMPDistscheduleClause)
+
+    OPENMP_CLAUSE(bind, OMPBindClause)
+
+    OPENMP_CLAUSE(inclusive, OMPInclusiveClause)
+    OPENMP_CLAUSE(exclusive, OMPExclusiveClause)
+
+    OPENMP_CLAUSE(copyprivate, OMPCopyprivateClause)
+    OPENMP_CLAUSE(parallel, OMPParallelClause)
+    OPENMP_CLAUSE(sections, OMPSectionsClause)
+    OPENMP_CLAUSE(for, OMPForClause)
+    OPENMP_CLAUSE(taskgroup, OMPTaskgroupClause)
+
+    OPENMP_CLAUSE(allocator, OMPAllocaterClause)
 // OpenMP clause for MetaDirective
     OPENMP_CLAUSE(when, OMPWhenClause)
 
@@ -93,6 +125,7 @@ enum OpenMPIfClauseKind {
     OPENMP_IF_KIND(parallel)
     OPENMP_IF_KIND(simd)
     OPENMP_IF_KIND(task)
+    OPENMP_IF_KIND(cancel)
 
     OPENMP_IF_KIND(unspecified)
     OPENMP_IF_KIND(unknown)
@@ -219,5 +252,29 @@ enum OpenMPScheduleClauseKind {
     OPENMP_SCHEDULE_KIND(unknown)
 #undef OPENMP_SCHEDULE_KIND
 };
+
+/// OpenMP attributes for 'dist_schedule' clause.
+enum OpenMPDistscheduleClauseKind {
+#define OPENMP_DISTSCHEDULE_KIND(Name) OMPC_DISTSCHEDULE_KIND_##Name,
+
+    OPENMP_DISTSCHEDULE_KIND(static)
+    OPENMP_DISTSCHEDULE_KIND(user)
+
+    OPENMP_DISTSCHEDULE_KIND(unknown)
+#undef OPENMP_DISTSCHEDULE_KIND
+};
+
+/// OpenMP attributes for 'bind' clause.
+enum OpenMPBindClauseKind {
+#define OPENMP_BIND_KIND(Name) OMPC_BIND_##Name,
+    OPENMP_BIND_KIND(teams)
+    OPENMP_BIND_KIND(parallel)
+    OPENMP_BIND_KIND(thread)
+    OPENMP_BIND_KIND(user)
+
+    OPENMP_BIND_KIND(unknown)
+#undef OPENMP_BIND_KIND
+};
+
 #endif
 

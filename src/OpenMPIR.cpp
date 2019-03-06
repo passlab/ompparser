@@ -62,16 +62,26 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_firstprivate :
         case OMPC_shared :
         case OMPC_num_teams :
- 	    case OMPC_thread_limit :
+ 	case OMPC_thread_limit :
         case OMPC_copyin :
-	    case OMPC_collapse :
+	case OMPC_collapse :
         case OMPC_ordered :
         case OMPC_order :
         case OMPC_nowait :
         case OMPC_safelen :
         case OMPC_simdlen :
         case OMPC_aligned :
-        case OMPC_nontemporal : {
+        case OMPC_nontemporal :
+        case OMPC_uniform :
+        case OMPC_inbranch :
+        case OMPC_notinbranch :
+        case OMPC_copyprivate : 
+        case OMPC_parallel:    
+        case OMPC_sections: 
+        case OMPC_for: 
+        case OMPC_taskgroup:
+        case OMPC_inclusive: 
+        case OMPC_exclusive:      {
 
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPClause(kind);
@@ -135,6 +145,19 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 std::cerr << "Cannot have two proc_bind clauses for the directive " << kind << ", ignored\n";
             }
             break;
+        }      
+  
+        case OMPC_bind : {
+            OpenMPBindClauseKind bKind = (OpenMPBindClauseKind) va_arg(args, int);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPBindClause(bKind);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else { /* could be an error since if clause may only appear once */
+                std::cerr << "Cannot have two bind clauses for the directive " << kind << ", ignored\n";
+            }
+            break;
         }
 
 	case OMPC_lastprivate : {
@@ -192,7 +215,33 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 	         }
                  break;
         }
-
+        case OMPC_dist_schedule : {
+            OpenMPDistscheduleClauseKind dist_schedule_kind = (OpenMPDistscheduleClauseKind) va_arg(args,int);
+            char * user_defined_kind = NULL;
+            if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)  user_defined_kind = va_arg(args, char*);
+	    if (current_clauses->size() == 0) {
+	        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+                if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)
+                    ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+	        current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+		clauses[kind] = current_clauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind&&
+                            strcasecmp(user_defined_kind, ((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                           new_clause = (*it);
+                           goto end;
+                    }
+               }
+                    new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+                    if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user)
+                       ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+                    current_clauses->push_back(new_clause);
+	
+	         }
+                 break; 
+        }
         case OMPC_schedule : {
             OpenMPScheduleClauseModifier modifier = (OpenMPScheduleClauseModifier) va_arg(args, int);
             OpenMPScheduleClauseKind schedulekind = (OpenMPScheduleClauseKind) va_arg(args, int);
@@ -306,6 +355,44 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_simd:
             result += "simd ";
+        case OMPD_for_simd:
+            result += "for simd ";
+            break;
+        case OMPD_declare:
+            result += "declare ";
+            break;
+        case OMPD_distribute:
+            result += "distribute ";
+            break;
+        case OMPD_distribute_simd:
+            result += "distribute simd ";
+            break;
+        case OMPD_distribute_parallel_for:
+            result += "distribute parallel for ";
+            break;
+        case OMPD_distribute_parallel_for_simd:
+            result += "distribute parallel for simd ";
+            break;
+        case OMPD_loop:
+            result += "loop ";
+            break;
+        case OMPD_scan:
+            result += "scan ";
+            break;
+        case OMPD_sections:
+            result += "sections ";
+            break;
+        case OMPD_section:
+            result += "section ";
+            break;
+        case OMPD_single:
+            result += "single ";
+            break;
+        case OMPD_cancel:
+            result += "cancel ";
+            break;
+        case OMPD_cancellation_point:
+            result += "cancellation point ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -391,6 +478,45 @@ std::string OpenMPClause::toString() {
             break;
 	case OMPC_nontemporal:
             result += "nontemporal ";
+            break;
+	case OMPC_uniform:
+            result += "uniform ";
+            break;
+	case OMPC_inbranch:
+            result += "inbranch ";
+            break;
+	case OMPC_notinbranch:
+            result += "notinbranch ";
+            break;
+	case OMPC_dist_schedule:
+            result += "dist_schedule ";
+            break;
+	case OMPC_bind:
+            result += "bind ";
+            break; 
+        case OMPC_inclusive:
+            result += "inclusive ";
+            break;        
+        case OMPC_exclusive:
+            result += "exclusive ";
+            break;
+        case OMPC_copyprivate:
+            result += "copyprivate ";
+            break;        
+        case OMPC_parallel:
+            result += "parallel ";
+            break;
+        case OMPC_sections:
+            result += "sections ";
+            break;
+        case OMPC_for:
+            result += "for ";
+            break;
+        case OMPC_taskgroup:
+            result += "taskgroup ";
+            break;
+        case OMPC_if:
+            result += "if ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -480,8 +606,27 @@ std::string OpenMPReductionClause::toString() {
 
 
 void OpenMPDirective::generateDOT() {
-
-    std::string directive_kind = this->toString();
+    std::string directive_kind;
+    OpenMPDirectiveKind kind = this->getKind();
+    switch(kind) {
+        case OMPD_cancellation_point :
+                directive_kind = "cancellation_point " ;
+                break;
+        case OMPD_for_simd:
+                directive_kind = "for_simd ";
+                break;
+        case OMPD_distribute_simd:
+                directive_kind = "distribute_simd ";
+                break;
+        case OMPD_distribute_parallel_for:
+                directive_kind = "distribute_parallel_for ";
+                break;
+        case OMPD_distribute_parallel_for_simd:
+                directive_kind = "distribute_parallel_for_simd ";
+                break;
+        default:
+                directive_kind = this->toString();
+    }
     std::string current_line;
 
     current_line = "graph OpenMPIR_" + directive_kind + " {\n";
@@ -543,25 +688,25 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
 
     switch (this->getKind()) {
         case OMPC_private:
-            clause_kind = "private";
+            clause_kind += "private";
             break;
         case OMPC_firstprivate:
-            clause_kind = "firstprivate";
+            clause_kind += "firstprivate";
             break;
         case OMPC_shared:
-            clause_kind = "shared";
+            clause_kind += "shared";
             break;
         case OMPC_num_threads:
-            clause_kind = "num_threads";
+            clause_kind += "num_threads";
             break;
         case OMPC_num_teams:
-            clause_kind = "num_teams";
+            clause_kind += "num_teams";
             break;
         case OMPC_thread_limit:
-            clause_kind = "thread_limit";
+            clause_kind += "thread_limit";
             break;
         case OMPC_default:
-            clause_kind = "default";
+            clause_kind += "default";
             break;
 	    case OMPC_lastprivate:
             clause_kind += "lastprivate";
@@ -587,17 +732,56 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         case OMPC_order:
             clause_kind += "order";
             break;	
-	    case OMPC_safelen:
+        case OMPC_safelen:
             clause_kind += "safelen";
             break;
-	    case OMPC_simdlen:
+	case OMPC_simdlen:
             clause_kind += "simdlen";
             break;
-	    case OMPC_aligned:
+	case OMPC_aligned:
             clause_kind += "aligned";
             break;
-	    case OMPC_nontemporal:
+	case OMPC_nontemporal:
             clause_kind += "nontemporal";
+            break;
+	case OMPC_uniform:
+            clause_kind += "uniform ";
+            break;
+	case OMPC_inbranch:
+            clause_kind += "inbranch";
+            break;
+	case OMPC_notinbranch:
+            clause_kind += "notinbranch";
+            break;
+	case OMPC_dist_schedule:
+            clause_kind += "dist_schedule";
+            break;
+	case OMPC_bind:
+            clause_kind += "bind";
+            break; 
+        case OMPC_inclusive:
+            clause_kind += "inclusive";
+            break;        
+        case OMPC_exclusive:
+            clause_kind += "exclusive";
+            break;
+        case OMPC_copyprivate:
+            clause_kind += "copyprivate";
+            break;
+        case OMPC_parallel:
+            clause_kind += "parallel";
+            break;
+        case OMPC_sections:
+            clause_kind += "sections";
+            break;
+        case OMPC_for:
+            clause_kind += "for";
+            break;
+        case OMPC_taskgroup:
+            clause_kind += "taskgroup";
+            break;
+        case OMPC_if:
+            clause_kind += "if";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
