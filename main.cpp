@@ -83,7 +83,21 @@ int main( int argc, const char* argv[] ) {
 	//const char* input = "omp for lastprivate(conditional:i, last, private)";
         //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
         //const char* input = "omp declare simdlen(4) linear(s,f,e)  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
-        const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
+        //const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
+        //const char* input = "omp distribute simd dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) safelen(sd) simdlen(4) nontemporal(non, temporal)";
+        //const char* input = "omp distribute parallel for dist_schedule(static,3) collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private)";
+        //const char* input = "omp distribute parallel for simd dist_schedule(static,3) safelen(sd) simdlen(4) collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private)";
+        const char* input = "omp loop bind(teams) order(sdfa)";
+        //const char* input = "omp scan inclusive(a,b,c)";
+        //const char* input = "omp scan exclusive(a,b,c)";
+        //const char* input = "omp sections reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y)" ;
+        //const char* input = "omp section";
+        //const char* input = "omp single nowait copyprivate(co,py) allocate (user_defined_test : m, n[1:5]) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y)" ;
+        //const char* input = "omp cancel parallel if(cancel:af)" ;
+        //const char* input = "omp cancellation   point sections" ;
+        //const char* input = "omp parallel if(cancel:af)" ;
+        
+        
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
         printf("\n");

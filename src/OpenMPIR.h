@@ -69,7 +69,7 @@ std::vector<const char *>* getExpressions() { return &expressions; };
 
     virtual std::string toString();
     std::string expressionToString();
-    virtual void generateDOT(std::ofstream&, std::string);
+    virtual void generateDOT(std::ofstream&, int, int, std::string);
 /*
     std::vector<const char *> &getExpressions() { return expressions; };
 
@@ -145,6 +145,7 @@ public:
     std::string toString();
 
     /* generate DOT representation of the directive */
+    void generateDOT(std::ofstream&, int, int, std::string);
     void generateDOT();
     std::string generatePragmaString();
     // To call this method directly to add new clause, it can't be protected.
@@ -157,22 +158,25 @@ class OpenMPReductionClause : public OpenMPClause {
 protected:
     OpenMPReductionClauseModifier modifier;     // modifier
     OpenMPReductionClauseIdentifier identifier; // identifier
-    char *userDefinedIdentifier;                // user defined identifier if it is used
+    std::string user_defined_identifier;                // user defined identifier if it is used
 
 public:
     OpenMPReductionClause( ) : OpenMPClause(OMPC_reduction) { }
 
     OpenMPReductionClause(OpenMPReductionClauseModifier _modifier,
                           OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(OMPC_reduction),
-                                         modifier(_modifier), identifier(_identifier), userDefinedIdentifier (NULL) { };
+                                         modifier(_modifier), identifier(_identifier), user_defined_identifier ("") { };
 
     OpenMPReductionClauseModifier getModifier() { return modifier; };
 
     OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { userDefinedIdentifier = identifier; };
+    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
 
-    char *getUserDefinedIdentifier() { return userDefinedIdentifier; };
+    std::string getUserDefinedIdentifier() { return user_defined_identifier; };
+
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // allocate
@@ -302,6 +306,20 @@ public:
             OpenMPClause(OMPC_proc_bind), proc_bind_kind(_proc_bind_kind) { };
 
     OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bind_kind; };
+    //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
+};
+
+// Bind Clause
+class OpenMPBindClause : public OpenMPClause {
+
+protected:
+    OpenMPBindClauseKind bind_kind; // proc_bind
+
+public:
+    OpenMPBindClause(OpenMPBindClauseKind _bind_kind) :
+            OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
+
+    OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 
