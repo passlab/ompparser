@@ -613,19 +613,19 @@ void OpenMPDirective::generateDOT() {
                 directive_kind = "cancellation_point " ;
                 break;
         case OMPD_for_simd:
-                directive_kind += "for_simd ";
+                directive_kind = "for_simd ";
                 break;
         case OMPD_distribute_simd:
-                directive_kind += "distribute_simd ";
+                directive_kind = "distribute_simd ";
                 break;
         case OMPD_distribute_parallel_for:
-                directive_kind += "distribute_parallel_for ";
+                directive_kind = "distribute_parallel_for ";
                 break;
         case OMPD_distribute_parallel_for_simd:
-                directive_kind += "distribute_parallel_for_simd ";
+                directive_kind = "distribute_parallel_for_simd ";
                 break;
         default:
-                directive_kind= this->toString();
+                directive_kind = this->toString();
     }
     std::string current_line;
 
