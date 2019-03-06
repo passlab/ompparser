@@ -356,7 +356,7 @@ std::string OpenMPDirective::toString() {
         case OMPD_simd:
             result += "simd ";
         case OMPD_for_simd:
-            result += "for_simd ";
+            result += "for simd ";
             break;
         case OMPD_declare:
             result += "declare ";
@@ -365,13 +365,13 @@ std::string OpenMPDirective::toString() {
             result += "distribute ";
             break;
         case OMPD_distribute_simd:
-            result += "distribute_simd ";
+            result += "distribute simd ";
             break;
         case OMPD_distribute_parallel_for:
-            result += "distribute_parallel_for ";
+            result += "distribute parallel for ";
             break;
         case OMPD_distribute_parallel_for_simd:
-            result += "distribute_parallel_for_simd ";
+            result += "distribute parallel for simd ";
             break;
         case OMPD_loop:
             result += "loop ";
@@ -392,7 +392,7 @@ std::string OpenMPDirective::toString() {
             result += "cancel ";
             break;
         case OMPD_cancellation_point:
-            result += "cancellation_point ";
+            result += "cancellation point ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -606,8 +606,27 @@ std::string OpenMPReductionClause::toString() {
 
 
 void OpenMPDirective::generateDOT() {
-
-    std::string directive_kind = this->toString();
+    std::string directive_kind;
+    OpenMPDirectiveKind kind = this->getKind();
+    switch(kind) {
+        case OMPD_cancellation_point :
+                directive_kind = "cancellation_point " ;
+                break;
+        case OMPD_for_simd:
+                directive_kind += "for_simd ";
+                break;
+        case OMPD_distribute_simd:
+                directive_kind += "distribute_simd ";
+                break;
+        case OMPD_distribute_parallel_for:
+                directive_kind += "distribute_parallel_for ";
+                break;
+        case OMPD_distribute_parallel_for_simd:
+                directive_kind += "distribute_parallel_for_simd ";
+                break;
+        default:
+                directive_kind= this->toString();
+    }
     std::string current_line;
 
     current_line = "graph OpenMPIR_" + directive_kind + " {\n";

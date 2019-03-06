@@ -138,7 +138,8 @@ cancel          { return CANCEL;}
 taskgroup       { return TASKGROUP;}
 allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR;}
 
-cancellation{blank}*point { return CANCELLATION_POINT;}
+cancellation    { return CANCELLATION;}
+point           { return POINT;}
 
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 
