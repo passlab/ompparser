@@ -174,6 +174,9 @@ public:
     void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
+	
+    static addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
+			      OpenMPReductionClauseIdentifier identifier);
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -194,6 +197,8 @@ public:
     void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
+	
+    static addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
 };
 
 
@@ -212,8 +217,10 @@ public:
     void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
 
     char *getUserDefinedModifier() { return user_defined_modifier; };
-};
 
+    static addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
+
+};
 
 // linear Clause
 class OpenMPLinearClause : public OpenMPClause {
