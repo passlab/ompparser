@@ -176,7 +176,7 @@ public:
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 	
     static addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
-			      OpenMPReductionClauseIdentifier identifier);
+			      OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
