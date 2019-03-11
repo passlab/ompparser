@@ -175,7 +175,7 @@ public:
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 	
-    static addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
+    static OpenMPReductionClause * addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
 			      OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
 
     std::string toString();
@@ -198,7 +198,7 @@ public:
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 	
-    static addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
+    static OpenMPAllocateClause * addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
 };
 
 
