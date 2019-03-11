@@ -218,7 +218,7 @@ public:
 
     char *getUserDefinedModifier() { return user_defined_modifier; };
 
-    static addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
+    static OpenMPLastprivateClause* addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
 
 };
 
