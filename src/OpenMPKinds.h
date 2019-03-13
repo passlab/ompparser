@@ -111,12 +111,12 @@ enum OpenMPWhenClauseSelectorSet {
 };
 
 // context selector for 'when' clause.
-enum OpenMPWhenClauseSelector {
-#define OPENMP_WHEN_SELECTOR(Name) OMPC_WHEN_SELECTOR_##Name,
-    OPENMP_WHEN_SELECTOR(condition)
-    OPENMP_WHEN_SELECTOR(score)
-    OPENMP_WHEN_SELECTOR(unknown)
-#undef OPENMP_WHEN_SELECTOR
+enum OpenMPWhenClauseSelectorParameter {
+#define OPENMP_WHEN_SELECTOR_PARAMETER(Name) OMPC_WHEN_SELECTOR_PARAMETER_##Name,
+    OPENMP_WHEN_SELECTOR_PARAMETER(condition)
+    OPENMP_WHEN_SELECTOR_PARAMETER(score)
+    OPENMP_WHEN_SELECTOR_PARAMETER(unknown)
+#undef OPENMP_WHEN_SELECTOR_PARAMETER
 };
 
 // OpenMP attributes for 'if' clause.

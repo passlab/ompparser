@@ -139,15 +139,15 @@ when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_wh
                 '(' context_selector_specification ':' {
                 current_parent_directive = current_directive;
                 current_parent_clause = current_clause;
-                } when_sub_directive { current_directive->setParentConstruct(current_clause);
-                ((OpenMPWhenClause*)current_parent_clause)->setSubDirective(current_directive);
+                } when_variant_directive { current_directive->setParentConstruct(current_clause);
+                ((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);
                 current_directive = current_parent_directive;
                 current_clause = current_parent_clause;
                 current_parent_directive = NULL;
                 current_parent_clause = NULL;
                 } ')' { } ;
 
-when_sub_directive : openmp_directive
+when_variant_directive : openmp_directive
                 | { ; }
                 ;
 
@@ -156,13 +156,13 @@ context_selector_specification : trait_set_selector
                 | context_selector_specification ',' trait_set_selector
                 ;
 
-trait_set_selector : trait_set_selector_name '=' '{' trait_selector_list '}'
+trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list '}'
                 ;
 
-trait_set_selector_name : USER
-                | CONSTRUCT
-                | DEVICE
-                | IMPLEMENTATION
+trait_set_selector_name : USER {int selector_set = OMPC_WHEN_SELECTOR_SET_user; }
+                | CONSTRUCT {int selector_set = OMPC_WHEN_SELECTOR_SET_construct; }
+                | DEVICE {int selector_set = OMPC_WHEN_SELECTOR_SET_device; }
+                | IMPLEMENTATION {int selector_set = OMPC_WHEN_SELECTOR_SET_implementation; }
                 ;
 
 trait_selector_list : trait_selector

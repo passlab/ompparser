@@ -303,12 +303,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             break;
         }
         case OMPC_when: {
-            if (current_clauses->size() == 0) {
-                current_clauses = new std::vector<OpenMPClause *>();
-                clauses[kind] = current_clauses;
-            };
-            new_clause = new OpenMPWhenClause();
-            current_clauses->push_back(new_clause);
+
+            new_clause = OpenMPWhenClause::addWhenClause(this);
             break;
         }
     }
@@ -902,4 +898,20 @@ void OpenMPReductionClause::generateDOT(std::ofstream& dot_file, int depth, int 
     };
 
 };
+
+OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_when);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        current_clauses = new std::vector<OpenMPClause *>();
+        (*all_clauses)[OMPC_when] = current_clauses;
+    };
+    new_clause = new OpenMPWhenClause();
+    current_clauses->push_back(new_clause);
+
+    return new_clause;
+}
 

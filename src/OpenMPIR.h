@@ -286,20 +286,21 @@ public:
 // When Clause
 class OpenMPWhenClause : public OpenMPClause {
 protected:
-    OpenMPDirective* sub_directive; // sub directive inside the WHEN clause
+    OpenMPDirective* variant_directive; // variant directive inside the WHEN clause
     std::string context_selector; // the context selector inside the WHEN clause
 
 public:
     OpenMPWhenClause( ) : OpenMPClause(OMPC_when) { };
 
-    OpenMPWhenClause(OpenMPDirective* _sub_directive) :
-            OpenMPClause(OMPC_when), sub_directive(_sub_directive), context_selector("") { };
+    OpenMPWhenClause(OpenMPDirective* _variant_directive) :
+            OpenMPClause(OMPC_when), variant_directive(_variant_directive), context_selector("") { };
 
-    OpenMPDirective* getSubDirective() { return sub_directive; };
-    void setSubDirective(OpenMPDirective* _sub_directive) { sub_directive = _sub_directive; };
+    OpenMPDirective* getVariantDirective() { return variant_directive; };
+    void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
     void setContextSelector(const char* _context_selector) { context_selector = std::string(_context_selector); }
 
     std::string getContextSelector() { return context_selector; };
+    static OpenMPClause * addWhenClause(OpenMPDirective* directive);
 };
 
 // ProcBind Clause
