@@ -152,6 +152,15 @@ public:
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
 };
 
+class OpenMPDeclareVariantDirective : public OpenMPDirective {
+protected:
+    std::string variant_func_id;
+public:
+    OpenMPDeclareVariantDirective () : OpenMPDirective(OMPD_declare_variant) {};
+    void setVariantFuncID (const char* _variant_func_id) { variant_func_id = std::string(_variant_func_id); };
+    std::string getVariantFuncID () { return variant_func_id; };
+};
+
 // reduction clause
 class OpenMPReductionClause : public OpenMPClause {
 
@@ -321,6 +330,42 @@ public:
     std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
+
+// When Clause
+class OpenMPMatchClause : public OpenMPClause {
+protected:
+    OpenMPDirective* variant_directive; // variant directive inside the MATCH clause
+    std::vector<OpenMPDirective*> construct_directives;
+    std::string user_condition_expression;
+    std::string isa_expression;
+    OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unknown;
+    std::string implementation_user_defined_expression;
+    OpenMPClauseContextKind context_kind_name = OMPC_CONTEXT_KIND_unknown;
+
+
+public:
+    OpenMPMatchClause( ) : OpenMPClause(OMPC_match) { };
+
+    OpenMPMatchClause(OpenMPDirective* _variant_directive) : OpenMPClause(OMPC_match), variant_directive(_variant_directive) { };
+
+    OpenMPDirective* getVariantDirective() { return variant_directive; };
+    void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
+
+    std::string getUserCondition() { return user_condition_expression; };
+    void setUserCondition(const char* _user_condition_expression) { user_condition_expression = std::string(_user_condition_expression); };
+    void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
+    void setContextKind(OpenMPClauseContextKind _context_kind_name) { context_kind_name = _context_kind_name; };
+    std::vector<OpenMPDirective*>* getConstructDirective() { return &construct_directives; };
+    void setIsaExpression(const char* _isa_expression) { isa_expression = _isa_expression; };
+    std::string getIsaExpression() { return isa_expression; };
+    void setImplementationKind(OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = _context_vendor_name; };
+    void setImplementationExpression(const char* _implementation_user_defined_expression) { implementation_user_defined_expression = _implementation_user_defined_expression; };
+    std::string getImplementationExpression() { return implementation_user_defined_expression; };
+    static OpenMPClause * addMatchClause(OpenMPDirective* directive);
+    //std::string toString();
+    //void generateDOT(std::ofstream&, int, int, std::string);
+};
+
 
 // ProcBind Clause
 class OpenMPProcBindClause : public OpenMPClause {

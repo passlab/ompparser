@@ -37,6 +37,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(cancellation_point)
     OPENMP_DIRECTIVE(allocate)      /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
+    OPENMP_DIRECTIVE(declare_variant)
 
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)
@@ -95,6 +96,8 @@ enum OpenMPClauseKind {
 // OpenMP clause for MetaDirective
     OPENMP_CLAUSE(when, OMPWhenClause)
 
+    OPENMP_CLAUSE(match, OMPMatchClause)
+
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
 };
@@ -149,6 +152,7 @@ enum OpenMPClauseContextVendor {
     OPENMP_CONTEXT_VENDOR(unknown)
 #undef OPENMP_CONTEXT_VENDOR
 };
+
 
 // OpenMP attributes for 'if' clause.
 enum OpenMPIfClauseKind {

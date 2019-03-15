@@ -80,7 +80,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_sections: 
         case OMPC_for: 
         case OMPC_taskgroup:
-        case OMPC_inclusive: 
+        case OMPC_inclusive:
         case OMPC_exclusive:      {
 
             if (current_clauses->size() == 0) {
@@ -99,6 +99,24 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 
             break;
         }
+        case OMPC_match: {
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPMatchClause();
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                if (kind == OMPC_num_threads) {
+                    std::cerr << "Cannot have two num_threads clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+            }
+
+            break;
+        }
+
         case OMPC_reduction : {
             OpenMPReductionClauseModifier modifier = (OpenMPReductionClauseModifier) va_arg(args, int);
             OpenMPReductionClauseIdentifier identifier = (OpenMPReductionClauseIdentifier) va_arg(args, int);

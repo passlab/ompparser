@@ -57,8 +57,8 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 
-%token  OMP PARALLEL FOR METADIRECTIVE DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE  WHEN
+%token  OMP PARALLEL FOR METADIRECTIVE DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
@@ -99,6 +99,7 @@ var_list : variable
 
 openmp_directive : parallel_directive
                  | metadirective_directive
+                 | declare_variant_directive
 		 | for_directive
 		 | simd_directive
                  | teams_directive
@@ -161,12 +162,12 @@ context_selector_specification : trait_set_selector
 trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list '}'
                 ;
 
-trait_set_selector_name : USER {int selector_set = OMPC_WHEN_SELECTOR_SET_user; }
-                | CONSTRUCT {int selector_set = OMPC_WHEN_SELECTOR_SET_construct;
+trait_set_selector_name : USER { }
+                | CONSTRUCT {
                     current_parent_directive = current_directive;
                     current_parent_clause = current_clause;}
-                | DEVICE {int selector_set = OMPC_WHEN_SELECTOR_SET_device; }
-                | IMPLEMENTATION {int selector_set = OMPC_WHEN_SELECTOR_SET_implementation; }
+                | DEVICE { }
+                | IMPLEMENTATION { }
                 ;
 
 trait_selector_list : trait_selector
@@ -176,7 +177,8 @@ trait_selector_list : trait_selector
 
 trait_selector : condition_selector
                 | construct_selector {
-                    ((OpenMPWhenClause*)current_parent_clause)->addConstructDirective(current_directive);
+                    if (current_parent_clause->getKind() == OMPC_when) {
+                    ((OpenMPWhenClause*)current_parent_clause)->addConstructDirective(current_directive); } else { ((OpenMPMatchClause*)current_parent_clause)->addConstructDirective(current_directive);};
                     current_directive = current_parent_directive;
                     current_clause = current_parent_clause;
                     current_parent_directive = NULL;
@@ -187,7 +189,7 @@ trait_selector : condition_selector
                 | implementation_selector
                 ;
 
-condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } ')'
+condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } else { ((OpenMPMatchClause*)current_clause)->setUserCondition($3);}; } ')'
                 ;
 
 device_selector_list : device_selector
@@ -205,10 +207,10 @@ context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPWhenClause*)
                   | NOHOST { std::cout << "nohost - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
                   | CPU { std::cout << "cpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
                   | GPU { std::cout << "gpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
-                  | FPGA { std::cout << "fpga - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
+                  | FPGA { std::cout << "fpga - device \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); } else {((OpenMPMatchClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga);}; }
                   ;
 
-context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPWhenClause*)current_clause)->setIsaExpression($3); } ')'
+context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } else { ((OpenMPMatchClause*)current_clause)->setUserCondition($3);}; } ')'
             ;
 
 implementation_selector : context_vendor_name
@@ -232,6 +234,30 @@ parallel_selector_parameter : trait_score ':' parallel_clause_optseq
 trait_score : SCORE '(' expression ')'
                 ;
 
+declare_variant_directive : DECLARE VARIANT {
+                        current_directive = new OpenMPDeclareVariantDirective();
+                     } variant_func_id
+                     declare_variant_clause_optseq
+                   ;
+
+variant_func_id : '(' EXPR_STRING { std::cout << $2 << " - variant func id.\n"; ((OpenMPDeclareVariantDirective*)current_directive)->setVariantFuncID($2); } ')'
+                ;
+
+declare_variant_clause_optseq : /* empty */
+                       | declare_variant_clause_seq
+                       ;
+
+declare_variant_clause_seq : declare_variant_clause
+                    | declare_variant_clause_seq declare_variant_clause
+                    | declare_variant_clause_seq ',' declare_variant_clause
+                    ;
+
+declare_variant_clause : match_clause
+                ;
+
+match_clause : MATCH { current_clause = current_directive->addOpenMPClause(OMPC_match); }
+                '(' context_selector_specification ')' { }
+             ;
 
 
 parallel_directive : PARALLEL {

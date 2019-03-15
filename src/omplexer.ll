@@ -18,6 +18,7 @@
 %x BIND_STATE
 %X ALLOCATOR_STATE
 %x WHEN_STATE
+%x MATCH_STATE
 
 
 %{
@@ -140,8 +141,9 @@ allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR;}
 
 cancellation    { return CANCELLATION;}
 point           { return POINT;}
-
+variant         { return VARIANT; }
 when            { yy_push_state(WHEN_STATE); return WHEN; }
+match           { yy_push_state(MATCH_STATE); return MATCH; }
 
 end             { return END; }
 score           { return SCORE; }
@@ -162,6 +164,7 @@ amd             { return AMD; }
 ":"             { return ':'; }
 "}"             { yy_pop_state(); return '}'; }
 ","             { return ','; }
+"\\"            { ; }
 
 {comment}       {; }
 
@@ -320,6 +323,18 @@ amd             { return AMD; }
 <WHEN_STATE>{blank}*                        { ; }
 <WHEN_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
+<MATCH_STATE>"("                            { return '('; }
+<MATCH_STATE>":"                            { yy_push_state(INITIAL); return ':'; }
+<MATCH_STATE>")"                            { yy_pop_state(); return ')'; }
+<MATCH_STATE>"="                            { return '='; }
+<MATCH_STATE>"{"                            { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */
+<MATCH_STATE>"}"                            { return '}'; }
+<MATCH_STATE>user                           { return USER; }
+<MATCH_STATE>construct                      { return CONSTRUCT; }
+<MATCH_STATE>device                         { return DEVICE; }
+<MATCH_STATE>implementation                 { return IMPLEMENTATION; }
+<MATCH_STATE>{blank}*                       { ; }
+<MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
