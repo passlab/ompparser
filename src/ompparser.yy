@@ -68,6 +68,8 @@ corresponding C type is union name defaults to YYSTYPE.
         TEAMS
         NUM_TEAMS THREAD_LIMIT
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE
+        KIND HOST NOHOST CPU GPU FPGA ISA
+        AMD
 
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
@@ -160,7 +162,9 @@ trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list '}'
                 ;
 
 trait_set_selector_name : USER {int selector_set = OMPC_WHEN_SELECTOR_SET_user; }
-                | CONSTRUCT {int selector_set = OMPC_WHEN_SELECTOR_SET_construct; }
+                | CONSTRUCT {int selector_set = OMPC_WHEN_SELECTOR_SET_construct;
+                    current_parent_directive = current_directive;
+                    current_parent_clause = current_clause;}
                 | DEVICE {int selector_set = OMPC_WHEN_SELECTOR_SET_device; }
                 | IMPLEMENTATION {int selector_set = OMPC_WHEN_SELECTOR_SET_implementation; }
                 ;
@@ -171,14 +175,54 @@ trait_selector_list : trait_selector
                 ;
 
 trait_selector : condition_selector
-                | parallel_selector
+                | construct_selector {
+                    ((OpenMPWhenClause*)current_parent_clause)->addConstructDirective(current_directive);
+                    current_directive = current_parent_directive;
+                    current_clause = current_parent_clause;
+                    current_parent_directive = NULL;
+                    current_parent_clause = NULL;
+                    std::cout << "A construct directive has been added to WHEN clause.\n"; 
+                }
+                | device_selector_list
+                | implementation_selector
                 ;
 
-condition_selector : CONDITION '(' expression ')'
+condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } ')'
                 ;
 
-parallel_selector : PARALLEL
-                | PARALLEL '(' parallel_selector_parameter ')'
+device_selector_list : device_selector
+                     | device_selector_list device_selector
+                     ;
+
+device_selector : context_kind
+                | context_isa
+                ;
+
+context_kind : KIND '(' context_kind_name ')'
+             ;
+
+context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
+                  | NOHOST { std::cout << "nohost - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
+                  | CPU { std::cout << "cpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
+                  | GPU { std::cout << "gpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
+                  | FPGA { std::cout << "fpga - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
+                  ;
+
+context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPWhenClause*)current_clause)->setIsaExpression($3); } ')'
+            ;
+
+implementation_selector : context_vendor_name
+                        | EXPR_STRING {}
+                        ;
+
+context_vendor_name : AMD { ((OpenMPWhenClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
+                    ;
+
+construct_selector : parallel_selector
+                   ;
+
+parallel_selector : PARALLEL { current_directive = new OpenMPDirective(OMPD_parallel); }
+                | PARALLEL '(' { current_directive = new OpenMPDirective(OMPD_parallel); } parallel_selector_parameter ')'
                 ;
 
 parallel_selector_parameter : trait_score ':' parallel_clause_optseq
@@ -606,12 +650,19 @@ default_parameter : SHARED { current_clause = current_directive->addOpenMPClause
                     | NONE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
                     | FIRSTPRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
                     | PRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
-                    | default_sub_directive
+                    | default_variant_directive
                     ;
 
 
-default_sub_directive : openmp_directive
-                    ;
+default_variant_directive : {  current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_unknown); current_parent_directive = current_directive;
+                            current_parent_clause = current_clause; } openmp_directive {
+                            ((OpenMPDefaultClause*)current_parent_clause)->setVariantDirective(current_directive);
+                            current_directive = current_parent_directive;
+                            current_clause = current_parent_clause;
+                            current_parent_directive = NULL;
+                            current_parent_clause = NULL;
+                            std::cout << "A construct directive has been added to DEFAULT clause.\n"; }
+                          ;
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
 

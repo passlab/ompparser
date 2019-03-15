@@ -146,6 +146,14 @@ when            { yy_push_state(WHEN_STATE); return WHEN; }
 end             { return END; }
 score           { return SCORE; }
 condition       { return CONDITION; }
+kind            { return KIND; }
+host            { return HOST; }
+nohost          { return NOHOST; }
+cpu             { return CPU; }
+gpu             { return GPU; }
+fpga            { return FPGA; }
+isa             { return ISA; }
+amd             { return AMD; }
 
 
 

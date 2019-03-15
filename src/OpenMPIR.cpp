@@ -915,3 +915,19 @@ OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
     return new_clause;
 }
 
+std::string OpenMPWhenClause::toString() {
+
+    std::string result = "when ";
+    std::string clause_string = "(";
+    if (clause_string.size() > 1) {
+        clause_string += " : ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+    return result;
+};
+

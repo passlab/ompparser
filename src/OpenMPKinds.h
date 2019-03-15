@@ -119,6 +119,37 @@ enum OpenMPWhenClauseSelectorParameter {
 #undef OPENMP_WHEN_SELECTOR_PARAMETER
 };
 
+// context selector for 'when' clause.
+enum OpenMPClauseContextKind {
+#define OPENMP_CONTEXT_KIND(Name) OMPC_CONTEXT_KIND_##Name,
+    OPENMP_CONTEXT_KIND(host)
+    OPENMP_CONTEXT_KIND(nohost)
+    OPENMP_CONTEXT_KIND(cpu)
+    OPENMP_CONTEXT_KIND(gpu)
+    OPENMP_CONTEXT_KIND(fpga)
+    OPENMP_CONTEXT_KIND(unknown)
+#undef OPENMP_CONTEXT_KIND
+};
+
+// context selector for 'when' clause.
+enum OpenMPClauseContextVendor {
+#define OPENMP_CONTEXT_VENDOR(Name) OMPC_CONTEXT_VENDOR_##Name,
+    OPENMP_CONTEXT_VENDOR(amd)
+    OPENMP_CONTEXT_VENDOR(arm)
+    OPENMP_CONTEXT_VENDOR(bsc)
+    OPENMP_CONTEXT_VENDOR(cray)
+    OPENMP_CONTEXT_VENDOR(fujitsu)
+    OPENMP_CONTEXT_VENDOR(gnu)
+    OPENMP_CONTEXT_VENDOR(ibm)
+    OPENMP_CONTEXT_VENDOR(intel)
+    OPENMP_CONTEXT_VENDOR(llvm)
+    OPENMP_CONTEXT_VENDOR(pgi)
+    OPENMP_CONTEXT_VENDOR(ti)
+    OPENMP_CONTEXT_VENDOR(user)
+    OPENMP_CONTEXT_VENDOR(unknown)
+#undef OPENMP_CONTEXT_VENDOR
+};
+
 // OpenMP attributes for 'if' clause.
 enum OpenMPIfClauseKind {
 #define OPENMP_IF_KIND(Name) OMPC_IF_##Name,
