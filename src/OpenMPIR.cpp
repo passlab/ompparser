@@ -940,6 +940,18 @@ std::string OpenMPWhenClause::toString() {
     if (clause_string.size() > 1) {
         clause_string += " : ";
     };
+    // check user
+    std::string condition_string = this->getUserCondition();
+    if (condition_string != "") {
+
+    }
+    // check construct
+
+    // check device
+
+    // check implementation
+
+
     clause_string += this->expressionToString();
     clause_string += ") ";
     if (clause_string.size() > 3) {

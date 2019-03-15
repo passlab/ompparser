@@ -19,6 +19,8 @@
 %X ALLOCATOR_STATE
 %x WHEN_STATE
 %x MATCH_STATE
+%x ISA_STATE
+%x CONDITION_STATE
 
 
 %{
@@ -147,14 +149,14 @@ match           { yy_push_state(MATCH_STATE); return MATCH; }
 
 end             { return END; }
 score           { return SCORE; }
-condition       { return CONDITION; }
+condition       { yy_push_state(CONDITION_STATE); return CONDITION; }
 kind            { return KIND; }
 host            { return HOST; }
 nohost          { return NOHOST; }
 cpu             { return CPU; }
 gpu             { return GPU; }
 fpga            { return FPGA; }
-isa             { return ISA; }
+isa             { yy_push_state(ISA_STATE); return ISA; }
 amd             { return AMD; }
 
 
@@ -335,6 +337,16 @@ amd             { return AMD; }
 <MATCH_STATE>implementation                 { return IMPLEMENTATION; }
 <MATCH_STATE>{blank}*                       { ; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<ISA_STATE>"("                              { return '('; }
+<ISA_STATE>")"                              { yy_pop_state(); return ')'; }
+<ISA_STATE>{blank}*                         { ; }
+<ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<CONDITION_STATE>"("                        { return '('; }
+<CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
+<CONDITION_STATE>{blank}*                   { ; }
+<CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <CLAUSE_STATE>. { BEGIN(EXPR_STATE); current_string = yytext[0]; }
 
