@@ -292,12 +292,10 @@ public:
     char *getUserDefinedKind() { return user_defined_kind; };
 };
 
-// When Clause
-class OpenMPWhenClause : public OpenMPClause {
+// OpenMP clauses with variant directives, such as WHEN and MATCH clauses.
+class OpenMPVariantClause : public OpenMPClause {
 protected:
-    OpenMPDirective* variant_directive; // variant directive inside the WHEN clause
     std::vector<OpenMPDirective*> construct_directives;
-    std::string context_selector; // the context selector inside the WHEN clause
     std::string user_condition_expression;
     std::string isa_expression;
     OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unknown;
@@ -306,16 +304,8 @@ protected:
 
 
 public:
-    OpenMPWhenClause( ) : OpenMPClause(OMPC_when) { };
+    OpenMPVariantClause(OpenMPClauseKind _kind) : OpenMPClause(_kind) { };
 
-    OpenMPWhenClause(OpenMPDirective* _variant_directive) :
-            OpenMPClause(OMPC_when), variant_directive(_variant_directive), context_selector("") { };
-
-    OpenMPDirective* getVariantDirective() { return variant_directive; };
-    void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
-    void setContextSelector(const char* _context_selector) { context_selector = std::string(_context_selector); }
-
-    std::string getContextSelector() { return context_selector; };
     std::string getUserCondition() { return user_condition_expression; };
     void setUserCondition(const char* _user_condition_expression) { user_condition_expression = std::string(_user_condition_expression); };
     void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
@@ -326,15 +316,29 @@ public:
     void setImplementationKind(OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = _context_vendor_name; };
     void setImplementationExpression(const char* _implementation_user_defined_expression) { implementation_user_defined_expression = _implementation_user_defined_expression; };
     std::string getImplementationExpression() { return implementation_user_defined_expression; };
+    //std::string toString();
+    //void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// When Clause
+class OpenMPWhenClause : public OpenMPVariantClause {
+protected:
+    OpenMPDirective* variant_directive; // variant directive inside the WHEN clause
+
+
+public:
+    OpenMPWhenClause() : OpenMPVariantClause(OMPC_when) { };
+    OpenMPDirective* getVariantDirective() { return variant_directive; };
+    void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
+
     static OpenMPClause * addWhenClause(OpenMPDirective* directive);
     std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
-// When Clause
-class OpenMPMatchClause : public OpenMPClause {
+// Match Clause
+class OpenMPMatchClause : public OpenMPVariantClause {
 protected:
-    OpenMPDirective* variant_directive; // variant directive inside the MATCH clause
     std::vector<OpenMPDirective*> construct_directives;
     std::string user_condition_expression;
     std::string isa_expression;
@@ -344,23 +348,8 @@ protected:
 
 
 public:
-    OpenMPMatchClause( ) : OpenMPClause(OMPC_match) { };
+    OpenMPMatchClause( ) : OpenMPVariantClause(OMPC_match) { };
 
-    OpenMPMatchClause(OpenMPDirective* _variant_directive) : OpenMPClause(OMPC_match), variant_directive(_variant_directive) { };
-
-    OpenMPDirective* getVariantDirective() { return variant_directive; };
-    void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
-
-    std::string getUserCondition() { return user_condition_expression; };
-    void setUserCondition(const char* _user_condition_expression) { user_condition_expression = std::string(_user_condition_expression); };
-    void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
-    void setContextKind(OpenMPClauseContextKind _context_kind_name) { context_kind_name = _context_kind_name; };
-    std::vector<OpenMPDirective*>* getConstructDirective() { return &construct_directives; };
-    void setIsaExpression(const char* _isa_expression) { isa_expression = _isa_expression; };
-    std::string getIsaExpression() { return isa_expression; };
-    void setImplementationKind(OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = _context_vendor_name; };
-    void setImplementationExpression(const char* _implementation_user_defined_expression) { implementation_user_defined_expression = _implementation_user_defined_expression; };
-    std::string getImplementationExpression() { return implementation_user_defined_expression; };
     static OpenMPClause * addMatchClause(OpenMPDirective* directive);
     //std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);

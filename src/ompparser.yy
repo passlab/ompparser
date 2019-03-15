@@ -177,8 +177,7 @@ trait_selector_list : trait_selector
 
 trait_selector : condition_selector
                 | construct_selector {
-                    if (current_parent_clause->getKind() == OMPC_when) {
-                    ((OpenMPWhenClause*)current_parent_clause)->addConstructDirective(current_directive); } else { ((OpenMPMatchClause*)current_parent_clause)->addConstructDirective(current_directive);};
+                    ((OpenMPVariantClause*)current_parent_clause)->addConstructDirective(current_directive);
                     current_directive = current_parent_directive;
                     current_clause = current_parent_clause;
                     current_parent_directive = NULL;
@@ -189,7 +188,7 @@ trait_selector : condition_selector
                 | implementation_selector
                 ;
 
-condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } else { ((OpenMPMatchClause*)current_clause)->setUserCondition($3);}; } ')'
+condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
                 ;
 
 device_selector_list : device_selector
@@ -203,21 +202,21 @@ device_selector : context_kind
 context_kind : KIND '(' context_kind_name ')'
              ;
 
-context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
-                  | NOHOST { std::cout << "nohost - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
-                  | CPU { std::cout << "cpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
-                  | GPU { std::cout << "gpu - device \n"; ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
-                  | FPGA { std::cout << "fpga - device \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); } else {((OpenMPMatchClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga);}; }
+context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
+                  | NOHOST { std::cout << "nohost - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
+                  | CPU { std::cout << "cpu - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
+                  | GPU { std::cout << "gpu - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
+                  | FPGA { std::cout << "fpga - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
                   ;
 
-context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; if (current_clause->getKind() == OMPC_when) { ((OpenMPWhenClause*)current_clause)->setUserCondition($3); } else { ((OpenMPMatchClause*)current_clause)->setUserCondition($3);}; } ')'
+context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
             ;
 
 implementation_selector : context_vendor_name
                         | EXPR_STRING {}
                         ;
 
-context_vendor_name : AMD { ((OpenMPWhenClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
+context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
                     ;
 
 construct_selector : parallel_selector
