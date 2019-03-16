@@ -331,11 +331,14 @@ end:
     return new_clause;
 }
 
-std::string OpenMPDirective::generatePragmaString() {
+std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol) {
 
-    std::string result = "omp ";
+    //std::string result = "omp ";
+    std::string result = prefix;
 
     result += this->toString();
+
+    result += beginning_symbol;
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
@@ -349,6 +352,8 @@ std::string OpenMPDirective::generatePragmaString() {
         }
         result = result.substr(0, result.size()-1);
     }
+
+    result += ending_symbol;
 
     return result;
 };
@@ -407,6 +412,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_cancellation_point:
             result += "cancellation point ";
+            break;
+        case OMPD_metadirective:
+            result += "metadirective ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -933,30 +941,119 @@ OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
     return new_clause;
 }
 
-std::string OpenMPWhenClause::toString() {
+std::string OpenMPVariantClause::toString() {
 
-    std::string result = "when ";
-    std::string clause_string = "(";
-    if (clause_string.size() > 1) {
-        clause_string += " : ";
+    std::string result;
+    std::string parameter_string;
+    std::vector<OpenMPDirective*>* parameter_directives;
+    OpenMPDirective* variant_directive = NULL;
+    OpenMPClauseKind clause_kind = this->getKind();
+    switch (clause_kind) {
+        case OMPC_when:
+            result = "when ";
+            break;
+        case OMPC_match:
+            result = "match ";
+            break;
+        default:
+            std::cout << "The variant clause is not supported.\n";
     };
-    // check user
-    std::string condition_string = this->getUserCondition();
-    if (condition_string != "") {
+    std::string clause_string = "(";
 
-    }
+    // check user
+    parameter_string = this->getUserCondition();
+    if (parameter_string != "") {
+        clause_string += "user = {condition(" + parameter_string + ")}" + ", ";
+    };
+
     // check construct
+    parameter_directives = this->getConstructDirective();
+    if (parameter_directives->size() != 0) {
+        clause_string += "construct = {";
+        std::vector<OpenMPDirective*>::iterator iter;
+        for (iter = parameter_directives->begin(); iter != parameter_directives->end(); iter++) {
+            clause_string += (*iter)->generatePragmaString("", "(", ")") + ", ";
+        };
+        clause_string = clause_string.substr(0, clause_string.size()-2);
+        clause_string += "}, ";
+    }
+
+    result += clause_string;
+    parameter_string.clear();
+
 
     // check device
+    clause_string = "device = {";
+    // check device_kind
+    OpenMPClauseContextKind context_kind = this->getContextKind();
+    switch (context_kind) {
+        case OMPC_CONTEXT_KIND_host:
+            parameter_string = "host";
+            break;
+        case OMPC_CONTEXT_KIND_nohost:
+            parameter_string = "nohost";
+            break;
+        case OMPC_CONTEXT_KIND_any:
+            parameter_string = "any";
+            break;
+        case OMPC_CONTEXT_KIND_cpu:
+            parameter_string = "cpu";
+            break;
+        case OMPC_CONTEXT_KIND_gpu:
+            parameter_string = "gpu";
+            break;
+        case OMPC_CONTEXT_KIND_fpga:
+            parameter_string = "fpga";
+            break;
+        case OMPC_CONTEXT_KIND_unknown:
+            break;
+        default:
+            std::cout << "The context kind is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        clause_string += "kind(" + parameter_string + "), ";
+    };
+
+    // check device isa
+    parameter_string = this->getIsaExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "isa(" + parameter_string + "), ";
+    };
+
+    if (clause_string.size() > 10) {
+        result += clause_string.substr(0, clause_string.size()-2) + "}, ";
+    };
 
     // check implementation
-
-
-    clause_string += this->expressionToString();
-    clause_string += ") ";
-    if (clause_string.size() > 3) {
-        result += clause_string;
+    clause_string.clear();
+    parameter_string.clear();
+    OpenMPClauseContextVendor context_vendor = this->getImplementationKind();
+    switch (context_vendor) {
+        case OMPC_CONTEXT_VENDOR_amd:
+            parameter_string = "amd";
+            break;
+        case OMPC_CONTEXT_VENDOR_unknown:
+            break;
+        default:
+            std::cout << "The context vendor is not supported.\n";
     };
+    if (parameter_string.size() > 0) {
+        clause_string += "implementation = {" + parameter_string + "}, ";
+    }
+    result += clause_string;
+
+    result = result.substr(0, result.size()-2);
+
+    if (clause_kind == OMPC_when) {
+        clause_string = " : ";
+        variant_directive = ((OpenMPWhenClause*)this)->getVariantDirective();
+        if (variant_directive != NULL) {
+            clause_string += variant_directive->generatePragmaString("", "", "");
+        };
+    };
+
+    result += clause_string + ") ";
 
     return result;
 };

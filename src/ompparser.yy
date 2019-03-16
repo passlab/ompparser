@@ -100,10 +100,10 @@ var_list : variable
 openmp_directive : parallel_directive
                  | metadirective_directive
                  | declare_variant_directive
-		 | for_directive
-		 | simd_directive
+                 | for_directive
+                 | simd_directive
                  | teams_directive
-		 | for_simd_directive
+                 | for_simd_directive
                  | declare_directive
                  | distribute_directive
                  | distribute_simd_directive
@@ -118,6 +118,26 @@ openmp_directive : parallel_directive
                  | cancellation_point_directive
                  ;
 
+variant_directive : parallel_directive
+                 | metadirective_directive
+                 | declare_variant_directive
+                 | for_directive
+                 | simd_directive
+                 | teams_directive
+                 | for_simd_directive
+                 | declare_directive
+                 | distribute_directive
+                 | distribute_simd_directive
+                 | distribute_parallel_for_directive
+                 | distribute_parallel_for_simd_directive
+                 | loop_directive
+                 | scan_directive
+                 | sections_directive
+                 | section_directive
+                 | single_directive
+                 | cancel_directive
+                 | cancellation_point_directive
+                 ;
 
 metadirective_directive : METADIRECTIVE {
                         current_directive = new OpenMPDirective(OMPD_metadirective);
@@ -142,15 +162,15 @@ when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_wh
                 '(' context_selector_specification ':' {
                 current_parent_directive = current_directive;
                 current_parent_clause = current_clause;
-                } when_variant_directive { current_directive->setParentConstruct(current_clause);
-                ((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);
+                } when_variant_directive { /*current_directive->setParentConstruct(current_clause);*/
+                /*((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);*/
                 current_directive = current_parent_directive;
                 current_clause = current_parent_clause;
                 current_parent_directive = NULL;
                 current_parent_clause = NULL;
                 } ')' { } ;
 
-when_variant_directive : openmp_directive
+when_variant_directive : variant_directive {((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);}
                 | { ; }
                 ;
 
@@ -209,7 +229,7 @@ context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPVariantClaus
                   | FPGA { std::cout << "fpga - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
                   ;
 
-context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
+context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
             ;
 
 implementation_selector : context_vendor_name
@@ -679,8 +699,9 @@ default_parameter : SHARED { current_clause = current_directive->addOpenMPClause
                     ;
 
 
-default_variant_directive : {  current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_unknown); current_parent_directive = current_directive;
-                            current_parent_clause = current_clause; } openmp_directive {
+default_variant_directive : { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_unknown);
+                            current_parent_directive = current_directive;
+                            current_parent_clause = current_clause; } variant_directive {
                             ((OpenMPDefaultClause*)current_parent_clause)->setVariantDirective(current_directive);
                             current_directive = current_parent_directive;
                             current_clause = current_parent_clause;

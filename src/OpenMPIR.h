@@ -147,7 +147,7 @@ public:
     /* generate DOT representation of the directive */
     void generateDOT(std::ofstream&, int, int, std::string);
     void generateDOT();
-    std::string generatePragmaString();
+    std::string generatePragmaString(std::string _prefix = "omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "");
     // To call this method directly to add new clause, it can't be protected.
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
 };
@@ -310,13 +310,15 @@ public:
     void setUserCondition(const char* _user_condition_expression) { user_condition_expression = std::string(_user_condition_expression); };
     void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
     void setContextKind(OpenMPClauseContextKind _context_kind_name) { context_kind_name = _context_kind_name; };
+    OpenMPClauseContextKind getContextKind() { return context_kind_name; };
     std::vector<OpenMPDirective*>* getConstructDirective() { return &construct_directives; };
-    void setIsaExpression(const char* _isa_expression) { isa_expression = _isa_expression; };
+    void setIsaExpression(const char* _isa_expression) { isa_expression = std::string(_isa_expression); };
     std::string getIsaExpression() { return isa_expression; };
     void setImplementationKind(OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = _context_vendor_name; };
+    OpenMPClauseContextVendor getImplementationKind() { return context_vendor_name; };
     void setImplementationExpression(const char* _implementation_user_defined_expression) { implementation_user_defined_expression = _implementation_user_defined_expression; };
     std::string getImplementationExpression() { return implementation_user_defined_expression; };
-    //std::string toString();
+    std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
@@ -332,7 +334,7 @@ public:
     void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
 
     static OpenMPClause * addWhenClause(OpenMPDirective* directive);
-    std::string toString();
+    //std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 

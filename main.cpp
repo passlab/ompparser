@@ -11,47 +11,8 @@ void output(OpenMPDirective* node) {
 
         std::string unparsing_string = node->generatePragmaString();
         std::cout << unparsing_string << "\n";
-	node->generateDOT();
-	
-	/*printf("This is DIRECTIVE: ");
-	//enum enum_dir = node->getKind();
-	std::cout << node->getKind() << "\n";
-	if (node->getKind() == OMPD_parallel) {
-		printf("omp parallel \n");*/
+	    //node->generateDOT();
 
-	/*printf("This is DIRECTIVE: ");
-	//enum enum_dir = node->getKind();
-	std::cout << node->getKind() << "\n";
-	if (node->getKind() == OMPD_teams) {
-		printf("omp teams \n");
-	}*/
-	
-
-
-    
-	// get graph
-	//node->generateDOT(); // node->getLabel()
-
-   // std::cout << "\nDirective: " << node->getKind() << "\n";
-    
-   /* std::vector<OpenMPClause*>* clauses = node->getClauses();
-    if (clauses != NULL) {
-        std::vector<OpenMPClause*>::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            //std::cout << "    Clause: " << (*it)->getLabel() << "\n"; // (*it)->getKind()
-			//std::cout << "        1st UDT Parameter: " << (*it)->getCustomFirstParameter() << "\n";
-			//std::cout << "        2nd UDT Parameter: " << (*it)->getCustomSecondParameter()  << "\n";
-            std::vector<const char*>* expr = (*it)->getExpr();
-            if (expr != NULL) {
-                std::vector<const char*>::iterator itExpr;
-                for (itExpr = expr->begin(); itExpr != expr->end(); itExpr++) {
-                    std::cout << "        Parameter: " << *itExpr << "\n";
-                }
-            }
-
-        }
-    }*/
-    
 }
 
 int main( int argc, const char* argv[] ) {
@@ -104,7 +65,7 @@ int main( int argc, const char* argv[] ) {
         
         
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-        //output(openMPAST);
+        output(openMPAST);
         printf("\n");
         return 0;
 }
