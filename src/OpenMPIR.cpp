@@ -1042,7 +1042,7 @@ std::string OpenMPVariantClause::toString() {
         clause_string += "implementation = {" + parameter_string + "}, ";
     }
     result += clause_string;
-
+    clause_string.clear();
     result = result.substr(0, result.size()-2);
 
     if (clause_kind == OMPC_when) {
@@ -1057,4 +1057,39 @@ std::string OpenMPVariantClause::toString() {
 
     return result;
 };
+
+std::string OpenMPDefaultClause::toString() {
+
+    std::string result = "default (";
+    std::string parameter_string;
+    OpenMPDefaultClauseKind default_kind = this->getDefaultClauseKind();
+    switch (default_kind) {
+        case OMPC_DEFAULT_shared:
+            parameter_string = "shared";
+            break;
+        case OMPC_DEFAULT_private:
+            parameter_string = "private";
+            break;
+        case OMPC_DEFAULT_firstprivate:
+            parameter_string = "firstprivate";
+            break;
+        case OMPC_DEFAULT_none:
+            parameter_string = "none";
+            break;
+        case OMPC_DEFAULT_variant:
+            parameter_string = this->getVariantDirective()->generatePragmaString("", "", "");
+            break;
+        default:
+            std::cout << "The parameter of default clause is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        result += parameter_string + ") ";
+    }
+    else {
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
 

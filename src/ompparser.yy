@@ -162,8 +162,7 @@ when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_wh
                 '(' context_selector_specification ':' {
                 current_parent_directive = current_directive;
                 current_parent_clause = current_clause;
-                } when_variant_directive { /*current_directive->setParentConstruct(current_clause);*/
-                /*((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);*/
+                } when_variant_directive {
                 current_directive = current_parent_directive;
                 current_clause = current_parent_clause;
                 current_parent_directive = NULL;
@@ -699,7 +698,7 @@ default_parameter : SHARED { current_clause = current_directive->addOpenMPClause
                     ;
 
 
-default_variant_directive : { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_unknown);
+default_variant_directive : { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_variant);
                             current_parent_directive = current_directive;
                             current_parent_clause = current_clause; } variant_directive {
                             ((OpenMPDefaultClause*)current_parent_clause)->setVariantDirective(current_directive);

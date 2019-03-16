@@ -176,6 +176,7 @@ enum OpenMPDefaultClauseKind {
     OPENMP_DEFAULT_KIND(firstprivate)
     OPENMP_DEFAULT_KIND(shared)
     OPENMP_DEFAULT_KIND(none)
+    OPENMP_DEFAULT_KIND(variant)
 
     OPENMP_DEFAULT_KIND(unknown)
 #undef OPENMP_DEFAULT_KIND

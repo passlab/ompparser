@@ -391,19 +391,18 @@ class OpenMPDefaultClause : public OpenMPClause {
 
 protected:
     OpenMPDefaultClauseKind default_kind = OMPC_DEFAULT_unknown;
-    OpenMPDirective* variant_directive; // variant directive inside the DEFAULT clause
+    OpenMPDirective* variant_directive = NULL; // variant directive inside the DEFAULT clause
 
 public:
     OpenMPDefaultClause(OpenMPDefaultClauseKind _default_kind) : OpenMPClause(OMPC_default), default_kind(_default_kind) { };
 
     OpenMPDefaultClauseKind getDefaultClauseKind() {return default_kind; };
-    OpenMPDefaultClause(OpenMPDirective* _variant_directive) : OpenMPClause(OMPC_default), variant_directive(_variant_directive) { };
 
     OpenMPDirective* getVariantDirective() { return variant_directive; };
     void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
 
     static OpenMPClause * addDefaultClause(OpenMPDirective* directive);
-    //std::string toString();
+    std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
