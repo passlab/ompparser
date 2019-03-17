@@ -331,7 +331,7 @@ end:
     return new_clause;
 }
 
-std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol) {
+std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol, bool output_score) {
 
     //std::string result = "omp ";
     std::string result = prefix;
@@ -339,6 +339,13 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
     result += this->toString();
 
     result += beginning_symbol;
+
+    if (output_score) {
+        std::string trait_score = this->getTraitScore();
+        if (trait_score != "") {
+            result += "score(" + trait_score + ") : ";
+        };
+    };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
@@ -972,7 +979,7 @@ std::string OpenMPVariantClause::toString() {
         clause_string += "construct = {";
         std::vector<OpenMPDirective*>::iterator iter;
         for (iter = parameter_directives->begin(); iter != parameter_directives->end(); iter++) {
-            clause_string += (*iter)->generatePragmaString("", "(", ")") + ", ";
+            clause_string += (*iter)->generatePragmaString("", "(", ")", true) + ", ";
         };
         clause_string = clause_string.substr(0, clause_string.size()-2);
         clause_string += "}, ";

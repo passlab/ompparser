@@ -249,7 +249,7 @@ parallel_selector_parameter : trait_score ':' parallel_clause_optseq
                 | parallel_clause_optseq
                 ;
 
-trait_score : SCORE '(' expression ')'
+trait_score : SCORE '(' EXPR_STRING { current_directive->setTraitScore($3); } ')'
                 ;
 
 declare_variant_directive : DECLARE VARIANT {
