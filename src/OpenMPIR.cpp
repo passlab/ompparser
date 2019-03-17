@@ -340,6 +340,10 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
 
     result += beginning_symbol;
 
+    if (this->getKind() == OMPD_declare_variant) {
+        result += "(" + ((OpenMPDeclareVariantDirective*)this)->getVariantFuncID() + ") ";
+    };
+
     if (output_score) {
         std::string trait_score = this->getTraitScore();
         if (trait_score != "") {
@@ -422,6 +426,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_metadirective:
             result += "metadirective ";
+            break;
+        case OMPD_declare_variant:
+            result += "declare variant ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
