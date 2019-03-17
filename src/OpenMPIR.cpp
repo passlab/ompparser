@@ -1049,7 +1049,40 @@ std::string OpenMPVariantClause::toString() {
         case OMPC_CONTEXT_VENDOR_amd:
             parameter_string = "amd";
             break;
+        case OMPC_CONTEXT_VENDOR_arm:
+            parameter_string = "arm";
+            break;
+        case OMPC_CONTEXT_VENDOR_bsc:
+            parameter_string = "bsc";
+            break;
+        case OMPC_CONTEXT_VENDOR_cray:
+            parameter_string = "cray";
+            break;
+        case OMPC_CONTEXT_VENDOR_fujitsu:
+            parameter_string = "fujitsu";
+            break;
+        case OMPC_CONTEXT_VENDOR_gnu:
+            parameter_string = "gnu";
+            break;
+        case OMPC_CONTEXT_VENDOR_ibm:
+            parameter_string = "ibm";
+            break;
+        case OMPC_CONTEXT_VENDOR_intel:
+            parameter_string = "intel";
+            break;
+        case OMPC_CONTEXT_VENDOR_llvm:
+            parameter_string = "llvm";
+            break;
+        case OMPC_CONTEXT_VENDOR_pgi:
+            parameter_string = "pgi";
+            break;
+        case OMPC_CONTEXT_VENDOR_ti:
+            parameter_string = "ti";
+            break;
         case OMPC_CONTEXT_VENDOR_unknown:
+            parameter_string = "unknown";
+            break;
+        case OMPC_CONTEXT_VENDOR_unspecified:
             break;
         default:
             std::cout << "The context vendor is not supported.\n";
@@ -1071,7 +1104,7 @@ std::string OpenMPVariantClause::toString() {
         clause_string = " : ";
         variant_directive = ((OpenMPWhenClause*)this)->getVariantDirective();
         if (variant_directive != NULL) {
-            clause_string += variant_directive->generatePragmaString("", "", "");
+            clause_string += variant_directive->generatePragmaString("");
         };
     };
 

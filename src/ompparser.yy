@@ -68,8 +68,8 @@ corresponding C type is union name defaults to YYSTYPE.
         TEAMS
         NUM_TEAMS THREAD_LIMIT
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE VENDOR
-        KIND HOST NOHOST CPU GPU FPGA ISA
-        AMD
+        KIND HOST NOHOST ANY CPU GPU FPGA ISA
+        AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
 
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
@@ -182,8 +182,7 @@ trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list '}'
                 ;
 
 trait_set_selector_name : USER { }
-                | CONSTRUCT {
-                    current_parent_directive = current_directive;
+                | CONSTRUCT { current_parent_directive = current_directive;
                     current_parent_clause = current_clause;}
                 | DEVICE { }
                 | IMPLEMENTATION { }
@@ -207,7 +206,7 @@ trait_selector : condition_selector
                 | implementation_selector_list
                 ;
 
-condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
+condition_selector : CONDITION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
                 ;
 
 device_selector_list : device_selector
@@ -221,14 +220,15 @@ device_selector : context_kind
 context_kind : KIND '(' context_kind_name ')'
              ;
 
-context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
-                  | NOHOST { std::cout << "nohost - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
-                  | CPU { std::cout << "cpu - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
-                  | GPU { std::cout << "gpu - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
-                  | FPGA { std::cout << "fpga - device \n"; ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
+context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
+                  | NOHOST { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
+                  | ANY { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_any); }
+                  | CPU { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
+                  | GPU { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
+                  | FPGA { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
                   ;
 
-context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
+context_isa : ISA '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
             ;
 
 implementation_selector_list : implementation_selector
@@ -239,6 +239,17 @@ implementation_selector : VENDOR '(' context_vendor_name ')'
                         ;
 
 context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
+                    | ARM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_arm); }
+                    | BSC { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_bsc); }
+                    | CRAY { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_cray); }
+                    | FUJITSU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_fujitsu); }
+                    | GNU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_gnu); }
+                    | IBM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_ibm); }
+                    | INTEL { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_intel); }
+                    | LLVM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_llvm); }
+                    | PGI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_pgi); }
+                    | TI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_ti); }
+                    | UNKNOWN { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_unknown); }
                     ;
 
 construct_selector : parallel_selector

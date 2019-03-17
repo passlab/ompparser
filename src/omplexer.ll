@@ -2,7 +2,6 @@
 /*%option outfile="lex.yy.c"*/
 %option stack
 %x EXPR_STATE
-%x CLAUSE_STATE
 %x ALLOCATE_STATE
 %x DEFAULT_STATE
 %x IF_STATE
@@ -21,6 +20,7 @@
 %x MATCH_STATE
 %x ISA_STATE
 %x CONDITION_STATE
+%x VENDOR_STATE
 
 
 %{
@@ -153,12 +153,12 @@ condition       { yy_push_state(CONDITION_STATE); return CONDITION; }
 kind            { return KIND; }
 host            { return HOST; }
 nohost          { return NOHOST; }
+any             { return ANY; }
 cpu             { return CPU; }
 gpu             { return GPU; }
 fpga            { return FPGA; }
 isa             { yy_push_state(ISA_STATE); return ISA; }
-vendor          { return VENDOR; }
-amd             { return AMD; }
+vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 
 
 
@@ -349,7 +349,22 @@ amd             { return AMD; }
 <CONDITION_STATE>{blank}*                   { ; }
 <CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<CLAUSE_STATE>. { BEGIN(EXPR_STATE); current_string = yytext[0]; }
+<VENDOR_STATE>"("                           { return '('; }
+<VENDOR_STATE>")"                           { yy_pop_state(); return ')'; }
+<VENDOR_STATE>{blank}*                      { ; }
+<VENDOR_STATE>amd/{blank}*\)                { return AMD; }
+<VENDOR_STATE>arm/{blank}*\)                { return ARM; }
+<VENDOR_STATE>bas/{blank}*\)                { return BSC; }
+<VENDOR_STATE>cray/{blank}*\)               { return CRAY; }
+<VENDOR_STATE>fujitsu/{blank}*\)            { return FUJITSU; }
+<VENDOR_STATE>gnu/{blank}*\)                { return GNU; }
+<VENDOR_STATE>ibm/{blank}*\)                { return IBM; }
+<VENDOR_STATE>intel/{blank}*\)              { return INTEL; }
+<VENDOR_STATE>llvm/{blank}*\)               { return LLVM; }
+<VENDOR_STATE>pgi/{blank}*\)                { return PGI; }
+<VENDOR_STATE>ti/{blank}*\)                 { return TI; }
+<VENDOR_STATE>unknown/{blank}*\)            { return UNKNOWN; }
+<VENDOR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <EXPR_STATE>.   { current_char = yytext[0];
                 parenthesis_local_count = 0;

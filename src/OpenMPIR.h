@@ -302,7 +302,7 @@ protected:
     std::vector<OpenMPDirective*> construct_directives;
     std::string user_condition_expression;
     std::string isa_expression;
-    OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unknown;
+    OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unspecified;
     std::string implementation_user_defined_expression;
     OpenMPClauseContextKind context_kind_name = OMPC_CONTEXT_KIND_unknown;
 
@@ -338,26 +338,17 @@ public:
     void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
 
     static OpenMPClause * addWhenClause(OpenMPDirective* directive);
-    //std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // Match Clause
 class OpenMPMatchClause : public OpenMPVariantClause {
 protected:
-    std::vector<OpenMPDirective*> construct_directives;
-    std::string user_condition_expression;
-    std::string isa_expression;
-    OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unknown;
-    std::string implementation_user_defined_expression;
-    OpenMPClauseContextKind context_kind_name = OMPC_CONTEXT_KIND_unknown;
-
 
 public:
     OpenMPMatchClause( ) : OpenMPVariantClause(OMPC_match) { };
 
     static OpenMPClause * addMatchClause(OpenMPDirective* directive);
-    //std::string toString();
     //void generateDOT(std::ofstream&, int, int, std::string);
 };
 

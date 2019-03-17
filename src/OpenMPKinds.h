@@ -151,6 +151,7 @@ enum OpenMPClauseContextVendor {
     OPENMP_CONTEXT_VENDOR(ti)
     OPENMP_CONTEXT_VENDOR(user)
     OPENMP_CONTEXT_VENDOR(unknown)
+    OPENMP_CONTEXT_VENDOR(unspecified) // default enum for vendor list
 #undef OPENMP_CONTEXT_VENDOR
 };
 
