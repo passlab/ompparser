@@ -174,7 +174,7 @@ protected:
     std::string user_defined_identifier;                // user defined identifier if it is used
 
 public:
-    OpenMPReductionClause( ) : OpenMPClause(OMPC_reduction) { }
+    OpenMPReductionClause() : OpenMPClause(OMPC_reduction) { }
 
     OpenMPReductionClause(OpenMPReductionClauseModifier _modifier,
                           OpenMPReductionClauseIdentifier _identifier) : OpenMPClause(OMPC_reduction),

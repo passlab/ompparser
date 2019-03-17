@@ -157,6 +157,7 @@ cpu             { return CPU; }
 gpu             { return GPU; }
 fpga            { return FPGA; }
 isa             { yy_push_state(ISA_STATE); return ISA; }
+vendor          { return VENDOR; }
 amd             { return AMD; }
 
 

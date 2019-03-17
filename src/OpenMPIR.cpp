@@ -781,7 +781,7 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             clause_kind += "nontemporal";
             break;
 	case OMPC_uniform:
-            clause_kind += "uniform ";
+            clause_kind += "uniform";
             break;
 	case OMPC_inbranch:
             clause_kind += "inbranch";
@@ -958,21 +958,22 @@ OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
 std::string OpenMPVariantClause::toString() {
 
     std::string result;
+    std::string clause_string;
     std::string parameter_string;
     std::vector<OpenMPDirective*>* parameter_directives;
     OpenMPDirective* variant_directive = NULL;
     OpenMPClauseKind clause_kind = this->getKind();
     switch (clause_kind) {
         case OMPC_when:
-            result = "when ";
+            result = "when";
             break;
         case OMPC_match:
-            result = "match ";
+            result = "match";
             break;
         default:
             std::cout << "The variant clause is not supported.\n";
     };
-    std::string clause_string = "(";
+    result += " (";
 
     // check user
     parameter_string = this->getUserCondition();
@@ -997,7 +998,7 @@ std::string OpenMPVariantClause::toString() {
 
 
     // check device
-    clause_string = "device = {";
+    clause_string.clear();
     // check device_kind
     OpenMPClauseContextKind context_kind = this->getContextKind();
     switch (context_kind) {
@@ -1035,13 +1036,14 @@ std::string OpenMPVariantClause::toString() {
         clause_string += "isa(" + parameter_string + "), ";
     };
 
-    if (clause_string.size() > 10) {
-        result += clause_string.substr(0, clause_string.size()-2) + "}, ";
+    if (clause_string.size() > 0) {
+        result += "device = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";
     };
 
     // check implementation
     clause_string.clear();
     parameter_string.clear();
+    // check implementation vendor
     OpenMPClauseContextVendor context_vendor = this->getImplementationKind();
     switch (context_vendor) {
         case OMPC_CONTEXT_VENDOR_amd:
@@ -1053,9 +1055,15 @@ std::string OpenMPVariantClause::toString() {
             std::cout << "The context vendor is not supported.\n";
     };
     if (parameter_string.size() > 0) {
-        clause_string += "implementation = {" + parameter_string + "}, ";
-    }
-    result += clause_string;
+        clause_string += "vendor(" + parameter_string + "), ";
+    };
+
+    parameter_string.clear();
+
+    if (clause_string.size() > 0) {
+        result += "implementation = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";
+    };
+
     clause_string.clear();
     result = result.substr(0, result.size()-2);
 

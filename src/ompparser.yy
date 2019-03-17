@@ -67,7 +67,7 @@ corresponding C type is union name defaults to YYSTYPE.
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
         TEAMS
         NUM_TEAMS THREAD_LIMIT
-        END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE
+        END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE VENDOR
         KIND HOST NOHOST CPU GPU FPGA ISA
         AMD
 
@@ -204,7 +204,7 @@ trait_selector : condition_selector
                     std::cout << "A construct directive has been added to WHEN clause.\n"; 
                 }
                 | device_selector_list
-                | implementation_selector
+                | implementation_selector_list
                 ;
 
 condition_selector : CONDITION '(' EXPR_STRING { std::cout << $3 << " - condition \n"; ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
@@ -231,7 +231,10 @@ context_kind_name : HOST { std::cout << "host - device \n"; ((OpenMPVariantClaus
 context_isa : ISA '(' EXPR_STRING { std::cout << $3 << " - isa \n"; ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
             ;
 
-implementation_selector : context_vendor_name
+implementation_selector_list : implementation_selector
+                             | implementation_selector_list implementation_selector
+
+implementation_selector : VENDOR '(' context_vendor_name ')'
                         | EXPR_STRING {}
                         ;
 
