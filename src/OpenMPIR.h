@@ -302,6 +302,8 @@ protected:
     std::vector<OpenMPDirective*> construct_directives;
     std::string user_condition_expression;
     std::string isa_expression;
+    std::string arch_expression;
+    std::string extension_expression;
     OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unspecified;
     std::string implementation_user_defined_expression;
     OpenMPClauseContextKind context_kind_name = OMPC_CONTEXT_KIND_unknown;
@@ -318,6 +320,10 @@ public:
     std::vector<OpenMPDirective*>* getConstructDirective() { return &construct_directives; };
     void setIsaExpression(const char* _isa_expression) { isa_expression = std::string(_isa_expression); };
     std::string getIsaExpression() { return isa_expression; };
+    void setArchExpression(const char* _arch_expression) { arch_expression = std::string(_arch_expression); };
+    std::string getArchExpression() { return arch_expression; };
+    void setExtensionExpression(const char* _extension_expression) { extension_expression = std::string(_extension_expression); };
+    std::string getExtensionExpression() { return extension_expression; };
     void setImplementationKind(OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = _context_vendor_name; };
     OpenMPClauseContextVendor getImplementationKind() { return context_vendor_name; };
     void setImplementationExpression(const char* _implementation_user_defined_expression) { implementation_user_defined_expression = _implementation_user_defined_expression; };

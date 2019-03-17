@@ -68,7 +68,7 @@ corresponding C type is union name defaults to YYSTYPE.
         TEAMS
         NUM_TEAMS THREAD_LIMIT
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE VENDOR
-        KIND HOST NOHOST ANY CPU GPU FPGA ISA
+        KIND HOST NOHOST ANY CPU GPU FPGA ISA ARCH EXTENSION
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
 
 %token <itype> ICONSTANT
@@ -215,6 +215,7 @@ device_selector_list : device_selector
 
 device_selector : context_kind
                 | context_isa
+                | context_arch
                 ;
 
 context_kind : KIND '(' context_kind_name ')'
@@ -231,10 +232,14 @@ context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKin
 context_isa : ISA '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
             ;
 
+context_arch : ARCH '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($3); } ')'
+             ;
+
 implementation_selector_list : implementation_selector
                              | implementation_selector_list implementation_selector
 
 implementation_selector : VENDOR '(' context_vendor_name ')'
+                        | EXTENSION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($3); } ')'
                         | EXPR_STRING {}
                         ;
 

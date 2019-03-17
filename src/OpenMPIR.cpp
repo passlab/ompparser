@@ -1036,6 +1036,12 @@ std::string OpenMPVariantClause::toString() {
         clause_string += "isa(" + parameter_string + "), ";
     };
 
+    // check device arch
+    parameter_string = this->getArchExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "arch(" + parameter_string + "), ";
+    };
+
     if (clause_string.size() > 0) {
         result += "device = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";
     };
@@ -1091,7 +1097,11 @@ std::string OpenMPVariantClause::toString() {
         clause_string += "vendor(" + parameter_string + "), ";
     };
 
-    parameter_string.clear();
+    // check implementation extension
+    parameter_string = this->getExtensionExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "extension(" + parameter_string + "), ";
+    };
 
     if (clause_string.size() > 0) {
         result += "implementation = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";

@@ -21,6 +21,8 @@
 %x ISA_STATE
 %x CONDITION_STATE
 %x VENDOR_STATE
+%x ARCH_STATE
+%x EXTENSION_STATE
 
 
 %{
@@ -114,14 +116,14 @@ lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
 linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
 schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
 collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered		{ yy_push_state(ORDERED_STATE);return ORDERED;}
+ordered         { yy_push_state(ORDERED_STATE);return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 simd            { return SIMD;}
-safelen		{ return SAFELEN;}
-simdlen		{ return SIMDLEN;}
-nontemporal	{ return NONTEMPORAL;}
-aligned		{ yy_push_state(ALIGNED_STATE);return ALIGNED;}
+safelen         { return SAFELEN;}
+simdlen         { return SIMDLEN;}
+nontemporal     { return NONTEMPORAL;}
+aligned         { yy_push_state(ALIGNED_STATE);return ALIGNED;}
 declare         { return DECLARE;}
 uniform         { return UNIFORM;}
 inbranch        { return INBRANCH;}
@@ -158,7 +160,9 @@ cpu             { return CPU; }
 gpu             { return GPU; }
 fpga            { return FPGA; }
 isa             { yy_push_state(ISA_STATE); return ISA; }
+arch            { yy_push_state(ARCH_STATE); return ARCH; }
 vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
+extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 
 
 
@@ -307,7 +311,7 @@ vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 <ALLOCATOR_STATE>omp_cgroup_mem_alloc/{blank}*:        { return CGROUP_MEM_ALLOC; }
 <ALLOCATOR_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
 <ALLOCATOR_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
-<ALLOCATOR_STATE>"("                	               { return '('; }
+<ALLOCATOR_STATE>"("                                   { return '('; }
 <ALLOCATOR_STATE>")"                                   { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                                     { return -1; }
 
@@ -319,6 +323,7 @@ vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 <WHEN_STATE>"="                             { return '='; }
 <WHEN_STATE>"{"                             { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */
 <WHEN_STATE>"}"                             { return '}'; }
+<WHEN_STATE>","                             { ; }
 <WHEN_STATE>user                            { return USER; }
 <WHEN_STATE>construct                       { return CONSTRUCT; }
 <WHEN_STATE>device                          { return DEVICE; }
@@ -344,6 +349,11 @@ vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 <ISA_STATE>{blank}*                         { ; }
 <ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
+<ARCH_STATE>"("                             { return '('; }
+<ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
+<ARCH_STATE>{blank}*                        { ; }
+<ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
 <CONDITION_STATE>"("                        { return '('; }
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
@@ -365,6 +375,11 @@ vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 <VENDOR_STATE>ti/{blank}*\)                 { return TI; }
 <VENDOR_STATE>unknown/{blank}*\)            { return UNKNOWN; }
 <VENDOR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<EXTENSION_STATE>"("                        { return '('; }
+<EXTENSION_STATE>")"                        { yy_pop_state(); return ')'; }
+<EXTENSION_STATE>{blank}*                   { ; }
+<EXTENSION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <EXPR_STATE>.   { current_char = yytext[0];
                 parenthesis_local_count = 0;
@@ -435,7 +450,7 @@ vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
                                 yy_pop_state();
                                 openmp_lval.stype = strdup(current_string.c_str());
                                 current_string = "";
-								unput(':');
+                                unput(':');
                                 return EXPR_STRING;
                             }
                             else {
@@ -457,7 +472,7 @@ expr            {return (EXPRESSION); }
 {blank}*        ;
 .               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-\n|.       		{printf(" unexpected\n");}
+\n|.            {printf(" unexpected\n");}
 
 %%
 
