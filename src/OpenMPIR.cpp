@@ -978,10 +978,6 @@ std::string OpenMPAllocatorClause::toString() {
         default:
             ;
     }
-    if (clause_string.size() > 1) {
-        clause_string += ": ";
-    };
-    clause_string += this->expressionToString();
     clause_string += ") ";
     if (clause_string.size() > 2) {
         result += clause_string;
@@ -1037,7 +1033,7 @@ void OpenMPDirective::generateDOT() {
                  list_index += 1;
                  current_line = indent + indent + list_name + " -- " + expr_name + "\n";
                  output << current_line.c_str();
-                 current_line = indent + indent + "\t" + expr_name + " [label = \"" + list_name + "\\n " + std::string(*list_item) + "\"]\n";
+                 current_line = indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) + "\"]\n";
                  output << current_line.c_str();
             }
 
