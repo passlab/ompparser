@@ -155,7 +155,7 @@ public:
     void setTraitScore(const char* _score) { trait_score = std::string(_score); };
     std::string getTraitScore () { return trait_score; };
 };
-
+//declare variant directive
 class OpenMPDeclareVariantDirective : public OpenMPDirective {
 protected:
     std::string variant_func_id;
@@ -163,6 +163,16 @@ public:
     OpenMPDeclareVariantDirective () : OpenMPDirective(OMPD_declare_variant) {};
     void setVariantFuncID (const char* _variant_func_id) { variant_func_id = std::string(_variant_func_id); };
     std::string getVariantFuncID () { return variant_func_id; };
+};
+
+//allocate directive
+class OpenMPAllocateDirective : public OpenMPDirective {
+protected:
+    std::vector<const char*> allocate_list;
+public:
+    OpenMPAllocateDirective () : OpenMPDirective(OMPD_allocate) {};
+    void addAllocateList (const char* _allocate_list) { allocate_list.push_back(_allocate_list); };
+    std::vector<const char*>* getAllocateList () { return &allocate_list; };
 };
 
 // reduction clause
@@ -212,44 +222,77 @@ public:
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 	
     static OpenMPAllocateClause * addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
+// allocator
+class OpenMPAllocatorClause : public OpenMPClause {
+protected:
+    OpenMPAllocatorClauseAllocator allocator; // Allocate allocator
+    std::string user_defined_allocator;                         /* user defined value if it is used */
 
+public:
+    OpenMPAllocatorClause(OpenMPAllocatorClauseAllocator _allocator) :
+            OpenMPClause(OMPC_allocator), allocator(_allocator), user_defined_allocator ("") { };
+
+    OpenMPAllocatorClauseAllocator getAllocator() { return allocator; };
+
+    void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
+
+    std::string getUserDefinedAllocator() { return user_defined_allocator; };
+	
+    static OpenMPAllocatorClause * addAllocatorClause(OpenMPDirective *directive, OpenMPAllocatorClauseAllocator allocator);
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
 
 // lastprivate Clause
 class OpenMPLastprivateClause : public OpenMPClause {
 protected:
     OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
-    char *user_defined_modifier;                         /* user defined value if it is used */
+    std::string user_defined_modifier;        /* user defined value if it is used */
 
 public:
+    OpenMPLastprivateClause() : OpenMPClause(OMPC_lastprivate) { }
+
     OpenMPLastprivateClause(OpenMPLastprivateClauseModifier _modifier) :
-            OpenMPClause(OMPC_lastprivate), modifier(_modifier), user_defined_modifier (NULL) { };
+            OpenMPClause(OMPC_lastprivate), modifier(_modifier), user_defined_modifier ("") { };
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
 
     void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
 
-    char *getUserDefinedModifier() { return user_defined_modifier; };
+    std::string getUserDefinedModifier() { return user_defined_modifier; };
 
     static OpenMPLastprivateClause* addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
 
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // linear Clause
 class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
-    char *user_defined_modifier;                         /* user defined value if it is used */
+    std::string user_defined_modifier;        /* user defined value if it is used */
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
-            OpenMPClause(OMPC_linear), modifier(_modifier), user_defined_modifier (NULL) { };
+            OpenMPClause(OMPC_linear), modifier(_modifier), user_defined_modifier ("") { };
 
     OpenMPLinearClauseModifier getModifier() { return modifier; };
 
-    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
+    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; };
 
-    char *getUserDefinedModifier() { return user_defined_modifier; };
+
+    std::string getUserDefinedModifier() { return user_defined_modifier; };
+    
+    static OpenMPLinearClause* addLinearClause(OpenMPDirective *directive, OpenMPLinearClauseModifier modifier);
+
+    std::string toString();
+    std::string expressionToString(bool);
+    void generateDOT(std::ofstream&, int, int, std::string);
+
 };
 
 // dist_schedule Clause
@@ -257,18 +300,22 @@ class OpenMPDistscheduleClause : public OpenMPClause {
 	
 protected:
     OpenMPDistscheduleClauseKind dist_schedule_kind;     // kind
-    char *user_defined_kind;                // user defined identifier if it is used
+    std::string user_defined_kind;                // user defined identifier if it is used
 
 public:
     OpenMPDistscheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
 
-    OpenMPDistscheduleClause(OpenMPDistscheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind), user_defined_kind (NULL) { };
+    OpenMPDistscheduleClause(OpenMPDistscheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind), user_defined_kind ("") { };
 
     OpenMPDistscheduleClauseKind getKind() { return dist_schedule_kind; };
 
     void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
 
-    char *getUserDefinedKind() { return user_defined_kind; };
+    std::string getUserDefinedKind() { return user_defined_kind; };
+
+    std::string toString();
+
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 
@@ -276,24 +323,27 @@ public:
 class OpenMPScheduleClause : public OpenMPClause {
 
 protected:
-    OpenMPScheduleClauseModifier modifier;     // modifier
+    OpenMPScheduleClauseModifier modifier1;     // modifier1
+    OpenMPScheduleClauseModifier modifier2;     // modifier2
     OpenMPScheduleClauseKind schedulekind; // identifier
-    char *user_defined_kind;                // user defined identifier if it is used
+    std::string user_defined_kind;                // user defined identifier if it is used
 
 public:
     OpenMPScheduleClause( ) : OpenMPClause(OMPC_schedule) { }
 
-    OpenMPScheduleClause(OpenMPScheduleClauseModifier _modifier,
+    OpenMPScheduleClause(OpenMPScheduleClauseModifier _modifier1, OpenMPScheduleClauseModifier _modifier2,
                           OpenMPScheduleClauseKind _schedulekind) : OpenMPClause(OMPC_schedule),
-                                         modifier(_modifier), schedulekind(_schedulekind), user_defined_kind (NULL) { };
+                                         modifier1(_modifier1),modifier2(_modifier2), schedulekind(_schedulekind), user_defined_kind ("") { };
 
-    OpenMPScheduleClauseModifier getModifier() { return modifier; };
-
+    OpenMPScheduleClauseModifier getModifier1() { return modifier1; };
+    OpenMPScheduleClauseModifier getModifier2() { return modifier2; };
     OpenMPScheduleClauseKind getKind() { return schedulekind; };
 
     void setUserDefinedKind(char *schedulekind) { user_defined_kind = schedulekind; };
 
-    char *getUserDefinedKind() { return user_defined_kind; };
+    std::string getUserDefinedKind() { return user_defined_kind; };
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // OpenMP clauses with variant directives, such as WHEN and MATCH clauses.
@@ -411,14 +461,25 @@ public:
 class OpenMPIfClause : public OpenMPClause {
 
 protected:
-    OpenMPIfClauseKind if_kind; // if
+    OpenMPIfClauseModifier modifier; // linear modifier
+    std::string user_defined_modifier;        /* user defined value if it is used */
 
 public:
-    OpenMPIfClause(OpenMPIfClauseKind _if_kind) :
-            OpenMPClause(OMPC_if), if_kind(_if_kind) { };
+    OpenMPIfClause(OpenMPIfClauseModifier _modifier) :
+            OpenMPClause(OMPC_if), modifier(_modifier), user_defined_modifier ("") { };
 
-    OpenMPIfClauseKind getIfClauseKind() { return if_kind; };
-    void setIfClauseKind(OpenMPIfClauseKind if_kind) { this->if_kind = if_kind; };
+    OpenMPIfClauseModifier getModifier() { return modifier; };
+
+    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; };
+
+
+    std::string getUserDefinedModifier() { return user_defined_modifier; };
+    
+    static OpenMPIfClause* addifClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier);
+
+    std::string toString();
+
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 #ifdef __cplusplus

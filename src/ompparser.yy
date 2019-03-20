@@ -116,6 +116,7 @@ openmp_directive : parallel_directive
                  | single_directive
                  | cancel_directive
                  | cancellation_point_directive
+                 | allocate_directive
                  ;
 
 variant_directive : parallel_directive
@@ -137,6 +138,7 @@ variant_directive : parallel_directive
                  | single_directive
                  | cancel_directive
                  | cancellation_point_directive
+                 | allocate_directive
                  ;
 
 metadirective_directive : METADIRECTIVE {
@@ -387,6 +389,19 @@ teams_directive : TEAMS {
                       teams_clause_optseq
                      ;
 
+allocate_directive : ALLOCATE {
+                        current_directive = new OpenMPAllocateDirective();
+                     } allocate_list
+                      allocate_clause_optseq
+                     ;
+allocate_list: '('directive_varlist')'
+             ;
+directive_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPAllocateDirective*)current_directive)->addAllocateList($1); } 
+directive_varlist : directive_variable
+                  | directive_varlist ',' directive_variable
+                  ;
+
+
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
                        ;
@@ -437,6 +452,9 @@ cancel_clause_optseq : /*empty*/
 cancellation_point_clause_optseq : /*empty*/
 	                         | cancellation_point_clause_seq 
                                  ;
+allocate_clause_optseq :  /*empty*/
+	               | allocate_clause_seq 
+                       ;
 
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
@@ -503,7 +521,8 @@ cancel_clause_seq : construct_type_clause
                   ;
 cancellation_point_clause_seq : construct_type_clause
                               ;
-
+allocate_clause_seq :  allocator_clause
+                    ;
 parallel_clause : if_clause
                 | num_threads_clause
                 | default_clause
@@ -673,19 +692,19 @@ if_clause: IF '(' if_parameter ')' { ; }
                     ;
 
 if_parameter :  PARALLEL ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_parallel);
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel);
                 } expression { ; }
               | SIMD ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_simd);
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd);
                 } expression { ; }
               | TASK ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_task);
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_task);
                 } expression { ; }
               | CANCEL ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_cancel);
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_cancel);
                 } expression { ; }
               | EXPR_STRING {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_unspecified);
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
                 current_clause->addLangExpr($1);
                 }
 				;
@@ -747,7 +766,6 @@ allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = 
                          current_clause = current_directive->addOpenMPClause(OMPC_allocate); current_clause->addLangExpr($1); } var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
-
 allocator_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_default); }
 						  | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_large_cap); }
 						  | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cons_mem); }
@@ -790,7 +808,7 @@ lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive
                      ;
 
 linear_clause : LINEAR '('  linear_parameter ')'
-              | LINEAR '('  linear_parameter ':' var_list')'
+              | LINEAR '('  linear_parameter ':'EXPR_STRING  { std::cout << $5 << "\n"; current_clause->addLangExpr(":");current_clause->addLangExpr($5);  } ')' 
 	      ;
 
 linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1);  }
@@ -861,6 +879,18 @@ inclusive_clause: INCLUSIVE  {current_clause = current_directive->addOpenMPClaus
 		          ;
 exclusive_clause: EXCLUSIVE  {current_clause = current_directive->addOpenMPClause(OMPC_exclusive);} '(' var_list ')'
 		          ;
+allocator_clause: ALLOCATOR '('allocator1_parameter')';
+allocator1_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_default); }
+						  | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_large_cap); }
+						  | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cons_mem); }
+						  | HIGH_BW_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_high_bw); }
+						  | LOW_LAT_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_low_lat); }
+						  | CGROUP_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cgroup); }
+						  | PTEAM_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_pteam); }
+						  | THREAD_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_thread); }
+						  | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_user, $1); }
+						;
+
 dist_schedule_clause : DIST_SCHEDULE '('dist_schedule_parameter')'{}
                      ;
 dist_schedule_parameter : STATIC {current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static);}
@@ -875,9 +905,8 @@ schedule_parameter : schedule_kind {}
 		   ;
 
 
-schedule_kind : schedule_enum_kind {	}
-             | schedule_enum_kind ',' var_list
-	     | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter,secondParameter, OMPC_SCHEDULE_KIND_user, $1); }
+schedule_kind : schedule_enum_kind { }
+             | schedule_enum_kind ',' var_list {}
 	     ;
 
 schedule_modifier : schedule_enum_modifier ',' schedule_modifier2
@@ -891,7 +920,7 @@ schedule_enum_modifier : MODIFIER_MONOTONIC {firstParameter = OMPC_SCHEDULE_MODI
                        | MODIFIER_NOMONOTONIC {firstParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}
                        | MODIFIER_SIMD {firstParameter = OMPC_SCHEDULE_MODIFIER_simd;}
                        ;
-schedule_enum_kind : STATIC     { current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_static); }
+schedule_enum_kind : STATIC     {current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_static);}
                    | DYNAMIC    {current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_dynamic);}
                    | GUIDED     {current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_guided);}
                    | AUTO       {current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_auto);}
