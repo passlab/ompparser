@@ -1025,7 +1025,7 @@ void OpenMPDirective::generateDOT() {
             int list_index = 0;
             std::string list_name; std::string expr_name;
             std::string tkind = "allocate";
-            list_name = tkind + "_list_" + std::to_string(list_index);
+            list_name = tkind + "_directive_list_" + std::to_string(list_index);
             current_line = indent+tkind + " -- " + list_name + "\n";
             output << current_line.c_str();
             for (list_item = list->begin(); list_item != list->end(); list_item++){
