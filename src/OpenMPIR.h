@@ -61,7 +61,7 @@ public:
     // instead, it only stores them as strings
     void addLangExpr(const char *expression, int line = 0, int col = 0) {
         //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
-	    expressions.push_back(expression);
+        expressions.push_back(expression);
         locations.push_back(SourceLocation(line, col));
     };
     
@@ -197,9 +197,9 @@ public:
     void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
-	
+
     static OpenMPReductionClause * addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
-			      OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+                  OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -220,7 +220,7 @@ public:
     void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
-	
+
     static OpenMPAllocateClause * addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -240,7 +240,7 @@ public:
     void setUserDefinedAllocator(char *_allocator) { user_defined_allocator = std::string(_allocator); }
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
-	
+
     static OpenMPAllocatorClause * addAllocatorClause(OpenMPDirective *directive, OpenMPAllocatorClauseAllocator allocator);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -297,7 +297,7 @@ public:
 
 // dist_schedule Clause
 class OpenMPDistscheduleClause : public OpenMPClause {
-	
+
 protected:
     OpenMPDistscheduleClauseKind dist_schedule_kind;     // kind
     std::string user_defined_kind;                // user defined identifier if it is used
