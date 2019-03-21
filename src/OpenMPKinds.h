@@ -92,7 +92,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(for, OMPForClause)
     OPENMP_CLAUSE(taskgroup, OMPTaskgroupClause)
 
-    OPENMP_CLAUSE(allocator, OMPAllocaterClause)
+    OPENMP_CLAUSE(allocator, OMPAllocatorClause)
 // OpenMP clause for MetaDirective
     OPENMP_CLAUSE(when, OMPWhenClause)
 
@@ -157,16 +157,17 @@ enum OpenMPClauseContextVendor {
 
 
 // OpenMP attributes for 'if' clause.
-enum OpenMPIfClauseKind {
-#define OPENMP_IF_KIND(Name) OMPC_IF_##Name,
-    OPENMP_IF_KIND(parallel)
-    OPENMP_IF_KIND(simd)
-    OPENMP_IF_KIND(task)
-    OPENMP_IF_KIND(cancel)
+enum OpenMPIfClauseModifier {
+#define OPENMP_IF_MODIFIER(Name) OMPC_IF_MODIFIER_##Name,
+    OPENMP_IF_MODIFIER(parallel)
+    OPENMP_IF_MODIFIER(simd)
+    OPENMP_IF_MODIFIER(task)
+    OPENMP_IF_MODIFIER(cancel)
 
-    OPENMP_IF_KIND(unspecified)
-    OPENMP_IF_KIND(unknown)
-#undef OPENMP_IF_KIND
+    OPENMP_IF_MODIFIER(unspecified)
+    OPENMP_IF_MODIFIER(unknown)
+    OPENMP_IF_MODIFIER(user)
+#undef OPENMP_IF_MODIFIER
 };
 
 /// OpenMP attributes for 'default' clause.
@@ -210,6 +211,22 @@ enum OpenMPAllocateClauseAllocator {
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
 
+/// OpenMP attributes for 'Allocator' clause.
+enum OpenMPAllocatorClauseAllocator {
+#define OPENMP_ALLOCATOR_ALLOCATOR_KIND(Name) OMPC_ALLOCATOR_ALLOCATOR_##Name,
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(unknown)
+#undef OPENMP_ALLOCATE_ALLOCATOR_KIND
+};
+
 /// modifiers for 'reduction' clause.
 enum OpenMPReductionClauseModifier {
 #define OPENMP_REDUCTION_MODIFIER(Name) OMPC_REDUCTION_MODIFIER_##Name,
@@ -249,6 +266,16 @@ enum OpenMPLastprivateClauseModifier {
 
     OPENMP_LASTPRIVATE_MODIFIER(unknow)
 #undef OPENMP_LASTPRIVATE_MODIFIER
+};
+
+/// step for 'linear' clause.
+enum OpenMPLinearClauseStep {
+#define OPENMP_LINEAR_STEP(Name) OMPC_LINEAR_Step_##Name,
+
+    OPENMP_LINEAR_STEP(user)
+
+    OPENMP_LINEAR_STEP(unknow)
+#undef OPENMP_LINEAR_STEP
 };
 
 /// modifiers for 'linear' clause.

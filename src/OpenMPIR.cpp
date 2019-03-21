@@ -22,28 +22,35 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 
     switch (kind) {
         case OMPC_if : {
-            OpenMPIfClauseKind ifKind = (OpenMPIfClauseKind) va_arg(args, int);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPIfClause(ifKind);
-                current_clauses = new std::vector<OpenMPClause*>();
+	    OpenMPIfClauseModifier modifier = (OpenMPIfClauseModifier) va_arg(args,int);
+            char * user_defined_modifier = NULL;
+            if (modifier == OMPC_IF_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
+	    if (current_clauses->size() == 0) {
+	        new_clause = new OpenMPIfClause(modifier);
+                if (modifier == OMPC_IF_MODIFIER_user)
+                    ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
+	        current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else { /* could be an error since if clause may only appear once */
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    if (((OpenMPIfClause*)(*it))->getIfClauseKind() == ifKind) {
-                        std::cerr << "Cannot have two if clauses (of the same kind) for the directive " << kind << "\n";
-                        goto end;
+		clauses[kind] = current_clauses;
+           	} else{
+	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        std::string current_user_defined_modifier_expression;
+                        if (user_defined_modifier) {
+                            current_user_defined_modifier_expression = std::string(user_defined_modifier);
+                        };
+                        if (((OpenMPIfClause*)(*it))->getModifier() == modifier&&
+                            current_user_defined_modifier_expression.compare(((OpenMPIfClause*)(*it))->getUserDefinedModifier()) == 0) {
+                           new_clause = (*it);
+                           goto end;
                     }
-                }
-                /* we found two clauses, but of different ifClauseKind, e.g. one is parallel and the other is for,
-                 * this happens only in combined constructs.
-                 * TODO: We should do error check here, or other place to see whether
-                 * the directive is a combined construct that accepts the specified ifClauseKind
-                 */
-                new_clause = new OpenMPIfClause(ifKind);
-                current_clauses->push_back(new_clause);
-            }
-            break;
+               }
+                    new_clause = new OpenMPIfClause(modifier);
+                    if (modifier == OMPC_IF_MODIFIER_user)
+                       ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
+                    current_clauses->push_back(new_clause);
+
+	         }
+                 break;
         }
         case OMPC_default : {
             OpenMPDefaultClauseKind defaultKind = (OpenMPDefaultClauseKind) va_arg(args, int);
@@ -191,8 +198,12 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 		clauses[kind] = current_clauses;
            	} else{
 	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        std::string current_user_defined_modifier_expression;
+                        if (user_defined_modifier) {
+                            current_user_defined_modifier_expression = std::string(user_defined_modifier);
+                        };
                         if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier&&
-                            strcasecmp(user_defined_modifier, ((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
+                            current_user_defined_modifier_expression.compare(((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
                            new_clause = (*it);
                            goto end;
                     }
@@ -219,8 +230,12 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 		clauses[kind] = current_clauses;
            	} else{
 	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        std::string current_user_defined_modifier_expression;
+                        if (user_defined_modifier) {
+                            current_user_defined_modifier_expression = std::string(user_defined_modifier);
+                        };
                         if (((OpenMPLinearClause*)(*it))->getModifier() == modifier&&
-                            strcasecmp(user_defined_modifier, ((OpenMPLinearClause*)(*it))->getUserDefinedModifier()) == 0) {
+                            current_user_defined_modifier_expression.compare(((OpenMPLinearClause*)(*it))->getUserDefinedModifier()) == 0) {
                            new_clause = (*it);
                            goto end;
                     }
@@ -246,8 +261,12 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 		clauses[kind] = current_clauses;
            	} else{
 	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                        std::string current_user_defined_kind_expression;
+                        if (user_defined_kind) {
+                             current_user_defined_kind_expression = std::string(user_defined_kind);
+                        };
                         if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind&&
-                            strcasecmp(user_defined_kind, ((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                            current_user_defined_kind_expression.compare(((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
                            new_clause = (*it);
                            goto end;
                     }
@@ -261,12 +280,13 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                  break; 
         }
         case OMPC_schedule : {
-            OpenMPScheduleClauseModifier modifier = (OpenMPScheduleClauseModifier) va_arg(args, int);
+            OpenMPScheduleClauseModifier modifier1 = (OpenMPScheduleClauseModifier) va_arg(args, int);
+            OpenMPScheduleClauseModifier modifier2 = (OpenMPScheduleClauseModifier) va_arg(args, int);
             OpenMPScheduleClauseKind schedulekind = (OpenMPScheduleClauseKind) va_arg(args, int);
             char * user_defined_kind = NULL;
             if (schedulekind == OMPC_SCHEDULE_KIND_user) user_defined_kind = va_arg(args, char *);
             if (current_clauses->size() == 0) {
-                new_clause = new OpenMPScheduleClause(modifier, schedulekind);
+                new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
                 if (schedulekind == OMPC_SCHEDULE_KIND_user)
                     ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
                 current_clauses = new std::vector<OpenMPClause*>();
@@ -274,15 +294,19 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 clauses[kind] = current_clauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    if (((OpenMPScheduleClause*)(*it))->getModifier() == modifier &&
+                    std::string current_user_defined_kind_expression;
+                    if (user_defined_kind) {
+                        current_user_defined_kind_expression = std::string(user_defined_kind);
+                    };
+                    if (((OpenMPScheduleClause*)(*it))->getModifier1() == modifier1 && ((OpenMPScheduleClause*)(*it))->getModifier2() == modifier2 &&
                         ((OpenMPScheduleClause*)(*it))->getKind() == schedulekind &&
-                        strcasecmp(user_defined_kind, ((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                        current_user_defined_kind_expression.compare(((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
                         new_clause = (*it);
                         goto end;
                     }
                 }
                 /* could fine the matching object for this clause */
-                new_clause = new OpenMPScheduleClause(modifier, schedulekind);
+                new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
                 if (schedulekind == OMPC_SCHEDULE_KIND_user)
                     ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
                 current_clauses->push_back(new_clause);
@@ -320,6 +344,36 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
+        case OMPC_allocator : {
+            OpenMPAllocatorClauseAllocator allocator = (OpenMPAllocatorClauseAllocator) va_arg(args, int);
+            char* user_defined_allocator = NULL;
+            if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user) user_defined_allocator = va_arg(args, char *);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPAllocatorClause(allocator);
+                if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
+                    ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                    std::string current_user_defined_allocator_expression;
+                    if (user_defined_allocator) {
+                        current_user_defined_allocator_expression = std::string(user_defined_allocator);
+                    };
+                    if (((OpenMPAllocatorClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocatorClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                        new_clause = (*it);
+                        goto end;
+                    }
+                }
+                /* could find the matching object for this clause */
+                new_clause = new OpenMPAllocatorClause(allocator);
+                if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
+                    ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+                current_clauses->push_back(new_clause);
+            }
+            break;
+        }
         case OMPC_when: {
 
             new_clause = OpenMPWhenClause::addWhenClause(this);
@@ -340,8 +394,20 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
 
     result += beginning_symbol;
 
-    if (this->getKind() == OMPD_declare_variant) {
-        result += "(" + ((OpenMPDeclareVariantDirective*)this)->getVariantFuncID() + ") ";
+    switch (this->getKind()) {
+        case OMPD_declare_variant:
+            result += "(" + ((OpenMPDeclareVariantDirective*)this)->getVariantFuncID() + ") ";
+        case OMPD_allocate:
+            std::vector<const char*>* list = ((OpenMPAllocateDirective*)this)->getAllocateList();
+            std::vector<const char*>::iterator list_item;
+            result += "(";
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 result += *list_item;
+                 result += ",";
+            }
+            result = result.substr(0, result.size()-1); 
+            result += ") ";
+
     };
 
     if (output_score) {
@@ -430,6 +496,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_declare_variant:
             result += "declare variant ";
             break;
+        case OMPD_allocate:
+            result += "allocate ";
+            break;
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -461,6 +530,9 @@ std::string OpenMPClause::toString() {
         case OMPC_allocate:
             result += "allocate ";
             break;
+        case OMPC_allocator:
+            result += "allocator ";
+            break;
         case OMPC_private:
             result += "private ";
             break;
@@ -481,15 +553,6 @@ std::string OpenMPClause::toString() {
             break;
 	case OMPC_default:
             result += "default ";
-            break;
-	case OMPC_lastprivate:
-            result += "lastprivate ";
-            break;
-        case OMPC_linear:
-            result += "linear ";
-            break;
-        case OMPC_schedule:
-            result += "schedule ";
             break;
         case OMPC_collapse:
             result += "collapse ";
@@ -523,9 +586,6 @@ std::string OpenMPClause::toString() {
             break;
 	case OMPC_notinbranch:
             result += "notinbranch ";
-            break;
-	case OMPC_dist_schedule:
-            result += "dist_schedule ";
             break;
 	case OMPC_bind:
             result += "bind ";
@@ -640,7 +700,292 @@ std::string OpenMPReductionClause::toString() {
     return result;
 };
 
+std::string OpenMPLastprivateClause::toString() {
 
+    std::string result = "lastprivate ";
+    std::string clause_string = "(";
+    OpenMPLastprivateClauseModifier modifier = this->getModifier();
+    switch (modifier) {
+        case OMPC_LASTPRIVATE_MODIFIER_conditional:
+            clause_string += "conditional";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += ": ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
+std::string OpenMPLinearClause::expressionToString(bool a) {
+
+    std::string result;
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        for (it = expr->begin(); it != expr->end(); it++) {
+             if(std::string(*it) != ":"){
+                result += std::string(*it) + ", ";
+             }else if(a==true) {
+                result = result.substr(0, result.size()-2);
+                result += ")" + std::string(*it);
+             }else{
+                result = result.substr(0, result.size()-2);
+                result += std::string(*it);             
+             }
+        };
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
+std::string OpenMPLinearClause::toString() {
+
+    std::string result = "linear ";
+    std::string clause_string = "(";
+    bool flag = false;
+    OpenMPLinearClauseModifier modifier = this->getModifier();
+    switch (modifier) {
+        case OMPC_LINEAR_MODIFIER_val:
+            clause_string += "val";
+            flag = true;
+            break;
+        case OMPC_LINEAR_MODIFIER_ref:
+            clause_string += "ref";
+            flag = true;
+            break;
+        case OMPC_LINEAR_MODIFIER_uval:
+            clause_string += "uval";
+            flag = true;
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += "( ";
+    };
+   clause_string += this->expressionToString(flag);
+    if (clause_string.size() > 2) {
+        clause_string += ") ";
+    };
+
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+
+    return result;
+};
+std::string OpenMPDistscheduleClause::toString() {
+
+    std::string result = "dist_schedule ";
+    std::string clause_string = "(";
+    OpenMPDistscheduleClauseKind kind = this->getKind();
+    switch (kind) {
+        case OMPC_DISTSCHEDULE_KIND_static:
+            clause_string += "static";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += ": ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
+std::string OpenMPScheduleClause::toString() {
+
+    std::string result = "schedule ";
+    std::string clause_string = "(";
+    OpenMPScheduleClauseModifier modifier1 = this->getModifier1();
+    OpenMPScheduleClauseModifier modifier2 = this->getModifier2();
+    OpenMPScheduleClauseKind kind = this->getKind();
+    switch (modifier1) {
+        case OMPC_SCHEDULE_MODIFIER_monotonic:
+            clause_string += "monotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_nonmonotonic:
+            clause_string += "nonmonotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_simd:
+            clause_string += "simd";
+            break;
+        default:
+            ;
+    }
+    switch (modifier2) {
+        case OMPC_SCHEDULE_MODIFIER_monotonic:
+            clause_string += ",monotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_nonmonotonic:
+            clause_string += ",nonmonotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_simd:
+            clause_string += ",simd";
+            break;
+        default:
+            ;
+    }
+    clause_string += ":";  
+    switch (kind) {
+        case OMPC_SCHEDULE_KIND_static:
+            clause_string += "static";
+            break;
+        case OMPC_SCHEDULE_KIND_dynamic:
+            clause_string += "dynamic";
+            break;
+        case OMPC_SCHEDULE_KIND_guided:
+            clause_string += "guided";
+            break;
+        case OMPC_SCHEDULE_KIND_auto:
+            clause_string += "auto";
+            break;
+        case OMPC_SCHEDULE_KIND_runtime:
+            clause_string += "runtime";
+            break;
+        default:
+            ;
+    }
+    if (this->expressionToString() != ""){
+    clause_string += ", ";
+    clause_string += this->expressionToString();}
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+    return result;
+};
+std::string OpenMPIfClause::toString() {
+
+    std::string result = "if ";
+    std::string clause_string = "(";
+    OpenMPIfClauseModifier modifier = this->getModifier();
+    switch (modifier) {
+        case OMPC_IF_MODIFIER_parallel:
+            clause_string += "parallel";
+            break;
+        case OMPC_IF_MODIFIER_simd:
+            clause_string += "simd";
+            break;
+        case OMPC_IF_MODIFIER_task:
+            clause_string += "task";
+            break;
+        case OMPC_IF_MODIFIER_cancel:
+            clause_string += "cancel";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += ": ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
+std::string OpenMPAllocateClause::toString() {
+
+    std::string result = "allocate ";
+    std::string clause_string = "(";
+    OpenMPAllocateClauseAllocator allocator = this->getAllocator();
+    switch (allocator) {
+        case OMPC_ALLOCATE_ALLOCATOR_default:
+            clause_string += "omp_default_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_large_cap:
+            clause_string += "omp_large_cap_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_cons_mem:
+            clause_string += "omp_const_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_high_bw:
+            clause_string += "omp_high_bw_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_low_lat:
+            clause_string += "omp_low_lat_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_cgroup:
+            clause_string += "omp_cgroup_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_pteam:
+            clause_string += "omp_pteam_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_thread:
+            clause_string += "omp_thread_mem_alloc";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += ": ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
+std::string OpenMPAllocatorClause::toString() {
+
+    std::string result = "allocator ";
+    std::string clause_string = "(";
+    OpenMPAllocatorClauseAllocator allocator = this->getAllocator();
+    switch (allocator) {
+        case OMPC_ALLOCATOR_ALLOCATOR_default:
+            clause_string += "omp_default_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_large_cap:
+            clause_string += "omp_large_cap_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_cons_mem:
+            clause_string += "omp_const_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_high_bw:
+            clause_string += "omp_high_bw_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_low_lat:
+            clause_string += "omp_low_lat_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_cgroup:
+            clause_string += "omp_cgroup_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_pteam:
+            clause_string += "omp_pteam_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_thread:
+            clause_string += "omp_thread_mem_alloc";
+            break;
+        default:
+            ;
+    }
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
+//2 or more combined directive
 void OpenMPDirective::generateDOT() {
     std::string directive_kind;
     OpenMPDirectiveKind kind = this->getKind();
@@ -672,6 +1017,27 @@ void OpenMPDirective::generateDOT() {
 
     output << current_line.c_str();
     output << "\t" << directive_kind.c_str() << "\n";
+    switch (kind) {
+        case OMPD_allocate:
+            std::string indent = std::string(1, '\t');
+            std::vector<const char*>* list = ((OpenMPAllocateDirective*)this)->getAllocateList();
+            std::vector<const char*>::iterator list_item;
+            int list_index = 0;
+            std::string list_name; std::string expr_name;
+            std::string tkind = "allocate";
+            list_name = tkind + "_directive_list_" + std::to_string(list_index);
+            current_line = indent+tkind + " -- " + list_name + "\n";
+            output << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 expr_name = list_name + "_expr" + std::to_string(list_index);
+                 list_index += 1;
+                 current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                 output << current_line.c_str();
+                 current_line = indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) + "\"]\n";
+                 output << current_line.c_str();
+            }
+
+    };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
@@ -695,6 +1061,7 @@ void OpenMPDirective::generateDOT() {
 void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string directive_kind = this->toString();
+
     std::string current_line;
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
@@ -744,15 +1111,6 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         case OMPC_default:
             clause_kind += "default";
             break;
-	    case OMPC_lastprivate:
-            clause_kind += "lastprivate";
-            break;
-        case OMPC_linear:
-            clause_kind += "linear";
-            break;
-        case OMPC_schedule:
-            clause_kind += "schedule";
-            break;
         case OMPC_collapse:
             clause_kind += "collapse";
             break;
@@ -788,9 +1146,6 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
 	case OMPC_notinbranch:
             clause_kind += "notinbranch";
-            break;
-	case OMPC_dist_schedule:
-            clause_kind += "dist_schedule";
             break;
 	case OMPC_bind:
             clause_kind += "bind";
@@ -1157,4 +1512,421 @@ std::string OpenMPDefaultClause::toString() {
 
     return result;
 }
+void OpenMPLastprivateClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "lastprivate_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPLastprivateClauseModifier modifier = this->getModifier();
+    std::string parameter_string;
+    switch (modifier) {
+        case OMPC_LASTPRIVATE_MODIFIER_conditional:
+            parameter_string = "conditional";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+void OpenMPLinearClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "linear_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPLinearClauseModifier modifier = this->getModifier();
+    std::string parameter_string;
+    switch (modifier) {
+        case OMPC_LINEAR_MODIFIER_val:
+            parameter_string = "val";
+            break;
+        case OMPC_LINEAR_MODIFIER_ref:
+            parameter_string = "ref";
+            break;
+        case OMPC_LINEAR_MODIFIER_uval:
+            parameter_string = "uval";
+            break;
+        default:
+
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+
+void OpenMPScheduleClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "schedule_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPScheduleClauseModifier modifier1 = this->getModifier1();
+    OpenMPScheduleClauseModifier modifier2 = this->getModifier2();
+    OpenMPScheduleClauseKind kind = this->getKind();
+    std::string parameter_string;
+    switch (modifier1) {
+        case OMPC_SCHEDULE_MODIFIER_monotonic:
+            parameter_string += "monotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_nonmonotonic:
+            parameter_string += "nonmonotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_simd:
+            parameter_string += "simd";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier1";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (modifier2) {
+        case OMPC_SCHEDULE_MODIFIER_monotonic:
+            parameter_string += "monotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_nonmonotonic:
+            parameter_string += "nonmonotonic";
+            break;
+        case OMPC_SCHEDULE_MODIFIER_simd:
+            parameter_string += "simd";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier2";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (kind) {
+        case OMPC_SCHEDULE_KIND_static:
+            parameter_string += "static";
+            break;
+        case OMPC_SCHEDULE_KIND_dynamic:
+            parameter_string += "dynamic";
+            break;
+        case OMPC_SCHEDULE_KIND_guided:
+            parameter_string += "guided";
+            break;
+        case OMPC_SCHEDULE_KIND_auto:
+            parameter_string += "auto";
+            break;
+        case OMPC_SCHEDULE_KIND_runtime:
+            parameter_string += "runtime";
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_kind";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+void OpenMPDistscheduleClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "dist_schedule_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPDistscheduleClauseKind kind = this->getKind();
+    std::string parameter_string;
+    switch (kind) {
+        case OMPC_DISTSCHEDULE_KIND_static:
+            parameter_string = "static";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_kind";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+void OpenMPIfClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "if_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPIfClauseModifier modifier = this->getModifier();
+    std::string parameter_string;
+    switch (modifier) {
+        case OMPC_IF_MODIFIER_parallel:
+            parameter_string += "parallel";
+            break;
+        case OMPC_IF_MODIFIER_simd:
+            parameter_string += "simd";
+            break;
+        case OMPC_IF_MODIFIER_task:
+            parameter_string += "task";
+            break;
+        case OMPC_IF_MODIFIER_cancel:
+            parameter_string += "cancel";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+void OpenMPAllocateClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "allocate_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPAllocateClauseAllocator allocator = this->getAllocator();
+    std::string parameter_string;
+    switch (allocator) {
+        case OMPC_ALLOCATE_ALLOCATOR_default:
+            parameter_string += "omp_default_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_large_cap:
+            parameter_string += "omp_large_cap_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_cons_mem:
+            parameter_string += "omp_const_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_high_bw:
+            parameter_string += "omp_high_bw_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_low_lat:
+            parameter_string += "omp_low_lat_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_cgroup:
+            parameter_string += "omp_cgroup_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_pteam:
+            parameter_string += "omp_pteam_mem_alloc";
+            break;
+        case OMPC_ALLOCATE_ALLOCATOR_thread:
+            parameter_string += "omp_thread_mem_alloc";
+            break;
+        default:
+            ;
+
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_allocator";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+void OpenMPAllocatorClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "allocator_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPAllocatorClauseAllocator allocator = this->getAllocator();
+    std::string parameter_string;
+    switch (allocator) {
+        case OMPC_ALLOCATOR_ALLOCATOR_default:
+            parameter_string += "omp_default_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_large_cap:
+            parameter_string += "omp_large_cap_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_cons_mem:
+            parameter_string += "omp_const_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_high_bw:
+            parameter_string += "omp_high_bw_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_low_lat:
+            parameter_string += "omp_low_lat_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_cgroup:
+            parameter_string += "omp_cgroup_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_pteam:
+            parameter_string += "omp_pteam_mem_alloc";
+            break;
+        case OMPC_ALLOCATOR_ALLOCATOR_thread:
+            parameter_string += "omp_thread_mem_alloc";
+            break;
+        default:
+            ;
+
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_allocator";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
