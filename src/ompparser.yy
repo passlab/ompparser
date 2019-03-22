@@ -410,50 +410,50 @@ teams_clause_optseq : /* empty */
                        ;
 
 for_clause_optseq : /*empty*/
-	          | for_clause_seq 
+              | for_clause_seq
                   ;
 
 simd_clause_optseq : /*empty*/
-	          | simd_clause_seq 
+              | simd_clause_seq
                   ;
 for_simd_clause_optseq : /*empty*/
-	               | for_simd_clause_seq 
+                   | for_simd_clause_seq
                        ;
 declare_clause_optseq : /*empty*/
-	               | declare_clause_seq 
+                   | declare_clause_seq
                        ;
 distribute_clause_optseq : /*empty*/
-	               | distribute_clause_seq 
+                   | distribute_clause_seq
                        ;
 distribute_simd_clause_optseq : /*empty*/
-	               | distribute_simd_clause_seq 
+                   | distribute_simd_clause_seq
                        ;
 distribute_parallel_for_clause_optseq: /*empty*/
-	               | distribute_parallel_for_clause_seq 
+                   | distribute_parallel_for_clause_seq
                        ;
 distribute_parallel_for_simd_clause_optseq: /*empty*/
-	               | distribute_parallel_for_simd_clause_seq 
+                   | distribute_parallel_for_simd_clause_seq
                        ;
 loop_clause_optseq : /*empty*/
-	           | loop_clause_seq 
+               | loop_clause_seq
                    ;
 scan_clause_optseq : /*empty*/
-	           | scan_clause_seq 
+               | scan_clause_seq
                    ;
 sections_clause_optseq : /*empty*/
-	              | sections_clause_seq 
+                  | sections_clause_seq
                       ;
 single_clause_optseq : /*empty*/
-	             | single_clause_seq 
+                 | single_clause_seq
                      ;
 cancel_clause_optseq : /*empty*/
-	             | cancel_clause_seq 
+                 | cancel_clause_seq
                      ;
 cancellation_point_clause_optseq : /*empty*/
-	                         | cancellation_point_clause_seq 
+                             | cancellation_point_clause_seq
                                  ;
 allocate_clause_optseq :  /*empty*/
-	               | allocate_clause_seq 
+                   | allocate_clause_seq
                        ;
 
 parallel_clause_seq : parallel_clause
@@ -545,30 +545,30 @@ teams_clause : num_teams_clause
                 ;
 
 for_clause : private_clause
-	   | firstprivate_clause 
-	   | lastprivate_clause 
-	   | linear_clause
-	   | reduction_clause
-	   | schedule_clause
-	   | collapse_clause 
-	   | ordered_clause
-	   | nowait_clause
-	   | allocate_clause 
-	   | order_clause 
-	   ;
+       | firstprivate_clause
+       | lastprivate_clause
+       | linear_clause
+       | reduction_clause
+       | schedule_clause
+       | collapse_clause
+       | ordered_clause
+       | nowait_clause
+       | allocate_clause
+       | order_clause
+       ;
 
 simd_clause : if_clause
-	    | safelen_clause
-	    | simdlen_clause
-	    | linear_clause
-	    | aligned_clause
-	    | nontemporal_clause
-	    | private_clause
-	    | lastprivate_clause 
-	    | reduction_clause
-	    | collapse_clause 
-	    | order_clause 
-	    ;
+        | safelen_clause
+        | simdlen_clause
+        | linear_clause
+        | aligned_clause
+        | nontemporal_clause
+        | private_clause
+        | lastprivate_clause
+        | reduction_clause
+        | collapse_clause
+        | order_clause
+        ;
 
 for_simd_clause : if_clause
                 | safelen_clause
@@ -578,45 +578,45 @@ for_simd_clause : if_clause
                 | private_clause
                 | firstprivate_clause 
                 | lastprivate_clause
-         	| reduction_clause
-	        | schedule_clause
-	        | collapse_clause 
-	        | ordered_clause
-	        | nowait_clause
-	        | allocate_clause 
+            | reduction_clause
+            | schedule_clause
+            | collapse_clause
+            | ordered_clause
+            | nowait_clause
+            | allocate_clause
                 | order_clause
                 | nontemporal_clause
                 ;
  
 declare_clause : simdlen_clause
-	       | linear_clause
-	       | aligned_clause
-      	       | uniform_clause
-	       | inbranch_clause
-	       | notinbranch_clause 
-	       ;
+           | linear_clause
+           | aligned_clause
+               | uniform_clause
+           | inbranch_clause
+           | notinbranch_clause
+           ;
  
 distribute_clause : private_clause
                   | firstprivate_clause 
                   | lastprivate_clause
-	          | collapse_clause
-	          | dist_schedule_clause 
- 	          | allocate_clause 
+              | collapse_clause
+              | dist_schedule_clause
+              | allocate_clause
                   ;
 distribute_simd_clause : private_clause
                   | firstprivate_clause 
                   | lastprivate_clause
-	          | collapse_clause
-	          | dist_schedule_clause 
- 	          | allocate_clause 
+              | collapse_clause
+              | dist_schedule_clause
+              | allocate_clause
                   | if_clause
-	          | safelen_clause
-	          | simdlen_clause
-	          | linear_clause
-	          | aligned_clause 
-	          | nontemporal_clause
-	          | reduction_clause
-	          | order_clause 
+              | safelen_clause
+              | simdlen_clause
+              | linear_clause
+              | aligned_clause
+              | nontemporal_clause
+              | reduction_clause
+              | order_clause
                   ;
 distribute_parallel_for_clause : if_clause
                                | num_threads_clause
@@ -631,11 +631,11 @@ distribute_parallel_for_clause : if_clause
                                | lastprivate_clause 
                                | linear_clause
                                | schedule_clause
-	                       | collapse_clause 
+                           | collapse_clause
                                | ordered_clause
                                | nowait_clause
                                | order_clause 
-                      	       | dist_schedule_clause 
+                               | dist_schedule_clause
                                ;
 distribute_parallel_for_simd_clause: if_clause
                                    | num_threads_clause
@@ -650,18 +650,18 @@ distribute_parallel_for_simd_clause: if_clause
                                    | lastprivate_clause 
                                    | linear_clause
                                    | schedule_clause
-	                           | collapse_clause 
+                               | collapse_clause
                                    | ordered_clause
                                    | nowait_clause
                                    | order_clause 
-                      	           | dist_schedule_clause 
+                                   | dist_schedule_clause
                                    | safelen_clause
-	                           | simdlen_clause
-	                           | aligned_clause
-	                           | nontemporal_clause
+                               | simdlen_clause
+                               | aligned_clause
+                               | nontemporal_clause
                                    ;
 loop_clause : bind_clause
-	    | collapse_clause 
+        | collapse_clause
             | order_clause
             | private_clause
             | lastprivate_clause
@@ -671,17 +671,17 @@ scan_clause : inclusive_clause
             | exclusive_clause
             ;
 sections_clause : private_clause
-	        | firstprivate_clause 
-	        | lastprivate_clause 
+            | firstprivate_clause
+            | lastprivate_clause
                 | reduction_clause
- 	        | allocate_clause 
-	        | nowait_clause
+            | allocate_clause
+            | nowait_clause
                 ;
 single_clause : private_clause
-	      | firstprivate_clause 
-	      | copyprivate_clause 
- 	      | allocate_clause 
-	      | nowait_clause
+          | firstprivate_clause
+          | copyprivate_clause
+          | allocate_clause
+          | nowait_clause
               ;
 construct_type_clause : parallel_clause
                       | sections_clause
@@ -707,7 +707,7 @@ if_parameter :  PARALLEL ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
                 current_clause->addLangExpr($1);
                 }
-				;
+                ;
 
 num_threads_clause: NUM_THREADS {
                             current_clause = current_directive->addOpenMPClause(OMPC_num_threads);
@@ -723,8 +723,8 @@ thread_limit_clause: THREAD_LIMIT {
                       ;
 copyin_clause: COPYIN {
                 current_clause = current_directive->addOpenMPClause(OMPC_copyin);
-				} '(' var_list ')'
-			  ;
+                } '(' var_list ')'
+              ;
 
 default_clause : DEFAULT '(' default_parameter ')' { } ;
 
@@ -767,54 +767,55 @@ allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = 
                      | allocator_parameter ':' { ; } var_list
                       ;
 allocator_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_default); }
-						  | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_large_cap); }
-						  | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cons_mem); }
-						  | HIGH_BW_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_high_bw); }
-						  | LOW_LAT_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_low_lat); }
-						  | CGROUP_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cgroup); }
-						  | PTEAM_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_pteam); }
-						  | THREAD_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_thread); }
-						  | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
-						;
+                          | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_large_cap); }
+                          | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cons_mem); }
+                          | HIGH_BW_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_high_bw); }
+                          | LOW_LAT_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_low_lat); }
+                          | CGROUP_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_cgroup); }
+                          | PTEAM_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_pteam); }
+                          | THREAD_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_thread); }
+                          | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_user, $1); }
+                        ;
 
 private_clause : PRIVATE {
                 current_clause = current_directive->addOpenMPClause(OMPC_private);
-					} '(' var_list ')' {
-					}
-				  ;
+                    } '(' var_list ')' {
+                    }
+                  ;
 
 firstprivate_clause : FIRSTPRIVATE {
                 current_clause = current_directive->addOpenMPClause(OMPC_firstprivate);
-						} '(' var_list ')' {
-						}
-					  ;
+                        } '(' var_list ')' {
+                        }
+                      ;
 
 copyprivate_clause : COPYPRIVATE {
                 current_clause = current_directive->addOpenMPClause(OMPC_copyprivate);
-						} '(' var_list ')' {
-						}
-					  ;
-	   
+                        } '(' var_list ')' {
+                        }
+                      ;
+
 lastprivate_clause : LASTPRIVATE '(' lastprivate_parameter')';
 
 lastprivate_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_lastprivate); current_clause->addLangExpr($1);  }
                       | EXPR_STRING  ',' {std::cout << $1 << "\n";} {
                          current_clause = current_directive->addOpenMPClause(OMPC_lastprivate); current_clause->addLangExpr($1); } var_list
                       | lastprivate_modifier ':'{;} var_list
-		      ;
+              ;
 
 lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);}
-	             | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_lastprivate, OMPC_LASTPRIVATE_MODIFIER_user, $1); }
+                 | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_lastprivate, OMPC_LASTPRIVATE_MODIFIER_user, $1); }
                      ;
 
 linear_clause : LINEAR '('  linear_parameter ')'
               | LINEAR '('  linear_parameter ':'EXPR_STRING  { std::cout << $5 << "\n"; ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5);} ')' 
 	      ;
 
+
 linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1);  }
                  | EXPR_STRING ','  {std::cout << $1 << "\n";} {current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1); } var_list
                  | linear_modifier '(' var_list ')'
-		 ;
+         ;
 
 linear_modifier : MODOFIER_VAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
                 | MODOFIER_REF { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_ref); }
@@ -823,52 +824,52 @@ linear_modifier : MODOFIER_VAL { current_clause = current_directive->addOpenMPCl
 
 aligned_clause : ALIGNED '('  aligned_parameter ')'
                | ALIGNED '('  aligned_parameter ':' var_list')'
-	       ;
+           ;
 
 aligned_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_aligned); current_clause->addLangExpr($1);  }
                   | EXPR_STRING ','  {std::cout << $1 << "\n";} {current_clause = current_directive->addOpenMPClause(OMPC_aligned); current_clause->addLangExpr($1); } var_list
-		  ;
+          ;
 
 safelen_clause: SAFELEN { current_clause = current_directive->addOpenMPClause(OMPC_safelen);} '(' var_list ')' {
-						}
-					  ;
+                        }
+                      ;
 
 simdlen_clause: SIMDLEN { current_clause = current_directive->addOpenMPClause(OMPC_simdlen);} '(' var_list ')' {
-						}
-					  ;
+                        }
+                      ;
 
 nontemporal_clause: NONTEMPORAL { current_clause = current_directive->addOpenMPClause(OMPC_nontemporal);} '(' var_list ')' {
-						}
-					  ;
+                        }
+                      ;
 
 collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(OMPC_collapse);} '(' var_list ')' {
-						}
-					  ;
+                        }
+                      ;
 
 ordered_clause: ORDERED {current_clause = current_directive->addOpenMPClause(OMPC_ordered);} '(' var_list ')'
               | ORDERED {current_clause = current_directive->addOpenMPClause(OMPC_ordered);}
-			  ;
+              ;
 
 nowait_clause: NOWAIT {current_clause = current_directive->addOpenMPClause(OMPC_nowait);}
-			  ;
+              ;
 
 parallel_clause: PARALLEL {current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
-			  ;
+              ;
 
 sections_clause: SECTIONS {current_clause = current_directive->addOpenMPClause(OMPC_sections);}
-			  ;
+              ;
 
 for_clause: FOR {current_clause = current_directive->addOpenMPClause(OMPC_for);}
-			  ;
+              ;
 
 taskgroup_clause: TASKGROUP {current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
-			  ;
+              ;
 
 order_clause: ORDER  {current_clause = current_directive->addOpenMPClause(OMPC_order);} '(' var_list ')'
-		          ;
+                  ;
 
 uniform_clause: UNIFORM  {current_clause = current_directive->addOpenMPClause(OMPC_uniform);} '(' var_list ')'
-		          ;
+                  ;
 
 inbranch_clause: INBRANCH {current_clause = current_directive->addOpenMPClause(OMPC_inbranch);}
                           ;
@@ -876,38 +877,38 @@ inbranch_clause: INBRANCH {current_clause = current_directive->addOpenMPClause(O
 notinbranch_clause: NOTINBRANCH {current_clause = current_directive->addOpenMPClause(OMPC_notinbranch);}
                           ;
 inclusive_clause: INCLUSIVE  {current_clause = current_directive->addOpenMPClause(OMPC_inclusive);} '(' var_list ')'
-		          ;
+                  ;
 exclusive_clause: EXCLUSIVE  {current_clause = current_directive->addOpenMPClause(OMPC_exclusive);} '(' var_list ')'
-		          ;
+                  ;
 allocator_clause: ALLOCATOR '('allocator1_parameter')';
 allocator1_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_default); }
-						  | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_large_cap); }
-						  | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cons_mem); }
-						  | HIGH_BW_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_high_bw); }
-						  | LOW_LAT_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_low_lat); }
-						  | CGROUP_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cgroup); }
-						  | PTEAM_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_pteam); }
-						  | THREAD_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_thread); }
-						  | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_user, $1); }
-						;
+                          | LARGE_CAP_MEM_ALLOC		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_large_cap); }
+                          | CONST_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cons_mem); }
+                          | HIGH_BW_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_high_bw); }
+                          | LOW_LAT_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_low_lat); }
+                          | CGROUP_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_cgroup); }
+                          | PTEAM_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_pteam); }
+                          | THREAD_MEM_ALLOC 		{ current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_thread); }
+                          | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocator, OMPC_ALLOCATOR_ALLOCATOR_user, $1); }
+                        ;
 
 dist_schedule_clause : DIST_SCHEDULE '('dist_schedule_parameter')'{}
                      ;
 dist_schedule_parameter : STATIC {current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static);}
                         | STATIC {current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static);} ',' var_list
-	                ;
+                    ;
 schedule_clause: SCHEDULE {firstParameter = OMPC_SCHEDULE_KIND_unknown;secondParameter = OMPC_SCHEDULE_KIND_unknown;}'(' schedule_parameter ')' {
-					}
-					;
+                    }
+                    ;
 
 schedule_parameter : schedule_kind {}
-		   | schedule_modifier ':' schedule_kind
-		   ;
+           | schedule_modifier ':' schedule_kind
+           ;
 
 
 schedule_kind : schedule_enum_kind { }
              | schedule_enum_kind ',' var_list {}
-	     ;
+         ;
 
 schedule_modifier : schedule_enum_modifier ',' schedule_modifier2
                   | schedule_enum_modifier
@@ -928,51 +929,51 @@ schedule_enum_kind : STATIC     {current_clause = current_directive->addOpenMPCl
                    ;  
 shared_clause : SHARED {
                 current_clause = current_directive->addOpenMPClause(OMPC_shared);
-					} '(' var_list ')'
-				  ;
+                    } '(' var_list ')'
+                  ;
 
 reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_IDENTIFIER_unknown; } '(' reduction_parameter ':' var_list ')' {
-					}
-					;
+                    }
+                    ;
 
 reduction_parameter : reduction_identifier {}
-					| reduction_modifier ',' reduction_identifier
-					;
+                    | reduction_modifier ',' reduction_identifier
+                    ;
 
 reduction_identifier : reduction_enum_identifier {	}
-					| EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
-				  ;
+                    | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_user, $1); }
+                  ;
 
 reduction_modifier : MODIFIER_INSCAN 	{ firstParameter = OMPC_REDUCTION_MODIFIER_inscan; }
-		   | MODIFIER_TASK 	{ firstParameter = OMPC_REDUCTION_MODIFIER_task; }
-		   | MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default; }
-		   ;
+           | MODIFIER_TASK 	{ firstParameter = OMPC_REDUCTION_MODIFIER_task; }
+           | MODIFIER_DEFAULT 	{ firstParameter = OMPC_REDUCTION_MODIFIER_default; }
+           ;
 
 reduction_enum_identifier :  '+'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_plus); }
-						   | '-'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_minus); }
-						   | '*'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_mul); }
-						   | '&'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitand); }
-						   | '|'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitor); }
-						   | '^'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitxor); }
-						   | LOGAND		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logand); }
-						   | LOGOR		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logor); }
-						   | MAX		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_max); }
-						   | MIN		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
-						;
+                           | '-'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_minus); }
+                           | '*'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_mul); }
+                           | '&'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitand); }
+                           | '|'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitor); }
+                           | '^'		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_bitxor); }
+                           | LOGAND		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logand); }
+                           | LOGOR		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_logor); }
+                           | MAX		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_max); }
+                           | MIN		{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
+                        ;
 
 %%
 
 int yyerror(const char *s) {
     // printf(" %s!\n", s);
-	fprintf(stderr,"error: %s\n",s);
-	// writeOutput (s);
+    fprintf(stderr,"error: %s\n",s);
+    // writeOutput (s);
     assert(0);
     return 0; // we want to the program to stop on error
 }
  
 int yywrap()
 {
-	return 1;
+    return 1;
 } 
 
 // Standalone ompparser
