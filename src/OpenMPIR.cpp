@@ -723,28 +723,7 @@ std::string OpenMPLastprivateClause::toString() {
 
     return result;
 };
-std::string OpenMPLinearClause::expressionToString(bool a) {
 
-    std::string result;
-    std::vector<const char*>* expr = this->getExpressions();
-    if (expr != NULL) {
-        std::vector<const char*>::iterator it;
-        for (it = expr->begin(); it != expr->end(); it++) {
-             if(std::string(*it) != ":"){
-                result += std::string(*it) + ", ";
-             }else if(a==true) {
-                result = result.substr(0, result.size()-2);
-                result += ")" + std::string(*it);
-             }else{
-                result = result.substr(0, result.size()-2);
-                result += std::string(*it);             
-             }
-        };
-        result = result.substr(0, result.size()-2);
-    }
-
-    return result;
-}
 
 std::string OpenMPLinearClause::toString() {
 
@@ -771,11 +750,17 @@ std::string OpenMPLinearClause::toString() {
     if (clause_string.size() > 1) {
         clause_string += "( ";
     };
-   clause_string += this->expressionToString(flag);
+   clause_string += this->expressionToString();
+    if (flag == true) {
+        clause_string += ") ";
+    };
+    if(this->getUserDefinedStep() != ""){
+        clause_string += ":";
+        clause_string += this->getUserDefinedStep();
+    }
     if (clause_string.size() > 2) {
         clause_string += ") ";
     };
-
     if (clause_string.size() > 3) {
         result += clause_string;
     };
@@ -1603,6 +1588,15 @@ void OpenMPLinearClause::generateDOT(std::ofstream& dot_file, int depth, int ind
             dot_file << current_line.c_str();
         };
     };
+    std:string step = this->getUserDefinedStep();
+    if (step != "") {
+        parameter_string = step;
+        std::string step_name = clause_kind + "_liner_step";
+        current_line = indent + clause_kind + " -- " + step_name + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + step_name + " [label = \"" + step_name + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };    
 
 };
 

@@ -43,7 +43,10 @@ int main( int argc, const char* argv[] ) {
    
     //const char* input = "omp simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e)";
  
-    //const char* input = "omp for schedule(monotonic:static,x)";
+
+	const char* input = "omp for schedule(monotonic:static,x) linear(var(s,f,e):3) linear(val(s,f,e):s)";
+
+
         //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
         //const char* input = "omp declare simdlen(4) linear(val(s,f,e))  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
         //const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
@@ -59,7 +62,7 @@ int main( int argc, const char* argv[] ) {
         //const char* input = "omp cancel parallel if(cancel:af)" ;
         //const char* input = "omp cancellation   point sections" ;
         //const char* input = "omp parallel if(parallel:af) default(private)";
-        const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc)";
+        //const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc    )";
         
         
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);

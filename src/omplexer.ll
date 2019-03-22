@@ -256,14 +256,14 @@ extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 <LINEAR_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
-<SCHEDULE_STATE>monotonic/{blank}*              { return MODIFIER_MONOTONIC;}
-<SCHEDULE_STATE>nomonotonic/{blank}*            { return MODIFIER_NOMONOTONIC;}
-<SCHEDULE_STATE>simd/{blank}*                   { return MODIFIER_SIMD;}
-<SCHEDULE_STATE>static/{blank}*                 { return STATIC;}
-<SCHEDULE_STATE>dynamic/{blank}*                { return DYNAMIC;}
-<SCHEDULE_STATE>guided/{blank}*                 { return GUIDED;}
-<SCHEDULE_STATE>auto/{blank}*                   { return AUTO;}
-<SCHEDULE_STATE>runtime/{blank}*                { return RUNTIME;}
+<SCHEDULE_STATE>monotonic              { return MODIFIER_MONOTONIC;}
+<SCHEDULE_STATE>nomonotonic           { return MODIFIER_NOMONOTONIC;}
+<SCHEDULE_STATE>simd                   { return MODIFIER_SIMD;}
+<SCHEDULE_STATE>static                { return STATIC;}
+<SCHEDULE_STATE>dynamic               { return DYNAMIC;}
+<SCHEDULE_STATE>guided                { return GUIDED;}
+<SCHEDULE_STATE>auto                  { return AUTO;}
+<SCHEDULE_STATE>runtime               { return RUNTIME;}
 <SCHEDULE_STATE>","                    { return ','; }
 <SCHEDULE_STATE>":"                    { return ':';}
 <SCHEDULE_STATE>"("                    { return '('; }
@@ -302,14 +302,15 @@ extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 <BIND_STATE>{blank}*                   { ; }
 <BIND_STATE>.                          { return -1; }
 
-<ALLOCATOR_STATE>omp_default_mem_alloc/{blank}*       { return DEFAULT_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_large_cap_mem_alloc/{blank}*     { return LARGE_CAP_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_const_mem_alloc/{blank}*         { return CONST_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_high_bw_mem_alloc/{blank}*       { return HIGH_BW_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_low_lat_mem_alloc/{blank}*       { return LOW_LAT_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_cgroup_mem_alloc/{blank}*        { return CGROUP_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_pteam_mem_alloc/{blank}*         { return PTEAM_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_thread_mem_alloc/{blank}*        { return THREAD_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_default_mem_alloc       { return DEFAULT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_large_cap_mem_alloc     { return LARGE_CAP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_const_mem_alloc         { return CONST_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_high_bw_mem_alloc       { return HIGH_BW_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_low_lat_mem_alloc       { return LOW_LAT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_cgroup_mem_alloc        { return CGROUP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_pteam_mem_alloc         { return PTEAM_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_thread_mem_alloc        { return THREAD_MEM_ALLOC; }
+<ALLOCATOR_STATE>{blank}*                    	       { ; }
 <ALLOCATOR_STATE>"("                                   { return '('; }
 <ALLOCATOR_STATE>")"                                   { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                                     { return -1; }
