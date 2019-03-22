@@ -275,6 +275,7 @@ class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
     std::string user_defined_modifier;        /* user defined value if it is used */
+    std::string user_defined_step;
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
@@ -284,13 +285,16 @@ public:
 
     void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; };
 
-
     std::string getUserDefinedModifier() { return user_defined_modifier; };
+
+    void setUserDefinedStep(const char *_step) { user_defined_step = _step; };
+
+    std::string getUserDefinedStep() { return user_defined_step; };
     
     static OpenMPLinearClause* addLinearClause(OpenMPDirective *directive, OpenMPLinearClauseModifier modifier);
 
     std::string toString();
-    std::string expressionToString(bool);
+    //std::string expressionToString(bool);
     void generateDOT(std::ofstream&, int, int, std::string);
 
 };

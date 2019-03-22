@@ -808,7 +808,7 @@ lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive
                      ;
 
 linear_clause : LINEAR '('  linear_parameter ')'
-              | LINEAR '('  linear_parameter ':'EXPR_STRING  { std::cout << $5 << "\n"; current_clause->addLangExpr(":");current_clause->addLangExpr($5);  } ')' 
+              | LINEAR '('  linear_parameter ':'EXPR_STRING  { std::cout << $5 << "\n"; ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5);} ')' 
 	      ;
 
 linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1);  }
