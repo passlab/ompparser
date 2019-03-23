@@ -185,21 +185,21 @@ extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 <ALLOCATE_STATE>omp_cgroup_mem_alloc/{blank}*:        { return CGROUP_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_pteam_mem_alloc/{blank}*:         { return PTEAM_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
-<ALLOCATE_STATE>"("                	              { return '('; }
+<ALLOCATE_STATE>"("                                   { return '('; }
 <ALLOCATE_STATE>")"                                   { yy_pop_state(); return ')'; }
-<ALLOCATE_STATE>":"  	                 	      { yy_push_state(EXPR_STATE); return ':'; }
-<ALLOCATE_STATE>{blank}*                    	      { ; }
-<ALLOCATE_STATE>.                           	      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ALLOCATE_STATE>":"                                   { yy_push_state(EXPR_STATE); return ':'; }
+<ALLOCATE_STATE>{blank}*                              { ; }
+<ALLOCATE_STATE>.                                     { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<IF_STATE>parallel{blank}*/:    		      { return PARALLEL; }
-<IF_STATE>simd{blank}*/:      		              { return SIMD; }
-<IF_STATE>task{blank}*/:         		      { return TASK; }
-<IF_STATE>cancel{blank}*/:         		      { return CANCEL; }
-<IF_STATE>"("                  			      { return '('; }
-<IF_STATE>")"                                         { yy_pop_state(); return ')'; }
-<IF_STATE>":"                  			      { yy_push_state(EXPR_STATE); return ':'; }
-<IF_STATE>{blank}*             			      { ; }
-<IF_STATE>.                    			      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<IF_STATE>parallel{blank}*/:                { return PARALLEL; }
+<IF_STATE>simd{blank}*/:                    { return SIMD; }
+<IF_STATE>task{blank}*/:                    { return TASK; }
+<IF_STATE>cancel{blank}*/:                  { return CANCEL; }
+<IF_STATE>"("                               { return '('; }
+<IF_STATE>")"                               { yy_pop_state(); return ')'; }
+<IF_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
+<IF_STATE>{blank}*                          { ; }
+<IF_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <PROC_BIND_STATE>master                     { return MASTER; }
 <PROC_BIND_STATE>close                      { return CLOSE; }
@@ -246,76 +246,76 @@ extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 <LASTPRIVATE_STATE>{blank}*                 { ; }
 <LASTPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<LINEAR_STATE>"("                      { return '('; }
-<LINEAR_STATE>")"                      { yy_pop_state(); return ')'; }
-<LINEAR_STATE>val/{blank}*"("             { return MODOFIER_VAL; }
-<LINEAR_STATE>ref/{blank}*             { return MODOFIER_REF; }
-<LINEAR_STATE>uval/{blank}*             { return MODOFIER_UVAL; }
-<LINEAR_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
-<LINEAR_STATE>{blank}*                 { ; }
-<LINEAR_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<LINEAR_STATE>"("                           { return '('; }
+<LINEAR_STATE>")"                           { yy_pop_state(); return ')'; }
+<LINEAR_STATE>val/{blank}*"("               { return MODOFIER_VAL; }
+<LINEAR_STATE>ref/{blank}*                  { return MODOFIER_REF; }
+<LINEAR_STATE>uval/{blank}*                 { return MODOFIER_UVAL; }
+<LINEAR_STATE>":"                           { yy_push_state(EXPR_STATE); return ':';}
+<LINEAR_STATE>{blank}*                      { ; }
+<LINEAR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
-<SCHEDULE_STATE>monotonic              { return MODIFIER_MONOTONIC;}
-<SCHEDULE_STATE>nomonotonic           { return MODIFIER_NOMONOTONIC;}
-<SCHEDULE_STATE>simd                   { return MODIFIER_SIMD;}
-<SCHEDULE_STATE>static                { return STATIC;}
-<SCHEDULE_STATE>dynamic               { return DYNAMIC;}
-<SCHEDULE_STATE>guided                { return GUIDED;}
-<SCHEDULE_STATE>auto                  { return AUTO;}
-<SCHEDULE_STATE>runtime               { return RUNTIME;}
-<SCHEDULE_STATE>","                    { return ','; }
-<SCHEDULE_STATE>":"                    { return ':';}
-<SCHEDULE_STATE>"("                    { return '('; }
-<SCHEDULE_STATE>")"                      { yy_pop_state(); return ')'; }
-<SCHEDULE_STATE>{blank}*               	{ ; }
-<SCHEDULE_STATE>.                      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<SCHEDULE_STATE>monotonic                   { return MODIFIER_MONOTONIC;}
+<SCHEDULE_STATE>nomonotonic                 { return MODIFIER_NOMONOTONIC;}
+<SCHEDULE_STATE>simd                        { return MODIFIER_SIMD;}
+<SCHEDULE_STATE>static                      { return STATIC;}
+<SCHEDULE_STATE>dynamic                     { return DYNAMIC;}
+<SCHEDULE_STATE>guided                      { return GUIDED;}
+<SCHEDULE_STATE>auto                        { return AUTO;}
+<SCHEDULE_STATE>runtime                     { return RUNTIME;}
+<SCHEDULE_STATE>","                         { return ','; }
+<SCHEDULE_STATE>":"                         { return ':';}
+<SCHEDULE_STATE>"("                         { return '('; }
+<SCHEDULE_STATE>")"                         { yy_pop_state(); return ')'; }
+<SCHEDULE_STATE>{blank}*                    { ; }
+<SCHEDULE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<COLLAPSE_STATE>"("                      { return '('; }
-<COLLAPSE_STATE>")"                      { yy_pop_state(); return ')'; }
-<COLLAPSE_STATE>{blank}*                 { ; }
-<COLLAPSE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<COLLAPSE_STATE>"("                         { return '('; }
+<COLLAPSE_STATE>")"                         { yy_pop_state(); return ')'; }
+<COLLAPSE_STATE>{blank}*                    { ; }
+<COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ORDERED_STATE>"("                      { return '('; }
-<ORDERED_STATE>")"                      { yy_pop_state(); return ')'; }
-<ORDERED_STATE>{blank}*                 { ; }
-<ORDERED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ORDERED_STATE>"("                          { return '('; }
+<ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
+<ORDERED_STATE>{blank}*                     { ; }
+<ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ALIGNED_STATE>"("                      { return '('; }
-<ALIGNED_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
-<ALIGNED_STATE>")"                      { yy_pop_state(); return ')'; }
-<ALIGNED_STATE>{blank}*                 { ; }
-<ALIGNED_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ALIGNED_STATE>"("                          { return '('; }
+<ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
+<ALIGNED_STATE>")"                          { yy_pop_state(); return ')'; }
+<ALIGNED_STATE>{blank}*                     { ; }
+<ALIGNED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<DIST_SCHEDULE_STATE>static/{blank}*          {return STATIC;}
-<DIST_SCHEDULE_STATE>"("                      { return '('; }
-<DIST_SCHEDULE_STATE>","                      { return ','; }
-<DIST_SCHEDULE_STATE>")"                      { yy_pop_state(); return ')'; }
-<DIST_SCHEDULE_STATE>{blank}*                 { ; }
-<DIST_SCHEDULE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<DIST_SCHEDULE_STATE>static/{blank}*        {return STATIC;}
+<DIST_SCHEDULE_STATE>"("                    { return '('; }
+<DIST_SCHEDULE_STATE>","                    { return ','; }
+<DIST_SCHEDULE_STATE>")"                    { yy_pop_state(); return ')'; }
+<DIST_SCHEDULE_STATE>{blank}*               { ; }
+<DIST_SCHEDULE_STATE>.                      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<BIND_STATE>teams                      { return TEAMS; }
-<BIND_STATE>parallel                   { return PARALLEL; }
-<BIND_STATE>thread                     { return THREAD; }
-<BIND_STATE>"("                        { return '('; }
-<BIND_STATE>")"                        { yy_pop_state(); return ')'; }
-<BIND_STATE>{blank}*                   { ; }
-<BIND_STATE>.                          { return -1; }
+<BIND_STATE>teams                           { return TEAMS; }
+<BIND_STATE>parallel                        { return PARALLEL; }
+<BIND_STATE>thread                          { return THREAD; }
+<BIND_STATE>"("                             { return '('; }
+<BIND_STATE>")"                             { yy_pop_state(); return ')'; }
+<BIND_STATE>{blank}*                        { ; }
+<BIND_STATE>.                               { return -1; }
 
-<ALLOCATOR_STATE>omp_default_mem_alloc       { return DEFAULT_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_large_cap_mem_alloc     { return LARGE_CAP_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_const_mem_alloc         { return CONST_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_high_bw_mem_alloc       { return HIGH_BW_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_low_lat_mem_alloc       { return LOW_LAT_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_cgroup_mem_alloc        { return CGROUP_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_pteam_mem_alloc         { return PTEAM_MEM_ALLOC; }
-<ALLOCATOR_STATE>omp_thread_mem_alloc        { return THREAD_MEM_ALLOC; }
-<ALLOCATOR_STATE>{blank}*                    	       { ; }
-<ALLOCATOR_STATE>"("                                   { return '('; }
-<ALLOCATOR_STATE>")"                                   { yy_pop_state(); return ')'; }
-<ALLOCATOR_STATE>.                                     { return -1; }
+<ALLOCATOR_STATE>omp_default_mem_aloc       { return DEFAULT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_large_cap_mem_lloc     { return LARGE_CAP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_const_mem_allo         { return CONST_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_high_bw_mem_aloc       { return HIGH_BW_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_low_lat_mem_aloc       { return LOW_LAT_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_cgroup_mem_allc        { return CGROUP_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_pteam_mem_allo         { return PTEAM_MEM_ALLOC; }
+<ALLOCATOR_STATE>omp_thread_mem_allc        { return THREAD_MEM_ALLOC; }
+<ALLOCATOR_STATE>{blank}*                   { ; }
+<ALLOCATOR_STATE>"("                        { return '('; }
+<ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
+<ALLOCATOR_STATE>.                          { return -1; }
 
-":"                                     { yy_push_state(EXPR_STATE); return ':'; }
+":"                                         { yy_push_state(EXPR_STATE); return ':'; }
 
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_push_state(INITIAL); return ':'; }
@@ -487,17 +487,6 @@ extern void openmp_lexer_init(const char* str) {
   ompparserinput = str;
   /* We have openmp_ suffix for all flex functions */
   openmp_restart(openmp_in);
-}
-/*Conditional return ID_EXPRESSION or input based on the context*/
-static int cond_return (int input)
-{
-  if (b_within_variable_list)
-  {
-    openmp_lval.stype = strdup(yytext);
-    return ID_EXPRESSION;
-  }
-  else
-    return ( input); 
 }
 
 

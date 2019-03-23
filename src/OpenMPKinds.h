@@ -198,15 +198,15 @@ enum OpenMPProcBindClauseKind {
 /// OpenMP attributes for 'Allocate' clause.
 enum OpenMPAllocateClauseAllocator {
 #define OPENMP_ALLOCATE_ALLOCATOR_KIND(Name) OMPC_ALLOCATE_ALLOCATOR_##Name,
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
-    OPENMP_ALLOCATE_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(large_cap)// omp_large_cap_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(cons_mem)// omp_const_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(high_bw) // omp_high_bw_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(low_lat)// omp_low_lat_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(cgroup)// omp_cgroup_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(pteam)// omp_pteam_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(thread)// omp_thread_mem_alloc
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(user)// user-defined allocator
     OPENMP_ALLOCATE_ALLOCATOR_KIND(unknown)
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
@@ -214,15 +214,15 @@ enum OpenMPAllocateClauseAllocator {
 /// OpenMP attributes for 'Allocator' clause.
 enum OpenMPAllocatorClauseAllocator {
 #define OPENMP_ALLOCATOR_ALLOCATOR_KIND(Name) OMPC_ALLOCATOR_ALLOCATOR_##Name,
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
-    OPENMP_ALLOCATOR_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(large_cap)// omp_large_cap_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cons_mem)// omp_const_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(high_bw) // omp_high_bw_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(low_lat)// omp_low_lat_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(cgroup)// omp_cgroup_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(pteam)// omp_pteam_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(thread)// omp_thread_mem_alloc
+    OPENMP_ALLOCATOR_ALLOCATOR_KIND(user)// user-defined allocator
     OPENMP_ALLOCATOR_ALLOCATOR_KIND(unknown)
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };

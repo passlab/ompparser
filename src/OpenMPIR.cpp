@@ -1110,7 +1110,7 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
         case OMPC_order:
             clause_kind += "order";
-            break;	
+            break;
         case OMPC_safelen:
             clause_kind += "safelen";
             break;
