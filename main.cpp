@@ -6,18 +6,72 @@
 extern OpenMPDirective* parseOpenMP(const char*, void * _exprParse(const char*));
 
 void output(OpenMPDirective*);
+std::string test(OpenMPDirective*);
 
 void output(OpenMPDirective* node) {
 
-        std::string unparsing_string = node->generatePragmaString();
-        std::cout << unparsing_string << "\n";
-        node->generateDOT();
+    std::string unparsing_string = node->generatePragmaString();
+    std::cout << unparsing_string << "\n";
+    node->generateDOT();
 
 }
 
-int main( int argc, const char* argv[] ) {
+std::string test(OpenMPDirective* node) {
 
-        //const char* input = "omp teams num_teams (4)";
+    std::string unparsing_string = node->generatePragmaString();
+    return unparsing_string;
+}
+
+
+
+int main( int argc, const char* argv[] ) {
+    const char* filename = NULL;
+    const char* mode = "string";
+    if (argc > 1) {
+        filename = argv[1];
+    };
+    if (argc > 2) {
+        mode = argv[2];
+    };
+    std::ifstream input_file("../tests/parallel.test");
+
+    if (filename != NULL) {
+        std::ifstream input_file(filename);
+    }
+    std::string input_pragma;
+    std::getline(input_file, input_pragma);
+    std::string output_pragma;
+    std::string validation_string;
+    int total_amount = 0;
+    int passed_amount = 0;
+    int failed_amount = 0;
+    while (!input_file.eof()) {
+        while (input_pragma.substr(0, 3) != "omp") {
+            std::getline(input_file, input_pragma);
+        };
+        total_amount += 1;
+        OpenMPDirective* openMPAST = parseOpenMP(input_pragma.c_str(), NULL);
+        output_pragma = test(openMPAST);
+        std::getline(input_file, validation_string);
+        while (validation_string.substr(0, 6) != "PASS: ") {
+            std::getline(input_file, validation_string);
+        }
+        if (validation_string.substr(6) != output_pragma) {
+            std::cout << "FAILED INPUT: " << input_pragma << "\n";
+            std::cout << "WRONG OUTPUT: " << output_pragma << "\n";
+            std::cout << "CORRECT OUTPUT: " << validation_string << "\n";
+            failed_amount += 1;
+        }
+        else {
+            passed_amount += 1;
+        };
+        std::getline(input_file, input_pragma);
+    };
+    std::cout << "=================== SUMMARY ===================\n";
+    std::cout << "TOTAL INPUTS : " << total_amount << "\n";
+    std::cout << "PASSED INPUTS: " << passed_amount << "\n";
+    std::cout << "FAILED INPUTS: " << failed_amount << "\n";
+    //const char* input = "omp teams num_teams (4)";
         //const char* input = "omp teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)";
     //const char* input = "omp parallel  private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4) ";
 
@@ -41,8 +95,7 @@ int main( int argc, const char* argv[] ) {
    
     //const char* input = "omp simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e)";
  
-
-        const char* input = "omp for schedule(monotonic:static,x) linear(var(s,f,e):3) linear(val(s,f,e):s)";
+    const char* input = "omp for schedule(monotonic:static,x) linear(var(s,f,e):3) linear(val(s,f,e):s)";
 
 
         //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
@@ -63,9 +116,8 @@ int main( int argc, const char* argv[] ) {
         //const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc    )";
         
         
-        OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-        output(openMPAST);
-        printf("\n");
-        return 0;
+    //OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+    //output(openMPAST);
+    return 0;
 }
 

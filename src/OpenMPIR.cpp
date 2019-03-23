@@ -551,8 +551,8 @@ std::string OpenMPClause::toString() {
         case OMPC_thread_limit:
             result += "thread_limit ";;
             break;
-        case OMPC_default:
-            result += "default ";
+        case OMPC_copyin:
+            result += "copyin ";
             break;
         case OMPC_collapse:
             result += "collapse ";
@@ -1114,25 +1114,28 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         case OMPC_safelen:
             clause_kind += "safelen";
             break;
-    case OMPC_simdlen:
+        case OMPC_simdlen:
             clause_kind += "simdlen";
             break;
-    case OMPC_aligned:
+        case OMPC_aligned:
             clause_kind += "aligned";
             break;
-    case OMPC_nontemporal:
+        case OMPC_nontemporal:
             clause_kind += "nontemporal";
             break;
-    case OMPC_uniform:
+        case OMPC_uniform:
             clause_kind += "uniform";
             break;
-    case OMPC_inbranch:
+        case OMPC_inbranch:
             clause_kind += "inbranch";
             break;
-    case OMPC_notinbranch:
+        case OMPC_notinbranch:
             clause_kind += "notinbranch";
             break;
-    case OMPC_bind:
+        case OMPC_proc_bind:
+            clause_kind += "proc_bind";
+            break;
+        case OMPC_bind:
             clause_kind += "bind";
             break; 
         case OMPC_inclusive:
@@ -1497,6 +1500,36 @@ std::string OpenMPDefaultClause::toString() {
 
     return result;
 }
+
+std::string OpenMPProcBindClause::toString() {
+
+    std::string result = "proc_bind (";
+    std::string parameter_string;
+    OpenMPProcBindClauseKind proc_bind_kind = this->getProcBindClauseKind();
+    switch (proc_bind_kind) {
+        case OMPC_PROC_BIND_close:
+            parameter_string = "close";
+            break;
+        case OMPC_PROC_BIND_master:
+            parameter_string = "master";
+            break;
+        case OMPC_PROC_BIND_spread:
+            parameter_string = "spread";
+            break;
+        default:
+            std::cout << "The parameter of proc_bind clause is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        result += parameter_string + ") ";
+    }
+    else {
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
 void OpenMPLastprivateClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string current_line;

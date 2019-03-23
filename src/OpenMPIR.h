@@ -424,6 +424,7 @@ public:
             OpenMPClause(OMPC_proc_bind), proc_bind_kind(_proc_bind_kind) { };
 
     OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bind_kind; };
+    std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 
@@ -431,7 +432,7 @@ public:
 class OpenMPBindClause : public OpenMPClause {
 
 protected:
-    OpenMPBindClauseKind bind_kind; // proc_bind
+    OpenMPBindClauseKind bind_kind;
 
 public:
     OpenMPBindClause(OpenMPBindClauseKind _bind_kind) :
