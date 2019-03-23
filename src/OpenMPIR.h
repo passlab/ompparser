@@ -149,7 +149,7 @@ public:
     /* generate DOT representation of the directive */
     void generateDOT(std::ofstream&, int, int, std::string);
     void generateDOT();
-    std::string generatePragmaString(std::string _prefix = "omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "", bool _output_score = false);
+    std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "", bool _output_score = false);
     // To call this method directly to add new clause, it can't be protected.
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
     void setTraitScore(const char* _score) { trait_score = std::string(_score); };

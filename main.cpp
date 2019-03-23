@@ -33,7 +33,7 @@ int main( int argc, const char* argv[] ) {
     if (argc > 2) {
         mode = argv[2];
     };
-    std::ifstream input_file("../tests/parallel.test");
+    std::ifstream input_file("../tests/parallel.c");
 
     if (filename != NULL) {
         std::ifstream input_file(filename);
@@ -46,7 +46,7 @@ int main( int argc, const char* argv[] ) {
     int passed_amount = 0;
     int failed_amount = 0;
     while (!input_file.eof()) {
-        while (input_pragma.substr(0, 3) != "omp") {
+        while (input_pragma.substr(0, 7) != "#pragma") {
             std::getline(input_file, input_pragma);
         };
         total_amount += 1;

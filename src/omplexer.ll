@@ -88,7 +88,7 @@ comment         [\/\/].*
 
 %%
 
-
+#pragma         { ; }
 omp             { ; }
 parallel        { return PARALLEL; }
 metadirective   { return METADIRECTIVE; }
