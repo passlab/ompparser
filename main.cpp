@@ -45,49 +45,64 @@ int main( int argc, const char* argv[] ) {
     int total_amount = 0;
     int passed_amount = 0;
     int failed_amount = 0;
+    int invalid_amount = 0;
+    int line_no = 1;
+    int current_pragma_line_no = 1;
     while (!input_file.eof()) {
         while (input_pragma.substr(0, 7) != "#pragma") {
             std::getline(input_file, input_pragma);
+            line_no += 1;
         };
-        total_amount += 1;
-        OpenMPDirective* openMPAST = parseOpenMP(input_pragma.c_str(), NULL);
-        output_pragma = test(openMPAST);
-        std::getline(input_file, validation_string);
-        while (validation_string.substr(0, 6) != "PASS: ") {
+        if (!input_file.eof()) {
+            current_pragma_line_no = line_no;
+            total_amount += 1;
+            OpenMPDirective* openMPAST = parseOpenMP(input_pragma.c_str(), NULL);
+            output_pragma = test(openMPAST);
             std::getline(input_file, validation_string);
-        }
-        if (validation_string.substr(6) != output_pragma) {
-            std::cout << "FAILED INPUT: " << input_pragma << "\n";
-            std::cout << "WRONG OUTPUT: " << output_pragma << "\n";
-            std::cout << "CORRECT OUTPUT: " << validation_string << "\n";
-            failed_amount += 1;
-        }
-        else {
-            passed_amount += 1;
+            line_no += 1;
+            while (!input_file.eof() && validation_string.substr(0, 6) != "PASS: ") {
+                if (validation_string.substr(0, 7) == "#pragma") {
+                    break;
+                }
+                std::getline(input_file, validation_string);
+                line_no += 1;
+            };
+            if (validation_string.substr(0, 6) != "PASS: ") {
+                std::cout << "======================================\n";
+                std::cout << "Line: " << current_pragma_line_no << "\n";
+                std::cout << "GIVEN INPUT: " << input_pragma << "\n";
+                std::cout << "GENERATED OUTPUT: " << output_pragma << "\n";
+                std::cout << "Missing the output for validation.\n";
+                std::cout << "======================================\n";
+                invalid_amount += 1;
+                input_pragma = validation_string;
+            }
+            else if (validation_string.substr(6) != output_pragma) {
+                std::cout << "======================================\n";
+                std::cout << "Line: " << current_pragma_line_no << "\n";
+                std::cout << "FAILED INPUT: " << input_pragma << "\n";
+                std::cout << "WRONG OUTPUT: " << output_pragma << "\n";
+                std::cout << "EXPECTED OUTPUT: " << validation_string.substr(6) << "\n";
+                std::cout << "======================================\n";
+                failed_amount += 1;
+                std::getline(input_file, input_pragma);
+                line_no += 1;
+            }
+            else {
+                passed_amount += 1;
+                std::getline(input_file, input_pragma);
+                line_no += 1;
+            };
         };
-        std::getline(input_file, input_pragma);
     };
     std::cout << "=================== SUMMARY ===================\n";
-    std::cout << "TOTAL INPUTS : " << total_amount << "\n";
-    std::cout << "PASSED INPUTS: " << passed_amount << "\n";
-    std::cout << "FAILED INPUTS: " << failed_amount << "\n";
+    std::cout << "TOTAL TESTS  : " << total_amount << "\n";
+    std::cout << "PASSED TESTS : " << passed_amount << "\n";
+    std::cout << "FAILED TESTS : " << failed_amount << "\n";
+    std::cout << "INVALID TESTS: " << invalid_amount << "\n";
     //const char* input = "omp teams num_teams (4)";
         //const char* input = "omp teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)";
-    //const char* input = "omp parallel  private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4) ";
 
-
-    //const char* input = "omp parallel reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))";
-
-    //const char* input = "omp parallel reduction (tasktest : x11, y, z) private (x, n[1:5]) private (m, n[1:5]) reduction (inscan, max : a, foo(x))";
-
-
-    //const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)";
-
-    //const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) ";
-
-    //const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_default_mem_alloc:no, allo, cator)";
-
-    //const char* input = "omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) allocate (xx) allocate (no, allo, cator)";
     //const char* input = "omp metadirective when ( user = { condition (b < 14) } , device = {arch(x64), kind(gpu)}, implementation = {extension(riscv), vendor(pgi)} : ) when ( user = { condition (a < 4) } device = { kind (cpu) isa(avx512f) } implementation = {vendor(gnu)} : parallel private (a, bb)) when ( construct = {parallel (score(4) : private (e) )} : parallel private (a, bb)) default (parallel shared (c, dd))";
 
         //const char* input = "omp declare variant (...) match ( user = { condition (a < 4) } device = { kind (fpga) isa(avx512f) } implementation = {vendor(llvm)})";
@@ -112,7 +127,6 @@ int main( int argc, const char* argv[] ) {
         //const char* input = "omp single nowait copyprivate(co,py) allocate (user_defined_test : m, n[1:5]) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y)" ;
         //const char* input = "omp cancel parallel if(cancel:af)" ;
         //const char* input = "omp cancellation   point sections" ;
-        //const char* input = "omp parallel if(parallel:af) default(private)";
         //const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc    )";
         
         
