@@ -254,11 +254,11 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <IF_STATE>simd{blank}*/:                    { return SIMD; }
 <IF_STATE>task{blank}*/:                    { return TASK; }
 <IF_STATE>cancel{blank}*/:                  { return CANCEL; }
-<IF_STATE>target/{blank}*[{data}{enter}{exit}{update}{:}]        	      { return TARGET; }
-<IF_STATE>data{blank}*/:         	      { return DATA; }
-<IF_STATE>enter/{blank}*data     { return ENTER; }
-<IF_STATE>exit/{blank}*data      { return EXIT; }
-<IF_STATE>update{blank}*/:               { return UPDATE; }
+<IF_STATE>target/{blank}*[{data}{enter}{exit}{update}{:}] { return TARGET; }
+<IF_STATE>data/{blank}*:                    { return DATA; }
+<IF_STATE>enter/{blank}*data                { return ENTER; }
+<IF_STATE>exit/{blank}*data                 { return EXIT; }
+<IF_STATE>update/{blank}*:                  { return UPDATE; }
 <IF_STATE>"("                               { return '('; }
 <IF_STATE>")"                               { yy_pop_state(); return ')'; }
 <IF_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
@@ -517,10 +517,10 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <AFFINITY_ITERATOR_STATE>{blank}*                   { ; }
 <AFFINITY_ITERATOR_STATE>.                          { yy_push_state(AFFINITY_EXPR_STATE); unput(yytext[0]); }
 
-<FINAL_STATE>"("                  			      { yy_push_state(EXPR_STATE); return '('; }
+<FINAL_STATE>"("                        { yy_push_state(EXPR_STATE); return '('; }
 <FINAL_STATE>")"                                         { yy_pop_state(); return ')'; }
-<FINAL_STATE>{blank}*             			      { ; }
-<FINAL_STATE>.                    			      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<FINAL_STATE>{blank}*                   { ; }
+<FINAL_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ATOMIC_DEFAULT_MEM_ORDER_STATE>seq_cst           { return SEQ_CST; }
 <ATOMIC_DEFAULT_MEM_ORDER_STATE>acq_rel             { return ACQ_REL; }
@@ -531,11 +531,11 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 
 <DEVICE_STATE>omp_ancestor/{blank}*:                { return ANCESTOR; }
 <DEVICE_STATE>omp_device_num/{blank}*:              { return DEVICE_NUM; }
-<DEVICE_STATE>"("                	              { return '('; }
+<DEVICE_STATE>"("                              { return '('; }
 <DEVICE_STATE>")"                                   { yy_pop_state(); return ')'; }
-<DEVICE_STATE>":"  	                 	      { yy_push_state(EXPR_STATE); return ':'; }
-<DEVICE_STATE>{blank}*                    	      { ; }
-<DEVICE_STATE>.                           	      { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<DEVICE_STATE>":"                         { yy_push_state(EXPR_STATE); return ':'; }
+<DEVICE_STATE>{blank}*                          { ; }
+<DEVICE_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <DEFAULTMAP_STATE>alloc/{blank}*              { return BEHAVIOR_ALLOC; }
 <DEFAULTMAP_STATE>to/{blank}*              { return BEHAVIOR_TO; }
@@ -576,7 +576,7 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <FROM_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
 <FROM_MAPPER_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
-<USES_ALLOCATORS_STATE>"("                	               { return '('; }
+<USES_ALLOCATORS_STATE>"("                               { return '('; }
 <USES_ALLOCATORS_STATE>","                                     { return ','; }
 <USES_ALLOCATORS_STATE>")"/{blank}*")"                                     { yy_pop_state(); return ')'; }
 <USES_ALLOCATORS_STATE>")"                                    { return ')'; }
@@ -588,8 +588,8 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <USES_ALLOCATORS_STATE>omp_cgroup_mem_alloc/{blank}*"("        { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return CGROUP_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_pteam_mem_alloc/{blank}*"("         { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return PTEAM_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_thread_mem_alloc/{blank}*"("        { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return THREAD_MEM_ALLOC; }
-<USES_ALLOCATORS_STATE>{blank}*                    	       { ; }
-<USES_ALLOCATORS_STATE>.                           	       { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+<USES_ALLOCATORS_STATE>{blank}*                           { ; }
+<USES_ALLOCATORS_STATE>.                                  { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <ALLOC_EXPR_STATE>"("                        { return '('; }
 <ALLOC_EXPR_STATE>")"                        { yy_pop_state();std::cout << current_string << "\n"; openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}

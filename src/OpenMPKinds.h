@@ -400,15 +400,15 @@ enum OpenMPAtomicDefaultMemOrderClauseKind {
 /// OpenMP attributes for 'UsesAllocators' clause.
 enum OpenMPUsesAllocatorsClauseAllocator {
 #define OPENMP_USESALLOCATORS_ALLOCATOR_KIND(Name) OMPC_USESALLOCATORS_ALLOCATOR_##Name,
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
-    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(large_cap)// omp_large_cap_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cons_mem)// omp_const_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(high_bw) // omp_high_bw_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(low_lat)// omp_low_lat_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cgroup)// omp_cgroup_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(pteam)// omp_pteam_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(thread)// omp_thread_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(user)// user-defined allocator
     OPENMP_USESALLOCATORS_ALLOCATOR_KIND(unknown)
 #undef OPENMP_USESALLOCATORS_ALLOCATOR_KIND
 };

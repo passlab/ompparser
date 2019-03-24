@@ -509,15 +509,15 @@ case OMPC_from : {
         }
   
  case OMPC_defaultmap :      {
-	    OpenMPDefaultmapClauseBehavior behavior = (OpenMPDefaultmapClauseBehavior) va_arg(args,int);
+    OpenMPDefaultmapClauseBehavior behavior = (OpenMPDefaultmapClauseBehavior) va_arg(args,int);
             OpenMPDefaultmapClauseCategory category = (OpenMPDefaultmapClauseCategory) va_arg(args,int);
-	    if (current_clauses->size() == 0) {
-	        new_clause = new OpenMPDefaultmapClause(behavior,category);
-	        current_clauses = new std::vector<OpenMPClause*>();
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPDefaultmapClause(behavior,category);
+        current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
-		clauses[kind] = current_clauses;
-           	} else{
-	            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+clauses[kind] = current_clauses;
+           } else{
+            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
                         if (((OpenMPDefaultmapClause*)(*it))->getBehavior() == behavior&&((OpenMPDefaultmapClause*)(*it))->getCategory() == category) {
                            new_clause = (*it);
                            goto end;
@@ -525,8 +525,8 @@ case OMPC_from : {
                }
                     new_clause = new OpenMPDefaultmapClause(behavior,category);
                     current_clauses->push_back(new_clause);
-	
-	         }
+
+         }
                  break;        
         }
         case OMPC_when: {
@@ -834,13 +834,13 @@ std::string OpenMPClause::toString() {
         case OMPC_is_device_ptr:
             result += "is_device_ptr ";
             break;
-	case OMPC_grainsize:
+case OMPC_grainsize:
             result += "grainsize ";
             break;
-	case OMPC_num_tasks:
+case OMPC_num_tasks:
             result += "num_tasks ";
             break;
-	case OMPC_nogroup:
+case OMPC_nogroup:
             result += "nogroup ";
             break;
         default:
