@@ -38,6 +38,16 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(allocate)      /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
+    OPENMP_DIRECTIVE(task)
+    OPENMP_DIRECTIVE(taskloop)
+    OPENMP_DIRECTIVE(taskloop_simd)
+    OPENMP_DIRECTIVE(taskyield)
+    OPENMP_DIRECTIVE(requires)
+    OPENMP_DIRECTIVE(target_data)
+    OPENMP_DIRECTIVE(target_enter_data)
+    OPENMP_DIRECTIVE(target_update)
+    OPENMP_DIRECTIVE(target_exit_data)
+    OPENMP_DIRECTIVE(target)
 
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)
@@ -93,6 +103,36 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(taskgroup, OMPTaskgroupClause)
 
     OPENMP_CLAUSE(allocator, OMPAllocatorClause)
+
+    OPENMP_CLAUSE(final, OMPFinalClause)
+    OPENMP_CLAUSE(untied, OMPUntiedClause)
+    OPENMP_CLAUSE(requires, OMPRequiresClause)
+    OPENMP_CLAUSE(mergeable, OMPMergeableClause)
+    OPENMP_CLAUSE(in_reduction, OMPInReductionClause)
+    OPENMP_CLAUSE(depend, OMPDependClause)
+    OPENMP_CLAUSE(priority, OMPPriorityClause)
+    OPENMP_CLAUSE(affinity, OMPAffinityClause)
+    OPENMP_CLAUSE(detach, OMPDetachClause)
+
+    OPENMP_CLAUSE(grainsize, OMPGrainsizeClause)
+    OPENMP_CLAUSE(num_tasks, OMPNumTasksClause)
+    OPENMP_CLAUSE(nogroup, OMPNogroupClause)
+
+    OPENMP_CLAUSE(reverse_offload, OMPReverse_OffloadClause)
+    OPENMP_CLAUSE(unified_address, OMPUnifiedAddressClause)
+    OPENMP_CLAUSE(unified_shared_memory, OMPUnifiedShared_memoryClause)
+    OPENMP_CLAUSE(atomic_default_mem_order, OMPAtomicDefaultMemOrderClause)
+    OPENMP_CLAUSE(dynamic_allocators, OMPDynamicAllocatorsClause)
+
+    OPENMP_CLAUSE(device, OMPDeviceClause)
+    OPENMP_CLAUSE(use_device_ptr, OMPUseDevicePtrClause)
+    OPENMP_CLAUSE(use_device_addr, OMPUseDeviceAddrClause)
+    OPENMP_CLAUSE(is_device_ptr, OMPIsDevicePtrClause)
+
+    OPENMP_CLAUSE(defaultmap, OMPDefaultmapClause)
+    OPENMP_CLAUSE(to, OMPToClause)
+    OPENMP_CLAUSE(from, OMPFromClause)
+    OPENMP_CLAUSE(uses_allocators, OMPUsesAllocatorsClause)
 // OpenMP clause for MetaDirective
     OPENMP_CLAUSE(when, OMPWhenClause)
 
@@ -163,6 +203,11 @@ enum OpenMPIfClauseModifier {
     OPENMP_IF_MODIFIER(simd)
     OPENMP_IF_MODIFIER(task)
     OPENMP_IF_MODIFIER(cancel)
+    OPENMP_IF_MODIFIER(target_data)
+    OPENMP_IF_MODIFIER(target_enter_data)
+    OPENMP_IF_MODIFIER(target_exit_data)
+    OPENMP_IF_MODIFIER(target)
+    OPENMP_IF_MODIFIER(target_update)
 
     OPENMP_IF_MODIFIER(unspecified)
     OPENMP_IF_MODIFIER(unknown)
@@ -339,6 +384,124 @@ enum OpenMPBindClauseKind {
 
     OPENMP_BIND_KIND(unknown)
 #undef OPENMP_BIND_KIND
+};
+
+/// OpenMP attributes for 'atomic_default_mem_order' clause.
+enum OpenMPAtomicDefaultMemOrderClauseKind {
+#define OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(Name) OMPC_ATOMIC_DEFAULT_MEM_ORDER_##Name,
+    OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(seq_cst)
+    OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(acq_rel)
+    OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(relaxed)
+
+    OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(unknown)
+#undef OPENMP_DEFAULT_KIND
+};
+
+/// OpenMP attributes for 'UsesAllocators' clause.
+enum OpenMPUsesAllocatorsClauseAllocator {
+#define OPENMP_USESALLOCATORS_ALLOCATOR_KIND(Name) OMPC_USESALLOCATORS_ALLOCATOR_##Name,
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(default)	  	    // omp_default_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(large_cap)		// omp_large_cap_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cons_mem)		// omp_const_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(high_bw) 		// omp_high_bw_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(low_lat)			// omp_low_lat_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(cgroup)			// omp_cgroup_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(pteam)			// omp_pteam_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(thread)			// omp_thread_mem_alloc
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(user)			// user-defined allocator
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(unknown)
+#undef OPENMP_USESALLOCATORS_ALLOCATOR_KIND
+};
+
+/// modifiers for 'device' clause.
+enum OpenMPDeviceClauseModifier {
+#define OPENMP_DEVICE_MODIFIER(Name) OMPC_DEVICE_MODIFIER_##Name,
+    OPENMP_DEVICE_MODIFIER(ancestor)
+    OPENMP_DEVICE_MODIFIER(device_num)
+#undef OPENMP_DEVICE_MODIFIER
+};
+
+enum OpenMPInReductionClauseIdentifier {
+#define OPENMP_IN_REDUCTION_IDENTIFIER(Name) OMPC_IN_REDUCTION_IDENTIFIER_##Name,
+    OPENMP_IN_REDUCTION_IDENTIFIER(plus)
+    OPENMP_IN_REDUCTION_IDENTIFIER(minus)
+    OPENMP_IN_REDUCTION_IDENTIFIER(mul)
+    OPENMP_IN_REDUCTION_IDENTIFIER(bitand)
+    OPENMP_IN_REDUCTION_IDENTIFIER(bitor)
+    OPENMP_IN_REDUCTION_IDENTIFIER(bitxor)
+    OPENMP_IN_REDUCTION_IDENTIFIER(logand)
+    OPENMP_IN_REDUCTION_IDENTIFIER(logor)
+    OPENMP_IN_REDUCTION_IDENTIFIER(eqv) /* only for Fortran */
+    OPENMP_IN_REDUCTION_IDENTIFIER(neqv) /* only for Fortran */
+    OPENMP_IN_REDUCTION_IDENTIFIER(max)
+    OPENMP_IN_REDUCTION_IDENTIFIER(min)
+    OPENMP_IN_REDUCTION_IDENTIFIER(user)
+
+    OPENMP_IN_REDUCTION_IDENTIFIER(unknown)
+#undef OPENMP_IN_REDUCTION_IDENTIFIER
+};
+
+enum OpenMPDependClauseModifier {
+#define OPENMP_DEPEND_MODIFIER(Name) OMPC_DEPEND_MODIFIER_##Name,
+    OPENMP_DEPEND_MODIFIER(iterator)
+    OPENMP_DEPEND_MODIFIER(unknown)
+#undef OPENMP_DEPEND_MODIFIER
+};
+
+enum OpenMPDependClauseType {
+#define OPENMP_DEPEND_TYPE(Name) OMPC_DEPEND_TYPE_##Name,
+    OPENMP_DEPEND_TYPE(in)
+    OPENMP_DEPEND_TYPE(out)
+    OPENMP_DEPEND_TYPE(inout)
+    OPENMP_DEPEND_TYPE(mutexinoutset)
+    OPENMP_DEPEND_TYPE(depobj)
+    OPENMP_DEPEND_TYPE(unknown)
+#undef OPENMP_DEPEND_TYPE
+};
+
+enum OpenMPAffinityClauseModifier {
+#define OPENMP_AFFINITY_MODIFIER(Name) OMPC_AFFINITY_MODIFIER_##Name,
+    OPENMP_AFFINITY_MODIFIER(iterator)
+    OPENMP_AFFINITY_MODIFIER(unknown)
+#undef OPENMP_AFFINITY_MODIFIER
+};
+
+enum OpenMPToClauseKind {
+#define OPENMP_TO_KIND(Name) OMPC_TO_##Name,
+    OPENMP_TO_KIND(mapper)
+    OPENMP_TO_KIND(unknown)
+#undef OPENMP_TO_KIND
+};
+
+enum OpenMPFromClauseKind {
+#define OPENMP_FROM_KIND(Name) OMPC_FROM_##Name,
+    OPENMP_FROM_KIND(mapper)
+    OPENMP_FROM_KIND(unknown)
+#undef OPENMP_FROM_KIND
+};
+
+enum OpenMPDefaultmapClauseBehavior {
+#define OPENMP_DEFAULTMAP_BEHAVIOR(Name) OMPC_DEFAULTMAP_BEHAVIOR_##Name,
+
+    OPENMP_DEFAULTMAP_BEHAVIOR(alloc)
+    OPENMP_DEFAULTMAP_BEHAVIOR(to)
+    OPENMP_DEFAULTMAP_BEHAVIOR(from)
+    OPENMP_DEFAULTMAP_BEHAVIOR(tofrom)
+    OPENMP_DEFAULTMAP_BEHAVIOR(firstprivate)
+    OPENMP_DEFAULTMAP_BEHAVIOR(none)
+    OPENMP_DEFAULTMAP_BEHAVIOR(default)
+    OPENMP_DEFAULTMAP_BEHAVIOR(unknown)
+#undef OPENMP_DEFAULTMAP_BEHAVIOR
+};
+
+enum OpenMPDefaultmapClauseCategory {
+#define OPENMP_DEFAULTMAP_CATEGORY(Name) OMPC_DEFAULTMAP_CATEGORY_##Name,
+
+    OPENMP_DEFAULTMAP_CATEGORY(scalar)
+    OPENMP_DEFAULTMAP_CATEGORY(aggregate)
+    OPENMP_DEFAULTMAP_CATEGORY(pointer)
+    OPENMP_DEFAULTMAP_CATEGORY(unknown)
+#undef OPENMP_DEFAULTMAP_CATEGORY
 };
 
 #endif

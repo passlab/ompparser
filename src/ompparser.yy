@@ -70,6 +70,10 @@ corresponding C type is union name defaults to YYSTYPE.
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE VENDOR
         KIND HOST NOHOST ANY CPU GPU FPGA ISA ARCH EXTENSION
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
+FINAL UNTIED MERGEABLE IN_REDUCTION DEPEND PRIORITY AFFINITY DETACH MODIFIER_ITERATOR DEPOBJ FINAL_CLAUSE IN INOUT MUTEXINOUTSET OUT
+TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
+DEVICE USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA TARGET_DATA ENTER TARGET_ENTER_DATA EXIT TARGET_EXIT_DATA ANCESTOR DEVICE_NUM IS_DEVICE_PTR
+DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TARGET_UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
 
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
@@ -117,6 +121,16 @@ openmp_directive : parallel_directive
                  | cancel_directive
                  | cancellation_point_directive
                  | allocate_directive
+                 | task_directive
+                 | taskloop_directive
+                 | taskloop_simd_directive
+                 | taskyield_directive
+                 | requires_directive
+                 | target_data_directive
+                 | target_enter_data_directive
+                 | target_exit_data_directive
+                 | target_directive
+                 | target_update_directive
                  ;
 
 variant_directive : parallel_directive
@@ -304,6 +318,419 @@ parallel_directive : PARALLEL {
                      }
                      parallel_clause_optseq
                    ;
+/*xinyao*/
+task_directive : TASK {
+                        current_directive = new OpenMPDirective(OMPD_task);
+                     }
+                      task_clause_optseq
+                   ;
+taskloop_directive : TASKLOOP {
+                        current_directive = new OpenMPDirective(OMPD_taskloop);
+                     }
+                     taskloop_clause_optseq
+                   ;
+taskloop_simd_directive :  TASKLOOP SIMD {
+                        current_directive = new OpenMPDirective(OMPD_taskloop_simd);	
+                     }
+                     taskloop_simd_clause_optseq 
+                   ;
+taskyield_directive : TASKYIELD {
+                        current_directive = new OpenMPDirective(OMPD_taskyield);
+                     }
+                   ;
+requires_directive : REQUIRES {
+                        current_directive = new OpenMPDirective(OMPD_requires);
+                     }
+                     requires_clause_optseq
+                   ;
+target_data_directive :  TARGET DATA {
+                        current_directive = new OpenMPDirective(OMPD_target_data);	
+                     }
+                     target_data_clause_optseq 
+                   ;
+target_enter_data_directive :  TARGET ENTER DATA {
+                        current_directive = new OpenMPDirective(OMPD_target_enter_data);	
+                     }
+                     target_enter_data_clause_optseq 
+                   ;
+target_exit_data_directive :  TARGET EXIT DATA {
+                        current_directive = new OpenMPDirective(OMPD_target_exit_data);	
+                     }
+                     target_exit_data_clause_optseq 
+                   ;
+target_directive :  TARGET {
+                        current_directive = new OpenMPDirective(OMPD_target);	
+                     }
+                     target_clause_optseq 
+                   ;
+target_update_directive :  TARGET UPDATE{
+                        current_directive = new OpenMPDirective(OMPD_target_update);	
+                     }
+                     target_update_clause_optseq 
+                   ;
+
+task_clause_optseq : /* empty */
+                       | task_clause_seq
+                       ;
+taskloop_clause_optseq : /* empty */
+                       | taskloop_clause_seq
+                       ;
+taskloop_simd_clause_optseq : /* empty */
+                       | taskloop_simd_clause_seq
+                       ;
+requires_clause_optseq : requires_clause_seq
+                       ;
+target_data_clause_optseq :target_data_clause_seq
+                       ;
+target_enter_data_clause_optseq :/* empty */
+                        |target_enter_data_clause_seq
+                       ;
+target_exit_data_clause_optseq :/* empty */
+                        |target_exit_data_clause_seq
+                       ;
+target_clause_optseq :/* empty */
+                        |target_clause_seq
+                       ;
+target_update_clause_optseq :target_update_clause_seq
+                       ;
+
+task_clause_seq : task_clause
+                    | task_clause_seq task_clause
+                    | task_clause_seq ',' task_clause
+                    ;
+taskloop_clause_seq : taskloop_clause
+                    | taskloop_clause_seq taskloop_clause
+                    | taskloop_clause_seq ',' taskloop_clause
+                    ;
+taskloop_simd_clause_seq : taskloop_simd_clause
+                    | taskloop_simd_clause_seq taskloop_simd_clause
+                    | taskloop_simd_clause_seq ',' taskloop_simd_clause
+                    ;
+requires_clause_seq : requires_clause
+                    | requires_clause_seq requires_clause
+                    | requires_clause_seq ',' requires_clause
+                    ;
+target_data_clause_seq : target_data_clause
+                    | target_data_clause_seq target_data_clause
+                    | target_data_clause_seq ',' target_data_clause
+                    ;
+target_enter_data_clause_seq : target_enter_data_clause
+                    | target_enter_data_clause_seq target_enter_data_clause
+                    | target_enter_data_clause_seq ',' target_enter_data_clause
+                    ;
+target_exit_data_clause_seq : target_exit_data_clause
+                    | target_exit_data_clause_seq target_exit_data_clause
+                    | target_exit_data_clause_seq ',' target_exit_data_clause
+                    ;
+target_clause_seq : target_clause
+                    | target_clause_seq target_clause
+                    | target_clause_seq ',' target_clause
+                    ;
+target_update_clause_seq : target_update_clause
+                    | target_update_clause_seq target_update_clause
+                    | target_update_clause_seq ',' target_update_clause
+                    ;
+
+task_clause : if_clause
+                | final_clause
+                | untied_clause
+                | default_clause
+                | mergeable_clause
+                | private_clause
+                | firstprivate_clause
+                | shared_clause
+                | in_reduction_clause
+                | depend_clause
+                | priority_clause
+                | allocate_clause
+                | affinity_clause
+                | detach_clause
+                ;
+taskloop_clause : if_clause
+                | shared_clause
+                | private_clause
+                | firstprivate_clause
+                | lastprivate_clause
+                | reduction_clause
+                | in_reduction_clause
+                | default_clause
+                | grainsize_clause
+                | num_tasks_clause
+                | collapse_clause
+                | final_clause
+                | priority_clause
+                | untied_clause
+                | mergeable_clause
+                | nogroup_clause
+                | allocate_clause
+                ;
+taskloop_simd_clause: if_clause
+                    | shared_clause
+                    | private_clause
+                    | firstprivate_clause
+                    | lastprivate_clause
+                    | reduction_clause 
+                    | in_reduction_clause
+                    | default_clause
+                    | grainsize_clause
+                    | num_tasks_clause
+                    | collapse_clause
+                    | final_clause
+                    | priority_clause
+                    | untied_clause
+                    | mergeable_clause
+                    | nogroup_clause
+                    | allocate_clause               
+                    | safelen_clause
+                    | simdlen_clause
+                    | linear_clause
+                    | aligned_clause
+                    | nontemporal_clause
+                    | order_clause 
+                    ;
+requires_clause : reverse_offload_clause
+                | unified_address_clause
+                | unified_shared_memory_clause   
+                | atomic_default_mem_order_clause 
+                | dynamic_allocators_clause       
+                ;
+target_data_clause: if_clause
+                    | device_clause
+                    | use_device_ptr_clause
+                    | use_device_addr_clause
+                    ;
+target_enter_data_clause: if_clause
+                        | device_clause
+                        | depend_clause
+                        | nowait_clause
+                        ;
+target_exit_data_clause: if_clause
+                    | device_clause
+                    | depend_clause
+                    | nowait_clause
+                    ;
+target_clause: if_clause
+                    | device_clause
+                    | private_clause
+                    | firstprivate_clause
+                    | in_reduction_clause
+                    | is_device_ptr_clause
+                    | defaultmap_clause
+                    | nowait_clause
+                    | allocate_clause
+                    | depend_clause
+                    | uses_allocators_clause
+                    ;
+target_update_clause: motion_clause
+                    | target_update_other_clause
+                    ;
+motion_clause: to_clause
+             | from_clause
+             ;
+target_update_other_clause:if_clause
+              | device_clause
+              | depend_clause
+              | nowait_clause
+                    ;
+final_clause: FINAL {
+                            current_clause = current_directive->addOpenMPClause(OMPC_final);
+                         } '(' expression ')'
+                      ;
+untied_clause: UNTIED {
+                            current_clause = current_directive->addOpenMPClause(OMPC_untied);
+                         } 
+                      ;
+mergeable_clause: MERGEABLE {
+                            current_clause = current_directive->addOpenMPClause(OMPC_mergeable);
+                         } 
+                      ;
+in_reduction_clause : IN_REDUCTION '(' in_reduction_identifier ':' var_list ')' {
+					}
+					;
+in_reduction_identifier : in_reduction_enum_identifier
+			| EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_user, $1); }
+		        ;
+
+in_reduction_enum_identifier :  '+'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_plus); }
+				| '-'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_minus); }
+				| '*'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_mul); }
+				| '&'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_bitand); }
+				| '|'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_bitor); }
+				| '^'		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_bitxor); }
+				| LOGAND	{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_logand); }
+				| LOGOR		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_logor); }
+				| MAX		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_max); }
+				| MIN		{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
+				;
+
+depend_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ':' var_list ')' {
+					}
+					;
+
+depend_parameter : depend_type {}
+                 | depend_modifier ',' depend_type
+                 ;
+
+depend_type : depend_enum_type
+	     ;
+
+depend_modifier : MODIFIER_ITERATOR 	{ firstParameter = OMPC_DEPEND_MODIFIER_iterator;
+                              }'('iterators_definition')'
+		   ;
+
+depend_enum_type : IN             { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPEND_TYPE_in); }
+                 | OUT            { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPEND_TYPE_out); }
+                 | INOUT          { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPEND_TYPE_inout); }
+                 | MUTEXINOUTSET  { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPEND_TYPE_mutexinoutset); }
+                 | DEPOBJ         { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPEND_TYPE_depobj); }
+						;
+priority_clause: PRIORITY {
+                            current_clause = current_directive->addOpenMPClause(OMPC_priority);
+                         } '(' expression ')'
+                      ;
+affinity_clause: AFFINITY '(' affinity_parameter ')' ;
+
+affinity_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_affinity); current_clause->addLangExpr($1);  }
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_affinity); current_clause->addLangExpr($1); } var_list
+                     | affinity_modifier ':' var_list
+                      ;
+
+affinity_modifier: MODIFIER_ITERATOR { current_clause = current_directive->addOpenMPClause(OMPC_affinity, OMPC_AFFINITY_MODIFIER_iterator); 
+                              }'('iterators_definition')'
+                  ;
+iterators_definition : iterator_specifier
+                       |iterators_definition ',' iterator_specifier
+                       ;
+iterator_specifier : iterator_specifier_identifier  '=' range_specification {}
+                   | EXPR_STRING { std::cout << $1 << "\n"; } iterator_specifier_identifier '=' range_specification
+                  ;
+iterator_specifier_identifier:EXPR_STRING  { std::cout << $1 << "\n"; }
+                             ;
+
+
+range_specification: range_index
+                   | range_index range_step 
+
+range_index: EXPR_STRING { std::cout << $1 << " : range begins.\n"; } ':' EXPR_STRING { std::cout << $4 << " : range ends.\n"; } 
+           ;
+range_step : ':' EXPR_STRING { std::cout << $2 << " - range step.\n"; }
+                     ;
+detach_clause: DETACH {
+                            current_clause = current_directive->addOpenMPClause(OMPC_detach);
+                         } '(' expression ')'
+                      ;
+grainsize_clause: GRAINSIZE {
+                            current_clause = current_directive->addOpenMPClause(OMPC_grainsize);
+                         } '(' expression ')'
+                      ;
+num_tasks_clause: NUM_TASKS {
+                            current_clause = current_directive->addOpenMPClause(OMPC_num_tasks);
+                         } '(' expression ')'
+                      ;
+nogroup_clause: NOGROUP {
+                            current_clause = current_directive->addOpenMPClause(OMPC_nogroup);
+                         } 
+                      ;
+reverse_offload_clause: REVERSE_OFFLOAD {
+                            current_clause = current_directive->addOpenMPClause(OMPC_reverse_offload);
+                         } 
+                      ;
+unified_address_clause: UNIFIED_ADDRESS {
+                            current_clause = current_directive->addOpenMPClause(OMPC_unified_address);
+                         } 
+                      ;
+unified_shared_memory_clause: UNIFIED_SHARED_MEMORY {
+                            current_clause = current_directive->addOpenMPClause(OMPC_unified_shared_memory);
+                         } 
+                      ;
+atomic_default_mem_order_clause : ATOMIC_DEFAULT_MEM_ORDER '(' atomic_default_mem_order_parameter ')' { } ;
+
+atomic_default_mem_order_parameter : SEQ_CST { current_clause = current_directive->addOpenMPClause(OMPC_atomic_default_mem_order, OMPC_ATOMIC_DEFAULT_MEM_ORDER_seq_cst); }
+                    | ACQ_REL { current_clause = current_directive->addOpenMPClause(OMPC_atomic_default_mem_order, OMPC_ATOMIC_DEFAULT_MEM_ORDER_acq_rel); }
+                    | RELAXED { current_clause = current_directive->addOpenMPClause(OMPC_atomic_default_mem_order, OMPC_ATOMIC_DEFAULT_MEM_ORDER_relaxed); }
+                    ;
+dynamic_allocators_clause: DYNAMIC_ALLOCATORS {
+                            current_clause = current_directive->addOpenMPClause(OMPC_dynamic_allocators);
+                         } 
+                      ;
+device_clause : DEVICE '(' device_parameter ')' ;
+
+device_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1);  }
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";
+                         current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1); } var_list
+                     | device_modifier_parameter ':' { ; } var_list
+                      ;
+
+device_modifier_parameter : ANCESTOR 		    { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_ancestor); }
+			  | DEVICE_NUM		{ current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_device_num); }
+                          ;
+use_device_ptr_clause : USE_DEVICE_PTR {
+                current_clause = current_directive->addOpenMPClause(OMPC_use_device_ptr);
+					} '(' var_list ')'
+				  ;
+use_device_addr_clause : USE_DEVICE_ADDR {
+                current_clause = current_directive->addOpenMPClause(OMPC_use_device_addr);
+					} '(' var_list ')'
+				  ;
+is_device_ptr_clause : IS_DEVICE_PTR {
+                current_clause = current_directive->addOpenMPClause(OMPC_is_device_ptr);
+					} '(' var_list ')' {
+					}
+				  ;
+defaultmap_clause : DEFAULTMAP{ firstParameter = OMPC_DEFAULTMAP_BEHAVIOR_unknown; } '('  defaultmap_parameter ')'
+               ;
+defaultmap_parameter : defaultmap_behavior
+              | defaultmap_behavior ':' defaultmap_category
+	      ;
+
+defaultmap_behavior : BEHAVIOR_ALLOC { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_alloc; }
+                | BEHAVIOR_TO { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_alloc; }
+                | BEHAVIOR_FROM { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_from; }
+                | BEHAVIOR_TOFROM {firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_tofrom; }
+                | BEHAVIOR_FIRSTPRIVATE { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_firstprivate; }
+                | BEHAVIOR_NONE { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_none; }
+                | BEHAVIOR_DEFAULT { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_default; }
+                ;
+
+defaultmap_category : CATEGORY_SCALAR { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_scalar); }
+                | CATEGORY_AGGREGATE { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_aggregate); }
+                | CATEGORY_POINTER { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap,firstParameter,OMPC_DEFAULTMAP_CATEGORY_pointer); }
+                ;
+uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); } '(' uses_allocators_parameter ')' ;
+uses_allocators_parameter: allocators_list
+                         | allocators_list ','uses_allocators_parameter
+                         ;
+allocators_list: allocators_list_parameter
+                |allocators_list_parameter '(' EXPR_STRING ')'
+                ;
+
+allocators_list_parameter : DEFAULT_MEM_ALLOC      
+			 | LARGE_CAP_MEM_ALLOC   
+			 | CONST_MEM_ALLOC 	  
+			 | HIGH_BW_MEM_ALLOC 	  
+		         | LOW_LAT_MEM_ALLOC 	  
+			 | CGROUP_MEM_ALLOC 	  
+			 | PTEAM_MEM_ALLOC        
+			 | THREAD_MEM_ALLOC 
+                         | EXPR_STRING     
+			 ;
+to_clause: TO '(' to_parameter ')' ;
+to_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_to); current_clause->addLangExpr($1);  }
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_to); current_clause->addLangExpr($1); } var_list
+                     | to_mapper ':' var_list
+                      ;
+to_mapper : TO_MAPPER {current_clause = current_directive->addOpenMPClause(OMPC_to, OMPC_TO_mapper);
+                              }'('EXPR_STRING')'
+                  ;
+
+from_clause: FROM '(' from_parameter ')' ;
+from_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_from); current_clause->addLangExpr($1);  }
+                     | EXPR_STRING ',' {std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_from); current_clause->addLangExpr($1); } var_list
+                     | from_mapper ':' var_list
+                      ;
+from_mapper : FROM_MAPPER { current_clause = current_directive->addOpenMPClause(OMPC_from, OMPC_FROM_mapper); 
+                              }'('EXPR_STRING')'
+                  ;
 /*YAYING*/
 for_directive :  FOR {
                         current_directive = new OpenMPDirective(OMPD_for);	
@@ -578,45 +1005,45 @@ for_simd_clause : if_clause
                 | private_clause
                 | firstprivate_clause 
                 | lastprivate_clause
-            | reduction_clause
-            | schedule_clause
-            | collapse_clause
-            | ordered_clause
-            | nowait_clause
-            | allocate_clause
+                | reduction_clause
+                | schedule_clause
+                | collapse_clause
+                | ordered_clause
+                | nowait_clause
+                | allocate_clause
                 | order_clause
                 | nontemporal_clause
                 ;
  
 declare_clause : simdlen_clause
-           | linear_clause
-           | aligned_clause
+               | linear_clause
+               | aligned_clause
                | uniform_clause
-           | inbranch_clause
-           | notinbranch_clause
-           ;
+               | inbranch_clause
+               | notinbranch_clause
+               ;
  
 distribute_clause : private_clause
                   | firstprivate_clause 
                   | lastprivate_clause
-              | collapse_clause
-              | dist_schedule_clause
-              | allocate_clause
+                  | collapse_clause
+                  | dist_schedule_clause
+                  | allocate_clause
                   ;
 distribute_simd_clause : private_clause
                   | firstprivate_clause 
                   | lastprivate_clause
-              | collapse_clause
-              | dist_schedule_clause
-              | allocate_clause
+                  | collapse_clause
+                  | dist_schedule_clause
+                  | allocate_clause
                   | if_clause
-              | safelen_clause
-              | simdlen_clause
-              | linear_clause
-              | aligned_clause
-              | nontemporal_clause
-              | reduction_clause
-              | order_clause
+                  | safelen_clause
+                  | simdlen_clause
+                  | linear_clause
+                  | aligned_clause
+                  | nontemporal_clause
+                  | reduction_clause
+                  | order_clause
                   ;
 distribute_parallel_for_clause : if_clause
                                | num_threads_clause
@@ -631,7 +1058,7 @@ distribute_parallel_for_clause : if_clause
                                | lastprivate_clause 
                                | linear_clause
                                | schedule_clause
-                           | collapse_clause
+                               | collapse_clause
                                | ordered_clause
                                | nowait_clause
                                | order_clause 
@@ -650,15 +1077,15 @@ distribute_parallel_for_simd_clause: if_clause
                                    | lastprivate_clause 
                                    | linear_clause
                                    | schedule_clause
-                               | collapse_clause
+                                   | collapse_clause
                                    | ordered_clause
                                    | nowait_clause
                                    | order_clause 
                                    | dist_schedule_clause
                                    | safelen_clause
-                               | simdlen_clause
-                               | aligned_clause
-                               | nontemporal_clause
+                                   | simdlen_clause
+                                   | aligned_clause
+                                   | nontemporal_clause
                                    ;
 loop_clause : bind_clause
         | collapse_clause
@@ -673,7 +1100,7 @@ scan_clause : inclusive_clause
 sections_clause : private_clause
             | firstprivate_clause
             | lastprivate_clause
-                | reduction_clause
+            | reduction_clause
             | allocate_clause
             | nowait_clause
                 ;
@@ -703,6 +1130,21 @@ if_parameter :  PARALLEL ':' {
               | CANCEL ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_cancel);
                 } expression { ; }
+              | TARGET_DATA ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_data);
+                } expression { ; }
+              | TARGET_ENTER_DATA ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_enter_data);
+                } expression { ; }
+              | TARGET_EXIT_DATA ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_exit_data);
+                } expression { ; }
+              | TARGET ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target);
+                } expression { ; }
+              | TARGET_UPDATE ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_update);
+                }expression { ; }
               | EXPR_STRING {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
                 current_clause->addLangExpr($1);
