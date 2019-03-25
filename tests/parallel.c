@@ -1,13 +1,9 @@
-/*
-    For testing purpose, there are several extra empty lines.
-    The final version should only contain necessary information.
-    This is not a C/C++ code, so there's no required writing style.
-    Only two kinds of special lines will be recognized.
-    One is starting with "omp", which is the input.
-    The other one is starting with "PASS: ", which is the result for validation.
-
-    Maybe we could use Markdown format here.
-*/
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c)
 PASS: #pragma omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c)
