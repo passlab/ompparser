@@ -8,6 +8,12 @@
 #pragma omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c)
 PASS: #pragma omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c)
 
+!$OMP PARALLEL PRIVATE(a, b)
+PASS: !$omp parallel private(a, b)
+  
+#paragma omp parallel privete
+PASS: privete is not a valid keyword
+  
 #pragma omp parallel num_threads (3*5+4/(7+10))
 PASS: #pragma omp parallel num_threads (3*5+4/(7+10))
 
