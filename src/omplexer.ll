@@ -382,8 +382,6 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                          { return -1; }
 
-":"                                         { yy_push_state(EXPR_STATE); return ':'; }
-
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_push_state(INITIAL); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
@@ -687,8 +685,6 @@ expr            {return (EXPRESSION); }
 
 {blank}*        ;
 .               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
-
-\n|.            {printf(" unexpected\n");}
 
 %%
 
