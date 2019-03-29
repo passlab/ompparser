@@ -1196,9 +1196,9 @@ bind_parameter : TEAMS      { current_clause = current_directive->addOpenMPClaus
                ;
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
-allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate); current_clause->addLangExpr($1);  }
+allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_unknown); current_clause->addLangExpr($1);  }
                      | EXPR_STRING ',' {std::cout << $1 << "\n";
-                         current_clause = current_directive->addOpenMPClause(OMPC_allocate); current_clause->addLangExpr($1); } var_list
+                         current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_unknown); current_clause->addLangExpr($1); } var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 allocator_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_default); }
