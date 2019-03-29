@@ -218,16 +218,12 @@ trait_selector : condition_selector
                     current_parent_clause = NULL;
                     std::cout << "A construct directive has been added to WHEN clause.\n"; 
                 }
-                | device_selector_list
-                | implementation_selector_list
+                | device_selector
+                | implementation_selector
                 ;
 
 condition_selector : CONDITION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
                 ;
-
-device_selector_list : device_selector
-                     | device_selector_list device_selector
-                     ;
 
 device_selector : context_kind
                 | context_isa
@@ -250,9 +246,6 @@ context_isa : ISA '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setI
 
 context_arch : ARCH '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($3); } ')'
              ;
-
-implementation_selector_list : implementation_selector
-                             | implementation_selector_list implementation_selector
 
 implementation_selector : VENDOR '(' context_vendor_name ')'
                         | EXTENSION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($3); } ')'
