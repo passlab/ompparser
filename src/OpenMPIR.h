@@ -175,6 +175,16 @@ public:
     std::vector<const char*>* getAllocateList () { return &allocate_list; };
 };
 
+//threadprivate directive
+class OpenMPThreadprivateDirective : public OpenMPDirective {
+protected:
+    std::vector<const char*> threadprivate_list;
+public:
+    OpenMPThreadprivateDirective () : OpenMPDirective(OMPD_threadprivate) {};
+    void addThreadprivateList (const char* _threadprivate_list) { threadprivate_list.push_back(_threadprivate_list); };
+    std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
+};
+
 // reduction clause
 class OpenMPReductionClause : public OpenMPClause {
 

@@ -159,7 +159,7 @@ copyprivate     { return COPYPRIVATE;}
 cancel          { return CANCEL;}
 taskgroup       { return TASKGROUP;}
 allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR;}
-
+threadprivate   { return THREADPRIVATE;}
 cancellation    { return CANCELLATION;}
 point           { return POINT;}
 variant         { return VARIANT; }

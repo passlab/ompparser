@@ -549,9 +549,10 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
     result += beginning_symbol;
 
     switch (this->getKind()) {
-        case OMPD_declare_variant:
+        case OMPD_declare_variant:{
             result += "(" + ((OpenMPDeclareVariantDirective*)this)->getVariantFuncID() + ") ";
-        case OMPD_allocate:
+            break;}
+        case OMPD_allocate:{
             std::vector<const char*>* list = ((OpenMPAllocateDirective*)this)->getAllocateList();
             std::vector<const char*>::iterator list_item;
             result += "(";
@@ -561,7 +562,20 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             }
             result = result.substr(0, result.size()-1); 
             result += ") ";
-
+            break;}
+        case OMPD_threadprivate:{
+            std::vector<const char*>* list = ((OpenMPThreadprivateDirective*)this)->getThreadprivateList();
+            std::vector<const char*>::iterator list_item;
+            result += "(";
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 result += *list_item;
+                 result += ",";
+            }
+            result = result.substr(0, result.size()-1); 
+            result += ") ";
+            break;}
+        default:
+               ;
     };
 
     if (output_score) {
@@ -682,6 +696,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_target_update:
             result += "target update ";
+            break;
+        case OMPD_threadprivate:
+            result += "threadprivate ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");

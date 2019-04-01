@@ -57,7 +57,7 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 
-%token  OMP PARALLEL FOR METADIRECTIVE DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT
+%token  OMP PARALLEL FOR METADIRECTIVTHREADPRIVATEE DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR/*YAYING*/
@@ -131,6 +131,7 @@ openmp_directive : parallel_directive
                  | target_exit_data_directive
                  | target_directive
                  | target_update_directive
+                 | threadprivate_directive
                  ;
 
 variant_directive : parallel_directive
@@ -816,12 +817,21 @@ allocate_directive : ALLOCATE {
                      ;
 allocate_list: '('directive_varlist')'
              ;
-directive_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPAllocateDirective*)current_directive)->addAllocateList($1); } 
+
+
+directive_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPAllocateDirective*)current_directive)->addAllocateList($1); }
+                   ;
 directive_varlist : directive_variable
                   | directive_varlist ',' directive_variable
                   ;
 
-
+threadprivate_directive : THREADPRIVATE {current_directive = new OpenMPThreadprivateDirective();} '('threadprivate_list')'
+                        ;
+threadprivate_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPThreadprivateDirective*)current_directive)->addThreadprivateList($1); }
+                       ;
+threadprivate_list : directive_variable
+                   | directive_varlist ',' directive_variable
+                   ;
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
                        ;
@@ -1103,10 +1113,10 @@ single_clause : private_clause
           | allocate_clause
           | nowait_clause
               ;
-construct_type_clause : parallel_clause
-                      | sections_clause
-                      | for_clause
-                      | taskgroup_clause
+construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
+                      | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections);}
+                      | FOR { current_clause = current_directive->addOpenMPClause(OMPC_for);}
+                      | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
                       ;
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
@@ -1286,18 +1296,6 @@ ordered_clause: ORDERED {current_clause = current_directive->addOpenMPClause(OMP
               ;
 
 nowait_clause: NOWAIT {current_clause = current_directive->addOpenMPClause(OMPC_nowait);}
-              ;
-
-parallel_clause: PARALLEL {current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
-              ;
-
-sections_clause: SECTIONS {current_clause = current_directive->addOpenMPClause(OMPC_sections);}
-              ;
-
-for_clause: FOR {current_clause = current_directive->addOpenMPClause(OMPC_for);}
-              ;
-
-taskgroup_clause: TASKGROUP {current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
               ;
 
 order_clause: ORDER  {current_clause = current_directive->addOpenMPClause(OMPC_order);} '(' var_list ')'
