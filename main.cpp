@@ -180,7 +180,7 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp end declare target";
  //const char* input = "omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait ";
  //const char* input = "omp target update to(mapper(default):m,i,o) from(m,i,o)";
- const char* input = "omp master";
+ const char* input = "omp end declare target";
 
 
 

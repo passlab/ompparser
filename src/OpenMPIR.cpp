@@ -1989,7 +1989,7 @@ void OpenMPDirective::generateDOT() {
                 directive_kind = "taskloop ";
                 break;
         case OMPD_taskloop_simd:
-                directive_kind = "taskloop_simd ";
+                directive_kind = "taskloop simd ";
                 break;
         case OMPD_taskyield:
                 directive_kind = "taskyield ";

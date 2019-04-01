@@ -379,7 +379,6 @@ declare_target_directive : DECLARE TARGET {
 end_declare_target_directive : END DECLARE TARGET {
                         current_directive = new OpenMPDirective(OMPD_end_declare_target);
                      }
-                     end_declare_target_clause_optseq 
                    ;
 master_directive : MASTER {
                         current_directive = new OpenMPDirective(OMPD_master);
@@ -414,8 +413,6 @@ declare_target_clause_optseq : /* empty */
                              |  '(' var_list ')'
                              | declare_target_seq
                              ;
-end_declare_target_clause_optseq : /*empty*/
-                                 ;
 
 task_clause_seq : task_clause
                     | task_clause_seq task_clause
