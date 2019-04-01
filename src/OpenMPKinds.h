@@ -48,6 +48,9 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(target_update)
     OPENMP_DIRECTIVE(target_exit_data)
     OPENMP_DIRECTIVE(target)
+    OPENMP_DIRECTIVE(declare_target)
+    OPENMP_DIRECTIVE(end_declare_target)
+    OPENMP_DIRECTIVE(master)
 
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)
@@ -125,6 +128,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(dynamic_allocators, OMPDynamicAllocatorsClause)
 
     OPENMP_CLAUSE(device, OMPDeviceClause)
+    OPENMP_CLAUSE(map, OMPMapClause)
     OPENMP_CLAUSE(use_device_ptr, OMPUseDevicePtrClause)
     OPENMP_CLAUSE(use_device_addr, OMPUseDeviceAddrClause)
     OPENMP_CLAUSE(is_device_ptr, OMPIsDevicePtrClause)
@@ -137,6 +141,8 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(when, OMPWhenClause)
 
     OPENMP_CLAUSE(match, OMPMatchClause)
+    OPENMP_CLAUSE(link, OMPLinkClause)
+    OPENMP_CLAUSE(device_type, OMPDeviceTypeClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
@@ -418,6 +424,7 @@ enum OpenMPDeviceClauseModifier {
 #define OPENMP_DEVICE_MODIFIER(Name) OMPC_DEVICE_MODIFIER_##Name,
     OPENMP_DEVICE_MODIFIER(ancestor)
     OPENMP_DEVICE_MODIFIER(device_num)
+    OPENMP_DEVICE_MODIFIER(unknown)
 #undef OPENMP_DEVICE_MODIFIER
 };
 
@@ -504,5 +511,28 @@ enum OpenMPDefaultmapClauseCategory {
 #undef OPENMP_DEFAULTMAP_CATEGORY
 };
 
+enum OpenMPDeviceTypeClauseKind {
+#define OPENMP_DEVICE_TYPE_KIND(Name) OMPC_DEVICE_TYPE_##Name,
+    OPENMP_DEVICE_TYPE_KIND(host)
+    OPENMP_DEVICE_TYPE_KIND(nohost)
+    OPENMP_DEVICE_TYPE_KIND(any)
+    OPENMP_DEVICE_TYPE_KIND(unknown)
+#undef OPENMP_DEVICE_TYPE_KIND
+};
+/// modifiers for 'map' clause.
+enum OpenMPDMapClauseModifier {
+#define OPENMP_MAP_MODIFIER(Name) OMPC_MAP_MODIFIER_##Name,
+    OPENMP_MAP_MODIFIER(always)
+    OPENMP_MAP_MODIFIER(close)
+    OPENMP_MAP_MODIFIER(mapper)
+#undef OPENMP_MAP_MODIFIER
+};
+enum OpenMPDMapClauseType {
+#define OPENMP_MAP_TYPE(Name) OMPC_MAP_TYPE_##Name,
+    OPENMP_MAP_TYPE(always)
+    OPENMP_MAP_TYPE(close)
+    OPENMP_MAP_TYPE(mapper)
+#undef OPENMP_MAP_TYPE
+};
 #endif
 
