@@ -792,7 +792,7 @@ map_type_modifier : MAP_MODIFIER_ALWAYS
                   ;
 
 map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')'
-                  ;
+                    ;
 /*YAYING*/
 for_directive :  FOR {
                         current_directive = new OpenMPDirective(OMPD_for);
@@ -897,8 +897,8 @@ threadprivate_directive : THREADPRIVATE {current_directive = new OpenMPThreadpri
                         ;
 threadprivate_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPThreadprivateDirective*)current_directive)->addThreadprivateList($1); }
                        ;
-threadprivate_list : directive_variable
-                   | directive_varlist ',' directive_variable
+threadprivate_list : threadprivate_variable
+                   | threadprivate_list ',' threadprivate_variable
                    ;
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
@@ -908,50 +908,50 @@ teams_clause_optseq : /* empty */
                        ;
 
 for_clause_optseq : /*empty*/
-              | for_clause_seq
+                  | for_clause_seq
                   ;
 
 simd_clause_optseq : /*empty*/
-              | simd_clause_seq
-                  ;
+                   | simd_clause_seq
+                   ;
 for_simd_clause_optseq : /*empty*/
-                   | for_simd_clause_seq
+                       | for_simd_clause_seq
                        ;
 declare_clause_optseq : /*empty*/
-                   | declare_clause_seq
-                       ;
+                      | declare_clause_seq
+                      ;
 distribute_clause_optseq : /*empty*/
-                   | distribute_clause_seq
-                       ;
+                         | distribute_clause_seq
+                         ;
 distribute_simd_clause_optseq : /*empty*/
-                   | distribute_simd_clause_seq
-                       ;
-distribute_parallel_for_clause_optseq: /*empty*/
-                   | distribute_parallel_for_clause_seq
-                       ;
-distribute_parallel_for_simd_clause_optseq: /*empty*/
-                   | distribute_parallel_for_simd_clause_seq
-                       ;
+                              | distribute_simd_clause_seq
+                              ;
+distribute_parallel_for_clause_optseq : /*empty*/
+                                      | distribute_parallel_for_clause_seq
+                                      ;
+distribute_parallel_for_simd_clause_optseq : /*empty*/
+                                           | distribute_parallel_for_simd_clause_seq
+                                           ;
 loop_clause_optseq : /*empty*/
-               | loop_clause_seq
+                   | loop_clause_seq
                    ;
 scan_clause_optseq : /*empty*/
-               | scan_clause_seq
+                   | scan_clause_seq
                    ;
 sections_clause_optseq : /*empty*/
-                  | sections_clause_seq
-                      ;
+                       | sections_clause_seq
+                       ;
 single_clause_optseq : /*empty*/
-                 | single_clause_seq
+                     | single_clause_seq
                      ;
 cancel_clause_optseq : /*empty*/
-                 | cancel_clause_seq
+                     | cancel_clause_seq
                      ;
 cancellation_point_clause_optseq : /*empty*/
-                             | cancellation_point_clause_seq
+                                 | cancellation_point_clause_seq
                                  ;
 allocate_clause_optseq :  /*empty*/
-                   | allocate_clause_seq
+                       | allocate_clause_seq
                        ;
 
 parallel_clause_seq : parallel_clause
