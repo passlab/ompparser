@@ -1,6 +1,18 @@
 #include "OpenMPIR.h"
 #include <stdarg.h>
 
+
+void OpenMPClause::addLangExpr(const char *expression, int line, int col) {
+    // Since the size of expression vector is supposed to be small, brute force is used here.
+    for (int i = 0; i < this->expressions.size(); i++) {
+        if (!strcmp(expressions.at(i), expression)) {
+            return;
+        };
+    };
+    expressions.push_back(expression);
+    locations.push_back(SourceLocation(line, col));
+};
+
 /**
  *
  * @param kind
@@ -534,7 +546,10 @@ clauses[kind] = current_clauses;
             new_clause = OpenMPWhenClause::addWhenClause(this);
             break;
         }
-    }
+        default: {
+            ;
+        }
+    };
 end:
     va_end(args);
     return new_clause;
@@ -549,18 +564,20 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
     result += beginning_symbol;
 
     switch (this->getKind()) {
-        case OMPD_declare_variant:{
-            result += "(" + ((OpenMPDeclareVariantDirective*)this)->getVariantFuncID() + ") ";
-            break;}
-        case OMPD_allocate:{
-            std::vector<const char*>* list = ((OpenMPAllocateDirective*)this)->getAllocateList();
-            std::vector<const char*>::iterator list_item;
+
+        case OMPD_declare_variant: {
+            result += "(" + ((OpenMPDeclareVariantDirective *) this)->getVariantFuncID() + ") ";
+        }
+        case OMPD_allocate: {
+            std::vector<const char *> *list = ((OpenMPAllocateDirective *) this)->getAllocateList();
+            std::vector<const char *>::iterator list_item;
+
             result += "(";
-            for (list_item = list->begin(); list_item != list->end(); list_item++){
-                 result += *list_item;
-                 result += ",";
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                result += *list_item;
+                result += ",";
             }
-            result = result.substr(0, result.size()-1); 
+            result = result.substr(0, result.size() - 1);
             result += ") ";
             break;}
         case OMPD_threadprivate:{
@@ -576,7 +593,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             break;}
         default:
                ;
-    };
+        }
 
     if (output_score) {
         std::string trait_score = this->getTraitScore();
@@ -1551,25 +1568,31 @@ void OpenMPDirective::generateDOT() {
     output << current_line.c_str();
     output << "\t" << directive_kind.c_str() << "\n";
     switch (kind) {
-        case OMPD_allocate:
+        case OMPD_allocate: {
             std::string indent = std::string(1, '\t');
-            std::vector<const char*>* list = ((OpenMPAllocateDirective*)this)->getAllocateList();
-            std::vector<const char*>::iterator list_item;
+            std::vector<const char *> *list = ((OpenMPAllocateDirective *) this)->getAllocateList();
+            std::vector<const char *>::iterator list_item;
             int list_index = 0;
-            std::string list_name; std::string expr_name;
+            std::string list_name;
+            std::string expr_name;
             std::string tkind = "allocate";
             list_name = tkind + "_directive_list_" + std::to_string(list_index);
-            current_line = indent+tkind + " -- " + list_name + "\n";
+            current_line = indent + tkind + " -- " + list_name + "\n";
             output << current_line.c_str();
-            for (list_item = list->begin(); list_item != list->end(); list_item++){
-                 expr_name = list_name + "_expr" + std::to_string(list_index);
-                 list_index += 1;
-                 current_line = indent + indent + list_name + " -- " + expr_name + "\n";
-                 output << current_line.c_str();
-                 current_line = indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) + "\"]\n";
-                 output << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                output << current_line.c_str();
+                current_line =
+                    indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                    "\"]\n";
+                output << current_line.c_str();
             }
-
+        }
+        default: {
+            ;
+        }
     };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();

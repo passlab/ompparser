@@ -1,8 +1,8 @@
 /* OpenMP C/C++/Fortran Grammar */
 
-%name-prefix "openmp_"
+%define api.prefix {openmp_}
 %defines
-%error-verbose
+%define parse.error verbose
 
 %{
 /* DQ (2/10/2014): IF is conflicting with Boost template IF. */

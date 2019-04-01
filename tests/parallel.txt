@@ -5,7 +5,7 @@
   //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp parallel private (a, b, c)
+#pragma omp parallel private (a, b) private (a, c)
 PASS: #pragma omp parallel private (a, b, c)
 
 !$OMP PARALLEL PRIVATE(a, b)
