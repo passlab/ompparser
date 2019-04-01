@@ -74,7 +74,7 @@ corresponding C type is union name defaults to YYSTYPE.
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
-
+LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -131,6 +131,9 @@ openmp_directive : parallel_directive
                  | target_exit_data_directive
                  | target_directive
                  | target_update_directive
+                 | declare_target_directive
+                 | end_declare_target_directive
+                 | master_directive
                  | threadprivate_directive
                  ;
 
@@ -362,6 +365,19 @@ target_update_directive :  TARGET UPDATE{
                      }
                      target_update_clause_optseq 
                    ;
+declare_target_directive : DECLARE TARGET {
+                        current_directive = new OpenMPDirective(OMPD_declare_target);
+                     }
+                     declare_target_clause_optseq 
+                   ;
+end_declare_target_directive : END DECLARE TARGET {
+                        current_directive = new OpenMPDirective(OMPD_end_declare_target);
+                     }
+                   ;
+master_directive : MASTER {
+                        current_directive = new OpenMPDirective(OMPD_master);
+                     }
+                   ;
 
 task_clause_optseq : /* empty */
                        | task_clause_seq
@@ -387,6 +403,10 @@ target_clause_optseq :/* empty */
                        ;
 target_update_clause_optseq :target_update_clause_seq
                        ;
+declare_target_clause_optseq : /* empty */
+                             |  '(' var_list ')'
+                             | declare_target_seq
+                             ;
 
 task_clause_seq : task_clause
                     | task_clause_seq task_clause
@@ -423,6 +443,10 @@ target_clause_seq : target_clause
 target_update_clause_seq : target_update_clause
                     | target_update_clause_seq target_update_clause
                     | target_update_clause_seq ',' target_update_clause
+                    ;
+declare_target_seq : declare_target_clause
+                    | declare_target_seq declare_target_clause
+                    | declare_target_seq ',' declare_target_clause
                     ;
 
 task_clause : if_clause
@@ -490,16 +514,19 @@ requires_clause : reverse_offload_clause
                 ;
 target_data_clause: if_clause
                     | device_clause
+                    | map_clause
                     | use_device_ptr_clause
                     | use_device_addr_clause
                     ;
 target_enter_data_clause: if_clause
                         | device_clause
+                        | map_clause
                         | depend_clause
                         | nowait_clause
                         ;
 target_exit_data_clause: if_clause
                     | device_clause
+                    | map_clause
                     | depend_clause
                     | nowait_clause
                     ;
@@ -508,6 +535,7 @@ target_clause: if_clause
                     | private_clause
                     | firstprivate_clause
                     | in_reduction_clause
+                    | map_clause
                     | is_device_ptr_clause
                     | defaultmap_clause
                     | nowait_clause
@@ -526,6 +554,10 @@ target_update_other_clause:if_clause
               | depend_clause
               | nowait_clause
                     ;
+declare_target_clause : to_clause
+                      | link_clause
+                      | device_type_clause
+                      ;
 final_clause: FINAL {
                             current_clause = current_directive->addOpenMPClause(OMPC_final);
                          } '(' expression ')'
@@ -724,6 +756,42 @@ from_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = curren
                       ;
 from_mapper : FROM_MAPPER { current_clause = current_directive->addOpenMPClause(OMPC_from, OMPC_FROM_mapper); 
                               }'('EXPR_STRING')'
+                  ;
+link_clause : LINK {
+                current_clause = current_directive->addOpenMPClause(OMPC_link);
+} '(' var_list ')' {
+}
+  ;
+device_type_clause : DEVICE_TYPE '(' device_type_parameter ')' { } ;
+
+device_type_parameter : HOST { current_clause = current_directive->addOpenMPClause(OMPC_device_type, OMPC_DEVICE_TYPE_host); }
+                    | NOHOST { current_clause = current_directive->addOpenMPClause(OMPC_device_type, OMPC_DEVICE_TYPE_nohost); }
+                    | ANY { current_clause = current_directive->addOpenMPClause(OMPC_device_type, OMPC_DEVICE_TYPE_any); }
+                    ;
+
+map_clause : MAP { current_clause = current_directive->addOpenMPClause(OMPC_map); } '(' map_parameter ':' var_list ')' { } ;
+
+map_parameter : map_type {}
+              | map_modifier_parameter ',' map_type
+              ;
+map_modifier_parameter:  /*empty*/
+                      | map_type_modifier
+                      | map_modifier_parameter map_type_modifier
+                      | map_modifier_parameter ',' map_type_modifier
+                      ;
+map_type : MAP_TYPE_TO
+         | MAP_TYPE_FROM
+         | MAP_TYPE_TOFROM
+         | MAP_TYPE_ALLOC
+         | MAP_TYPE_RELEASE
+         | MAP_TYPE_DELETE
+         ;
+map_type_modifier : MAP_MODIFIER_ALWAYS
+                  | MAP_MODIFIER_CLOSE
+                  | map_modifier_mapper
+                  ;
+
+map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')'
                   ;
 /*YAYING*/
 for_directive :  FOR {

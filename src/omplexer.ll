@@ -41,6 +41,9 @@
 %x FROM_MAPPER_STATE
 %X USES_ALLOCATORS_STATE
 %x ALLOC_EXPR_STATE
+%x DEVICE_TYPE_STATE
+%x MAP_STATE
+%x MAP_MAPPER_STATE
 
 %{
 
@@ -221,8 +224,9 @@ update                  { return UPDATE; }
 to                      { yy_push_state(TO_STATE); return TO; }
 from                    { yy_push_state(FROM_STATE); return FROM; }
 uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLOCATORS;}
-
-
+link                    { return LINK; }
+device_type             { yy_push_state(DEVICE_TYPE_STATE); return DEVICE_TYPE; }
+map                     { yy_push_state(MAP_STATE); return MAP; }
 
 "("             { return '('; }
 ")"             { return ')'; }
@@ -568,7 +572,7 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <FROM_STATE>")"                        { yy_pop_state(); return ')'; }
 <FROM_STATE>","                        { return ','; }
 <FROM_STATE>":"                        { yy_push_state(EXPR_STATE); return ':'; }
-<FROM_STATE>mapper/{blank}*"("       { current_string.clear(); yy_push_state(FROM_MAPPER_STATE);return FROM_MAPPER;}
+<FROM_STATE>mapper/{blank}*"("         { current_string.clear(); yy_push_state(FROM_MAPPER_STATE);return FROM_MAPPER;}
 <FROM_STATE>{blank}*                   { ; }
 <FROM_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -576,10 +580,10 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <FROM_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
 <FROM_MAPPER_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
-<USES_ALLOCATORS_STATE>"("                               { return '('; }
+<USES_ALLOCATORS_STATE>"("                                     { return '('; }
 <USES_ALLOCATORS_STATE>","                                     { return ','; }
-<USES_ALLOCATORS_STATE>")"/{blank}*")"                                     { yy_pop_state(); return ')'; }
-<USES_ALLOCATORS_STATE>")"                                    { return ')'; }
+<USES_ALLOCATORS_STATE>")"/{blank}*")"                         { yy_pop_state(); return ')'; }
+<USES_ALLOCATORS_STATE>")"                                     { return ')'; }
 <USES_ALLOCATORS_STATE>omp_default_mem_alloc/{blank}*"("       { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return DEFAULT_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_large_cap_mem_alloc/{blank}*"("     { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return LARGE_CAP_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_const_mem_alloc/{blank}*"("         { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return CONST_MEM_ALLOC; }
@@ -588,12 +592,40 @@ uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLO
 <USES_ALLOCATORS_STATE>omp_cgroup_mem_alloc/{blank}*"("        { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return CGROUP_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_pteam_mem_alloc/{blank}*"("         { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return PTEAM_MEM_ALLOC; }
 <USES_ALLOCATORS_STATE>omp_thread_mem_alloc/{blank}*"("        { current_string.clear(); yy_push_state(ALLOC_EXPR_STATE);return THREAD_MEM_ALLOC; }
-<USES_ALLOCATORS_STATE>{blank}*                           { ; }
-<USES_ALLOCATORS_STATE>.                                  { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+<USES_ALLOCATORS_STATE>{blank}*                                { ; }
+<USES_ALLOCATORS_STATE>.                                       { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <ALLOC_EXPR_STATE>"("                        { return '('; }
 <ALLOC_EXPR_STATE>")"                        { yy_pop_state();std::cout << current_string << "\n"; openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
 <ALLOC_EXPR_STATE>.                          { current_string += yytext[0]; }
+
+<DEVICE_TYPE_STATE>host                       { return HOST; }
+<DEVICE_TYPE_STATE>nohost                     { return NOHOST; }
+<DEVICE_TYPE_STATE>any                        { return ANY; }
+<DEVICE_TYPE_STATE>"("                        { return '('; }
+<DEVICE_TYPE_STATE>")"                        { yy_pop_state(); return ')'; }
+<DEVICE_TYPE_STATE>{blank}*                   { ; }
+<DEVICE_TYPE_STATE>.                          { yy_push_state(INITIAL); unput(yytext[0]); } 
+
+<MAP_STATE>always/{blank}*,           { return MAP_MODIFIER_ALWAYS; }
+<MAP_STATE>close/{blank}*,            { return MAP_MODIFIER_CLOSE; }
+<MAP_STATE>mapper/{blank}*"("         { current_string.clear(); yy_push_state(MAP_MAPPER_STATE);return MAP_MODIFIER_MAPPER;}
+<MAP_STATE>"("                        { return '('; }
+<MAP_STATE>")"                        { yy_pop_state(); return ')'; }
+<MAP_STATE>","                        { return ','; }
+<MAP_STATE>":"                        { yy_push_state(EXPR_STATE); return ':'; }
+<MAP_STATE>to/{blank}*:               { return MAP_TYPE_TO; }
+<MAP_STATE>from/{blank}*:             { return MAP_TYPE_FROM; }
+<MAP_STATE>tofrom/{blank}*:           { return MAP_TYPE_TOFROM; }
+<MAP_STATE>alloc/{blank}*:            { return MAP_TYPE_ALLOC; }
+<MAP_STATE>release/{blank}*:          { return MAP_TYPE_RELEASE; }
+<MAP_STATE>delete                     { return MAP_TYPE_DELETE; }
+<MAP_STATE>{blank}*                   { ; }
+<MAP_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<MAP_MAPPER_STATE>"("                 { return '('; }
+<MAP_MAPPER_STATE>")"                 { yy_pop_state(); return ')'; }
+<MAP_MAPPER_STATE>.                   { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <EXPR_STATE>.   { current_char = yytext[0];
                 parenthesis_local_count = 0;

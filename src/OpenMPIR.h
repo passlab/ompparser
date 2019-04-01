@@ -513,6 +513,7 @@ public:
 
     static OpenMPInReductionClause * addInReductionClause(OpenMPDirective *directive, OpenMPInReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 // depend clause
 class OpenMPDependClause : public OpenMPClause {
@@ -534,6 +535,7 @@ public:
 
 static OpenMPDependClause * addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier,OpenMPDependClauseType type);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 
 };
 
@@ -551,6 +553,7 @@ public:
     OpenMPAffinityClauseModifier getModifier() { return modifier; };
 static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, OpenMPAffinityClauseModifier modifier);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 //atomic_default_mem_order clause
 class OpenMPAtomicDefaultMemOrderClause : public OpenMPClause {
@@ -585,6 +588,7 @@ public:
     
     static OpenMPDeviceClause * addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 
 };
 
@@ -601,6 +605,7 @@ public:
     OpenMPToClauseKind getKind() { return to_kind; };
 static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 // from clause
 class OpenMPFromClause : public OpenMPClause {
@@ -616,6 +621,7 @@ public:
 
 static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 // defaultmap Clause
 class OpenMPDefaultmapClause : public OpenMPClause {
@@ -631,6 +637,20 @@ public:
 OpenMPDefaultmapClauseCategory  getCategory () { return category ; };
 
 static OpenMPDefaultmapClause * addDefaultmapClause(OpenMPDirective *directive, OpenMPDefaultmapClauseBehavior behavior,OpenMPDefaultmapClauseCategory category);
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
+// device type Clause
+class OpenMPDeviceTypeClause : public OpenMPClause {
+
+protected:
+    OpenMPDeviceTypeClauseKind device_type_kind = OMPC_DEVICE_TYPE_unknown;
+public:
+    OpenMPDeviceTypeClause(OpenMPDeviceTypeClauseKind _device_type_kind) : OpenMPClause(OMPC_default), device_type_kind(_device_type_kind) { };
+
+    OpenMPDeviceTypeClauseKind getDeviceTypeClauseKind() {return device_type_kind; };
+
+    static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive);
     std::string toString();
 };
 
