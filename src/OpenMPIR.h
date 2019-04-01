@@ -59,13 +59,9 @@ public:
 
     // a list of expressions or variables that are language-specific for the clause, ompparser does not parse them,
     // instead, it only stores them as strings
-    void addLangExpr(const char *expression, int line = 0, int col = 0) {
-        //TODO: Here we need to do certain normlization, if an expression already exists, we ignore
-        expressions.push_back(expression);
-        locations.push_back(SourceLocation(line, col));
-    };
+    void addLangExpr(const char *expression, int line = 0, int col = 0);
     
-std::vector<const char *>* getExpressions() { return &expressions; };
+    std::vector<const char *>* getExpressions() { return &expressions; };
 
     virtual std::string toString();
     std::string expressionToString();
@@ -173,6 +169,16 @@ public:
     OpenMPAllocateDirective () : OpenMPDirective(OMPD_allocate) {};
     void addAllocateList (const char* _allocate_list) { allocate_list.push_back(_allocate_list); };
     std::vector<const char*>* getAllocateList () { return &allocate_list; };
+};
+
+//threadprivate directive
+class OpenMPThreadprivateDirective : public OpenMPDirective {
+protected:
+    std::vector<const char*> threadprivate_list;
+public:
+    OpenMPThreadprivateDirective () : OpenMPDirective(OMPD_threadprivate) {};
+    void addThreadprivateList (const char* _threadprivate_list) { threadprivate_list.push_back(_threadprivate_list); };
+    std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
 // reduction clause

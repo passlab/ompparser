@@ -1,8 +1,8 @@
 /* OpenMP C/C++/Fortran Grammar */
 
-%name-prefix "openmp_"
+%define api.prefix {openmp_}
 %defines
-%error-verbose
+%define parse.error verbose
 
 %{
 /* DQ (2/10/2014): IF is conflicting with Boost template IF. */
@@ -57,7 +57,7 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 
-%token  OMP PARALLEL FOR METADIRECTIVE DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT
+%token  OMP PARALLEL FOR DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR/*YAYING*/
@@ -134,6 +134,7 @@ openmp_directive : parallel_directive
                  | declare_target_directive
                  | end_declare_target_directive
                  | master_directive
+                 | threadprivate_directive
                  ;
 
 variant_directive : parallel_directive
@@ -221,16 +222,12 @@ trait_selector : condition_selector
                     current_parent_clause = NULL;
                     std::cout << "A construct directive has been added to WHEN clause.\n"; 
                 }
-                | device_selector_list
-                | implementation_selector_list
+                | device_selector
+                | implementation_selector
                 ;
 
 condition_selector : CONDITION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
                 ;
-
-device_selector_list : device_selector
-                     | device_selector_list device_selector
-                     ;
 
 device_selector : context_kind
                 | context_isa
@@ -253,9 +250,6 @@ context_isa : ISA '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setI
 
 context_arch : ARCH '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($3); } ')'
              ;
-
-implementation_selector_list : implementation_selector
-                             | implementation_selector_list implementation_selector
 
 implementation_selector : VENDOR '(' context_vendor_name ')'
                         | EXTENSION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($3); } ')'
@@ -891,12 +885,21 @@ allocate_directive : ALLOCATE {
                      ;
 allocate_list: '('directive_varlist')'
              ;
-directive_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPAllocateDirective*)current_directive)->addAllocateList($1); } 
+
+
+directive_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPAllocateDirective*)current_directive)->addAllocateList($1); }
+                   ;
 directive_varlist : directive_variable
                   | directive_varlist ',' directive_variable
                   ;
 
-
+threadprivate_directive : THREADPRIVATE {current_directive = new OpenMPThreadprivateDirective();} '('threadprivate_list')'
+                        ;
+threadprivate_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPThreadprivateDirective*)current_directive)->addThreadprivateList($1); }
+                       ;
+threadprivate_list : directive_variable
+                   | directive_varlist ',' directive_variable
+                   ;
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
                        ;
@@ -1178,10 +1181,10 @@ single_clause : private_clause
           | allocate_clause
           | nowait_clause
               ;
-construct_type_clause : parallel_clause
-                      | sections_clause
-                      | for_clause
-                      | taskgroup_clause
+construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
+                      | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections);}
+                      | FOR { current_clause = current_directive->addOpenMPClause(OMPC_for);}
+                      | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
                       ;
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
@@ -1271,9 +1274,9 @@ bind_parameter : TEAMS      { current_clause = current_directive->addOpenMPClaus
                ;
 allocate_clause : ALLOCATE '(' allocate_parameter ')' ;
 
-allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate); current_clause->addLangExpr($1);  }
+allocate_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_unknown); current_clause->addLangExpr($1);  }
                      | EXPR_STRING ',' {std::cout << $1 << "\n";
-                         current_clause = current_directive->addOpenMPClause(OMPC_allocate); current_clause->addLangExpr($1); } var_list
+                         current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_unknown); current_clause->addLangExpr($1); } var_list
                      | allocator_parameter ':' { ; } var_list
                       ;
 allocator_parameter : DEFAULT_MEM_ALLOC           { current_clause = current_directive->addOpenMPClause(OMPC_allocate, OMPC_ALLOCATE_ALLOCATOR_default); }
@@ -1361,18 +1364,6 @@ ordered_clause: ORDERED {current_clause = current_directive->addOpenMPClause(OMP
               ;
 
 nowait_clause: NOWAIT {current_clause = current_directive->addOpenMPClause(OMPC_nowait);}
-              ;
-
-parallel_clause: PARALLEL {current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
-              ;
-
-sections_clause: SECTIONS {current_clause = current_directive->addOpenMPClause(OMPC_sections);}
-              ;
-
-for_clause: FOR {current_clause = current_directive->addOpenMPClause(OMPC_for);}
-              ;
-
-taskgroup_clause: TASKGROUP {current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
               ;
 
 order_clause: ORDER  {current_clause = current_directive->addOpenMPClause(OMPC_order);} '(' var_list ')'

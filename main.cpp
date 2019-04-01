@@ -109,7 +109,7 @@ int main( int argc, const char* argv[] ) {
                         std::cout << "Line: " << current_pragma_line_no << "\n";
                         std::cout << "FAILED INPUT: " << input_pragma << "\n";
                         std::cout << "WRONG OUTPUT: " << output_pragma << "\n";
-                        std::cout << "EXPECTED OUTPUT: " << validation_string.substr(6) << "\n";
+                        std::cout << "EXPECTED OUTPUT: " << validation_string << "\n";
                         std::cout << "======================================\n";
                         failed_amount += 1;
                     }

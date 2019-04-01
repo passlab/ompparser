@@ -35,7 +35,8 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(single) 
     OPENMP_DIRECTIVE(cancel)
     OPENMP_DIRECTIVE(cancellation_point)
-    OPENMP_DIRECTIVE(allocate)      /*YAYING*/
+    OPENMP_DIRECTIVE(allocate)      
+    OPENMP_DIRECTIVE(threadprivate)      /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
     OPENMP_DIRECTIVE(task)
