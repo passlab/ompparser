@@ -4,7 +4,7 @@
 #include <iostream>
 #include <regex>
 
-extern OpenMPDirective* parseOpenMP(const char*, OpenMPBaseLang, void * _exprParse(const char*));
+extern OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
 
 void output(OpenMPDirective*);
 std::string test(OpenMPDirective*);
@@ -46,7 +46,6 @@ int main( int argc, const char* argv[] ) {
     const char* filename = NULL;
     const char* mode = "string";
     int result;
-    OpenMPBaseLang base_lang = Lang_C;
     if (argc > 1) {
         filename = argv[1];
     };
@@ -78,6 +77,7 @@ int main( int argc, const char* argv[] ) {
 
     char current_char = input_file.peek();
     std::string current_line;
+    OpenMPBaseLang base_lang = Lang_C;
     std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
     bool is_fortran = false;
 
@@ -109,10 +109,12 @@ int main( int argc, const char* argv[] ) {
                     };
                     current_pragma_line_no = line_no;
                     input_pragma = current_line;
+                    /*
                     if (is_fortran) {
                         std::transform(current_line.begin(), current_line.end(), current_line.begin(), ::tolower);
                     };
-                    OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), base_lang, NULL);
+                    */
+                    OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), NULL);
                     output_pragma = test(openMPAST);
                     is_fortran = false;
                 }

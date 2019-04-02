@@ -13,6 +13,7 @@
 #include <iostream>
 #include "OpenMPIR.h"
 #include <string.h>
+#include <regex>
 
 /*the scanner function*/
 extern int openmp_lex(); 
@@ -33,7 +34,6 @@ static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
 static int fourthParameter;
-static OpenMPBaseLang base_lang = Lang_C;
 
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
@@ -1477,13 +1477,24 @@ int yywrap()
 } 
 
 // Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* _input, OpenMPBaseLang _base_lang, void * _exprParse(const char*)) {
+OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
     
     printf("Start parsing...\n");
-    base_lang = _base_lang;
+    OpenMPBaseLang base_lang = Lang_C;
     exprParse = _exprParse;
     current_directive = NULL;
-    start_lexer(_input);
+    std::string input_string;
+    const char *input = _input;
+    // Since we can't guarantee the input has been preprocessed, it should be checked here.
+    std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
+    input_string = std::string(input, 5);
+    if (std::regex_match(input_string, fortran_regex)) {
+        base_lang = Lang_Fortran;
+        input_string = std::string(input);
+        std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
+        input = input_string.c_str();
+    };
+    start_lexer(input);
     int res = yyparse();
     end_lexer();
     if (current_directive) {

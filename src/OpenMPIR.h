@@ -18,6 +18,7 @@ enum OpenMPBaseLang {
     Lang_C,
     Lang_Cplusplus,
     Lang_Fortran,
+    Lang_unknown
 };
 
 class SourceLocation {
@@ -131,7 +132,7 @@ protected:
     std::string trait_score;
 
 public:
-    OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_C, int _line = 0, int _col = 0) :
+    OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_unknown, int _line = 0, int _col = 0) :
             SourceLocation(_line, _col), kind(k), lang(_lang) {};
 
     OpenMPDirectiveKind getKind() { return kind; };
