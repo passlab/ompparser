@@ -723,6 +723,11 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
                                         }
 
 <<EOF>>         { if (current_string.size() != 0) {
+                      openmp_lval.stype = strdup(current_string.c_str());
+                      current_string.clear();
+                      parenthesis_local_count = 0;
+                      parenthesis_global_count = 1;
+                      bracket_count = 0;
                       return EXPR_STRING;
                   }
                   else {
