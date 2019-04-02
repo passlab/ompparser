@@ -150,6 +150,8 @@ public:
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
     void setTraitScore(const char* _score) { trait_score = std::string(_score); };
     std::string getTraitScore () { return trait_score; };
+    void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
+    OpenMPBaseLang getBaseLang() { return lang; };
 };
 //declare variant directive
 class OpenMPDeclareVariantDirective : public OpenMPDirective {

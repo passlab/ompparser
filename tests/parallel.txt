@@ -9,7 +9,7 @@
 PASS: #pragma omp parallel private (a, b, c)
 
 !$OMP PARALLEL PRIVATE(a, b)
-PASS: !$omp parallel private(a, b)
+PASS: !$omp parallel private (a, b)
   
 #pragma omp parallel privete
 PASS: privete is not a valid keyword

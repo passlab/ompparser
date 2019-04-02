@@ -2,8 +2,9 @@
 #include <OpenMPIR.h>
 #include <string.h>
 #include <iostream>
+#include <regex>
 
-extern OpenMPDirective* parseOpenMP(const char*, void * _exprParse(const char*));
+extern OpenMPDirective* parseOpenMP(const char*, OpenMPBaseLang, void * _exprParse(const char*));
 
 void output(OpenMPDirective*);
 std::string test(OpenMPDirective*);
@@ -45,6 +46,7 @@ int main( int argc, const char* argv[] ) {
     const char* filename = NULL;
     const char* mode = "string";
     int result;
+    OpenMPBaseLang base_lang = Lang_C;
     if (argc > 1) {
         filename = argv[1];
     };
@@ -76,6 +78,8 @@ int main( int argc, const char* argv[] ) {
 
     char current_char = input_file.peek();
     std::string current_line;
+    std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
+    bool is_fortran = false;
 
     while (!input_file.eof()) {
         line_no += 1;
@@ -85,7 +89,14 @@ int main( int argc, const char* argv[] ) {
                 break;
             default:
                 std::getline(input_file, current_line);
-                if (current_line.substr(0, 7) == "#pragma" || current_line.substr(0, 5) == "!$OMP") {
+                if (std::regex_match(current_line.substr(0, 5), fortran_regex)) {
+                    is_fortran = true;
+                    base_lang = Lang_Fortran;
+                }
+                else {
+                    base_lang = Lang_C;
+                };
+                if (current_line.substr(0, 7) == "#pragma" || is_fortran) {
                     total_amount += 1;
                     if (input_pragma.size()) {
                         std::cout << "======================================\n";
@@ -98,8 +109,12 @@ int main( int argc, const char* argv[] ) {
                     };
                     current_pragma_line_no = line_no;
                     input_pragma = current_line;
-                    OpenMPDirective* openMPAST = parseOpenMP(input_pragma.c_str(), NULL);
+                    if (is_fortran) {
+                        std::transform(current_line.begin(), current_line.end(), current_line.begin(), ::tolower);
+                    };
+                    OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), base_lang, NULL);
                     output_pragma = test(openMPAST);
+                    is_fortran = false;
                 }
                 else if (current_line.substr(0, 6) == "PASS: ") {
                     validation_string = current_line.substr(6);

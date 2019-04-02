@@ -33,6 +33,7 @@ static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
 static int fourthParameter;
+static OpenMPBaseLang base_lang = Lang_C;
 
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
@@ -1476,14 +1477,18 @@ int yywrap()
 } 
 
 // Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input, void * _exprParse(const char*)) {
+OpenMPDirective* parseOpenMP(const char* _input, OpenMPBaseLang _base_lang, void * _exprParse(const char*)) {
     
     printf("Start parsing...\n");
+    base_lang = _base_lang;
     exprParse = _exprParse;
     current_directive = NULL;
-    start_lexer(input);
+    start_lexer(_input);
     int res = yyparse();
     end_lexer();
+    if (current_directive) {
+        current_directive->setBaseLang(base_lang);
+    };
     
     return current_directive;
 }

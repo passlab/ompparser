@@ -1,7 +1,6 @@
 %option prefix="openmp_"
 /*%option outfile="lex.yy.c"*/
 %option stack
-%option caseless
 %x EXPR_STATE
 %x ALLOCATE_STATE
 %x DEFAULT_STATE
@@ -108,7 +107,7 @@ comment         [\/\/].*
 
 %%
 
-!$OMP           { std::cout << "FORTRAN\n"; }
+!$omp           { ; }
 #pragma         { ; }
 omp             { ; }
 parallel        { return PARALLEL; }

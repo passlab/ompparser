@@ -568,6 +568,9 @@ end:
 
 std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol, bool output_score) {
 
+    if (this->getBaseLang() == Lang_Fortran && prefix == "#pragma omp ") {
+        prefix = "!$omp ";
+    };
     std::string result = prefix;
 
     result += this->toString();
