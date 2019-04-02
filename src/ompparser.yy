@@ -1467,9 +1467,7 @@ reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpenMPC
 int yyerror(const char *s) {
     // printf(" %s!\n", s);
     fprintf(stderr,"error: %s\n",s);
-    // writeOutput (s);
-    assert(0);
-    return 0; // we want to the program to stop on error
+    return 0;
 }
  
 int yywrap()
@@ -1482,6 +1480,7 @@ OpenMPDirective* parseOpenMP(const char* input, void * _exprParse(const char*)) 
     
     printf("Start parsing...\n");
     exprParse = _exprParse;
+    current_directive = NULL;
     start_lexer(input);
     int res = yyparse();
     end_lexer();

@@ -11,7 +11,7 @@ PASS: #pragma omp parallel private (a, b, c)
 !$OMP PARALLEL PRIVATE(a, b)
 PASS: !$omp parallel private(a, b)
   
-#paragma omp parallel privete
+#pragma omp parallel privete
 PASS: privete is not a valid keyword
   
 #pragma omp parallel num_threads (3*5+4/(7+10))

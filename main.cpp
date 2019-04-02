@@ -19,7 +19,10 @@ void output(OpenMPDirective* node) {
 
 std::string test(OpenMPDirective* node) {
 
-    std::string unparsing_string = node->generatePragmaString();
+    std::string unparsing_string;
+    if (node) {
+        unparsing_string = node->generatePragmaString();
+    }
     return unparsing_string;
 }
 
@@ -71,7 +74,6 @@ int main( int argc, const char* argv[] ) {
     int line_no = 0;
     int current_pragma_line_no = 1;
 
-    int cursor = 0;
     char current_char = input_file.peek();
     std::string current_line;
 
@@ -186,8 +188,8 @@ int main( int argc, const char* argv[] ) {
 
         
         
-    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-    output(openMPAST);
+    //OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+    //output(openMPAST);
     return 0;
 }
 
