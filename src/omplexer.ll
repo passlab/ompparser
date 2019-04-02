@@ -762,7 +762,11 @@ void start_lexer(const char* input) {
 }
 
 void end_lexer(void) {
+    // If the lexer exited due to some error, the condition stack could be nonempty.
+    // In this case, it has to be reset to the initial state manually, where yy_start_stack_ptr == 0.
+    while (yy_start_stack_ptr > 0) {
+        yy_pop_state();
+    };
     yy_delete_buffer(YY_CURRENT_BUFFER);
-    BEGIN(INITIAL); // reset the state in case of the termination due to some error.
 }
 
