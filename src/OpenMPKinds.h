@@ -52,6 +52,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(declare_target)
     OPENMP_DIRECTIVE(end_declare_target)
     OPENMP_DIRECTIVE(master)
+    OPENMP_DIRECTIVE(end)
 
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)

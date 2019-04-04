@@ -154,6 +154,16 @@ public:
     void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
     OpenMPBaseLang getBaseLang() { return lang; };
 };
+
+class OpenMPEndDirective : public OpenMPDirective {
+protected:
+    OpenMPDirective* paired_directive;
+public:
+    OpenMPEndDirective () : OpenMPDirective(OMPD_end) {};
+    void setPairedDirective (OpenMPDirective* _paired_directive) { paired_directive = _paired_directive; };
+    OpenMPDirective* getPairedDirective() { return paired_directive; };
+};
+
 //declare variant directive
 class OpenMPDeclareVariantDirective : public OpenMPDirective {
 protected:

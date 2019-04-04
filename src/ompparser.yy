@@ -136,6 +136,7 @@ openmp_directive : parallel_directive
                  | end_declare_target_directive
                  | master_directive
                  | threadprivate_directive
+                 | end_directive
                  ;
 
 variant_directive : parallel_directive
@@ -159,6 +160,21 @@ variant_directive : parallel_directive
                  | cancellation_point_directive
                  | allocate_directive
                  ;
+
+end_directive : END { current_directive = new OpenMPEndDirective();
+                current_parent_directive = current_directive;
+                current_parent_clause = current_clause;
+              } end_clause_seq {
+                ((OpenMPEndDirective*)current_parent_directive)->setPairedDirective(current_directive);
+                current_directive = current_parent_directive;
+                current_clause = current_parent_clause;
+                current_parent_directive = NULL;
+                current_parent_clause = NULL;
+              }
+              ;
+
+end_clause_seq : variant_directive
+               ;
 
 metadirective_directive : METADIRECTIVE {
                         current_directive = new OpenMPDirective(OMPD_metadirective);

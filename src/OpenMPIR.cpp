@@ -581,6 +581,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
 
         case OMPD_declare_variant: {
             result += "(" + ((OpenMPDeclareVariantDirective *) this)->getVariantFuncID() + ") ";
+            break;
         }
         case OMPD_allocate: {
             std::vector<const char *> *list = ((OpenMPAllocateDirective *) this)->getAllocateList();
@@ -594,7 +595,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result = result.substr(0, result.size() - 1);
             result += ") ";
             break;}
-        case OMPD_threadprivate:{
+        case OMPD_threadprivate: {
             std::vector<const char*>* list = ((OpenMPThreadprivateDirective*)this)->getThreadprivateList();
             std::vector<const char*>::iterator list_item;
             result += "(";
@@ -604,10 +605,15 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             }
             result = result.substr(0, result.size()-1); 
             result += ") ";
-            break;}
-        default:
-               ;
+            break;
         }
+        case OMPD_end: {
+            result += ((OpenMPEndDirective*)this)->getPairedDirective()->generatePragmaString("", "", "");
+            break;
+        }
+        default:
+            ;
+    };
 
     if (output_score) {
         std::string trait_score = this->getTraitScore();
@@ -617,7 +623,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
     };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
-    if (clauses != NULL) {
+    if (clauses->size() != 0) {
         std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
         for (it = clauses->begin(); it != clauses->end(); it++) {
             std::vector<OpenMPClause*>* current_clauses = it->second;
@@ -738,6 +744,9 @@ std::string OpenMPDirective::toString() {
             result += "master ";
         case OMPD_threadprivate:
             result += "threadprivate ";
+            break;
+        case OMPD_end:
+            result += "end ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
