@@ -53,6 +53,8 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(end_declare_target)
     OPENMP_DIRECTIVE(master)
     OPENMP_DIRECTIVE(end)
+    OPENMP_DIRECTIVE(barrier)
+    OPENMP_DIRECTIVE(taskwait)
 
     OPENMP_DIRECTIVE(unknown)
     OPENMP_DIRECTIVE(teams)
@@ -216,6 +218,7 @@ enum OpenMPIfClauseModifier {
     OPENMP_IF_MODIFIER(target_exit_data)
     OPENMP_IF_MODIFIER(target)
     OPENMP_IF_MODIFIER(target_update)
+    OPENMP_IF_MODIFIER(taskloop)
 
     OPENMP_IF_MODIFIER(unspecified)
     OPENMP_IF_MODIFIER(unknown)

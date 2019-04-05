@@ -104,7 +104,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_exclusive:
         case OMPC_use_device_ptr :
         case OMPC_use_device_addr :
-        case OMPC_device :
         case OMPC_grainsize :
         case OMPC_num_tasks :
         case OMPC_nogroup :
@@ -344,7 +343,26 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-
+         case OMPC_device : {
+            OpenMPDeviceClauseModifier modifier = (OpenMPDeviceClauseModifier) va_arg(args, int);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPDeviceClause(modifier);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                    if (((OpenMPDeviceClause*)(*it))->getModifier() == modifier) {
+                        new_clause = (*it);
+                        goto end;
+                    }
+                }
+  /* could find the matching object for this clause */
+                new_clause = new OpenMPDeviceClause(modifier);
+                current_clauses->push_back(new_clause);
+            }
+            break;
+        }
         case OMPC_allocate : {
             OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
             char* user_defined_allocator = NULL;
@@ -406,6 +424,18 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             break;
         }
 /*xinyao*/
+        case OMPC_atomic_default_mem_order : {
+            OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind = (OpenMPAtomicDefaultMemOrderClauseKind) va_arg(args, int);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPAtomicDefaultMemOrderClause(atomic_default_mem_order_kind);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else { /* could be an error since if clause may only appear once */
+                std::cerr << "Cannot have two atomic_default_mem_orders clause for the directive " << kind << ", ignored\n";
+            }
+            break;
+        }
        case OMPC_in_reduction : {
             OpenMPInReductionClauseIdentifier identifier = (OpenMPInReductionClauseIdentifier) va_arg(args, int);
             char * user_defined_identifier = NULL;
@@ -611,6 +641,19 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += ((OpenMPEndDirective*)this)->getPairedDirective()->generatePragmaString("", "", "");
             break;
         }
+        case OMPD_requires: {
+            std::vector<std::string> *ext_user_defined_implementation = ((OpenMPRequiresDirective*)this)->getUserDefinedImplementation();
+
+            if(ext_user_defined_implementation->size() > 0) {
+                std::vector<std::string>::iterator list_item;
+                for (list_item = ext_user_defined_implementation->begin(); list_item != ext_user_defined_implementation->end(); list_item++) {
+                    result += "ext_";
+                    result += *list_item;
+                    result += " ";
+                };
+            };
+            break;
+        }
         default:
             ;
     };
@@ -747,6 +790,12 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_end:
             result += "end ";
+            break;
+        case OMPD_barrier:
+            result += "barrier ";
+            break;
+        case OMPD_taskwait:
+            result += "taskwait ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -891,10 +940,10 @@ std::string OpenMPClause::toString() {
             result += "dynamic_allocators ";
             break;
         case OMPC_use_device_ptr:
-            result += "use device ptr ";
+            result += "use_device_ptr ";
             break;
         case OMPC_use_device_addr:
-            result += "use device addr ";
+            result += "use_device_addr ";
             break;
         case OMPC_is_device_ptr:
             result += "is_device_ptr ";
@@ -928,15 +977,15 @@ std::string OpenMPClause::toString() {
 
 /*xinyao*/
 std::string OpenMPAtomicDefaultMemOrderClause::toString() {
-    std::string result = "atomic_default_mem_order (";
+    std::string result = "atomic_default_mem_order(";
     std::string parameter_string;
-    OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind = this->getAtomicDefaultMemOrderClauseKind();
-    switch (atomic_default_mem_order_kind) {
+    OpenMPAtomicDefaultMemOrderClauseKind kind = this->getKind();
+    switch (kind) {
         case OMPC_ATOMIC_DEFAULT_MEM_ORDER_seq_cst:
-            parameter_string = "seq cst";
+            parameter_string = "seq_cst";
             break;
         case OMPC_ATOMIC_DEFAULT_MEM_ORDER_acq_rel:
-            parameter_string = "acq rel";
+            parameter_string = "acq_rel";
             break;
         case OMPC_ATOMIC_DEFAULT_MEM_ORDER_relaxed:
             parameter_string = "relaxed";
@@ -954,6 +1003,39 @@ std::string OpenMPAtomicDefaultMemOrderClause::toString() {
 
     return result;
 }
+void OpenMPAtomicDefaultMemOrderClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "atomic_default_mem_order_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPAtomicDefaultMemOrderClauseKind kind = this->getKind();
+    std::string parameter_string;
+    switch (kind) {
+       case OMPC_ATOMIC_DEFAULT_MEM_ORDER_seq_cst:
+            parameter_string = "seq_cst";
+            break;
+        case OMPC_ATOMIC_DEFAULT_MEM_ORDER_acq_rel:
+            parameter_string = "acq_rel";
+            break;
+        case OMPC_ATOMIC_DEFAULT_MEM_ORDER_relaxed:
+            parameter_string = "relaxed";
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_kind";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+};
 void OpenMPInReductionClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string current_line;
@@ -1199,7 +1281,6 @@ void OpenMPDependClause::generateDOT(std::ofstream& dot_file, int depth, int ind
         };
     };
 };
-
 std::string OpenMPAffinityClause::toString() {
 
     std::string result = "affinity ";
@@ -1212,7 +1293,7 @@ std::string OpenMPAffinityClause::toString() {
         default:
             ;
     }
-   if (clause_string.size() > 1) {
+    if (clause_string.size() > 1) {
         clause_string += " : ";
     };
     clause_string += this->expressionToString();
@@ -1643,6 +1724,40 @@ std::string OpenMPDeviceTypeClause::toString() {
 
     return result;
 }
+
+void OpenMPDeviceTypeClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "device_type_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPDeviceTypeClauseKind device_type_kind = this->getDeviceTypeClauseKind();
+    std::string parameter_string;
+    switch (device_type_kind) {
+        case OMPC_DEVICE_TYPE_host:
+            parameter_string = "host";
+            break;
+        case OMPC_DEVICE_TYPE_nohost:
+            parameter_string = "nohost";
+            break;
+        case OMPC_DEVICE_TYPE_any:
+            parameter_string = "any";
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_kind";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+};
 /**/
 
 std::string OpenMPReductionClause::toString() {
@@ -1885,6 +2000,9 @@ std::string OpenMPIfClause::toString() {
         case OMPC_IF_MODIFIER_task:
             clause_string += "task";
             break;
+        case OMPC_IF_MODIFIER_taskloop:
+            clause_string += "taskloop";
+            break;
         case OMPC_IF_MODIFIER_cancel:
             clause_string += "cancel";
             break;
@@ -1901,7 +2019,7 @@ std::string OpenMPIfClause::toString() {
             clause_string += "target";
             break;
         case OMPC_IF_MODIFIER_target_update:
-            clause_string += "target_updat";
+            clause_string += "target updat";
             break;
         default:
             ;
@@ -2034,31 +2152,40 @@ void OpenMPDirective::generateDOT() {
                 directive_kind = "taskloop ";
                 break;
         case OMPD_taskloop_simd:
-                directive_kind = "taskloop simd ";
+                directive_kind = "taskloop_simd ";
                 break;
         case OMPD_taskyield:
                 directive_kind = "taskyield ";
                 break;
         case OMPD_target_data:
-                directive_kind = "target data ";
+                directive_kind = "target_data ";
                 break;
         case OMPD_target_enter_data:
-                directive_kind = "target enter data ";
+                directive_kind = "target_enter_data ";
                 break;
         case OMPD_target_exit_data:
-                directive_kind = "target exit data ";
+                directive_kind = "target_exit_data ";
                 break;
         case OMPD_target:
                 directive_kind = "target ";
                 break;
         case OMPD_target_update:
-                directive_kind = "target update ";
+                directive_kind = "target_update ";
                 break;
         case OMPD_declare_target:
-                directive_kind = "declare target ";
+                directive_kind = "declare_target ";
+                break;
+        case OMPD_end_declare_target:
+                directive_kind = "end_declare_target ";
                 break;
         case OMPD_master:
                 directive_kind = "master ";
+                break;
+        case OMPD_barrier:
+                directive_kind = "barrier ";
+                break;
+        case OMPD_taskwait:
+                directive_kind = "taskwait ";
                 break;
         default:
                 directive_kind = this->toString();
@@ -2239,19 +2366,16 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             clause_kind += "if";
             break;
         case OMPC_reverse_offload:
-            clause_kind += "reverse offload";
+            clause_kind += "reverse_offload";
             break;
         case OMPC_unified_address:
-            clause_kind += "unified address";
+            clause_kind += "unified_address";
             break;
         case OMPC_unified_shared_memory:
-            clause_kind += "unified shared memory";
-            break;
-        case OMPC_atomic_default_mem_order:
-            clause_kind += "default mem order";
+            clause_kind += "unified_shared_memory";
             break;
         case OMPC_dynamic_allocators:
-            clause_kind += "dynamic allocators";
+            clause_kind += "dynamic_allocators";
             break;
         case OMPC_final:
             clause_kind += "final";
@@ -2272,25 +2396,22 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             clause_kind += "grainsize";
             break;
         case OMPC_num_tasks:
-            clause_kind += "num tasks";
+            clause_kind += "num_tasks";
             break;
         case OMPC_nogroup:
             clause_kind += "nogroup";
-            break;
-        case OMPC_device:
-            clause_kind += "device";
             break;
         case OMPC_map:
             clause_kind += "map";
             break;
         case OMPC_use_device_ptr:
-            clause_kind += "use device ptr";
+            clause_kind += "use_device_ptr";
             break;
         case OMPC_use_device_addr:
-            clause_kind += "use device addr";
+            clause_kind += "use_device_addr";
             break;
         case OMPC_is_device_ptr:
-            clause_kind += "is device ptr";
+            clause_kind += "is_device_ptr";
             break;
         case OMPC_link:
             clause_kind += "link";
@@ -2933,8 +3054,26 @@ void OpenMPIfClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
         case OMPC_IF_MODIFIER_task:
             parameter_string += "task";
             break;
+        case OMPC_IF_MODIFIER_taskloop:
+            parameter_string += "taskloop";
+            break;
         case OMPC_IF_MODIFIER_cancel:
             parameter_string += "cancel";
+            break;
+        case OMPC_IF_MODIFIER_target_data:
+            parameter_string += "target data";
+            break;
+        case OMPC_IF_MODIFIER_target_enter_data:
+            parameter_string += "target enter data";
+            break;
+        case OMPC_IF_MODIFIER_target_exit_data:
+            parameter_string += "target exit data";
+            break;
+        case OMPC_IF_MODIFIER_target:
+            parameter_string += "target";
+            break;
+        case OMPC_IF_MODIFIER_target_update:
+            parameter_string += "target_updat";
             break;
         default:
             ;

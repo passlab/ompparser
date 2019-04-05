@@ -207,25 +207,26 @@ dynamic_allocators        { return DYNAMIC_ALLOCATORS;}
 seq_cst                   { return SEQ_CST; }
 acq_rel                   { return ACQ_REL; }
 relaxed                   { return RELAXED; }
+target                    { return TARGET; }
+data                      { return DATA; }
+device                    { yy_push_state(DEVICE_STATE); return DEVICE; }
+use_device_ptr            { return USE_DEVICE_PTR; }
+use_device_addr           { return USE_DEVICE_ADDR; }  
+enter                     { return ENTER; }
+exit                      { return EXIT; }
+is_device_ptr             { return IS_DEVICE_PTR; }
+defaultmap                { yy_push_state(DEFAULTMAP_STATE); return DEFAULTMAP; }
+update                    { return UPDATE; }
 
-target                   { return TARGET; }
-data                     { return DATA; }
-device                   { yy_push_state(DEVICE_STATE); return DEVICE; }
-use_device_ptr           { return USE_DEVICE_PTR; }
-use_device_addr          { return USE_DEVICE_ADDR; }  
-
-enter                   { return ENTER; }
-exit                    { return EXIT; }
-is_device_ptr           { return IS_DEVICE_PTR; }
-defaultmap              { yy_push_state(DEFAULTMAP_STATE); return DEFAULTMAP; }
-update                  { return UPDATE; }
-
-to                      { yy_push_state(TO_STATE); return TO; }
-from                    { yy_push_state(FROM_STATE); return FROM; }
-uses_allocators         { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLOCATORS;}
-link                    { return LINK; }
-device_type             { yy_push_state(DEVICE_TYPE_STATE); return DEVICE_TYPE; }
-map                     { yy_push_state(MAP_STATE); return MAP; }
+to                        { yy_push_state(TO_STATE); return TO; }
+from                      { yy_push_state(FROM_STATE); return FROM; }
+uses_allocators           { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLOCATORS;}
+link                      { return LINK; }
+device_type               { yy_push_state(DEVICE_TYPE_STATE); return DEVICE_TYPE; }
+map                       { yy_push_state(MAP_STATE); return MAP; }
+ext_                      { parenthesis_global_count = 0; yy_push_state(EXPR_STATE); return EXT_; }
+barrier                 { return BARRIER; }
+taskwait                 { return TASKWAIT; }
 
 "("             { return '('; }
 ")"             { return ')'; }
@@ -249,8 +250,6 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
 <ALLOCATE_STATE>"("                                   { return '('; }
 <ALLOCATE_STATE>")"                                   { yy_pop_state(); return ')'; }
-
-
 <ALLOCATE_STATE>":"                                   { yy_push_state(EXPR_STATE); return ':'; }
 <ALLOCATE_STATE>{blank}*                              { ; }
 <ALLOCATE_STATE>.                                     { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
@@ -258,6 +257,7 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <IF_STATE>parallel{blank}*/:                { return PARALLEL; }
 <IF_STATE>simd{blank}*/:                    { return SIMD; }
 <IF_STATE>task{blank}*/:                    { return TASK; }
+<IF_STATE>taskloop{blank}*/:                { return TASKLOOP; }
 <IF_STATE>cancel{blank}*/:                  { return CANCEL; }
 <IF_STATE>target/{blank}*[{data}{enter}{exit}{update}{:}] { return TARGET; }
 <IF_STATE>data/{blank}*:                    { return DATA; }
@@ -521,39 +521,39 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <AFFINITY_ITERATOR_STATE>.                          { yy_push_state(AFFINITY_EXPR_STATE); unput(yytext[0]); }
 
 <FINAL_STATE>"("                        { yy_push_state(EXPR_STATE); return '('; }
-<FINAL_STATE>")"                                         { yy_pop_state(); return ')'; }
+<FINAL_STATE>")"                        { yy_pop_state(); return ')'; }
 <FINAL_STATE>{blank}*                   { ; }
 <FINAL_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ATOMIC_DEFAULT_MEM_ORDER_STATE>seq_cst           { return SEQ_CST; }
-<ATOMIC_DEFAULT_MEM_ORDER_STATE>acq_rel             { return ACQ_REL; }
-<ATOMIC_DEFAULT_MEM_ORDER_STATE>relaxed     { return RELAXED; }
+<ATOMIC_DEFAULT_MEM_ORDER_STATE>seq_cst          { return SEQ_CST; }
+<ATOMIC_DEFAULT_MEM_ORDER_STATE>acq_rel          { return ACQ_REL; }
+<ATOMIC_DEFAULT_MEM_ORDER_STATE>relaxed          { return RELAXED; }
 <ATOMIC_DEFAULT_MEM_ORDER_STATE>"("              { return '('; }
 <ATOMIC_DEFAULT_MEM_ORDER_STATE>")"              { yy_pop_state(); return ')'; }
 <ATOMIC_DEFAULT_MEM_ORDER_STATE>{blank}*         { ; }
 
-<DEVICE_STATE>omp_ancestor/{blank}*:                { return ANCESTOR; }
-<DEVICE_STATE>omp_device_num/{blank}*:              { return DEVICE_NUM; }
-<DEVICE_STATE>"("                              { return '('; }
-<DEVICE_STATE>")"                                   { yy_pop_state(); return ')'; }
-<DEVICE_STATE>":"                         { yy_push_state(EXPR_STATE); return ':'; }
+<DEVICE_STATE>ancestor/{blank}*:                { return ANCESTOR; }
+<DEVICE_STATE>device_num/{blank}*:              { return DEVICE_NUM; }
+<DEVICE_STATE>"("                               { return '('; }
+<DEVICE_STATE>")"                               { yy_pop_state(); return ')'; }
+<DEVICE_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
 <DEVICE_STATE>{blank}*                          { ; }
 <DEVICE_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <DEFAULTMAP_STATE>alloc/{blank}*              { return BEHAVIOR_ALLOC; }
-<DEFAULTMAP_STATE>to/{blank}*              { return BEHAVIOR_TO; }
-<DEFAULTMAP_STATE>from/{blank}*             { return BEHAVIOR_FROM; }
-<DEFAULTMAP_STATE>tofrom/{blank}*              { return BEHAVIOR_TOFROM; }
-<DEFAULTMAP_STATE>firstprivate/{blank}*              { return BEHAVIOR_FIRSTPRIVATE; }
-<DEFAULTMAP_STATE>none/{blank}*             { return BEHAVIOR_NONE; }
-<DEFAULTMAP_STATE>default/{blank}*              { return BEHAVIOR_DEFAULT; }
-<DEFAULTMAP_STATE>scalar/{blank}*              { return CATEGORY_SCALAR; }
-<DEFAULTMAP_STATE>aggregate/{blank}*             { return CATEGORY_AGGREGATE; }
-<DEFAULTMAP_STATE>pointer/{blank}*              { return CATEGORY_POINTER; }
-<DEFAULTMAP_STATE>"("                      { return '('; }
-<DEFAULTMAP_STATE>")"                      { yy_pop_state(); return ')'; }
-<DEFAULTMAP_STATE>":"                      { return ':';}
-<DEFAULTMAP_STATE>{blank}*                 { ; }
+<DEFAULTMAP_STATE>to/{blank}*                 { return BEHAVIOR_TO; }
+<DEFAULTMAP_STATE>from/{blank}*               { return BEHAVIOR_FROM; }
+<DEFAULTMAP_STATE>tofrom/{blank}*             { return BEHAVIOR_TOFROM; }
+<DEFAULTMAP_STATE>firstprivate/{blank}*       { return BEHAVIOR_FIRSTPRIVATE; }
+<DEFAULTMAP_STATE>none/{blank}*               { return BEHAVIOR_NONE; }
+<DEFAULTMAP_STATE>default/{blank}*            { return BEHAVIOR_DEFAULT; }
+<DEFAULTMAP_STATE>scalar/{blank}*             { return CATEGORY_SCALAR; }
+<DEFAULTMAP_STATE>aggregate/{blank}*          { return CATEGORY_AGGREGATE; }
+<DEFAULTMAP_STATE>pointer/{blank}*            { return CATEGORY_POINTER; }
+<DEFAULTMAP_STATE>"("                         { return '('; }
+<DEFAULTMAP_STATE>")"                         { yy_pop_state(); return ')'; }
+<DEFAULTMAP_STATE>":"                         { return ':';}
+<DEFAULTMAP_STATE>{blank}*                    { ; }
 
 <TO_STATE>"("                        { return '('; }
 <TO_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -711,6 +711,18 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
                                                     else {
                                                         current_string.append(1, current_char);
                                                     }
+                                                    break;
+                                                }
+                                                case ' ': {
+                                                    if (parenthesis_global_count == 0) {
+                                                        yy_pop_state();
+                                                        openmp_lval.stype = strdup(current_string.c_str());
+                                                        current_string.clear();
+                                                        parenthesis_local_count = 0;
+                                                        parenthesis_global_count = 1;
+                                                        bracket_count = 0;
+                                                        return EXPR_STRING;
+                                                    };
                                                     break;
                                                 }
                                                 default: {
