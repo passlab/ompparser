@@ -647,8 +647,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             if(ext_user_defined_implementation->size() > 0) {
                 std::vector<std::string>::iterator list_item;
                 for (list_item = ext_user_defined_implementation->begin(); list_item != ext_user_defined_implementation->end(); list_item++) {
-                    result += "ext_";
-                    result += *list_item;
+                    result += "ext_" + *list_item;
                     result += " ";
                 };
             };
@@ -2019,7 +2018,7 @@ std::string OpenMPIfClause::toString() {
             clause_string += "target";
             break;
         case OMPC_IF_MODIFIER_target_update:
-            clause_string += "target updat";
+            clause_string += "target update";
             break;
         default:
             ;
@@ -3073,7 +3072,7 @@ void OpenMPIfClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
             parameter_string += "target";
             break;
         case OMPC_IF_MODIFIER_target_update:
-            parameter_string += "target_updat";
+            parameter_string += "target update";
             break;
         default:
             ;
