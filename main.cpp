@@ -210,8 +210,8 @@ const char* input = "omp target if(target:3456) device(ancestor:5) private (x, n
 
         
         
-    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-    output(openMPAST);
+   // OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+   // output(openMPAST);
     return 0;
 }
 
