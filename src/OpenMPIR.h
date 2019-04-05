@@ -164,6 +164,15 @@ public:
     OpenMPDirective* getPairedDirective() { return paired_directive; };
 };
 
+class OpenMPRequiresDirective : public OpenMPDirective {
+protected:
+    std::vector<std::string> user_defined_implementation;
+public:
+    OpenMPRequiresDirective () : OpenMPDirective(OMPD_requires) {};
+    void addUserDefinedImplementation (const char* _user_defined_implementation) { user_defined_implementation.push_back(std::string(_user_defined_implementation)); };
+    std::vector<std::string>* getUserDefinedImplementation() { return &user_defined_implementation; };
+};
+
 //declare variant directive
 class OpenMPDeclareVariantDirective : public OpenMPDirective {
 protected:
@@ -572,17 +581,18 @@ static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, Open
 class OpenMPAtomicDefaultMemOrderClause : public OpenMPClause {
 
 protected:
-    OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind; 
+    OpenMPAtomicDefaultMemOrderClauseKind kind; 
 
 public:
-    OpenMPAtomicDefaultMemOrderClause(OpenMPAtomicDefaultMemOrderClauseKind _atomic_default_mem_order_kind) :
-            OpenMPClause(OMPC_atomic_default_mem_order), atomic_default_mem_order_kind(_atomic_default_mem_order_kind) { };
+    OpenMPAtomicDefaultMemOrderClause(OpenMPAtomicDefaultMemOrderClauseKind _kind) :
+            OpenMPClause(OMPC_atomic_default_mem_order), kind(_kind) { };
 
-    OpenMPAtomicDefaultMemOrderClauseKind getAtomicDefaultMemOrderClauseKind() {return atomic_default_mem_order_kind; };
+    OpenMPAtomicDefaultMemOrderClauseKind getKind() {return kind; };
 
-    static OpenMPClause * addAtomicDefaultMemOrderClause(OpenMPDirective* directive, OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind);
+    static OpenMPClause * addAtomicDefaultMemOrderClause(OpenMPDirective* directive, OpenMPAtomicDefaultMemOrderClauseKind kind);
 
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // device clause
@@ -665,6 +675,7 @@ public:
 
     static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 
