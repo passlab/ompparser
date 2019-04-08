@@ -181,6 +181,36 @@ public:
     std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
+//declear reduction directive
+class OpenMPDeclareReductionDirective : public OpenMPDirective {
+protected:
+    std::vector<const char*> typename_list;
+    std::string identifier;
+    std::string combiner;
+public:
+    OpenMPDeclareReductionDirective () : OpenMPDirective(OMPD_declare_reduction) {};
+    void addTypenameList (const char* _typename_list) { typename_list.push_back(_typename_list); };
+    std::vector<const char*>* getTypenameList () { return &typename_list; };
+    void setIdentifier (std::string _identifier) { identifier = _identifier;}
+    std::string getIdentifier() { return identifier;}
+    void setCombiner (const char *_combiner) { combiner = std::string(_combiner);}
+    std::string getCombiner() {return combiner;}
+};
+
+//declear mapper directive
+class OpenMPDeclareMapperDirective : public OpenMPDirective {
+protected:
+    std::string identifier;
+    std::string type_var;
+
+public:
+    OpenMPDeclareMapperDirective () : OpenMPDirective(OMPD_declare_mapper) {};
+    void setIdentifier (std::string _identifier) { identifier = _identifier;}
+    std::string getIdentifier() { return identifier;}
+    void setTypeVar (std::string _type_var) { type_var = _type_var;}
+    std::string getTypeVar() { return type_var;}
+};
+
 // reduction clause
 class OpenMPReductionClause : public OpenMPClause {
 
@@ -207,6 +237,26 @@ public:
     static OpenMPReductionClause * addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
                   OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
 
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// initializer clause
+class OpenMPInitializerClause : public OpenMPClause {
+protected:
+    OpenMPInitializerClausePriv priv; // initializer priv
+    std::string user_defined_priv;                         /* user defined value if it is used */
+public:
+    OpenMPInitializerClause(OpenMPInitializerClausePriv _priv) :
+            OpenMPClause(OMPC_initializer), priv(_priv), user_defined_priv ("") { };
+    
+    OpenMPInitializerClausePriv getPriv() { return priv; };
+
+    void setUserDefinedPriv(char *_priv) { user_defined_priv = std::string(_priv); }
+
+    std::string getUserDefinedPriv() { return user_defined_priv; };
+
+    static OpenMPInitializerClause * addInitializerClause(OpenMPDirective *directive, OpenMPInitializerClausePriv priv, char * user_defined_priv);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };

@@ -17,6 +17,8 @@
 %x DIST_SCHEDULE_STATE
 %x BIND_STATE
 %X ALLOCATOR_STATE
+%X INITIALIZER_STATE
+%X MAPPER_STATE
 %x WHEN_STATE
 %x MATCH_STATE
 %x ISA_STATE
@@ -168,6 +170,8 @@ point           { return POINT;}
 variant         { return VARIANT; }
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 match           { yy_push_state(MATCH_STATE); return MATCH; }
+initializer     { yy_push_state(INITIALIZER_STATE);return INITIALIZER;}
+mapper          { yy_push_state(MAPPER_STATE);return MAPPER;}
 
 end             { return END; }
 score           { return SCORE; }
@@ -386,6 +390,20 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                          { return -1; }
 
+<INITIALIZER_STATE>omp_priv                 { return PRIV;}
+<INITIALIZER_STATE>"="                      { return '=';}
+<INITIALIZER_STATE>{blank}*                 { ; }
+<INITIALIZER_STATE>"("                      { return '('; }
+<INITIALIZER_STATE>")"                      { yy_pop_state(); return ')'; }
+<INITIALIZER_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT;}
+<MAPPER_STATE>":"                           { return ':';}
+<MAPPER_STATE>{blank}*                      { ; }
+<MAPPER_STATE>"("                           { return '('; }
+<MAPPER_STATE>")"                           { yy_pop_state(); return ')'; }
+<MAPPER_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_push_state(INITIAL); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
@@ -491,7 +509,7 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 
 <DEPEND_EXPR_STATE>"("{blank}*           { return '('; }
 <DEPEND_EXPR_STATE>{blank}*")"           { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
-<DEPEND_EXPR_STATE>","               { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;}
+<DEPEND_EXPR_STATE>","                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;}
 <DEPEND_EXPR_STATE>{blank}               { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING;}
 <DEPEND_EXPR_STATE>"="                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING;} 
 <DEPEND_EXPR_STATE>":"                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING;}
@@ -508,7 +526,7 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <AFFINITY_EXPR_STATE>"("{blank}*           { return '('; }
 <AFFINITY_EXPR_STATE>{blank}*")"           { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
 <AFFINITY_EXPR_STATE>{blank}               { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING;}
-<AFFINITY_EXPR_STATE>","               { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;}
+<AFFINITY_EXPR_STATE>","                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;}
 <AFFINITY_EXPR_STATE>"="                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING;} 
 <AFFINITY_EXPR_STATE>":"                   { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING;}
 <AFFINITY_EXPR_STATE>.                     { current_string += yytext[0]; }
@@ -560,7 +578,7 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
 <TO_STATE>")"                        { yy_pop_state(); return ')'; }
 <TO_STATE>","                        { return ','; }
 <TO_STATE>":"                        { yy_push_state(EXPR_STATE); return ':'; }
-<TO_STATE>mapper/{blank}*"("       { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER;}
+<TO_STATE>mapper/{blank}*"("         { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER;}
 <TO_STATE>{blank}*                   { ; }
 <TO_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -702,6 +720,10 @@ map                     { yy_push_state(MAP_STATE); return MAP; }
                             else {
                                 current_string.append(1, current_char);
                             }
+                            break;
+
+                        case ' ' :
+                            current_string.append(1, current_char);
                             break;
 
                         default :

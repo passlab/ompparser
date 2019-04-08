@@ -57,10 +57,10 @@ corresponding C type is union name defaults to YYSTYPE.
         }
 
 
-%token  OMP PARALLEL FOR DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE
+%token  OMP PARALLEL FOR DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE MAPPER
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
-        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR/*YAYING*/
+        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER PRIV IDENTIFIER_DEFAULT/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -135,6 +135,8 @@ openmp_directive : parallel_directive
                  | end_declare_target_directive
                  | master_directive
                  | threadprivate_directive
+                 | declare_reduction_directive
+                 | declare_mapper_directive
                  ;
 
 variant_directive : parallel_directive
@@ -900,6 +902,47 @@ threadprivate_variable :   EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPThread
 threadprivate_list : threadprivate_variable
                    | threadprivate_list ',' threadprivate_variable
                    ;
+
+declare_reduction_directive : DECLARE REDUCTION {current_directive = new OpenMPDeclareReductionDirective();} '(' reduction_list ')' declare_reduction_clause_optseq
+                            ;
+
+reduction_list : reduction_identifiers ':' typername_list ':' combiner;
+
+reduction_identifiers: '+'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("+"); }
+                     | '-'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("-"); }
+                     | '*'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("*"); }
+                     | '&'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("&"); }
+                     | '|'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("|"); }
+                     | '^'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("^"); }
+                     | LOGAND{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("&&"); }
+                     | LOGOR{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("||"); }
+                     ; 
+
+typername_variable : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareReductionDirective*)current_directive)->addTypenameList($1); }
+                   ;
+typername_list : typername_variable
+               | typername_list ',' typername_variable
+               ;
+combiner : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareReductionDirective*)current_directive)->setCombiner($1); }
+         ;
+
+declare_mapper_directive : DECLARE MAPPER {current_directive = new OpenMPDeclareMapperDirective();} '(' mapper_list ')' declare_mapper_clause_optseq
+                         ;
+
+mapper_list : mapper_identifier_optseq 
+            ;
+
+mapper_identifier_optseq : type_var
+                         | mapper_identifier ':' type_var
+                         ;
+ 
+mapper_identifier : IDENTIFIER_DEFAULT {((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier("default");}
+                  | EXPR_STRING {((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier($1);}
+                  ;
+
+type_var : EXPR_STRING {std::cout<< $1 <<"\n";((OpenMPDeclareMapperDirective*)current_directive)->setTypeVar($1);}
+         ;
+
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq
                        ;
@@ -953,7 +996,12 @@ cancellation_point_clause_optseq : /*empty*/
 allocate_clause_optseq :  /*empty*/
                        | allocate_clause_seq
                        ;
-
+declare_reduction_clause_optseq :  /*empty*/
+                                | declare_reduction_clause_seq
+                                ;
+declare_mapper_clause_optseq :  /*empty*/
+                             | declare_mapper_clause_seq
+                             ; 
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
@@ -1021,6 +1069,10 @@ cancellation_point_clause_seq : construct_type_clause
                               ;
 allocate_clause_seq :  allocator_clause
                     ;
+declare_reduction_clause_seq : initializer_clause
+                             ;
+declare_mapper_clause_seq : map_clause
+                          ;
 parallel_clause : if_clause
                 | num_threads_clause
                 | default_clause
@@ -1159,7 +1211,7 @@ distribute_parallel_for_simd_clause: if_clause
                                    | nontemporal_clause
                                    ;
 loop_clause : bind_clause
-        | collapse_clause
+            | collapse_clause
             | order_clause
             | private_clause
             | lastprivate_clause
@@ -1169,17 +1221,17 @@ scan_clause : inclusive_clause
             | exclusive_clause
             ;
 sections_clause : private_clause
-            | firstprivate_clause
-            | lastprivate_clause
-            | reduction_clause
-            | allocate_clause
-            | nowait_clause
+                | firstprivate_clause
+                | lastprivate_clause
+                | reduction_clause
+                | allocate_clause
+                | nowait_clause
                 ;
 single_clause : private_clause
-          | firstprivate_clause
-          | copyprivate_clause
-          | allocate_clause
-          | nowait_clause
+              | firstprivate_clause
+              | copyprivate_clause
+              | allocate_clause
+              | nowait_clause
               ;
 construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel);}
                       | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections);}
@@ -1339,9 +1391,15 @@ aligned_clause : ALIGNED '('  aligned_parameter ')'
                | ALIGNED '('  aligned_parameter ':' var_list')'
            ;
 
+
 aligned_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_aligned); current_clause->addLangExpr($1);  }
                   | EXPR_STRING ','  {std::cout << $1 << "\n";} {current_clause = current_directive->addOpenMPClause(OMPC_aligned); current_clause->addLangExpr($1); } var_list
           ;
+initializer_clause : INITIALIZER '('initializer_expr')';
+
+initializer_expr : PRIV {std::cout << "omp_priv = ";} '=' expr;
+
+expr: EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_initializer, OMPC_INITIALIZER_PRIV_user, $1); };
 
 safelen_clause: SAFELEN { current_clause = current_directive->addOpenMPClause(OMPC_safelen);} '(' var_list ')' {
                         }
