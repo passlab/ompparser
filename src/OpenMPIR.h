@@ -18,6 +18,7 @@ enum OpenMPBaseLang {
     Lang_C,
     Lang_Cplusplus,
     Lang_Fortran,
+    Lang_unknown
 };
 
 class SourceLocation {
@@ -131,7 +132,7 @@ protected:
     std::string trait_score;
 
 public:
-    OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_C, int _line = 0, int _col = 0) :
+    OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_unknown, int _line = 0, int _col = 0) :
             SourceLocation(_line, _col), kind(k), lang(_lang) {};
 
     OpenMPDirectiveKind getKind() { return kind; };
@@ -150,7 +151,28 @@ public:
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
     void setTraitScore(const char* _score) { trait_score = std::string(_score); };
     std::string getTraitScore () { return trait_score; };
+    void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
+    OpenMPBaseLang getBaseLang() { return lang; };
 };
+
+class OpenMPEndDirective : public OpenMPDirective {
+protected:
+    OpenMPDirective* paired_directive;
+public:
+    OpenMPEndDirective () : OpenMPDirective(OMPD_end) {};
+    void setPairedDirective (OpenMPDirective* _paired_directive) { paired_directive = _paired_directive; };
+    OpenMPDirective* getPairedDirective() { return paired_directive; };
+};
+
+class OpenMPRequiresDirective : public OpenMPDirective {
+protected:
+    std::vector<std::string> user_defined_implementation;
+public:
+    OpenMPRequiresDirective () : OpenMPDirective(OMPD_requires) {};
+    void addUserDefinedImplementation (const char* _user_defined_implementation) { user_defined_implementation.push_back(std::string(_user_defined_implementation)); };
+    std::vector<std::string>* getUserDefinedImplementation() { return &user_defined_implementation; };
+};
+
 //declare variant directive
 class OpenMPDeclareVariantDirective : public OpenMPDirective {
 protected:
@@ -609,17 +631,18 @@ static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, Open
 class OpenMPAtomicDefaultMemOrderClause : public OpenMPClause {
 
 protected:
-    OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind; 
+    OpenMPAtomicDefaultMemOrderClauseKind kind; 
 
 public:
-    OpenMPAtomicDefaultMemOrderClause(OpenMPAtomicDefaultMemOrderClauseKind _atomic_default_mem_order_kind) :
-            OpenMPClause(OMPC_atomic_default_mem_order), atomic_default_mem_order_kind(_atomic_default_mem_order_kind) { };
+    OpenMPAtomicDefaultMemOrderClause(OpenMPAtomicDefaultMemOrderClauseKind _kind) :
+            OpenMPClause(OMPC_atomic_default_mem_order), kind(_kind) { };
 
-    OpenMPAtomicDefaultMemOrderClauseKind getAtomicDefaultMemOrderClauseKind() {return atomic_default_mem_order_kind; };
+    OpenMPAtomicDefaultMemOrderClauseKind getKind() {return kind; };
 
-    static OpenMPClause * addAtomicDefaultMemOrderClause(OpenMPDirective* directive, OpenMPAtomicDefaultMemOrderClauseKind atomic_default_mem_order_kind);
+    static OpenMPClause * addAtomicDefaultMemOrderClause(OpenMPDirective* directive, OpenMPAtomicDefaultMemOrderClauseKind kind);
 
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // device clause
@@ -702,6 +725,7 @@ public:
 
     static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive);
     std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 

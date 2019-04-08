@@ -13,6 +13,7 @@
 #include <iostream>
 #include "OpenMPIR.h"
 #include <string.h>
+#include <regex>
 
 /*the scanner function*/
 extern int openmp_lex(); 
@@ -74,7 +75,7 @@ corresponding C type is union name defaults to YYSTYPE.
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
-LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE
+LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING
 /* associativity and precedence */
@@ -137,6 +138,9 @@ openmp_directive : parallel_directive
                  | threadprivate_directive
                  | declare_reduction_directive
                  | declare_mapper_directive
+                 | end_directive
+                 | barrier_directive
+                 | taskwait_directive
                  ;
 
 variant_directive : parallel_directive
@@ -160,6 +164,21 @@ variant_directive : parallel_directive
                  | cancellation_point_directive
                  | allocate_directive
                  ;
+
+end_directive : END { current_directive = new OpenMPEndDirective();
+                current_parent_directive = current_directive;
+                current_parent_clause = current_clause;
+              } end_clause_seq {
+                ((OpenMPEndDirective*)current_parent_directive)->setPairedDirective(current_directive);
+                current_directive = current_parent_directive;
+                current_clause = current_parent_clause;
+                current_parent_directive = NULL;
+                current_parent_clause = NULL;
+              }
+              ;
+
+end_clause_seq : variant_directive
+               ;
 
 metadirective_directive : METADIRECTIVE {
                         current_directive = new OpenMPDirective(OMPD_metadirective);
@@ -338,7 +357,7 @@ taskyield_directive : TASKYIELD {
                      }
                    ;
 requires_directive : REQUIRES {
-                        current_directive = new OpenMPDirective(OMPD_requires);
+                        current_directive = new OpenMPRequiresDirective();
                      }
                      requires_clause_optseq
                    ;
@@ -380,6 +399,15 @@ master_directive : MASTER {
                         current_directive = new OpenMPDirective(OMPD_master);
                      }
                    ;
+barrier_directive : BARRIER {
+                        current_directive = new OpenMPDirective(OMPD_barrier);
+                     }
+                   ;
+taskwait_directive : TASKWAIT {
+                        current_directive = new OpenMPDirective(OMPD_taskwait);
+                     }
+                      taskwait_clause_optseq
+                     ;
 
 task_clause_optseq : /* empty */
                        | task_clause_seq
@@ -409,6 +437,9 @@ declare_target_clause_optseq : /* empty */
                              |  '(' var_list ')'
                              | declare_target_seq
                              ;
+taskwait_clause_optseq :/* empty */
+                        |taskwait_clause_seq
+                       ;
 
 task_clause_seq : task_clause
                     | task_clause_seq task_clause
@@ -449,6 +480,10 @@ target_update_clause_seq : target_update_clause
 declare_target_seq : declare_target_clause
                     | declare_target_seq declare_target_clause
                     | declare_target_seq ',' declare_target_clause
+                    ;
+taskwait_clause_seq : taskwait_clause
+                    | taskwait_clause_seq taskwait_clause
+                    | taskwait_clause_seq ',' taskwait_clause
                     ;
 
 task_clause : if_clause
@@ -512,7 +547,8 @@ requires_clause : reverse_offload_clause
                 | unified_address_clause
                 | unified_shared_memory_clause   
                 | atomic_default_mem_order_clause 
-                | dynamic_allocators_clause       
+                | dynamic_allocators_clause
+                | ext_implementation_defined_requirement       
                 ;
 target_data_clause: if_clause
                     | device_clause
@@ -559,6 +595,8 @@ target_update_other_clause:if_clause
 declare_target_clause : to_clause
                       | link_clause
                       | device_type_clause
+                      ;
+taskwait_clause : depend_clause
                       ;
 final_clause: FINAL {
                             current_clause = current_directive->addOpenMPClause(OMPC_final);
@@ -680,22 +718,28 @@ atomic_default_mem_order_parameter : SEQ_CST { current_clause = current_directiv
 dynamic_allocators_clause: DYNAMIC_ALLOCATORS {
                             current_clause = current_directive->addOpenMPClause(OMPC_dynamic_allocators);
                          } 
-                      ;
+                         ;
+ext_implementation_defined_requirement: EXT_ EXPR_STRING {
+                                        ((OpenMPRequiresDirective*)current_directive)->addUserDefinedImplementation($2);
+                                      }
+                                      ;
 device_clause : DEVICE '(' device_parameter ')' ;
 
 device_parameter :   EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1);  }
                      | EXPR_STRING ',' {std::cout << $1 << "\n";
                          current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1); } var_list
-                     | device_modifier_parameter ':' { ; } var_list
+                     | device_modifier_parameter ':' var_list
                       ;
 
 device_modifier_parameter : ANCESTOR     { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_ancestor); }
-  | DEVICE_NUM{ current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_device_num); }
+                          | DEVICE_NUM{ current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_device_num); }
                           ;
+
 use_device_ptr_clause : USE_DEVICE_PTR {
                 current_clause = current_directive->addOpenMPClause(OMPC_use_device_ptr);
 } '(' var_list ')'
   ;
+
 use_device_addr_clause : USE_DEVICE_ADDR {
                 current_clause = current_directive->addOpenMPClause(OMPC_use_device_addr);
 } '(' var_list ')'
@@ -1250,6 +1294,9 @@ if_parameter :  PARALLEL ':' {
               | TASK ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_task);
                 } expression { ; }
+              | TASKLOOP ':' {
+                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop);
+                } expression { ; }
               | CANCEL ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_cancel);
                 } expression { ; }
@@ -1525,9 +1572,7 @@ reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpenMPC
 int yyerror(const char *s) {
     // printf(" %s!\n", s);
     fprintf(stderr,"error: %s\n",s);
-    // writeOutput (s);
-    assert(0);
-    return 0; // we want to the program to stop on error
+    return 0;
 }
  
 int yywrap()
@@ -1536,13 +1581,29 @@ int yywrap()
 } 
 
 // Standalone ompparser
-OpenMPDirective* parseOpenMP(const char* input, void * _exprParse(const char*)) {
+OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
     
     printf("Start parsing...\n");
+    OpenMPBaseLang base_lang = Lang_C;
     exprParse = _exprParse;
+    current_directive = NULL;
+    std::string input_string;
+    const char *input = _input;
+    // Since we can't guarantee the input has been preprocessed, it should be checked here.
+    std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
+    input_string = std::string(input, 5);
+    if (std::regex_match(input_string, fortran_regex)) {
+        base_lang = Lang_Fortran;
+        input_string = std::string(input);
+        std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
+        input = input_string.c_str();
+    };
     start_lexer(input);
     int res = yyparse();
     end_lexer();
+    if (current_directive) {
+        current_directive->setBaseLang(base_lang);
+    };
     
     return current_directive;
 }

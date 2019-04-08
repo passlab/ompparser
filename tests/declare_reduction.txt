@@ -6,7 +6,7 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp declare reduction(+ : const, int : a) initializer(omp_priv=foo(c,a,d))
-PASS: #pragma omp declare reduction ( + : const, int : a ) initializer (omp_priv=foo(c,a,d))
+PASS: #pragma omp declare reduction ( + : const,int : a ) initializer (omp_priv=foo(c,a,d))
 
 
 // invalid test without paired validation.
