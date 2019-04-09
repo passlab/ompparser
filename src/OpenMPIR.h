@@ -677,7 +677,55 @@ public:
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+class OpenMPTaskReductionClause : public OpenMPClause {
 
+protected:
+    OpenMPTaskReductionClauseIdentifier identifier; // identifier
+    std::string user_defined_identifier;                // user defined identifier if it is used
+
+public:
+    OpenMPTaskReductionClause( ) : OpenMPClause(OMPC_in_reduction) { }
+
+    OpenMPTaskReductionClause(OpenMPTaskReductionClauseIdentifier _identifier) : OpenMPClause(OMPC_in_reduction),identifier(_identifier), user_defined_identifier ("") { };
+
+    OpenMPTaskReductionClauseIdentifier getIdentifier() { return identifier; };
+
+    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
+
+    std::string getUserDefinedIdentifier() { return user_defined_identifier; };
+
+    static OpenMPTaskReductionClause * addTaskReductionClause(OpenMPDirective *directive, OpenMPTaskReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// map clause
+class OpenMPMapClause : public OpenMPClause {
+
+protected:
+    OpenMPMapClauseModifier modifier1; 
+    OpenMPMapClauseModifier modifier2;
+    OpenMPMapClauseModifier modifier3;
+    OpenMPMapClauseType type; 
+
+public:
+    OpenMPMapClause() : OpenMPClause(OMPC_map) { }
+
+    OpenMPMapClause(OpenMPMapClauseModifier _modifier1,OpenMPMapClauseModifier _modifier2,OpenMPMapClauseModifier _modifier3,
+                          OpenMPMapClauseType _type) : OpenMPClause(OMPC_map),
+                                         modifier1(_modifier1),modifier2(_modifier2),modifier3(_modifier3), type(_type) { };
+
+    OpenMPMapClauseModifier getModifier1() { return modifier1; };
+    OpenMPMapClauseModifier getModifier2() { return modifier2; };
+    OpenMPMapClauseModifier getModifier3() { return modifier3; };
+    OpenMPMapClauseType getType() { return type; };
+
+    /*static OpenMPMapClause * addMapClause(OpenMPDirective *directive,  OpenMPMapClauseModifier modifier1,OpenMPMapClauseModifier modifier2,OpenMPMapClauseModifier modifier3, 
+                  OpenMPMapClauseType type);*/
+
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
 
 #ifdef __cplusplus
 extern "C" {

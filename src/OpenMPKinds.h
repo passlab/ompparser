@@ -39,6 +39,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(threadprivate)      /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
+    OPENMP_DIRECTIVE(teams)
     OPENMP_DIRECTIVE(task)
     OPENMP_DIRECTIVE(taskloop)
     OPENMP_DIRECTIVE(taskloop_simd)
@@ -55,9 +56,9 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(end)
     OPENMP_DIRECTIVE(barrier)
     OPENMP_DIRECTIVE(taskwait)
+    OPENMP_DIRECTIVE(taskgroup)
 
     OPENMP_DIRECTIVE(unknown)
-    OPENMP_DIRECTIVE(teams)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
 };
@@ -147,6 +148,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(match, OMPMatchClause)
     OPENMP_CLAUSE(link, OMPLinkClause)
     OPENMP_CLAUSE(device_type, OMPDeviceTypeClause)
+    OPENMP_CLAUSE(task_reduction, OMPTaskReductionClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
@@ -525,19 +527,43 @@ enum OpenMPDeviceTypeClauseKind {
 #undef OPENMP_DEVICE_TYPE_KIND
 };
 /// modifiers for 'map' clause.
-enum OpenMPDMapClauseModifier {
+enum OpenMPMapClauseModifier {
 #define OPENMP_MAP_MODIFIER(Name) OMPC_MAP_MODIFIER_##Name,
     OPENMP_MAP_MODIFIER(always)
     OPENMP_MAP_MODIFIER(close)
     OPENMP_MAP_MODIFIER(mapper)
+    OPENMP_MAP_MODIFIER(unknown)
 #undef OPENMP_MAP_MODIFIER
 };
-enum OpenMPDMapClauseType {
+enum OpenMPMapClauseType {
 #define OPENMP_MAP_TYPE(Name) OMPC_MAP_TYPE_##Name,
-    OPENMP_MAP_TYPE(always)
-    OPENMP_MAP_TYPE(close)
-    OPENMP_MAP_TYPE(mapper)
+    OPENMP_MAP_TYPE(to)
+    OPENMP_MAP_TYPE(from)
+    OPENMP_MAP_TYPE(tofrom)
+    OPENMP_MAP_TYPE(alloc)
+    OPENMP_MAP_TYPE(release)
+    OPENMP_MAP_TYPE(delete)
+    OPENMP_MAP_TYPE(unknown)
 #undef OPENMP_MAP_TYPE
+};
+enum OpenMPTaskReductionClauseIdentifier {
+#define OPENMP_TASK_REDUCTION_IDENTIFIER(Name) OMPC_TASK_REDUCTION_IDENTIFIER_##Name,
+    OPENMP_TASK_REDUCTION_IDENTIFIER(plus)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(minus)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(mul)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(bitand)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(bitor)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(bitxor)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(logand)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(logor)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(eqv) /* only for Fortran */
+    OPENMP_TASK_REDUCTION_IDENTIFIER(neqv) /* only for Fortran */
+    OPENMP_TASK_REDUCTION_IDENTIFIER(max)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(min)
+    OPENMP_TASK_REDUCTION_IDENTIFIER(user)
+
+    OPENMP_TASK_REDUCTION_IDENTIFIER(unknown)
+#undef OPENMP_TASK_REDUCTION_IDENTIFIER
 };
 #endif
 

@@ -582,6 +582,64 @@ clauses[kind] = current_clauses;
          }
                  break;        
         }
+        case OMPC_task_reduction : {
+            OpenMPTaskReductionClauseIdentifier identifier = (OpenMPTaskReductionClauseIdentifier) va_arg(args, int);
+            char * user_defined_identifier = NULL;
+            if (identifier == OMPC_TASK_REDUCTION_IDENTIFIER_user) user_defined_identifier = va_arg(args, char *);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPTaskReductionClause(identifier);
+                if (identifier == OMPC_TASK_REDUCTION_IDENTIFIER_user && user_defined_identifier) {
+                    ((OpenMPTaskReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
+                 };
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                    std::string current_user_defined_identifier_expression;
+                    if (user_defined_identifier) {
+                        current_user_defined_identifier_expression = std::string(user_defined_identifier);
+                    };
+                    if (((OpenMPTaskReductionClause*)(*it))->getIdentifier() == identifier &&
+                    current_user_defined_identifier_expression.compare(((OpenMPTaskReductionClause*)(*it))->getUserDefinedIdentifier()) == 0) {
+                        new_clause = (*it);
+                        goto end;
+                    }
+                }
+                /* could fine the matching object for this clause */
+                new_clause = new OpenMPTaskReductionClause(identifier);
+                if (identifier == OMPC_TASK_REDUCTION_IDENTIFIER_user)
+                    ((OpenMPTaskReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
+                current_clauses->push_back(new_clause);
+            }
+            break;
+        }
+        case OMPC_map: {
+            OpenMPMapClauseModifier modifier1 = (OpenMPMapClauseModifier) va_arg(args, int);
+            OpenMPMapClauseModifier modifier2 = (OpenMPMapClauseModifier) va_arg(args, int);
+            OpenMPMapClauseModifier modifier3 = (OpenMPMapClauseModifier) va_arg(args, int);
+            OpenMPMapClauseType type = (OpenMPMapClauseType) va_arg(args, int);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPMapClause(modifier1,modifier2,modifier3, type);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                   
+                    
+                    if (((OpenMPMapClause*)(*it))->getModifier1() == modifier1 && ((OpenMPMapClause*)(*it))->getModifier2() == modifier2 &&((OpenMPMapClause*)(*it))->getModifier3() == modifier3&&
+                        ((OpenMPMapClause*)(*it))->getType() == type) {
+                        new_clause = (*it);
+                        goto end;
+                    }
+                }
+                /* could fine the matching object for this clause */
+                new_clause = new OpenMPMapClause(modifier1,modifier2,modifier3, type);
+                current_clauses->push_back(new_clause);
+            }
+            break;
+        }
         case OMPC_when: {
 
             new_clause = OpenMPWhenClause::addWhenClause(this);
@@ -795,6 +853,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_taskwait:
             result += "taskwait ";
+            break;
+        case OMPD_taskgroup:
+            result += "taskgroup ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -1757,6 +1818,342 @@ void OpenMPDeviceTypeClause::generateDOT(std::ofstream& dot_file, int depth, int
         dot_file << current_line.c_str();
     };
 };
+
+void OpenMPTaskReductionClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "task_reduction_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPTaskReductionClauseIdentifier identifier = this->getIdentifier();
+    std::string parameter_string;
+    switch (identifier) {
+        case OMPC_TASK_REDUCTION_IDENTIFIER_plus:
+            parameter_string = "+";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_minus:
+            parameter_string  = "-";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_mul:
+            parameter_string = "*";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitand:
+            parameter_string = "&";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitor:
+            parameter_string = "|";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitxor:
+            parameter_string = "^";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_logand:
+            parameter_string = "&&";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_logor:
+            parameter_string = "||";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_min:
+            parameter_string = "min";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_max:
+            parameter_string = "max";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_user:
+            parameter_string = this->getUserDefinedIdentifier();
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_identifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+
+std::string OpenMPTaskReductionClause::toString() {
+
+    std::string result = "task_reduction ";
+    std::string clause_string = "(";
+    OpenMPTaskReductionClauseIdentifier identifier = this->getIdentifier();
+    switch (identifier) {
+        case OMPC_TASK_REDUCTION_IDENTIFIER_plus:
+            clause_string += "+";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_minus:
+            clause_string += "-";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_mul:
+            clause_string += "*";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitand:
+            clause_string += "&";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitor:
+            clause_string += "|";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_bitxor:
+            clause_string += "^";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_logand:
+            clause_string += "&&";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_logor:
+            clause_string += "||";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_min:
+            clause_string += "min";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_max:
+            clause_string += "max";
+            break;
+        case OMPC_TASK_REDUCTION_IDENTIFIER_user:
+            clause_string += this->getUserDefinedIdentifier();
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += " : ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+    return result;
+};
+
+std::string OpenMPMapClause::toString() {
+
+    std::string result = "map ";
+    std::string clause_string = "(";
+    OpenMPMapClauseModifier modifier1 = this->getModifier1();
+    OpenMPMapClauseModifier modifier2 = this->getModifier2();
+    OpenMPMapClauseModifier modifier3 = this->getModifier3();
+    OpenMPMapClauseType type = this->getType();
+    switch (modifier1) {
+        case OMPC_MAP_MODIFIER_always:
+            clause_string += "always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            clause_string += "close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            clause_string += "mapper";
+            break;
+        default:
+            ;
+    }
+    switch (modifier2) {
+        case OMPC_MAP_MODIFIER_always:
+            clause_string += ",always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            clause_string += ",close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            clause_string += ",mapper";
+            break;
+        default:
+            ;
+    }
+    switch (modifier3) {
+        case OMPC_MAP_MODIFIER_always:
+            clause_string += ",always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            clause_string += ",close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            clause_string += ",mapper";
+            break;
+        default:
+            ;
+    }
+    
+    clause_string += ",";  
+    switch (type) {
+        case OMPC_MAP_TYPE_to:
+            clause_string += "to";
+            break;
+        case OMPC_MAP_TYPE_from:
+            clause_string += "from";
+            break;
+        case OMPC_MAP_TYPE_tofrom:
+            clause_string += "tofrom";
+            break;
+        case OMPC_MAP_TYPE_alloc:
+            clause_string += "alloc";
+            break;
+        case OMPC_MAP_TYPE_release:
+            clause_string += "release";
+            break;
+        case OMPC_MAP_TYPE_delete:
+            clause_string += "delete";
+            break;
+        default:
+            ;
+    }
+    if (clause_string.size() > 1) {
+        clause_string += " : ";
+    };
+    clause_string += this->expressionToString();
+    clause_string += ") ";
+    if (clause_string.size() > 3) {
+        result += clause_string;
+    };
+
+    return result;
+};
+
+void OpenMPMapClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "map_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    OpenMPMapClauseModifier modifier1 = this->getModifier1();
+    OpenMPMapClauseModifier modifier2 = this->getModifier2();
+    OpenMPMapClauseModifier modifier3 = this->getModifier3();
+    OpenMPMapClauseType Type = this->getType();
+    std::string parameter_string;
+    switch (modifier1) {
+        case OMPC_MAP_MODIFIER_always:
+            parameter_string += "always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            parameter_string += "close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            parameter_string += "mapper";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier1";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (modifier2) {
+        case OMPC_MAP_MODIFIER_always:
+            parameter_string += "always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            parameter_string += "close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            parameter_string += "mapper";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier2";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (modifier3) {
+        case OMPC_MAP_MODIFIER_always:
+            parameter_string += "always";
+            break;
+        case OMPC_MAP_MODIFIER_close:
+            parameter_string += "close";
+            break;
+        case OMPC_MAP_MODIFIER_mapper:
+            parameter_string += "mapper";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier3";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (type) {
+        case OMPC_MAP_TYPE_to:
+            parameter_string += "to";
+            break;
+        case OMPC_MAP_TYPE_from:
+            parameter_string += "from";
+            break;
+        case OMPC_MAP_TYPE_tofrom:
+            parameter_string += "tofrom";
+            break;
+        case OMPC_MAP_TYPE_alloc:
+            parameter_string += "alloc";
+            break;
+        case OMPC_MAP_TYPE_release:
+            parameter_string += "release";
+            break;
+        case OMPC_MAP_TYPE_delete:
+            parameter_string += "delete";
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_type";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
 /**/
 
 std::string OpenMPReductionClause::toString() {
@@ -2185,6 +2582,9 @@ void OpenMPDirective::generateDOT() {
                 break;
         case OMPD_taskwait:
                 directive_kind = "taskwait ";
+                break;
+        case OMPD_taskgroup:
+                directive_kind = "taskgroup ";
                 break;
         default:
                 directive_kind = this->toString();
