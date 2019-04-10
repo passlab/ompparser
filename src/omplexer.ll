@@ -75,7 +75,7 @@ Liao 12/10/2009 */
 
 static const char* ompparserinput = NULL;
 static std::string current_string;
-static int parenthesis_local_count, parenthesis_global_count = 1, bracket_count;
+static int parenthesis_local_count=0, parenthesis_global_count = 1, bracket_count;
 static char current_char;
 
 /* Liao 6/11/2010,
@@ -405,13 +405,7 @@ taskwait                  { return TASKWAIT; }
 <MAPPER_STATE>.                             { yy_push_state(TYPE_STR_STATE); current_string = yytext[0]; }
 
 <TYPE_STR_STATE>.                           { current_char = yytext[0];
-                                              parenthesis_local_count = 0;
-                                              parenthesis_global_count = 1;
-                                              bracket_count = 0;
                                             switch (current_char) {
-                                                case '\n': {
-                                                    break;
-                                                }
                                                 case '(': {
                                                     parenthesis_local_count++;
                                                     parenthesis_global_count++;
