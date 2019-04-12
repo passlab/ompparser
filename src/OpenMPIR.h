@@ -634,7 +634,7 @@ public:
                                          to_kind(_to_kind){ };
     OpenMPToClauseKind getKind() { return to_kind; };
     static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
-    void setMapperIdentifier(const char *identifier) { mapper_identifier = identifier; };
+    void setMapperIdentifier(std::string identifier) { mapper_identifier = identifier; };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -653,7 +653,7 @@ public:
     OpenMPFromClauseKind getKind() { return from_kind; };
 
     static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
-    void setMapperIdentifier(const char *identifier) { mapper_identifier = identifier; };
+    void setMapperIdentifier(std::string identifier) { mapper_identifier = identifier; };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);

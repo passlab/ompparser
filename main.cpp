@@ -198,7 +198,7 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp target exit data if(target exit data:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait ";
 //const char* input = "omp end declare target";
  //const char* input = "omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait ";
- //const char* input = "omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)";
+// const char* input = "omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)";
 // const char* input = "omp declare target to(x,y,z) link(b,n,m) device_type(nohost)";
  // const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";
 //const char* input = "omp taskloop simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e) if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
@@ -208,7 +208,7 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
 //const char* input = "omp taskgroup task_reduction (abc : x, y, z) allocate (user_defined_test : m, n[1:5])";
 //const char* input = "omp task affinity(iterator(int bba=4:120:2):b, c) detach(abc)";
-const char* input = "omp target enter data map(mapper(1234), close,always, to:q,w,e) ";
+//const char* input = "omp target enter data map(mapper(1234), close,always, to:q,w,e) ";
 // const char* input = "omp target update to(mapper(234):r,t,y) to(mapper(34567):m,i,o) from(mapper(12344):m,i,o)";
 //const char* input = "omp declare target(x,y,z)";
 //const char* input = "omp threadprivate(x,y,z)";
@@ -218,8 +218,8 @@ const char* input = "omp target enter data map(mapper(1234), close,always, to:q,
 
         
         
-    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-    output(openMPAST);
+   // OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+   // output(openMPAST);
     return 0;
 }
 
