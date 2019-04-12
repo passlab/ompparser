@@ -566,14 +566,20 @@ class OpenMPAffinityClause : public OpenMPClause {
 
 protected:
     OpenMPAffinityClauseModifier modifier;     // modifier
+    std::vector<const char*> iterator_definition;
+    //std::vector<std::vector<const char *>> iterator_definition_list(size,std::vector<char *>(5));
+    //std::int current=1;
 public:
     OpenMPAffinityClause( ) : OpenMPClause(OMPC_affinity) { }
 
     OpenMPAffinityClause(OpenMPAffinityClauseModifier _modifier): OpenMPClause(OMPC_affinity),
                                          modifier(_modifier){ };
-
+    void addIteratorDefinition (const char* _iterator_definition) { iterator_definition.push_back(_iterator_definition); };
+    std::vector<const char*>* getIteratorDefinition () { return &iterator_definition; };
     OpenMPAffinityClauseModifier getModifier() { return modifier; };
-static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, OpenMPAffinityClauseModifier modifier);
+
+    static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, OpenMPAffinityClauseModifier modifier);
+
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -619,14 +625,17 @@ public:
 class OpenMPToClause : public OpenMPClause {
 
 protected:
-    OpenMPToClauseKind to_kind;     
+    OpenMPToClauseKind to_kind;  
+    std::string mapper_identifier;   
 public:
 
     OpenMPToClause( ) : OpenMPClause(OMPC_to) { }
     OpenMPToClause(OpenMPToClauseKind _to_kind): OpenMPClause(OMPC_to),
                                          to_kind(_to_kind){ };
     OpenMPToClauseKind getKind() { return to_kind; };
-static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
+    static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
+    void setMapperIdentifier(const char *identifier) { mapper_identifier = identifier; };
+    std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -634,7 +643,8 @@ static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKi
 class OpenMPFromClause : public OpenMPClause {
 
 protected:
-    OpenMPFromClauseKind from_kind;     
+    OpenMPFromClauseKind from_kind;
+    std::string mapper_identifier;      
 public:
 
     OpenMPFromClause( ) : OpenMPClause(OMPC_from) { }
@@ -642,7 +652,9 @@ public:
                                          from_kind(_from_kind){ };
     OpenMPFromClauseKind getKind() { return from_kind; };
 
-static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
+    static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
+    void setMapperIdentifier(const char *identifier) { mapper_identifier = identifier; };
+    std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -707,6 +719,7 @@ protected:
     OpenMPMapClauseModifier modifier2;
     OpenMPMapClauseModifier modifier3;
     OpenMPMapClauseType type; 
+    std::string mapper_identifier;
 
 public:
     OpenMPMapClause() : OpenMPClause(OMPC_map) { }
@@ -719,13 +732,23 @@ public:
     OpenMPMapClauseModifier getModifier2() { return modifier2; };
     OpenMPMapClauseModifier getModifier3() { return modifier3; };
     OpenMPMapClauseType getType() { return type; };
-
-    /*static OpenMPMapClause * addMapClause(OpenMPDirective *directive,  OpenMPMapClauseModifier modifier1,OpenMPMapClauseModifier modifier2,OpenMPMapClauseModifier modifier3, 
-                  OpenMPMapClauseType type);*/
+    void setMapperIdentifier(std::string identifier) { mapper_identifier = identifier; };
+    std::string getMapperIdentifier() { return mapper_identifier; };
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+
+//declare target directive
+class OpenMPDeclareTargetDirective : public OpenMPDirective {
+protected:
+    std::vector<std::string> extended_list;
+public:
+    OpenMPDeclareTargetDirective () : OpenMPDirective(OMPD_declare_target) {};
+    void addExtendedList (const char* _extended_list) { extended_list.push_back(std::string(_extended_list)); };
+    std::vector<std::string>* getExtendedList () { return &extended_list; };
+};
+
 
 #ifdef __cplusplus
 extern "C" {

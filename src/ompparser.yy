@@ -386,7 +386,7 @@ target_update_directive :  TARGET UPDATE{
                      target_update_clause_optseq 
                    ;
 declare_target_directive : DECLARE TARGET {
-                        current_directive = new OpenMPDirective(OMPD_declare_target);
+                        current_directive = new OpenMPDeclareTargetDirective ();
                      }
                      declare_target_clause_optseq 
                    ;
@@ -438,8 +438,13 @@ target_clause_optseq :/* empty */
 target_update_clause_optseq :target_update_clause_seq
                        ;
 declare_target_clause_optseq : /* empty */
-                             |  '(' var_list ')'
+                             |  '(' declare_target_extended_list ')'
                              | declare_target_seq
+                             ;
+extended_variable : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareTargetDirective*)current_directive)->addExtendedList($1); std::cout << "test.\n";}
+                  ;
+declare_target_extended_list : extended_variable
+                             | declare_target_extended_list ',' extended_variable
                              ;
 taskwait_clause_optseq :/* empty */
                         |taskwait_clause_seq
@@ -681,7 +686,7 @@ iterators_definition : iterator_specifier
                        |iterators_definition ',' iterator_specifier
                        ;
 iterator_specifier : iterator_specifier_identifier  '=' range_specification {}
-                   | EXPR_STRING { std::cout << $1 << "\n"; } iterator_specifier_identifier '=' range_specification
+                   | EXPR_STRING { std::cout << $1 << "\n";((OpenMPAffinityClause*)current_clause)->addIteratorDefinition($1); } iterator_specifier_identifier{ std::cout << $1 << "\n";((OpenMPAffinityClause*)current_clause)->addIteratorDefinition($1); } '=' range_specification
                   ;
 iterator_specifier_identifier:EXPR_STRING  { std::cout << $1 << "\n"; }
                              ;
@@ -690,9 +695,9 @@ iterator_specifier_identifier:EXPR_STRING  { std::cout << $1 << "\n"; }
 range_specification: range_index
                    | range_index range_step 
 
-range_index: EXPR_STRING { std::cout << $1 << " : range begins.\n"; } ':' EXPR_STRING { std::cout << $4 << " : range ends.\n"; } 
+range_index: EXPR_STRING { std::cout << $1 << " : range begins.\n"; ((OpenMPAffinityClause*)current_clause)->addIteratorDefinition($1);} ':' EXPR_STRING { std::cout << $4 << " : range ends.\n";((OpenMPAffinityClause*)current_clause)->addIteratorDefinition($4); } 
            ;
-range_step : ':' EXPR_STRING { std::cout << $2 << " - range step.\n"; }
+range_step : ':' EXPR_STRING { std::cout << $2 << " - range step.\n";((OpenMPAffinityClause*)current_clause)->addIteratorDefinition($2); }
                      ;
 detach_clause: DETACH {
                             current_clause = current_directive->addOpenMPClause(OMPC_detach);
@@ -805,7 +810,7 @@ to_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_
              | to_mapper ':' var_list
                       ;
 to_mapper : TO_MAPPER {current_clause = current_directive->addOpenMPClause(OMPC_to, OMPC_TO_mapper);
-                              }'('EXPR_STRING')'
+                              }'('EXPR_STRING')'{std::cout << $4 << "\n"; ((OpenMPToClause*)current_clause)->setMapperIdentifier($4);}
                   ;
 
 from_clause: FROM '(' from_parameter ')' ;
@@ -814,7 +819,7 @@ from_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = curren
                      | from_mapper ':' var_list
                       ;
 from_mapper : FROM_MAPPER { current_clause = current_directive->addOpenMPClause(OMPC_from, OMPC_FROM_mapper); 
-                              }'('EXPR_STRING')'
+                              }'('EXPR_STRING')'{std::cout << $4 << "\n"; ((OpenMPFromClause*)current_clause)->setMapperIdentifier($4);}
                   ;
 link_clause : LINK {
                 current_clause = current_directive->addOpenMPClause(OMPC_link);
@@ -862,15 +867,15 @@ map_modifier3 : MAP_MODIFIER_ALWAYS {thirdParameter = OMPC_MAP_MODIFIER_always;}
               | map_modifier_mapper {thirdParameter = OMPC_MAP_MODIFIER_mapper;}
               ;
 
-map_type : MAP_TYPE_TO       {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to);}
-         | MAP_TYPE_FROM     {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_from);}
-         | MAP_TYPE_TOFROM   {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_tofrom);}
-         | MAP_TYPE_ALLOC    {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_alloc);}
-         | MAP_TYPE_RELEASE  {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_release);}
-         | MAP_TYPE_DELETE   {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_delete);}
+map_type : MAP_TYPE_TO       {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to, fourthParameter);}
+         | MAP_TYPE_FROM     {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_from, fourthParameter);}
+         | MAP_TYPE_TOFROM   {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_tofrom, fourthParameter);}
+         | MAP_TYPE_ALLOC    {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_alloc, fourthParameter);}
+         | MAP_TYPE_RELEASE  {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_release, fourthParameter);}
+         | MAP_TYPE_DELETE   {current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_delete, fourthParameter);}
          ;
 
-map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')'
+map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')'{std::cout << $3 << "\n"; }
                     ;
 
 task_reduction_clause : TASK_REDUCTION '(' task_reduction_identifier ':' var_list ')' {

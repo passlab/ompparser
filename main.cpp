@@ -165,15 +165,15 @@ int main( int argc, const char* argv[] ) {
     //const char* input = "omp metadirective when ( user = { condition (b < 14) } , device = {arch(x64), kind(gpu)}, implementation = {extension(riscv), vendor(pgi)} : ) when ( user = { condition (a < 4) } device = { kind (cpu) isa(avx512f) } implementation = {vendor(gnu)} : parallel private (a, bb)) when ( construct = {parallel (score(4) : private (e) )} : parallel private (a, bb)) default (parallel shared (c, dd))";
 
         //const char* input = "omp declare variant (...) match ( user = { condition (a < 4) } device = { kind (fpga) isa(avx512f) } implementation = {vendor(llvm)})";
-    //const char* input = "omp for collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e) schedule(static)";
+   // const char* input = "omp for collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e) schedule(static)";
    
     //const char* input = "omp simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e)";
 
 //const char* input = "omp for schedule(monotonic:static,x) linear(var(s,f,e):3) linear(val(s,f,e):s)";
 
 
-        //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
-        //const char* input = "omp declare simdlen(4) linear(val(s,f,e))  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
+       // const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
+       // const char* input = "omp declare simdlen(4) linear(val(s,f,e))  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
         //const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
         //const char* input = "omp distribute simd dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) safelen(sd) simdlen(4) nontemporal(non, temporal)";
         //const char* input = "omp distribute parallel for dist_schedule(static,3) collapse(a) order(dasfe) nowait ordered(sd) allocate (no, allo, cator) lastprivate(conditional:i, last, private)";
@@ -207,13 +207,19 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)";
 //const char* input = "omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
 //const char* input = "omp taskgroup task_reduction (abc : x, y, z) allocate (user_defined_test : m, n[1:5])";
+//const char* input = "omp task affinity(iterator(int bba=4:120:2):b, c) detach(abc)";
+const char* input = "omp target enter data map(mapper(1234), close,always, to:q,w,e) ";
+// const char* input = "omp target update to(mapper(234):r,t,y) to(mapper(34567):m,i,o) from(mapper(12344):m,i,o)";
+//const char* input = "omp declare target(x,y,z)";
+//const char* input = "omp threadprivate(x,y,z)";
+
 
 
 
         
         
-   // OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-   // output(openMPAST);
+    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+    output(openMPAST);
     return 0;
 }
 

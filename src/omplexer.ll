@@ -73,7 +73,8 @@ Liao 12/10/2009 */
 
 static const char* ompparserinput = NULL;
 static std::string current_string;
-static int parenthesis_local_count, parenthesis_global_count, bracket_count;
+static int parenthesis_local_count, bracket_count;
+static int parenthesis_global_count = 1;
 static char current_char;
 
 /* Liao 6/11/2010,

@@ -510,7 +510,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-case OMPC_to : {
+        case OMPC_to : {
             OpenMPToClauseKind toKind = (OpenMPToClauseKind) va_arg(args, int);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPToClause(toKind);
@@ -530,7 +530,7 @@ case OMPC_to : {
             }
             break;
         }
-case OMPC_from : {
+        case OMPC_from : {
             OpenMPFromClauseKind fromKind = (OpenMPFromClauseKind) va_arg(args, int);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPFromClause(fromKind);
@@ -550,7 +550,7 @@ case OMPC_from : {
             }
             break;
         }
- case OMPC_device_type : {
+        case OMPC_device_type : {
             OpenMPDeviceTypeClauseKind devicetypeKind = (OpenMPDeviceTypeClauseKind) va_arg(args, int);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPDeviceTypeClause(devicetypeKind);
@@ -709,6 +709,19 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
                     result += " ";
                 };
             };
+            break;
+        }
+        case OMPD_declare_target: {
+            std::vector<std::string>* list = ((OpenMPDeclareTargetDirective*)this)->getExtendedList();
+            if(list->size() > 0){
+            std::vector<std::string>::iterator list_item;
+            result += "(";
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 result += *list_item;
+                 result += ",";
+            }
+            result = result.substr(0, result.size()-1); 
+            result += ") ";}
             break;
         }
         default:
@@ -1349,6 +1362,9 @@ std::string OpenMPAffinityClause::toString() {
     switch (modifier) {
         case OMPC_AFFINITY_MODIFIER_iterator:
             clause_string += "iterator";
+            clause_string += " ( ";
+            // clause_string += this->getIteratorDefinition();
+            clause_string += " ) ";
             break;
         default:
             ;
@@ -1417,6 +1433,9 @@ std::string OpenMPToClause::toString() {
     switch (to_kind) {
         case OMPC_TO_mapper:
             clause_string += "mapper";
+            clause_string += "(";
+            clause_string += this->getMapperIdentifier();
+            clause_string += ")";
             break;
         default:
             ;
@@ -1459,6 +1478,18 @@ void OpenMPToClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
         current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
         dot_file << current_line.c_str();
     };
+
+    std:string mapper_identifier = this->getMapperIdentifier();
+    if (mapper_identifier != "") {
+    std::string node_id =  clause_kind+ "_kind";
+        parameter_string = mapper_identifier;
+        std::string mapper_identifier_name = clause_kind + "_mapper_identifier";
+        current_line = indent + node_id + " -- " + mapper_identifier_name + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + mapper_identifier_name + " [label = \"" + mapper_identifier_name + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };    
+
  std::vector<const char*>* expr = this->getExpressions();
     if (expr != NULL) {
         std::vector<const char*>::iterator it;
@@ -1473,7 +1504,6 @@ void OpenMPToClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
             dot_file << current_line.c_str();
         };
     };
-
 };
 
 
@@ -1485,6 +1515,9 @@ std::string OpenMPFromClause::toString() {
     switch (from_kind) {
         case OMPC_FROM_mapper:
             clause_string += "mapper";
+            clause_string += "(";
+            clause_string += this->getMapperIdentifier();
+            clause_string += ")";
             break;
         default:
             ;
@@ -1527,6 +1560,16 @@ void OpenMPFromClause::generateDOT(std::ofstream& dot_file, int depth, int index
         current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
         dot_file << current_line.c_str();
     };
+    std:string mapper_identifier = this->getMapperIdentifier();
+    if (mapper_identifier != "") {
+    std::string node_id =  clause_kind+ "_kind";
+        parameter_string = mapper_identifier;
+        std::string mapper_identifier_name = clause_kind + "_mapper_identifier";
+        current_line = indent + node_id + " -- " + mapper_identifier_name + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + mapper_identifier_name + " [label = \"" + mapper_identifier_name + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    }; 
  std::vector<const char*>* expr = this->getExpressions();
     if (expr != NULL) {
         std::vector<const char*>::iterator it;
@@ -1954,6 +1997,7 @@ std::string OpenMPMapClause::toString() {
     OpenMPMapClauseModifier modifier1 = this->getModifier1();
     OpenMPMapClauseModifier modifier2 = this->getModifier2();
     OpenMPMapClauseModifier modifier3 = this->getModifier3();
+
     OpenMPMapClauseType type = this->getType();
     switch (modifier1) {
         case OMPC_MAP_MODIFIER_always:
@@ -1964,6 +2008,9 @@ std::string OpenMPMapClause::toString() {
             break;
         case OMPC_MAP_MODIFIER_mapper:
             clause_string += "mapper";
+            clause_string += "(";
+            clause_string += this->getMapperIdentifier();
+            clause_string += ")";
             break;
         default:
             ;
@@ -1977,6 +2024,9 @@ std::string OpenMPMapClause::toString() {
             break;
         case OMPC_MAP_MODIFIER_mapper:
             clause_string += ",mapper";
+            clause_string += "(";
+            clause_string += this->getMapperIdentifier();
+            clause_string += ")";
             break;
         default:
             ;
@@ -1990,6 +2040,9 @@ std::string OpenMPMapClause::toString() {
             break;
         case OMPC_MAP_MODIFIER_mapper:
             clause_string += ",mapper";
+            clause_string += "(";
+            clause_string += this->getMapperIdentifier();
+            clause_string += ")";
             break;
         default:
             ;
