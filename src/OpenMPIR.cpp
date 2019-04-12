@@ -343,7 +343,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-         case OMPC_device : {
+        case OMPC_device : {
             OpenMPDeviceClauseModifier modifier = (OpenMPDeviceClauseModifier) va_arg(args, int);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPDeviceClause(modifier);
@@ -359,6 +359,37 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 }
   /* could find the matching object for this clause */
                 new_clause = new OpenMPDeviceClause(modifier);
+                current_clauses->push_back(new_clause);
+            }
+            break;
+}
+
+        case OMPC_initializer:{
+            OpenMPInitializerClausePriv priv = (OpenMPInitializerClausePriv) va_arg(args, int);
+            char* user_defined_priv = NULL;
+            if (priv == OMPC_INITIALIZER_PRIV_user) user_defined_priv = va_arg(args, char *);
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPInitializerClause(priv);
+                if (priv == OMPC_INITIALIZER_PRIV_user)
+                    ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } else {
+                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+                    std::string current_user_defined_priv_expression;
+                    if (user_defined_priv) {
+                        current_user_defined_priv_expression = std::string(user_defined_priv);
+                    };
+                    if (((OpenMPInitializerClause*)(*it))->getPriv() == priv && current_user_defined_priv_expression.compare(((OpenMPInitializerClause*)(*it))->getUserDefinedPriv()) == 0) {
+                        new_clause = (*it);
+                        goto end;
+                    }
+                }
+                /* could find the matching object for this clause */
+                new_clause = new OpenMPInitializerClause(priv);
+                if (priv == OMPC_INITIALIZER_PRIV_user)
+                    ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
                 current_clauses->push_back(new_clause);
             }
             break;
@@ -624,7 +655,8 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             }
             result = result.substr(0, result.size() - 1);
             result += ") ";
-            break;}
+            break;
+        }
         case OMPD_threadprivate: {
             std::vector<const char*>* list = ((OpenMPThreadprivateDirective*)this)->getThreadprivateList();
             std::vector<const char*>::iterator list_item;
@@ -634,7 +666,37 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
                  result += ",";
             }
             result = result.substr(0, result.size()-1); 
-            result += ") ";
+            result += ")";
+            break;
+        }
+        case OMPD_declare_reduction:{
+            std::vector<const char*>* list = ((OpenMPDeclareReductionDirective*)this)->getTypenameList();
+            std::vector<const char*>::iterator list_item;
+            std::string id = ((OpenMPDeclareReductionDirective*)this)->getIdentifier();
+            std::string combiner = ((OpenMPDeclareReductionDirective*)this)->getCombiner();
+            result += "( ";
+            result += id;
+            result += " : ";
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 result += *list_item;
+                 result += ",";
+            }
+            result = result.substr(0, result.size()-1); 
+            result += " : ";
+            result += combiner;
+            result += " ) ";
+            break;
+        }
+        case OMPD_declare_mapper:{
+            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
+            result += "( ";
+            if(id != ""){
+              result += id;
+              result += ":";
+            }
+            result += type_var;
+            result += " )";
             break;
         }
         case OMPD_end: {
@@ -787,6 +849,12 @@ std::string OpenMPDirective::toString() {
         case OMPD_threadprivate:
             result += "threadprivate ";
             break;
+        case OMPD_declare_reduction:
+            result += "declare reduction ";
+            break;
+        case OMPD_declare_mapper:
+            result += "declare mapper ";
+            break;
         case OMPD_end:
             result += "end ";
             break;
@@ -817,7 +885,6 @@ std::string OpenMPClause::expressionToString() {
 
     return result;
 }
-
 
 std::string OpenMPClause::toString() {
 
@@ -901,6 +968,9 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_sections:
             result += "sections ";
+            break;
+        case OMPC_initializer:
+            result += "initializer ";
             break;
         case OMPC_for:
             result += "for ";
@@ -2034,6 +2104,19 @@ std::string OpenMPIfClause::toString() {
 
     return result;
 };
+std::string OpenMPInitializerClause::toString() {
+
+    std::string result = "initializer ";
+    std::string clause_string = "(";
+    std::string priv = this->getUserDefinedPriv();
+    clause_string += "omp_priv=" + priv;
+    clause_string += ") ";
+    if (clause_string.size() > 2) {
+        result += clause_string;
+    };
+
+    return result;
+};
 std::string OpenMPAllocateClause::toString() {
 
     std::string result = "allocate ";
@@ -2138,6 +2221,12 @@ void OpenMPDirective::generateDOT() {
         case OMPD_distribute_parallel_for_simd:
                 directive_kind = "distribute_parallel_for_simd ";
                 break;
+        case OMPD_declare_reduction:
+                directive_kind = "declare_reduction ";
+                break;
+        case OMPD_declare_mapper:
+                directive_kind = "declare_mapper ";
+                break;
         case OMPD_teams:
                 directive_kind = "teams ";
                 break;
@@ -2220,6 +2309,85 @@ void OpenMPDirective::generateDOT() {
                     "\"]\n";
                 output << current_line.c_str();
             }
+           break;
+        }
+        case OMPD_threadprivate: {
+            std::string indent = std::string(1, '\t');
+            std::vector<const char *> *list = ((OpenMPThreadprivateDirective*)this)->getThreadprivateList();
+            std::vector<const char *>::iterator list_item;
+            int list_index = 0;
+            std::string list_name;
+            std::string expr_name;
+            std::string tkind = "threadprivate";
+            list_name = tkind + "_directive_list_" + std::to_string(list_index);
+            current_line = indent + tkind + " -- " + list_name + "\n";
+            output << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                output << current_line.c_str();
+                current_line =
+                    indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                    "\"]\n";
+                output << current_line.c_str();
+            }
+           break;
+        }
+        case OMPD_declare_reduction: {
+            std::string indent = std::string(1, '\t');
+            std::vector<const char*>* list = ((OpenMPDeclareReductionDirective*)this)->getTypenameList();
+            std::vector<const char*>::iterator list_item;
+            std::string id = ((OpenMPDeclareReductionDirective*)this)->getIdentifier();
+            std::string combiner = ((OpenMPDeclareReductionDirective*)this)->getCombiner();
+            int list_index = 0;
+            std::string list_name;
+            std::string expr_name;
+            std::string tkind = "declare_reduction";
+            std::string node_id = tkind + "_reduction_identifier";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            output << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
+            output << current_line.c_str();
+            list_name = tkind + "_typename_list_" + std::to_string(list_index);
+            current_line = indent + tkind + " -- " + list_name + "\n";
+            output << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                output << current_line.c_str();
+                current_line =
+                    indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                    "\"]\n";
+                output << current_line.c_str();
+            }
+            node_id = tkind + "_combiner";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            output << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + combiner + "\"]\n";
+            output << current_line.c_str();
+           break;
+        }
+        case OMPD_declare_mapper: {
+            std::string indent = std::string(1, '\t');
+            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
+            int list_index = 0;
+            std::string tkind = "declare_mapper";
+            std::string node_id = tkind + "_mapper_identifier";
+            if (id != ""){
+              current_line = indent + tkind + " -- " + node_id + "\n";
+              output << current_line.c_str();
+              current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
+              output << current_line.c_str();
+            }
+            node_id = tkind + "_type_var";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            output << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + type_var + "\"]\n";
+            output << current_line.c_str();
+           break;
         }
         default: {
             ;
@@ -2285,6 +2453,9 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
         case OMPC_shared:
             clause_kind += "shared";
+            break;
+        case OMPC_initializer:
+            clause_kind += "initializer";
             break;
         case OMPC_num_threads:
             clause_kind += "num_threads";
@@ -3102,6 +3273,45 @@ void OpenMPIfClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
     };
 
 };
+
+void OpenMPInitializerClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "initializer_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    std::string priv = this->getUserDefinedPriv();
+    std::string parameter_string;
+    parameter_string += "omp_priv = " + priv;
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_priv_list";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+
+};
+
 void OpenMPAllocateClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string current_line;

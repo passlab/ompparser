@@ -36,7 +36,9 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(cancel)
     OPENMP_DIRECTIVE(cancellation_point)
     OPENMP_DIRECTIVE(allocate)      
-    OPENMP_DIRECTIVE(threadprivate)      /*YAYING*/
+    OPENMP_DIRECTIVE(threadprivate)    
+    OPENMP_DIRECTIVE(declare_reduction)
+    OPENMP_DIRECTIVE(declare_mapper)    /*YAYING*/
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
     OPENMP_DIRECTIVE(task)
@@ -110,6 +112,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(taskgroup, OMPTaskgroupClause)
 
     OPENMP_CLAUSE(allocator, OMPAllocatorClause)
+    OPENMP_CLAUSE(initializer, OMPInitializerClause)
 
     OPENMP_CLAUSE(final, OMPFinalClause)
     OPENMP_CLAUSE(untied, OMPUntiedClause)
@@ -395,6 +398,16 @@ enum OpenMPBindClauseKind {
 
     OPENMP_BIND_KIND(unknown)
 #undef OPENMP_BIND_KIND
+};
+
+/// omp_priv for 'initializer' clause.
+enum OpenMPInitializerClausePriv {
+#define OPENMP_INITIALIZER_PRIV(Name) OMPC_INITIALIZER_PRIV_##Name,
+
+    OPENMP_INITIALIZER_PRIV(user)
+
+    OPENMP_INITIALIZER_PRIV(unknow)
+#undef OPENMP_INITIALIZER_PRIV
 };
 
 /// OpenMP attributes for 'atomic_default_mem_order' clause.

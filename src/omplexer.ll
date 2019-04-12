@@ -16,6 +16,9 @@
 %x DIST_SCHEDULE_STATE
 %x BIND_STATE
 %X ALLOCATOR_STATE
+%X INITIALIZER_STATE
+%X MAPPER_STATE
+%X TYPE_STR_STATE
 %x WHEN_STATE
 %x MATCH_STATE
 %x ISA_STATE
@@ -72,7 +75,7 @@ Liao 12/10/2009 */
 
 static const char* ompparserinput = NULL;
 static std::string current_string;
-static int parenthesis_local_count, parenthesis_global_count, bracket_count;
+static int parenthesis_local_count=0, parenthesis_global_count = 1, bracket_count;
 static char current_char;
 
 /* Liao 6/11/2010,
@@ -167,6 +170,8 @@ point           { return POINT;}
 variant         { return VARIANT; }
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 match           { yy_push_state(MATCH_STATE); return MATCH; }
+initializer     { yy_push_state(INITIALIZER_STATE);return INITIALIZER;}
+mapper          { yy_push_state(MAPPER_STATE);return MAPPER;}
 
 end             { return END; }
 score           { return SCORE; }
@@ -385,6 +390,63 @@ taskwait                  { return TASKWAIT; }
 <ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                          { return -1; }
 
+<INITIALIZER_STATE>omp_priv                 { return OMP_PRIV;}
+<INITIALIZER_STATE>"="                      { return '=';}
+<INITIALIZER_STATE>{blank}*                 { ; }
+<INITIALIZER_STATE>"("                      { return '('; }
+<INITIALIZER_STATE>")"                      { yy_pop_state(); return ')'; }
+<INITIALIZER_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT;}
+<MAPPER_STATE>":"                           { yy_push_state(TYPE_STR_STATE); return ':';}
+<MAPPER_STATE>{blank}*                      { ; }
+<MAPPER_STATE>"("                           { return '('; }
+<MAPPER_STATE>")"                           { yy_pop_state(); return ')'; }
+<MAPPER_STATE>.                             { yy_push_state(TYPE_STR_STATE); current_string = yytext[0]; }
+
+<TYPE_STR_STATE>.                           { current_char = yytext[0];
+                                            switch (current_char) {
+                                                case '(': {
+                                                    parenthesis_local_count++;
+                                                    parenthesis_global_count++;
+                                                    current_string.append(1, current_char);
+                                                    break;
+                                                }
+                                                case ')': {
+                                                    parenthesis_local_count--;
+                                                    parenthesis_global_count--;
+                                                    if (parenthesis_global_count == 0) {
+                                                        yy_pop_state();
+                                                        if (current_string.size() != 0) {
+                                                            openmp_lval.stype = strdup(current_string.c_str());
+                                                            current_string.clear();
+                                                            unput(')');
+                                                            parenthesis_local_count = 0;
+                                                            parenthesis_global_count = 1;
+                                                            bracket_count = 0;
+                                                            return EXPR_STRING;
+                                                        }
+                                                        else {
+                                                            break;
+                                                        };
+                                                    }
+                                                    else {
+                                                        current_string.append(1, current_char);
+                                                    };
+                                                    break;
+                                                }
+                                                case ' ': {
+                                                    current_string.append(1, current_char);
+                                                    break;
+                                                }
+                                                default: {
+                                                    if (current_char != ' ' || parenthesis_local_count != 0) {
+                                                        current_string.append(1, current_char);
+                                                    }
+                                                }
+                                            }
+                                        }
+
 <WHEN_STATE>"("                             { return '('; }
 <WHEN_STATE>":"                             { yy_push_state(INITIAL); return ':'; }
 <WHEN_STATE>")"                             { yy_pop_state(); return ')'; }
@@ -472,6 +534,7 @@ taskwait                  { return TASKWAIT; }
 <DEPEND_STATE>"="                           { return '='; }
 <DEPEND_STATE>":"                           { yy_push_state(EXPR_STATE); return ':'; }
 <DEPEND_STATE>iterator/{blank}*"("          { current_string.clear(); yy_push_state(DEPEND_ITERATOR_STATE);return MODIFIER_ITERATOR;}
+
 <DEPEND_STATE>in/{blank}*                   {return IN;}
 <DEPEND_STATE>out/{blank}*                  {return OUT;}
 <DEPEND_STATE>inout/{blank}*                {return INOUT;}
@@ -546,6 +609,7 @@ taskwait                  { return TASKWAIT; }
 <DEFAULTMAP_STATE>tofrom/{blank}*           { return BEHAVIOR_TOFROM; }
 <DEFAULTMAP_STATE>firstprivate/{blank}*     { return BEHAVIOR_FIRSTPRIVATE; }
 <DEFAULTMAP_STATE>none/{blank}*             { return BEHAVIOR_NONE; }
+
 <DEFAULTMAP_STATE>default/{blank}*          { return BEHAVIOR_DEFAULT; }
 <DEFAULTMAP_STATE>scalar/{blank}*           { return CATEGORY_SCALAR; }
 <DEFAULTMAP_STATE>aggregate/{blank}*        { return CATEGORY_AGGREGATE; }
@@ -562,6 +626,7 @@ taskwait                  { return TASKWAIT; }
 <TO_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER;}
 <TO_STATE>{blank}*                          { ; }
 <TO_STATE>.                                 { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+
 
 <TO_MAPPER_STATE>"("                        { return '('; }
 <TO_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -597,6 +662,7 @@ taskwait                  { return TASKWAIT; }
 <ALLOC_EXPR_STATE>"("                        { return '('; }
 <ALLOC_EXPR_STATE>")"                        { yy_pop_state();std::cout << current_string << "\n"; openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
 <ALLOC_EXPR_STATE>.                          { current_string += yytext[0]; }
+
 
 <DEVICE_TYPE_STATE>host                      { return HOST; }
 <DEVICE_TYPE_STATE>nohost                    { return NOHOST; }

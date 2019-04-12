@@ -198,6 +198,10 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp target exit data if(target exit data:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait ";
 //const char* input = "omp end declare target";
  //const char* input = "omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait ";
+
+ //const char* input = "omp target update to(mapper(default):m,i,o) from(m,i,o)";
+ const char* input = " omp declare mapper(const int * (a[9]))";
+
  //const char* input = "omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)";
 // const char* input = "omp declare target to(x,y,z) link(b,n,m) device_type(nohost)";
  // const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";
@@ -205,13 +209,14 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp taskyield";
 //const char* input = "omp barrier";
 //const char* input = "omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)";
-const char* input = "omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
+//const char* input = "omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
+
 
 
         
         
-   // OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-   // output(openMPAST);
+    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+    output(openMPAST);
     return 0;
 }
 
