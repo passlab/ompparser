@@ -24,8 +24,6 @@ enum OpenMPBaseLang {
 class SourceLocation {
     int line;
     int column;
-    int getLine ( ) { return line; };
-    int getColumn ( ) { return column; };
 
     SourceLocation* parent_construct;
 
@@ -33,6 +31,10 @@ class SourceLocation {
     SourceLocation(int _line = 0, int _col = 0, SourceLocation* _parent_construct = NULL) : line(_line), column(_col), parent_construct(_parent_construct) { } ;
     void setParentConstruct(SourceLocation* _parent_construct) { parent_construct = _parent_construct; };
     SourceLocation* getParentConstruct() { return parent_construct; };
+    int getLine() { return line; };
+    void setLine(int _line) { line = _line; };
+    int getColumn() { return column; };
+    void setColumn(int _column) { column = _column; };
 
 };
 
