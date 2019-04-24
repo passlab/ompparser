@@ -607,7 +607,7 @@ public:
 
     OpenMPDependClauseType getType() { return type; };
 
-static OpenMPDependClause * addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier,OpenMPDependClauseType type);
+    static OpenMPDependClause * addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier,OpenMPDependClauseType type);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 
@@ -683,7 +683,7 @@ public:
                                          to_kind(_to_kind){ };
     OpenMPToClauseKind getKind() { return to_kind; };
     static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
-    void setMapperIdentifier(std::string identifier) { mapper_identifier = identifier; };
+    void setMapperIdentifier(const char *identifier) { mapper_identifier = std::string(identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -702,7 +702,7 @@ public:
     OpenMPFromClauseKind getKind() { return from_kind; };
 
     static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
-    void setMapperIdentifier(std::string identifier) { mapper_identifier = identifier; };
+    void setMapperIdentifier(const char *identifier) { mapper_identifier = std::string(identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -718,9 +718,9 @@ public:
             OpenMPClause(OMPC_defaultmap), behavior(_behavior), category(_category)  { };
  
     OpenMPDefaultmapClauseBehavior getBehavior() { return behavior; };
-OpenMPDefaultmapClauseCategory  getCategory () { return category ; };
+    OpenMPDefaultmapClauseCategory  getCategory () { return category ; };
 
-static OpenMPDefaultmapClause * addDefaultmapClause(OpenMPDirective *directive, OpenMPDefaultmapClauseBehavior behavior,OpenMPDefaultmapClauseCategory category);
+    static OpenMPDefaultmapClause * addDefaultmapClause(OpenMPDirective *directive, OpenMPDefaultmapClauseBehavior behavior,OpenMPDefaultmapClauseCategory category);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
