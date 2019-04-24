@@ -254,7 +254,7 @@ public:
 
     OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
+    void setUserDefinedIdentifier(char* _identifier) { user_defined_identifier = std::string(_identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
@@ -581,7 +581,7 @@ public:
 
     OpenMPInReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
+    void setUserDefinedIdentifier(char* _identifier) { user_defined_identifier = std::string(_identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
@@ -683,7 +683,7 @@ public:
                                          to_kind(_to_kind){ };
     OpenMPToClauseKind getKind() { return to_kind; };
     static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
-    void setMapperIdentifier(const char *identifier) { mapper_identifier = std::string(identifier); };
+    void setMapperIdentifier(const char* _identifier) { mapper_identifier = std::string(_identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -702,7 +702,7 @@ public:
     OpenMPFromClauseKind getKind() { return from_kind; };
 
     static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
-    void setMapperIdentifier(const char *identifier) { mapper_identifier = std::string(identifier); };
+    void setMapperIdentifier(const char* _identifier) { mapper_identifier = std::string(_identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -751,7 +751,7 @@ public:
 
     OpenMPTaskReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
+    void setUserDefinedIdentifier(char* _identifier) { user_defined_identifier = std::string(_identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
