@@ -159,8 +159,6 @@ int main( int argc, const char* argv[] ) {
     std::cout << "FAILED TESTS : " << failed_amount << "\n";
     std::cout << "INVALID TESTS: " << invalid_amount << "\n";
 
-    //const char* input = "omp teams num_teams (4)";
-     //const char* input = "omp teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)";
 
     //const char* input = "omp metadirective when ( user = { condition (b < 14) } , device = {arch(x64), kind(gpu)}, implementation = {extension(riscv), vendor(pgi)} : ) when ( user = { condition (a < 4) } device = { kind (cpu) isa(avx512f) } implementation = {vendor(gnu)} : parallel private (a, bb)) when ( construct = {parallel (score(4) : private (e) )} : parallel private (a, bb)) default (parallel shared (c, dd))";
 
@@ -170,8 +168,6 @@ int main( int argc, const char* argv[] ) {
     //const char* input = "omp simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e)";
 
 //const char* input = "omp for schedule(monotonic:static,x) linear(var(s,f,e):3) linear(val(s,f,e):s)";
-
-
         //const char* input = "omp for simd collapse(a) safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private)  linear(s,f,e)  aligned(s,f,e:2) nowait ordered(sd) order(dasfe)";
         //const char* input = "omp declare simdlen(4) linear(val(s,f,e))  aligned(s,f,e:2) inbranch notinbranch uniform(c,b,a) ";
         //const char* input = "omp distribute dist_schedule(static,3) collapse(a) allocate (no, allo, cator) lastprivate(conditional:i, last, private) ";
@@ -187,6 +183,8 @@ int main( int argc, const char* argv[] ) {
         //const char* input = "omp cancel parallel if(cancel:af)" ;
         //const char* input = "omp cancellation   point sections" ;
         //const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc    )";
+ //const char* input = " omp declare mapper(const int * (a[9]))";
+ // const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";   
 
 //const char* input = "omp target if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2), in:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234)) ";
 //const char* input = "omp task if(task: 5858*5) final (5) affinity(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9):b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority(5) detach(abc) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) default (none)";
@@ -213,7 +211,7 @@ int main( int argc, const char* argv[] ) {
 
 
 
-    //const char* input = "omp metadirective when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))";
+    const char* input = "omp metadirective when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))";
 
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     output(openMPAST);

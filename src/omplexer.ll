@@ -46,6 +46,7 @@
 %x DEVICE_TYPE_STATE
 %x MAP_STATE
 %x MAP_MAPPER_STATE
+%x TASK_REDUCTION_STATE
 
 %{
 
@@ -232,6 +233,7 @@ map                       { yy_push_state(MAP_STATE); return MAP; }
 ext_                      { parenthesis_global_count = 0; yy_push_state(EXPR_STATE); return EXT_; }
 barrier                   { return BARRIER; }
 taskwait                  { return TASKWAIT; }
+task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_REDUCTION; }
 
 "("             { return '('; }
 ")"             { return ')'; }
@@ -691,6 +693,23 @@ taskwait                  { return TASKWAIT; }
 <MAP_MAPPER_STATE>"("                        { return '('; }
 <MAP_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
 <MAP_MAPPER_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
+
+<TASK_REDUCTION_STATE>"("                     { return '('; }
+<TASK_REDUCTION_STATE>")"                     { yy_pop_state(); return ')'; }
+<TASK_REDUCTION_STATE>","                     { return ','; }
+<TASK_REDUCTION_STATE>":"                     { yy_push_state(EXPR_STATE); return ':'; }
+<TASK_REDUCTION_STATE>"+"                     { return '+'; }
+<TASK_REDUCTION_STATE>"-"                     { return '-'; }
+<TASK_REDUCTION_STATE>"*"                     { return '*'; }
+<TASK_REDUCTION_STATE>"&"                     { return '&'; }
+<TASK_REDUCTION_STATE>"|"                     { return '|'; }
+<TASK_REDUCTION_STATE>"^"                     { return '^'; }
+<TASK_REDUCTION_STATE>"&&"                    { return LOGAND; }
+<TASK_REDUCTION_STATE>"||"                    { return LOGOR; }
+<TASK_REDUCTION_STATE>min/{blank}*:           { return MIN; }
+<TASK_REDUCTION_STATE>max/{blank}*:           { return MAX; }
+<TASK_REDUCTION_STATE>{blank}*                { ; }
+<TASK_REDUCTION_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <EXPR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {
