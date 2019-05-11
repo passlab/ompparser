@@ -2412,12 +2412,194 @@ void OpenMPDirective::generateDOT() {
 
 };
 
-// Unfinished yet.
+
 void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
-    std::string directive_kind = this->toString();
-
+    std::string directive_kind;
+    OpenMPDirectiveKind kind = this->getKind();
+    switch(kind) {
+        case OMPD_cancellation_point :
+            directive_kind = "cancellation_point " ;
+            break;
+        case OMPD_for_simd:
+            directive_kind = "for_simd ";
+            break;
+        case OMPD_distribute_simd:
+            directive_kind = "distribute_simd ";
+            break;
+        case OMPD_distribute_parallel_for:
+            directive_kind = "distribute_parallel_for ";
+            break;
+        case OMPD_distribute_parallel_for_simd:
+            directive_kind = "distribute_parallel_for_simd ";
+            break;
+        case OMPD_declare_reduction:
+            directive_kind = "declare_reduction ";
+            break;
+        case OMPD_declare_mapper:
+            directive_kind = "declare_mapper ";
+            break;
+        case OMPD_teams:
+            directive_kind = "teams ";
+            break;
+        case OMPD_requires:
+            directive_kind = "requires ";
+            break;
+        case OMPD_task:
+            directive_kind = "task ";
+            break;
+        case OMPD_taskloop:
+            directive_kind = "taskloop ";
+            break;
+        case OMPD_taskloop_simd:
+            directive_kind = "taskloop_simd ";
+            break;
+        case OMPD_taskyield:
+            directive_kind = "taskyield ";
+            break;
+        case OMPD_target_data:
+            directive_kind = "target_data ";
+            break;
+        case OMPD_target_enter_data:
+            directive_kind = "target_enter_data ";
+            break;
+        case OMPD_target_exit_data:
+            directive_kind = "target_exit_data ";
+            break;
+        case OMPD_target:
+            directive_kind = "target ";
+            break;
+        case OMPD_target_update:
+            directive_kind = "target_update ";
+            break;
+        case OMPD_declare_target:
+            directive_kind = "declare_target ";
+            break;
+        case OMPD_end_declare_target:
+            directive_kind = "end_declare_target ";
+            break;
+        case OMPD_master:
+            directive_kind = "master ";
+            break;
+        case OMPD_barrier:
+            directive_kind = "barrier ";
+            break;
+        case OMPD_taskwait:
+            directive_kind = "taskwait ";
+            break;
+        default:
+            directive_kind = this->toString();
+    }
     std::string current_line;
+
+    std::string indent = std::string(depth, '\t');
+    directive_kind = parent_node + "_" + directive_kind;
+    dot_file << indent << directive_kind.c_str() << "\n";
+    current_line = indent + parent_node + " -- " + directive_kind + "\n";
+    dot_file << current_line.c_str();
+
+    switch (kind) {
+        case OMPD_allocate: {
+            std::vector<const char *> *list = ((OpenMPAllocateDirective *) this)->getAllocateList();
+            std::vector<const char *>::iterator list_item;
+            int list_index = 0;
+            std::string list_name;
+            std::string expr_name;
+            std::string tkind = "allocate";
+            list_name = tkind + "_directive_list_" + std::to_string(list_index);
+            current_line = indent + tkind + " -- " + list_name + "\n";
+            dot_file << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                dot_file << current_line.c_str();
+                current_line =
+                        indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                        "\"]\n";
+                dot_file << current_line.c_str();
+            }
+            break;
+        }
+        case OMPD_threadprivate: {
+            std::vector<const char *> *list = ((OpenMPThreadprivateDirective*)this)->getThreadprivateList();
+            std::vector<const char *>::iterator list_item;
+            int list_index = 0;
+            std::string list_name;
+            std::string expr_name;
+            std::string tkind = "threadprivate";
+            list_name = tkind + "_directive_list_" + std::to_string(list_index);
+            current_line = indent + tkind + " -- " + list_name + "\n";
+            dot_file << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                dot_file << current_line.c_str();
+                current_line =
+                        indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                        "\"]\n";
+                dot_file << current_line.c_str();
+            }
+            break;
+        }
+        case OMPD_declare_reduction: {
+            std::vector<const char*>* list = ((OpenMPDeclareReductionDirective*)this)->getTypenameList();
+            std::vector<const char*>::iterator list_item;
+            std::string id = ((OpenMPDeclareReductionDirective*)this)->getIdentifier();
+            std::string combiner = ((OpenMPDeclareReductionDirective*)this)->getCombiner();
+            int list_index = 0;
+            std::string list_name;
+            std::string expr_name;
+            std::string tkind = "declare_reduction";
+            std::string node_id = tkind + "_reduction_identifier";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
+            dot_file << current_line.c_str();
+            list_name = tkind + "_typename_list_" + std::to_string(list_index);
+            current_line = indent + tkind + " -- " + list_name + "\n";
+            dot_file << current_line.c_str();
+            for (list_item = list->begin(); list_item != list->end(); list_item++) {
+                expr_name = list_name + "_expr" + std::to_string(list_index);
+                list_index += 1;
+                current_line = indent + indent + list_name + " -- " + expr_name + "\n";
+                dot_file << current_line.c_str();
+                current_line =
+                        indent + indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*list_item) +
+                        "\"]\n";
+                dot_file << current_line.c_str();
+            }
+            node_id = tkind + "_combiner";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + combiner + "\"]\n";
+            dot_file << current_line.c_str();
+            break;
+        }
+        case OMPD_declare_mapper: {
+            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
+            int list_index = 0;
+            std::string tkind = "declare_mapper";
+            std::string node_id = tkind + "_mapper_identifier";
+            if (id != ""){
+                current_line = indent + tkind + " -- " + node_id + "\n";
+                dot_file << current_line.c_str();
+                current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
+                dot_file << current_line.c_str();
+            }
+            node_id = tkind + "_type_var";
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + type_var + "\"]\n";
+            dot_file << current_line.c_str();
+            break;
+        }
+        default: {
+            ;
+        }
+    };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
     if (clauses != NULL) {
@@ -2425,17 +2607,14 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
         for (it = clauses->begin(); it != clauses->end(); it++) {
             int clause_index = 0;
             std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clauseIter;
-            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                (*clauseIter)->generateDOT(dot_file, depth+1, clause_index, parent_node);
+            std::vector<OpenMPClause*>::iterator clause_iter;
+            for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
+                (*clause_iter)->generateDOT(dot_file, 1, clause_index, directive_kind);
                 clause_index += 1;
-            };
-        };
+            }
+        }
     };
 
-    if (current_line == "") {
-        dot_file << directive_kind.c_str() << "\n";
-    };
 };
 
 void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
@@ -2592,10 +2771,22 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         default:
             printf("The clause enum is not supported yet.\n");
     }
-    clause_kind += "_" + std::to_string(depth) + "_" + std::to_string(index);
-    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    parent_node = parent_node.substr(0, parent_node.size()-1);
+    std::string clause_label = clause_kind;
+    clause_kind = parent_node + "_" + clause_kind + "_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + clause_kind + " [label = \"" + clause_label + + "\"]\n";
+    dot_file << current_line.c_str();
+    current_line = indent + parent_node + " -- " + clause_kind + "\n";
     dot_file << current_line.c_str();
     indent += "\t";
+
+    if (this->getKind() == OMPC_default) {
+        OpenMPDirective* variant_directive = ((OpenMPDefaultClause*)this)->getVariantDirective();
+        if (variant_directive != NULL) {
+            variant_directive->generateDOT(dot_file, depth+1, 0, clause_kind);
+        };
+    };
+
     std::vector<const char*>* expr = this->getExpressions();
     if (expr != NULL) {
         std::vector<const char*>::iterator it;
@@ -2606,7 +2797,7 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             expr_index += 1;
             current_line = indent + clause_kind + " -- " + expr_name + "\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            current_line = indent + "\t" + expr_name + " [label = \"" + "expr" + "\\n " + std::string(*it) + "\"]\n";
             dot_file << current_line.c_str();
         };
     };
@@ -2891,6 +3082,315 @@ std::string OpenMPVariantClause::toString() {
     result += clause_string + ") ";
 
     return result;
+};
+
+void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    //std::string result;
+    //std::string clause_string;
+    std::string parameter_string;
+    //std::vector<OpenMPDirective*>* parameter_directives;
+    OpenMPDirective* variant_directive = NULL;
+    /*
+    OpenMPClauseKind clause_kind = this->getKind();
+    switch (clause_kind) {
+        case OMPC_when:
+            result = "when";
+            break;
+        case OMPC_match:
+            result = "match";
+            break;
+        default:
+            std::cout << "The variant clause is not supported.\n";
+    };*/
+    //result += " (";
+
+
+
+
+
+/*
+    // check device
+    clause_string.clear();
+    // check device_kind
+    OpenMPClauseContextKind context_kind = this->getContextKind();
+    switch (context_kind) {
+        case OMPC_CONTEXT_KIND_host:
+            parameter_string = "host";
+            break;
+        case OMPC_CONTEXT_KIND_nohost:
+            parameter_string = "nohost";
+            break;
+        case OMPC_CONTEXT_KIND_any:
+            parameter_string = "any";
+            break;
+        case OMPC_CONTEXT_KIND_cpu:
+            parameter_string = "cpu";
+            break;
+        case OMPC_CONTEXT_KIND_gpu:
+            parameter_string = "gpu";
+            break;
+        case OMPC_CONTEXT_KIND_fpga:
+            parameter_string = "fpga";
+            break;
+        case OMPC_CONTEXT_KIND_unknown:
+            break;
+        default:
+            std::cout << "The context kind is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        clause_string += "kind(" + parameter_string + "), ";
+    };
+
+    // check device isa
+    parameter_string = this->getIsaExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "isa(" + parameter_string + "), ";
+    };
+
+    // check device arch
+    parameter_string = this->getArchExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "arch(" + parameter_string + "), ";
+    };
+
+    if (clause_string.size() > 0) {
+        result += "device = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";
+    };
+
+    // check implementation
+    clause_string.clear();
+    parameter_string.clear();
+    // check implementation vendor
+    OpenMPClauseContextVendor context_vendor = this->getImplementationKind();
+    switch (context_vendor) {
+        case OMPC_CONTEXT_VENDOR_amd:
+            parameter_string = "amd";
+            break;
+        case OMPC_CONTEXT_VENDOR_arm:
+            parameter_string = "arm";
+            break;
+        case OMPC_CONTEXT_VENDOR_bsc:
+            parameter_string = "bsc";
+            break;
+        case OMPC_CONTEXT_VENDOR_cray:
+            parameter_string = "cray";
+            break;
+        case OMPC_CONTEXT_VENDOR_fujitsu:
+            parameter_string = "fujitsu";
+            break;
+        case OMPC_CONTEXT_VENDOR_gnu:
+            parameter_string = "gnu";
+            break;
+        case OMPC_CONTEXT_VENDOR_ibm:
+            parameter_string = "ibm";
+            break;
+        case OMPC_CONTEXT_VENDOR_intel:
+            parameter_string = "intel";
+            break;
+        case OMPC_CONTEXT_VENDOR_llvm:
+            parameter_string = "llvm";
+            break;
+        case OMPC_CONTEXT_VENDOR_pgi:
+            parameter_string = "pgi";
+            break;
+        case OMPC_CONTEXT_VENDOR_ti:
+            parameter_string = "ti";
+            break;
+        case OMPC_CONTEXT_VENDOR_unknown:
+            parameter_string = "unknown";
+            break;
+        case OMPC_CONTEXT_VENDOR_unspecified:
+            break;
+        default:
+            std::cout << "The context vendor is not supported.\n";
+    };
+    if (parameter_string.size() > 0) {
+        clause_string += "vendor(" + parameter_string + "), ";
+    };
+
+    // check implementation extension
+    parameter_string = this->getExtensionExpression();
+    if (parameter_string.size() > 0) {
+        clause_string += "extension(" + parameter_string + "), ";
+    };
+
+    if (clause_string.size() > 0) {
+        result += "implementation = {" + clause_string.substr(0, clause_string.size()-2) + "}, ";
+    };
+
+    clause_string.clear();
+    result = result.substr(0, result.size()-2);
+
+
+
+    result += clause_string + ") ";
+
+    //return result;*/
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+    std::string clause_string;
+    //std::string parameter_string;
+    std::vector<OpenMPDirective*>* parameter_directives;
+    //OpenMPDirective* variant_directive = NULL;
+    parent_node = parent_node.substr(0, parent_node.size()-1);
+    OpenMPClauseKind clause_kind = this->getKind();
+    switch (clause_kind) {
+        case OMPC_when:
+            clause_string = "when";
+            break;
+        case OMPC_match:
+            clause_string = "match";
+            break;
+        default:
+            std::cout << "The variant clause is not supported.\n";
+    };
+    clause_string = parent_node + "_" + clause_string + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + " -- " + clause_string + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+
+    // check user
+    parameter_string = this->getUserCondition();
+    if (parameter_string != "") {
+        std::string node_id = clause_string + "_user_condition";
+        current_line = indent + clause_string + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+/*
+    // check construct
+    parameter_directives = this->getConstructDirective();
+    if (parameter_directives->size() != 0) {
+        clause_string += "construct = {";
+        std::vector<OpenMPDirective*>::iterator iter;
+        for (iter = parameter_directives->begin(); iter != parameter_directives->end(); iter++) {
+            clause_string += (*iter)->generatePragmaString("", "(", ")", true) + ", ";
+        };
+        clause_string = clause_string.substr(0, clause_string.size()-2);
+        clause_string += "}, ";
+    }
+
+    result += clause_string;
+    parameter_string.clear();
+
+    OpenMPReductionClauseModifier modifier = this->getModifier();
+    OpenMPReductionClauseIdentifier identifier = this->getIdentifier();
+    std::string parameter_string;
+    switch (modifier) {
+        case OMPC_REDUCTION_MODIFIER_default:
+            parameter_string = "default";
+            break;
+        case OMPC_REDUCTION_MODIFIER_inscan:
+            parameter_string = "inscan";
+            break;
+        case OMPC_REDUCTION_MODIFIER_task:
+            parameter_string = "task";
+            break;
+        default:
+            ;
+    }
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_modifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+    parameter_string.clear();
+    switch (identifier) {
+        case OMPC_REDUCTION_IDENTIFIER_plus:
+            parameter_string = "+";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_minus:
+            parameter_string  = "-";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_mul:
+            parameter_string = "*";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitand:
+            parameter_string = "&";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitor:
+            parameter_string = "|";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_bitxor:
+            parameter_string = "^";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_logand:
+            parameter_string = "&&";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_logor:
+            parameter_string = "||";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_min:
+            parameter_string = "min";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_max:
+            parameter_string = "max";
+            break;
+        case OMPC_REDUCTION_IDENTIFIER_user:
+            parameter_string = this->getUserDefinedIdentifier();
+            break;
+        default:
+            ;
+    };
+
+    if (parameter_string.size() > 0) {
+        std::string node_id = clause_kind + "_identifier";
+        current_line = indent + clause_kind + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };*/
+    if (clause_kind == OMPC_when) {
+        //clause_string = " : ";
+        variant_directive = ((OpenMPWhenClause*)this)->getVariantDirective();
+        if (variant_directive != NULL) {
+            //clause_string += variant_directive->generatePragmaString("");
+            variant_directive->generateDOT(dot_file, depth+1, 0, clause_string);
+        };
+    };
+};
+
+void OpenMPDefaultClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string parameter_string;
+    OpenMPDirective* variant_directive = NULL;
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+    std::string clause_string;
+    std::vector<OpenMPDirective*>* parameter_directives;
+    parent_node = parent_node.substr(0, parent_node.size()-1);
+    OpenMPClauseKind clause_kind = this->getKind();
+
+    clause_string = "default";
+
+    clause_string = parent_node + "_" + clause_string + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + " -- " + clause_string + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    variant_directive = ((OpenMPDefaultClause*)this)->getVariantDirective();
+    if (variant_directive != NULL) {
+        variant_directive->generateDOT(dot_file, depth+1, 0, clause_string);
+    };
 };
 
 std::string OpenMPDefaultClause::toString() {

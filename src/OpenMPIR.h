@@ -254,7 +254,7 @@ public:
 
     OpenMPReductionClauseIdentifier getIdentifier() { return identifier; };
 
-    void setUserDefinedIdentifier(char *identifier) { user_defined_identifier = std::string(identifier); };
+    void setUserDefinedIdentifier(const char *identifier) { user_defined_identifier = std::string(identifier); };
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
@@ -441,7 +441,7 @@ protected:
     OpenMPClauseContextVendor context_vendor_name = OMPC_CONTEXT_VENDOR_unspecified;
     std::string implementation_user_defined_expression;
     OpenMPClauseContextKind context_kind_name = OMPC_CONTEXT_KIND_unknown;
-
+    void generateDOT(std::ofstream&, int, int, std::string);
 
 public:
     OpenMPVariantClause(OpenMPClauseKind _kind) : OpenMPClause(_kind) { };
@@ -539,7 +539,7 @@ public:
 
     static OpenMPClause * addDefaultClause(OpenMPDirective* directive);
     std::string toString();
-    //void generateDOT(std::ofstream&, int, int, std::string);
+    void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // if Clause
