@@ -66,15 +66,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             break;
         }
         case OMPC_default : {
-            OpenMPDefaultClauseKind defaultKind = (OpenMPDefaultClauseKind) va_arg(args, int);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPDefaultClause(defaultKind);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else { /* could be an error since if clause may only appear once */
-                std::cerr << "Cannot have two default clause for the directive " << kind << ", ignored\n";
-            }
+            OpenMPDefaultClauseKind default_kind = (OpenMPDefaultClauseKind) va_arg(args, int);
+            new_clause = OpenMPDefaultClause::addDefaultClause(this, default_kind);
             break;
         }
         case OMPC_num_threads:
@@ -3351,6 +3344,24 @@ void OpenMPReductionClause::generateDOT(std::ofstream& dot_file, int depth, int 
     };
 
 };
+
+OpenMPClause* OpenMPDefaultClause::addDefaultClause(OpenMPDirective *directive, OpenMPDefaultClauseKind default_kind) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_default);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPDefaultClause(default_kind);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_default] = current_clauses;
+    } else { /* could be an error since if clause may only appear once */
+        std::cerr << "Cannot have two default clause for the directive " << directive->getKind() << ", ignored\n";
+    };
+
+    return new_clause;
+}
 
 OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
 

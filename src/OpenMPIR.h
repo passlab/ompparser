@@ -537,7 +537,7 @@ public:
     OpenMPDirective* getVariantDirective() { return variant_directive; };
     void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
 
-    static OpenMPClause * addDefaultClause(OpenMPDirective* directive);
+    static OpenMPClause * addDefaultClause(OpenMPDirective*, OpenMPDefaultClauseKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
