@@ -166,6 +166,14 @@ variant_directive : parallel_directive
                  | allocate_directive
                  ;
 
+fortran_paired_directive : parallel_directive
+                         | metadirective_directive
+                         | teams_directive
+                         | sections_directive
+                         | simd_directive
+                         | single_directive
+                         ;
+
 end_directive : END { current_directive = new OpenMPEndDirective();
                 current_parent_directive = current_directive;
                 current_parent_clause = current_clause;
@@ -178,7 +186,7 @@ end_directive : END { current_directive = new OpenMPEndDirective();
               }
               ;
 
-end_clause_seq : variant_directive
+end_clause_seq : fortran_paired_directive
                ;
 
 metadirective_directive : METADIRECTIVE {
