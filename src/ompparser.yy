@@ -1639,6 +1639,7 @@ reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpenMPC
 int yyerror(const char *s) {
     // printf(" %s!\n", s);
     fprintf(stderr,"error: %s\n",s);
+    current_directive = NULL;
     return 0;
 }
  
