@@ -239,9 +239,9 @@ public:
 class OpenMPReductionClause : public OpenMPClause {
 
 protected:
-    OpenMPReductionClauseModifier modifier;     // modifier
+    OpenMPReductionClauseModifier modifier = OMPC_REDUCTION_MODIFIER_unknown;  // modifier
     OpenMPReductionClauseIdentifier identifier; // identifier
-    std::string user_defined_identifier;                // user defined identifier if it is used
+    std::string user_defined_identifier;  // user defined identifier if it is used
 
 public:
     OpenMPReductionClause() : OpenMPClause(OMPC_reduction) { }

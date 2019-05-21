@@ -1605,7 +1605,7 @@ shared_clause : SHARED {
                     } '(' var_list ')'
                   ;
 
-reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_IDENTIFIER_unknown; } '(' reduction_parameter ':' var_list ')' {
+reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unknown; } '(' reduction_parameter ':' var_list ')' {
                  }
                  ;
 
