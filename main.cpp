@@ -11,11 +11,11 @@ std::string test(OpenMPDirective*);
 int openFile(std::ifstream&, const char*);
 
 void output(OpenMPDirective* node) {
-
-    std::string unparsing_string = node->generatePragmaString();
-    std::cout << unparsing_string << "\n";
-    node->generateDOT();
-
+    if (node) {
+        std::string unparsing_string = node->generatePragmaString();
+        std::cout << unparsing_string << "\n";
+        node->generateDOT();
+    };
 }
 
 std::string test(OpenMPDirective* node) {

@@ -469,7 +469,7 @@ public:
 // When Clause
 class OpenMPWhenClause : public OpenMPVariantClause {
 protected:
-    OpenMPDirective* variant_directive; // variant directive inside the WHEN clause
+    OpenMPDirective* variant_directive = NULL; // variant directive inside the WHEN clause
 
 
 public:

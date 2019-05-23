@@ -14,6 +14,7 @@
 #include "OpenMPIR.h"
 #include <string.h>
 #include <regex>
+#include <assert.h>
 
 /*the scanner function*/
 extern int openmp_lex(); 
@@ -1352,7 +1353,9 @@ construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMP
 if_clause: IF '(' if_parameter ')' { ; }
                     ;
 
-if_parameter :  PARALLEL ':' {
+if_parameter :  PARALLEL {if (current_directive->getKind() != OMPD_parallel) {
+                            yyerror("IF clause can only have PARALLEL parameter in PARALLEL directive\n");
+                            YYABORT;};} ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel);
                 } expression { ; }
               | SIMD ':' {
@@ -1415,7 +1418,11 @@ default_parameter : SHARED { current_clause = current_directive->addOpenMPClause
                     ;
 
 
-default_variant_directive : { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_variant);
+default_variant_directive : { if (current_directive->getKind() != OMPD_metadirective) {
+                                yyerror("DEFAULT clause with variant directive can be only used in METADIRECTIVE directive.\n");
+                                YYABORT;
+                              };
+                            current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_variant);
                             current_parent_directive = current_directive;
                             current_parent_clause = current_clause; } variant_directive {
                             ((OpenMPDefaultClause*)current_parent_clause)->setVariantDirective(current_directive);
@@ -1423,7 +1430,8 @@ default_variant_directive : { current_clause = current_directive->addOpenMPClaus
                             current_clause = current_parent_clause;
                             current_parent_directive = NULL;
                             current_parent_clause = NULL;
-                            std::cout << "A construct directive has been added to DEFAULT clause.\n"; }
+                            std::cout << "A construct directive has been added to DEFAULT clause.\n";
+                            }
                           ;
 
 proc_bind_clause : PROC_BIND '(' proc_bind_parameter ')' { } ;
