@@ -229,8 +229,15 @@ context_selector_specification : trait_set_selector
                 | context_selector_specification ',' trait_set_selector
                 ;
 
-trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list '}'
-                ;
+trait_set_selector : trait_set_selector_name { } '=' '{' trait_selector_list {
+                        if (current_parent_clause) {
+                            current_directive = current_parent_directive;
+                            current_clause = current_parent_clause;
+                            current_parent_directive = NULL;
+                            current_parent_clause = NULL;
+                        };
+                     } '}'
+                   ;
 
 trait_set_selector_name : USER { }
                 | CONSTRUCT { current_parent_directive = current_directive;
@@ -247,10 +254,6 @@ trait_selector_list : trait_selector
 trait_selector : condition_selector
                 | construct_selector {
                     ((OpenMPVariantClause*)current_parent_clause)->addConstructDirective(current_directive);
-                    current_directive = current_parent_directive;
-                    current_clause = current_parent_clause;
-                    current_parent_directive = NULL;
-                    current_parent_clause = NULL;
                     std::cout << "A construct directive has been added to WHEN clause.\n"; 
                 }
                 | device_selector
