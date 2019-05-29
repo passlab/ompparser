@@ -287,7 +287,7 @@ context_arch : ARCH '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->se
 
 implementation_selector : VENDOR '(' context_vendor_name ')'
                         | EXTENSION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($3); } ')'
-                        | EXPR_STRING {}
+                        | EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setImplementationExpression($1); }
                         ;
 
 context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }

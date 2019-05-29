@@ -47,6 +47,7 @@
 %x MAP_STATE
 %x MAP_MAPPER_STATE
 %x TASK_REDUCTION_STATE
+%x IMPLEMENTATION_STATE
 
 %{
 
@@ -77,6 +78,7 @@ Liao 12/10/2009 */
 static const char* ompparserinput = NULL;
 static std::string current_string;
 static int parenthesis_local_count=0, parenthesis_global_count = 1, bracket_count;
+static int brace_count = 0;
 static char current_char;
 
 /* Liao 6/11/2010,
@@ -459,20 +461,31 @@ task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_RED
 <WHEN_STATE>user                            { return USER; }
 <WHEN_STATE>construct                       { return CONSTRUCT; }
 <WHEN_STATE>device                          { return DEVICE; }
-<WHEN_STATE>implementation                  { return IMPLEMENTATION; }
+<WHEN_STATE>implementation                  { yy_push_state(IMPLEMENTATION_STATE); return IMPLEMENTATION; }
 <WHEN_STATE>{blank}*                        { ; }
 <WHEN_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<IMPLEMENTATION_STATE>"("                            { return '('; }
+<IMPLEMENTATION_STATE>","                            { return ','; }
+<IMPLEMENTATION_STATE>")"                            { return ')'; }
+<IMPLEMENTATION_STATE>"="                            { return '='; }
+<IMPLEMENTATION_STATE>"{"                            { brace_count++; return '{'; }
+<IMPLEMENTATION_STATE>"}"                            { yy_pop_state(); return '}'; }
+<IMPLEMENTATION_STATE>vendor/{blank}*\(              { yy_push_state(VENDOR_STATE); return VENDOR; }
+<IMPLEMENTATION_STATE>extension/{blank}*\(           { yy_push_state(EXTENSION_STATE); return EXTENSION; }
+<IMPLEMENTATION_STATE>{blank}*                       { ; }
+<IMPLEMENTATION_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <MATCH_STATE>"("                            { return '('; }
 <MATCH_STATE>":"                            { yy_push_state(INITIAL); return ':'; }
 <MATCH_STATE>")"                            { yy_pop_state(); return ')'; }
 <MATCH_STATE>"="                            { return '='; }
-<MATCH_STATE>"{"                            { yy_push_state(INITIAL); return '{'; } /* now parsrsing enters to pass a full construct, directive, condition, etc */
+<MATCH_STATE>"{"                            { yy_push_state(INITIAL); return '{'; } /* now parsing enters to pass a full construct, directive, condition, etc */
 <MATCH_STATE>"}"                            { return '}'; }
 <MATCH_STATE>user                           { return USER; }
 <MATCH_STATE>construct                      { return CONSTRUCT; }
 <MATCH_STATE>device                         { return DEVICE; }
-<MATCH_STATE>implementation                 { return IMPLEMENTATION; }
+<MATCH_STATE>implementation                 { yy_push_state(IMPLEMENTATION_STATE); return IMPLEMENTATION; }
 <MATCH_STATE>{blank}*                       { ; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -774,6 +787,31 @@ task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_RED
                                                 case ']': {
                                                     bracket_count--;
                                                     current_string.append(1, current_char);
+                                                    break;
+                                                }
+                                                case '{': {
+                                                    brace_count++;
+                                                    current_string.append(1, current_char);
+                                                    break;
+                                                }
+                                                case '}': {
+                                                    brace_count--;
+                                                    if (brace_count == 0) {
+                                                        yy_pop_state();
+                                                        if (current_string.size() != 0) {
+                                                            openmp_lval.stype = strdup(current_string.c_str());
+                                                            current_string.clear();
+                                                            unput('}');
+                                                            return EXPR_STRING;
+                                                        }
+                                                        else {
+                                                            unput('}');
+                                                            break;
+                                                        };
+                                                    }
+                                                    else {
+                                                        current_string.append(1, current_char);
+                                                    };
                                                     break;
                                                 }
                                                 case ':': {
