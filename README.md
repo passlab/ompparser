@@ -17,28 +17,16 @@ Standalone OpenMP parser
 
 ```
 
-public class OMPAttribute {
- OMPAttribute [] children; /* this could be other C/C++ vector */
- OMPAttribute parent;
- const char * lang_str;
-   
+class OpenMPDirective : public SourceLocation  {
 
 }
 
-public class OMPDirective extends OMPAttribute {
-
-
-}
-
-public class OMPClause extends OMPAttribute {
+class OpenMPClause : public SourceLocation {
 
 }
 
 
-
-
-OMPAttribute * omp_parse(const char * filename, const line, const char * string, void * node);
-
+OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
 ```
 
 ## Related work

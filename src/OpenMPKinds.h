@@ -1,21 +1,50 @@
-//===--- OpenMPKinds.h - OpenMP enums ---------------------------*- C++ -*-===//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-///
-/// \file
-/// Defines some OpenMP-specific enums and functions.
-///
-//===----------------------------------------------------------------------===//
+/*
+Copyright (c) 2019, Lawrence Livermore National Security, LLC, and University of South Carolina.
+Produced at the Lawrence Livermore National Laboratory, and University of South Carolina
+Written by Chunhua Liao, Yonghong Yan, and Anjia Wang
+(email: liao6@llnl.gov, yanyh@cse.sc.edu, wang113@llnl.gov)
+LLNL-CODE-xxxxxxx
+All rights reserved.
+
+This file is part of ompparser. For details, see
+https://github.com/passlab/ompparser.
+
+Redistribution and use in source and binary forms, with
+or without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the disclaimer below.
+
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the disclaimer (as noted below)
+  in the documentation and/or other materials provided with the
+  distribution.
+
+* Neither the name of the LLNS/LLNL/USC nor the names of its contributors
+  may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL LAWRENCE LIVERMORE NATIONAL
+SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY, UNIVERSITY OF SOUTH CAROLINA OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #ifndef __OPENMPKINDS_H__
 #define __OPENMPKINDS_H__
 
-/// OpenMP directives.
+// OpenMP directives.
 enum OpenMPDirectiveKind {
 #define OPENMP_DIRECTIVE(Name) OMPD_##Name,
 #define OPENMP_DIRECTIVE_EXT(Name, Str) OMPD_##Name,
@@ -38,7 +67,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(allocate)      
     OPENMP_DIRECTIVE(threadprivate)    
     OPENMP_DIRECTIVE(declare_reduction)
-    OPENMP_DIRECTIVE(declare_mapper)    /*YAYING*/
+    OPENMP_DIRECTIVE(declare_mapper)
     OPENMP_DIRECTIVE(teams)
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
@@ -65,7 +94,7 @@ enum OpenMPDirectiveKind {
 #undef OPENMP_DIRECTIVE_EXT
 };
 
-/// OpenMP clauses.
+// OpenMP clauses.
 enum OpenMPClauseKind {
 #define OPENMP_CLAUSE(Name, Class) OMPC_##Name,
 // OpenMP clauses.
@@ -231,10 +260,9 @@ enum OpenMPIfClauseModifier {
 #undef OPENMP_IF_MODIFIER
 };
 
-/// OpenMP attributes for 'default' clause.
+// OpenMP attributes for 'default' clause.
 enum OpenMPDefaultClauseKind {
 #define OPENMP_DEFAULT_KIND(Name) OMPC_DEFAULT_##Name,
-    /* private and firstprivate are only for fortran */
     OPENMP_DEFAULT_KIND(private)
     OPENMP_DEFAULT_KIND(firstprivate)
     OPENMP_DEFAULT_KIND(shared)
@@ -245,7 +273,7 @@ enum OpenMPDefaultClauseKind {
 #undef OPENMP_DEFAULT_KIND
 };
 
-/// OpenMP attributes for 'proc_bind' clause.
+// OpenMP attributes for 'proc_bind' clause.
 enum OpenMPProcBindClauseKind {
 #define OPENMP_PROC_BIND_KIND(Name) OMPC_PROC_BIND_##Name,
     OPENMP_PROC_BIND_KIND(master)
@@ -256,7 +284,7 @@ enum OpenMPProcBindClauseKind {
 #undef OPENMP_PROC_BIND_KIND
 };
 
-/// OpenMP attributes for 'Allocate' clause.
+// OpenMP attributes for 'Allocate' clause.
 enum OpenMPAllocateClauseAllocator {
 #define OPENMP_ALLOCATE_ALLOCATOR_KIND(Name) OMPC_ALLOCATE_ALLOCATOR_##Name,
     OPENMP_ALLOCATE_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
@@ -272,7 +300,7 @@ enum OpenMPAllocateClauseAllocator {
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
 
-/// OpenMP attributes for 'Allocator' clause.
+// OpenMP attributes for 'Allocator' clause.
 enum OpenMPAllocatorClauseAllocator {
 #define OPENMP_ALLOCATOR_ALLOCATOR_KIND(Name) OMPC_ALLOCATOR_ALLOCATOR_##Name,
     OPENMP_ALLOCATOR_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
@@ -288,7 +316,7 @@ enum OpenMPAllocatorClauseAllocator {
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
 
-/// modifiers for 'reduction' clause.
+// modifiers for 'reduction' clause.
 enum OpenMPReductionClauseModifier {
 #define OPENMP_REDUCTION_MODIFIER(Name) OMPC_REDUCTION_MODIFIER_##Name,
     OPENMP_REDUCTION_MODIFIER(inscan)
@@ -298,7 +326,7 @@ enum OpenMPReductionClauseModifier {
 #undef OPENMP_REDUCTION_MODIFIER
 };
 
-/// identifiers for 'reduction' clause.
+// identifiers for 'reduction' clause.
 enum OpenMPReductionClauseIdentifier {
 #define OPENMP_REDUCTION_IDENTIFIER(Name) OMPC_REDUCTION_IDENTIFIER_##Name,
     OPENMP_REDUCTION_IDENTIFIER(plus)
@@ -319,7 +347,7 @@ enum OpenMPReductionClauseIdentifier {
 #undef OPENMP_REDUCTION_IDENTIFIER
 };
 
-/// modifiers for 'lastprivate' clause.
+// modifiers for 'lastprivate' clause.
 enum OpenMPLastprivateClauseModifier {
 #define OPENMP_LASTPRIVATE_MODIFIER(Name) OMPC_LASTPRIVATE_MODIFIER_##Name,
 
@@ -330,7 +358,7 @@ enum OpenMPLastprivateClauseModifier {
 #undef OPENMP_LASTPRIVATE_MODIFIER
 };
 
-/// step for 'linear' clause.
+// step for 'linear' clause.
 enum OpenMPLinearClauseStep {
 #define OPENMP_LINEAR_STEP(Name) OMPC_LINEAR_Step_##Name,
 
@@ -340,7 +368,7 @@ enum OpenMPLinearClauseStep {
 #undef OPENMP_LINEAR_STEP
 };
 
-/// modifiers for 'linear' clause.
+// modifiers for 'linear' clause.
 enum OpenMPLinearClauseModifier {
 #define OPENMP_LINEAR_MODIFIER(Name) OMPC_LINEAR_MODIFIER_##Name,
 
@@ -353,7 +381,7 @@ enum OpenMPLinearClauseModifier {
 #undef OPENMP_LINEAR_MODIFIER
 };
 
-/// modifiers for 'schedule' clause.
+// modifiers for 'schedule' clause.
 enum OpenMPScheduleClauseModifier {
 #define OPENMP_SCHEDULE_MODIFIER(Name) OMPC_SCHEDULE_MODIFIER_##Name,
     OPENMP_SCHEDULE_MODIFIER(monotonic)
@@ -365,7 +393,7 @@ enum OpenMPScheduleClauseModifier {
 #undef OPENMP_SCHEDULE_MODIFIER
 };
 
-/// OpenMP attributes for 'schedule' clause.
+// OpenMP attributes for 'schedule' clause.
 enum OpenMPScheduleClauseKind {
 #define OPENMP_SCHEDULE_KIND(Name) OMPC_SCHEDULE_KIND_##Name,
 
@@ -380,7 +408,7 @@ enum OpenMPScheduleClauseKind {
 #undef OPENMP_SCHEDULE_KIND
 };
 
-/// OpenMP attributes for 'dist_schedule' clause.
+// OpenMP attributes for 'dist_schedule' clause.
 enum OpenMPDistscheduleClauseKind {
 #define OPENMP_DISTSCHEDULE_KIND(Name) OMPC_DISTSCHEDULE_KIND_##Name,
 
@@ -391,7 +419,7 @@ enum OpenMPDistscheduleClauseKind {
 #undef OPENMP_DISTSCHEDULE_KIND
 };
 
-/// OpenMP attributes for 'bind' clause.
+// OpenMP attributes for 'bind' clause.
 enum OpenMPBindClauseKind {
 #define OPENMP_BIND_KIND(Name) OMPC_BIND_##Name,
     OPENMP_BIND_KIND(teams)
@@ -403,7 +431,7 @@ enum OpenMPBindClauseKind {
 #undef OPENMP_BIND_KIND
 };
 
-/// omp_priv for 'initializer' clause.
+// omp_priv for 'initializer' clause.
 enum OpenMPInitializerClausePriv {
 #define OPENMP_INITIALIZER_PRIV(Name) OMPC_INITIALIZER_PRIV_##Name,
 
@@ -413,7 +441,7 @@ enum OpenMPInitializerClausePriv {
 #undef OPENMP_INITIALIZER_PRIV
 };
 
-/// OpenMP attributes for 'atomic_default_mem_order' clause.
+// OpenMP attributes for 'atomic_default_mem_order' clause.
 enum OpenMPAtomicDefaultMemOrderClauseKind {
 #define OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(Name) OMPC_ATOMIC_DEFAULT_MEM_ORDER_##Name,
     OPENMP_ATOMIC_DEFAULT_MEM_ORDER_KIND(seq_cst)
@@ -424,7 +452,7 @@ enum OpenMPAtomicDefaultMemOrderClauseKind {
 #undef OPENMP_DEFAULT_KIND
 };
 
-/// OpenMP attributes for 'UsesAllocators' clause.
+// OpenMP attributes for 'UsesAllocators' clause.
 enum OpenMPUsesAllocatorsClauseAllocator {
 #define OPENMP_USESALLOCATORS_ALLOCATOR_KIND(Name) OMPC_USESALLOCATORS_ALLOCATOR_##Name,
     OPENMP_USESALLOCATORS_ALLOCATOR_KIND(default)      // omp_default_mem_alloc
@@ -440,7 +468,7 @@ enum OpenMPUsesAllocatorsClauseAllocator {
 #undef OPENMP_USESALLOCATORS_ALLOCATOR_KIND
 };
 
-/// modifiers for 'device' clause.
+// modifiers for 'device' clause.
 enum OpenMPDeviceClauseModifier {
 #define OPENMP_DEVICE_MODIFIER(Name) OMPC_DEVICE_MODIFIER_##Name,
     OPENMP_DEVICE_MODIFIER(ancestor)
