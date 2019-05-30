@@ -143,7 +143,8 @@ lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
 linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
 schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
 collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered         { yy_push_state(ORDERED_STATE);return ORDERED;}
+ordered         {return ORDERED;}
+ordered{blank}*/"(" { yy_push_state(ORDERED_STATE); return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 safelen         { return SAFELEN;}

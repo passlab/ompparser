@@ -207,32 +207,19 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 
         case OMPC_lastprivate: {
             OpenMPLastprivateClauseModifier modifier = (OpenMPLastprivateClauseModifier) va_arg(args,int);
-            char * user_defined_modifier = NULL;
-            if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPLastprivateClause(modifier);
-                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user) {
-                    ((OpenMPLastprivateClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
-            clauses[kind] = current_clauses;
+            	clauses[kind] = current_clauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_modifier_expression;
-                    if (user_defined_modifier) {
-                        current_user_defined_modifier_expression = std::string(user_defined_modifier);
-                    };
-                    if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier&&
-                        current_user_defined_modifier_expression.compare(((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
+                    if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier) {
                         new_clause = (*it);
                         goto end;
                     };
                 };
                 new_clause = new OpenMPLastprivateClause(modifier);
-                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user) {
-                    ((OpenMPLastprivateClause *) new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses->push_back(new_clause);
             }
             break;
