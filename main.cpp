@@ -184,7 +184,7 @@ int main( int argc, const char* argv[] ) {
         //const char* input = "omp cancellation   point sections" ;
         //const char* input = "omp allocate(a,b,c) allocator(omp_default_mem_alloc    )";
  //const char* input = " omp declare mapper(const int * (a[9]))";
- // const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";   
+ //const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";   
 
 //const char* input = "omp target if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2), in:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234)) ";
 //const char* input = "omp task if(task: 5858*5) final (5) affinity(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9):b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority(5) detach(abc) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) default (none)";
@@ -202,7 +202,7 @@ int main( int argc, const char* argv[] ) {
 
  //const char* input = "omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)";
  //const char* input = "omp declare target (x,y,z)";
- // const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";
+ //const char* input ="#pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))";
 //const char* input = "omp taskloop simd collapse(a) order(dasfe)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(var(s,f,e):2) linear(s,f,e)  aligned(s,f,e) if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
 //const char* input = "omp taskyield";
 //const char* input = "omp barrier";
@@ -211,8 +211,8 @@ int main( int argc, const char* argv[] ) {
 
     //const char* input = "omp taskgroup task_reduction(abc : x, y, z)";
 
-    const char* input = "omp flush acq_rel(x,y,z)";
-   // const char* input = "omp atomic hint(abc) seq_cst seq_cst read seq_cst";
+   //const char* input = "omp flush acq_rel(x,y,z)";
+   const char* input = "omp atomic hint(abc) seq_cst seq_cst read seq_cst";
 
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     output(openMPAST);
