@@ -76,7 +76,7 @@ corresponding C type is union name defaults to YYSTYPE.
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
-LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT
+LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING TASK_REDUCTION
 /* associativity and precedence */
@@ -143,6 +143,8 @@ openmp_directive : parallel_directive
                  | barrier_directive
                  | taskwait_directive
                  | taskgroup_directive
+                 | flush_directive
+                 | atomic_directive
                  ;
 
 variant_directive : parallel_directive
@@ -404,6 +406,12 @@ declare_target_directive : DECLARE TARGET {
                      }
                      declare_target_clause_optseq 
                    ;
+flush_directive : FLUSH {
+                        current_directive = new OpenMPFlushDirective ();
+                     }
+                    flush_clause_optseq 
+                   ;
+
 end_declare_target_directive : END DECLARE TARGET {
                         current_directive = new OpenMPDirective(OMPD_end_declare_target);
                      }
@@ -455,22 +463,101 @@ declare_target_clause_optseq : /* empty */
                              |  '(' declare_target_extended_list ')'
                              | declare_target_seq
                              ;
-extended_variable : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareTargetDirective*)current_directive)->addExtendedList($1); std::cout << "test.\n";}
+
+extended_variable : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareTargetDirective*)current_directive)->addExtendedList($1);}
                   ;
 declare_target_extended_list : extended_variable
                              | declare_target_extended_list ',' extended_variable
                              ;
+flush_clause_optseq : /* empty */
+                    |  '(' flush_list ')'
+                    | flush_clause_seq
+                    ;
+flush_list : extended_variable
+           | flush_list ',' extended_variable
+           ;
+flush_clause_seq : flush_memory_order_clause
+          | flush_memory_order_clause '(' flush_list ')'
+          ;
+flush_memory_order_clause : acq_rel_clause
+                          | release_clause
+                          | acquire_clause
+                          ;
+atomic_directive : ATOMIC {
+                        current_directive = new OpenMPAtomicDirective ();
+                     }
+                    atomic_clause_optseq 
+                   ;
+                  /*Do we need to care about the expression-stmt and the structure-stmt? Page235*/
+atomic_clause_optseq: /*empty*/
+                    |atomic_clause_seq
+                    |atomic_clause_seq',' atomic_clause
+                    |atomic_clause_seq atomic_clause
+                    |atomic_clause_seq',' atomic_clause',' atomic_clause_seq
+                    |atomic_clause_seq',' atomic_clause atomic_clause_seq
+                    |atomic_clause_seq atomic_clause',' atomic_clause_seq
+                    |atomic_clause_seq atomic_clause atomic_clause_seq
+                    ;
+		
+atomic_clause_seq : /*empty*/
+                | atomic_clause_seq1
+                | atomic_clause_seq atomic_clause_seq1
+                | atomic_clause_seq ',' atomic_clause_seq1
+                ;
+atomic_clause_seq1 : /*empty*/
+                   | memory_order_clause
+                   | hint_clause
+                   ;
+atomic_clause : read_clause
+              | write_clause
+              | update_clause
+              | capture_clause
+              ;
+memory_order_clause : seq_cst_clause
+                    | acq_rel_clause
+                    | release_clause
+                    | acquire_clause
+                    | relaxed_clause
+                    ; 
+hint_clause : HINT{ current_clause = current_directive->addOpenMPClause(OMPC_hint);
+                  } '(' expression ')'
+            ;
+
+read_clause : READ { current_clause = current_directive->addOpenMPClause(OMPC_read);
+                   } 
+            ;
+write_clause : WRITE { current_clause = current_directive->addOpenMPClause(OMPC_write);
+                   } 
+             ;
+update_clause : UPDATE { current_clause = current_directive->addOpenMPClause(OMPC_update);
+                       } 
+              ;
+capture_clause : CAPTURE { current_clause = current_directive->addOpenMPClause(OMPC_capture);
+                         } 
+               ;
+
+seq_cst_clause : SEQ_CST {current_clause = current_directive->addOpenMPClause(OMPC_seq_cst);}
+               ;
+acq_rel_clause : ACQ_REL {current_clause = current_directive->addOpenMPClause(OMPC_acq_rel);}
+               ;
+release_clause : RELEASE {current_clause = current_directive->addOpenMPClause(OMPC_release);}
+               ;
+acquire_clause : ACQUIRE {current_clause = current_directive->addOpenMPClause(OMPC_acquire);}
+               ;
+relaxed_clause : RELAXED {current_clause = current_directive->addOpenMPClause(OMPC_relaxed);}
+               ;
+
 taskwait_clause_optseq :/* empty */
-                        |taskwait_clause_seq
+                       |taskwait_clause_seq
                        ;
 taskgroup_clause_optseq :/* empty */
                         |taskgroup_clause_seq
                        ;
 
 task_clause_seq : task_clause
-                    | task_clause_seq task_clause
-                    | task_clause_seq ',' task_clause
-                    ;
+                | task_clause_seq task_clause
+                | task_clause_seq ',' task_clause
+                ;
 taskloop_clause_seq : taskloop_clause
                     | taskloop_clause_seq taskloop_clause
                     | taskloop_clause_seq ',' taskloop_clause
@@ -483,6 +570,7 @@ requires_clause_seq : requires_clause
                     | requires_clause_seq requires_clause
                     | requires_clause_seq ',' requires_clause
                     ;
+
 target_data_clause_seq : target_data_clause
                     | target_data_clause_seq target_data_clause
                     | target_data_clause_seq ',' target_data_clause

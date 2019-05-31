@@ -798,6 +798,23 @@ public:
     std::vector<std::string>* getExtendedList () { return &extended_list; };
 };
 
+//flush directive
+class OpenMPFlushDirective : public OpenMPDirective {
+protected:
+    std::vector<std::string> flush_list;
+public:
+    OpenMPFlushDirective () : OpenMPDirective(OMPD_flush) {};
+    void addFlushList (const char* _flush_list) { flush_list.push_back(std::string(_flush_list)); };
+    std::vector<std::string>* getFlushList () { return &flush_list; };
+};
+
+class OpenMPAtomicDirective : public OpenMPDirective {
+protected:
+    
+public:
+    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

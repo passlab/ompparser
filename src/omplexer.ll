@@ -236,6 +236,15 @@ ext_                      { parenthesis_global_count = 0; yy_push_state(EXPR_STA
 barrier                   { return BARRIER; }
 taskwait                  { return TASKWAIT; }
 task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_REDUCTION; }
+flush                     { return FLUSH;}
+release                   { return RELEASE;}
+acquire                   { return ACQUIRE;}
+atomic                    { return ATOMIC;}
+read                      { return READ;}
+write                     { return WRITE;}
+capture                   { return CAPTURE;}
+hint                      { return HINT; }
+
 
 "("             { return '('; }
 ")"             { return ')'; }
@@ -357,6 +366,7 @@ task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_RED
 
 <ORDERED_STATE>"("                          { return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
+
 <ORDERED_STATE>{blank}*                     { ; }
 <ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 

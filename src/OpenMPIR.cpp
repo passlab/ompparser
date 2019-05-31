@@ -111,6 +111,17 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_dynamic_allocators :
         case OMPC_is_device_ptr :
         case OMPC_link :
+        case OMPC_acq_rel:
+        case OMPC_release:
+        case OMPC_acquire:
+        case OMPC_read:
+        case OMPC_write:
+        case OMPC_update:
+        case OMPC_capture:
+        case OMPC_seq_cst:
+        case OMPC_relaxed:
+        case OMPC_hint:
+        
          {
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPClause(kind);
@@ -779,6 +790,19 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += ") ";}
             break;
         }
+        case OMPD_flush: {
+            std::vector<std::string>* list = ((OpenMPFlushDirective*)this)->getFlushList();
+            if(list->size() > 0){
+            std::vector<std::string>::iterator list_item;
+            result += "(";
+            for (list_item = list->begin(); list_item != list->end(); list_item++){
+                 result += *list_item;
+                 result += ",";
+            }
+            result = result.substr(0, result.size()-1); 
+            result += ") ";}
+            break;
+        }
         default:
             ;
     };
@@ -930,6 +954,12 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_taskgroup:
             result += "taskgroup ";
+            break;
+        case OMPD_flush:
+            result += "flush ";
+            break;
+        case OMPD_atomic:
+            result += "atomic ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -1095,6 +1125,36 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_link:
             result += "link ";
+            break;
+        case OMPC_acq_rel:
+            result += "acq_rel ";
+            break;
+        case OMPC_release:
+            result += "release ";
+            break;
+        case OMPC_acquire:
+            result += "acquire ";
+            break;
+        case OMPC_read:
+            result += "read ";
+            break;
+        case OMPC_write:
+            result += "write ";
+            break;
+        case OMPC_update:
+            result += "update ";
+            break;
+        case OMPC_capture:
+            result += "capture ";
+            break;
+        case OMPC_seq_cst:
+            result += "seq_cst ";
+            break;
+        case OMPC_relaxed:
+            result += "relaxed ";
+            break;
+        case OMPC_hint:
+            result += "hint ";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
@@ -2720,6 +2780,12 @@ void OpenMPDirective::generateDOT() {
         case OMPD_taskgroup:
                 directive_kind = "taskgroup ";
                 break;
+        case OMPD_flush:
+                directive_kind = "flush ";
+                break;
+        case OMPD_atomic:
+                directive_kind = "atomic ";
+                break;
         default:
                 directive_kind = this->toString();
     }
@@ -2931,6 +2997,12 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_taskwait:
             directive_kind = "taskwait ";
+            break;
+        case OMPD_flush:
+            directive_kind = "flush ";
+            break;
+        case OMPD_atomic:
+            directive_kind = "atomic ";
             break;
         default:
             directive_kind = this->toString();
@@ -3212,6 +3284,36 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
         case OMPC_device_type:
             clause_kind += "device_type";
+            break;
+        case OMPC_acq_rel:
+            clause_kind += "acq_rel";
+            break;
+        case OMPC_release:
+            clause_kind += "release";
+            break;
+        case OMPC_acquire:
+            clause_kind += "acquire";
+            break;
+        case OMPC_read:
+            clause_kind += "read";
+            break;
+        case OMPC_write:
+            clause_kind += "write";
+            break;
+        case OMPC_update:
+            clause_kind += "update";
+            break;
+        case OMPC_capture:
+            clause_kind += "capture";
+            break;
+        case OMPC_seq_cst:
+            clause_kind += "seq_cst";
+            break;
+        case OMPC_relaxed:
+            clause_kind += "relaxed";
+            break;
+        case OMPC_hint:
+            clause_kind += "hint";
             break;
         default:
             printf("The clause enum is not supported yet.\n");
