@@ -8,7 +8,17 @@
 #pragma omp atomic hint(abc) seq_cst seq_cst read seq_cst
 PASS: #pragma omp atomic read seq_cst hint (abc)
 
+#pragma omp atomic
+PASS: #pragma omp atomic 
 
+#pragma omp atomic hint(abc)
+PASS: #pragma omp atomic hint (abc)
+
+#pragma omp atomic read
+PASS: #pragma omp atomic read
+
+#pragma omp atomic hint(abc) read
+PASS: #pragma omp atomic read hint (abc)
 
 
 
