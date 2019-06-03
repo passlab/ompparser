@@ -809,28 +809,9 @@ public:
 //atomic directive
 class OpenMPAtomicDirective : public OpenMPDirective {
 protected:
-   // std::map<OpenMPClauseKind, vector<OpenMPClause *> *> atomic_clause1;
-    
 public:
-   // std::map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *addAtomicClause1(OpenMPClause *) { };
-   // std::map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &atomic_clause1; };
-    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+   OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
 };
-/*OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
-
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_when);
-    OpenMPClause* new_clause = NULL;
-
-    if (current_clauses->size() == 0) {
-        current_clauses = new std::vector<OpenMPClause *>();
-        (*all_clauses)[OMPC_when] = current_clauses;
-    };
-    new_clause = new OpenMPWhenClause();
-    current_clauses->push_back(new_clause);
-
-    return new_clause;
-}*/
 
 // critical directive
 class OpenMPCriticalDirective : public OpenMPDirective {

@@ -510,21 +510,16 @@ atomic_clause_optseq:/* empty */
                     | atomic_clause_seq atomic_clause_class
                     ;
 atomic_clause_class : atomic_clause
-                     | atomic_clause atomic_clause_seq_after
-                     | atomic_clause ',' atomic_clause_seq_after
-		     ;
-atomic_clause_seq : atomic_clause_seq1
-                | atomic_clause_seq atomic_clause_seq1
-                | atomic_clause_seq ',' atomic_clause_seq1
+                    | atomic_clause atomic_clause_seq
+                    | atomic_clause ',' atomic_clause_seq
+		    ;
+atomic_clause_seq : atomic_clause_seq_general
+                | atomic_clause_seq atomic_clause_seq_general
+                | atomic_clause_seq ',' atomic_clause_seq_general
                 ;
-atomic_clause_seq_after : atomic_clause_seq1
-                        | atomic_clause_seq atomic_clause_seq1
-                        | atomic_clause_seq ',' atomic_clause_seq1
-                        ;
-
-atomic_clause_seq1 : memory_order_clause
-                   | hint_clause
-                   ;
+atomic_clause_seq_general : memory_order_clause
+                          | hint_clause
+                          ;
 atomic_clause :read_clause
               | write_clause
               | update_clause
