@@ -212,7 +212,7 @@ int main( int argc, const char* argv[] ) {
     //const char* input = "omp taskgroup task_reduction(abc : x, y, z)";
 
    //const char* input = "omp flush acq_rel(x,y,z)";
-   const char* input = "omp atomic";
+   const char* input = "omp critical(test3)";
 
     OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
     output(openMPAST);

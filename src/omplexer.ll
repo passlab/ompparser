@@ -244,6 +244,8 @@ read                      { return READ;}
 write                     { return WRITE;}
 capture                   { return CAPTURE;}
 hint                      { return HINT; }
+critical                  { return CRITICAL;}
+
 
 
 "("             { return '('; }

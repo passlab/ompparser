@@ -76,7 +76,7 @@ corresponding C type is union name defaults to YYSTYPE.
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
-LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT
+LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING TASK_REDUCTION
 /* associativity and precedence */
@@ -145,6 +145,7 @@ openmp_directive : parallel_directive
                  | taskgroup_directive
                  | flush_directive
                  | atomic_directive
+                 | critical_directive
                  ;
 
 variant_directive : parallel_directive
@@ -434,7 +435,19 @@ taskgroup_directive : TASKGROUP {
                      }
                       taskgroup_clause_optseq
                      ;
+critical_directive : CRITICAL {
+                        current_directive = new OpenMPCriticalDirective();
+                     }
+                      critical_clause_optseq
+                     ;
+critical_clause_optseq : /*empty*/
+                       | '(' critical_name')'
+                       | '(' critical_name')' hint_clause
+                       | '(' critical_name')' ',' hint_clause
+                       ;
 
+critical_name : EXPR_STRING { std::cout << $1 << " - name in critical clause.\n"; ((OpenMPCriticalDirective*)current_directive)->setCriticalName($1); }
+              ;
 task_clause_optseq : /* empty */
                        | task_clause_seq
                        ;
@@ -497,13 +510,17 @@ atomic_clause_optseq:/* empty */
                     | atomic_clause_seq atomic_clause_class
                     ;
 atomic_clause_class : atomic_clause
-                     | atomic_clause atomic_clause_seq
-                     | atomic_clause ',' atomic_clause_seq
+                     | atomic_clause atomic_clause_seq_after
+                     | atomic_clause ',' atomic_clause_seq_after
 		     ;
 atomic_clause_seq : atomic_clause_seq1
                 | atomic_clause_seq atomic_clause_seq1
                 | atomic_clause_seq ',' atomic_clause_seq1
                 ;
+atomic_clause_seq_after : atomic_clause_seq1
+                        | atomic_clause_seq atomic_clause_seq1
+                        | atomic_clause_seq ',' atomic_clause_seq1
+                        ;
 
 atomic_clause_seq1 : memory_order_clause
                    | hint_clause

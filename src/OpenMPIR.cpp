@@ -790,6 +790,15 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += ") ";}
             break;
         }
+       case OMPD_critical: {
+            std::string name = ((OpenMPCriticalDirective*)this)->getCriticalName();
+            if(name!=""){
+      
+            result += "(";
+            result += name;
+            result += ") ";}
+            break;
+        }
         case OMPD_flush: {
             std::vector<std::string>* list = ((OpenMPFlushDirective*)this)->getFlushList();
             if(list->size() > 0){
@@ -960,6 +969,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_atomic:
             result += "atomic ";
+            break;
+        case OMPD_critical:
+            result += "critical ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -2786,6 +2798,9 @@ void OpenMPDirective::generateDOT() {
         case OMPD_atomic:
                 directive_kind = "atomic ";
                 break;
+        case OMPD_critical:
+                directive_kind = "critical ";
+                break;
         default:
                 directive_kind = this->toString();
     }
@@ -3003,6 +3018,9 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_atomic:
             directive_kind = "atomic ";
+            break;
+        case OMPD_critical:
+            directive_kind = "critical ";
             break;
         default:
             directive_kind = this->toString();
