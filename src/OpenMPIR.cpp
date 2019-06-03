@@ -780,23 +780,24 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
         case OMPD_declare_target: {
             std::vector<std::string>* list = ((OpenMPDeclareTargetDirective*)this)->getExtendedList();
             if(list->size() > 0){
-            std::vector<std::string>::iterator list_item;
-            result += "(";
-            for (list_item = list->begin(); list_item != list->end(); list_item++){
-                 result += *list_item;
-                 result += ",";
-            }
-            result = result.substr(0, result.size()-1); 
-            result += ") ";}
-            break;
+                std::vector<std::string>::iterator list_item;
+                result += "(";
+                for (list_item = list->begin(); list_item != list->end(); list_item++){
+                   result += *list_item;
+                   result += ",";
+                }
+                result = result.substr(0, result.size()-1); 
+                result += ") ";
+             }
+                break;
         }
-       case OMPD_critical: {
+        case OMPD_critical: {
             std::string name = ((OpenMPCriticalDirective*)this)->getCriticalName();
             if(name!=""){
-      
-            result += "(";
-            result += name;
-            result += ") ";}
+               result += "(";
+               result += name;
+               result += ") ";
+            }
             break;
         }
         case OMPD_flush: {

@@ -113,6 +113,7 @@ protected:
      *
      * Or the method may do the normalization while adding a clause.
      * it first searches the clauses map to see whether an OpenMPClause object
+     * of the specified kind and parameters exists in the map. If so, it only return
      * that OpenMPClause object, otherwise, it should create a new OpenMPClause object and insert in the map
      *
      * NOTE: if only partial parameters are provided as keys to search for a clause, the function will only
