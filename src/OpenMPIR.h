@@ -762,7 +762,6 @@ public:
 
 // map clause
 class OpenMPMapClause : public OpenMPClause {
-
 protected:
     OpenMPMapClauseModifier modifier1; 
     OpenMPMapClauseModifier modifier2;
@@ -808,12 +807,24 @@ public:
     std::vector<std::string>* getFlushList () { return &flush_list; };
 };
 
+//atomic directive
 class OpenMPAtomicDirective : public OpenMPDirective {
 protected:
-    
 public:
-    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+   OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
 };
+
+// critical directive
+class OpenMPCriticalDirective : public OpenMPDirective {
+
+protected:  
+    std::string critical_name; 
+public:
+    OpenMPCriticalDirective( ) : OpenMPDirective(OMPD_critical) { }  
+    void setCriticalName(const char* _name) { critical_name = std::string(_name); };
+    std::string getCriticalName() { return critical_name; };
+};
+
 
 #ifdef __cplusplus
 extern "C" {

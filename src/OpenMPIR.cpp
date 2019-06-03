@@ -780,14 +780,24 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
         case OMPD_declare_target: {
             std::vector<std::string>* list = ((OpenMPDeclareTargetDirective*)this)->getExtendedList();
             if(list->size() > 0){
-            std::vector<std::string>::iterator list_item;
-            result += "(";
-            for (list_item = list->begin(); list_item != list->end(); list_item++){
-                 result += *list_item;
-                 result += ",";
+                std::vector<std::string>::iterator list_item;
+                result += "(";
+                for (list_item = list->begin(); list_item != list->end(); list_item++){
+                   result += *list_item;
+                   result += ",";
+                }
+                result = result.substr(0, result.size()-1); 
+                result += ") ";
+             }
+                break;
+        }
+        case OMPD_critical: {
+            std::string name = ((OpenMPCriticalDirective*)this)->getCriticalName();
+            if(name!=""){
+               result += "(";
+               result += name;
+               result += ") ";
             }
-            result = result.substr(0, result.size()-1); 
-            result += ") ";}
             break;
         }
         case OMPD_flush: {
@@ -960,6 +970,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_atomic:
             result += "atomic ";
+            break;
+        case OMPD_critical:
+            result += "critical ";
             break;
         default:
             printf("The directive enum is not supported yet.\n");
@@ -2786,6 +2799,9 @@ void OpenMPDirective::generateDOT() {
         case OMPD_atomic:
                 directive_kind = "atomic ";
                 break;
+        case OMPD_critical:
+                directive_kind = "critical ";
+                break;
         default:
                 directive_kind = this->toString();
     }
@@ -3003,6 +3019,9 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_atomic:
             directive_kind = "atomic ";
+            break;
+        case OMPD_critical:
+            directive_kind = "critical ";
             break;
         default:
             directive_kind = this->toString();

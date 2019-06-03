@@ -61,6 +61,7 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(taskgroup)
     OPENMP_DIRECTIVE(flush)
     OPENMP_DIRECTIVE(atomic)
+    OPENMP_DIRECTIVE(critical)
 
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
