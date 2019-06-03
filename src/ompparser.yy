@@ -355,23 +355,23 @@ parallel_directive : PARALLEL {
 /*xinyao*/
 task_directive : TASK {
                         current_directive = new OpenMPDirective(OMPD_task);
-                     }
+                      }
                       task_clause_optseq
-                   ;
+               ;
 taskloop_directive : TASKLOOP {
                         current_directive = new OpenMPDirective(OMPD_taskloop);
-                     }
+                              }
                      taskloop_clause_optseq
                    ;
 taskloop_simd_directive :  TASKLOOP SIMD {
                         current_directive = new OpenMPDirective(OMPD_taskloop_simd);
-                     }
+                                         }
                      taskloop_simd_clause_optseq 
-                   ;
+                        ;
 taskyield_directive : TASKYIELD {
                         current_directive = new OpenMPDirective(OMPD_taskyield);
                      }
-                   ;
+                    ;
 requires_directive : REQUIRES {
                         current_directive = new OpenMPRequiresDirective();
                      }
@@ -381,12 +381,12 @@ target_data_directive :  TARGET DATA {
                         current_directive = new OpenMPDirective(OMPD_target_data);
                      }
                      target_data_clause_optseq 
-                   ;
+                      ;
 target_enter_data_directive :  TARGET ENTER DATA {
                         current_directive = new OpenMPDirective(OMPD_target_enter_data);
                      }
                      target_enter_data_clause_optseq 
-                   ;
+                            ;
 target_exit_data_directive :  TARGET EXIT DATA {
                         current_directive = new OpenMPDirective(OMPD_target_exit_data);
                      }
@@ -409,37 +409,37 @@ declare_target_directive : DECLARE TARGET {
                    ;
 flush_directive : FLUSH {
                         current_directive = new OpenMPFlushDirective ();
-                     }
-                    flush_clause_optseq 
-                   ;
+                        }
+                     flush_clause_optseq 
+                ;
 
 end_declare_target_directive : END DECLARE TARGET {
                         current_directive = new OpenMPDirective(OMPD_end_declare_target);
-                     }
-                   ;
+                                  }
+                             ;
 master_directive : MASTER {
                         current_directive = new OpenMPDirective(OMPD_master);
                      }
                    ;
 barrier_directive : BARRIER {
                         current_directive = new OpenMPDirective(OMPD_barrier);
-                     }
-                   ;
+                             }
+                  ;
 taskwait_directive : TASKWAIT {
                         current_directive = new OpenMPDirective(OMPD_taskwait);
                      }
                       taskwait_clause_optseq
-                     ;
+                   ;
 taskgroup_directive : TASKGROUP {
                         current_directive = new OpenMPDirective(OMPD_taskgroup);
                      }
                       taskgroup_clause_optseq
-                     ;
+                    ;
 critical_directive : CRITICAL {
                         current_directive = new OpenMPCriticalDirective();
                      }
                       critical_clause_optseq
-                     ;
+                   ;
 critical_clause_optseq : /*empty*/
                        | '(' critical_name')'
                        | '(' critical_name')' hint_clause
@@ -449,29 +449,29 @@ critical_clause_optseq : /*empty*/
 critical_name : EXPR_STRING { std::cout << $1 << " - name in critical clause.\n"; ((OpenMPCriticalDirective*)current_directive)->setCriticalName($1); }
               ;
 task_clause_optseq : /* empty */
-                       | task_clause_seq
-                       ;
+                   | task_clause_seq
+                   ;
 taskloop_clause_optseq : /* empty */
                        | taskloop_clause_seq
                        ;
 taskloop_simd_clause_optseq : /* empty */
-                       | taskloop_simd_clause_seq
-                       ;
+                            | taskloop_simd_clause_seq
+                            ;
 requires_clause_optseq : requires_clause_seq
                        ;
 target_data_clause_optseq :target_data_clause_seq
-                       ;
+                          ;
 target_enter_data_clause_optseq :/* empty */
-                        |target_enter_data_clause_seq
-                       ;
+                                |target_enter_data_clause_seq
+                                ;
 target_exit_data_clause_optseq :/* empty */
-                        |target_exit_data_clause_seq
-                       ;
+                               |target_exit_data_clause_seq
+                               ;
 target_clause_optseq :/* empty */
-                        |target_clause_seq
-                       ;
+                     |target_clause_seq
+                     ;
 target_update_clause_optseq :target_update_clause_seq
-                       ;
+                            ;
 declare_target_clause_optseq : /* empty */
                              |  '(' declare_target_extended_list ')'
                              | declare_target_seq
@@ -490,17 +490,17 @@ flush_list : extended_variable
            | flush_list ',' extended_variable
            ;
 flush_clause_seq : flush_memory_order_clause
-          | flush_memory_order_clause '(' flush_list ')'
-          ;
+                 | flush_memory_order_clause '(' flush_list ')'
+                 ;
 flush_memory_order_clause : acq_rel_clause
                           | release_clause
                           | acquire_clause
                           ;
 atomic_directive : ATOMIC {
                         current_directive = new OpenMPAtomicDirective ();
-                     }
+                          }
                     atomic_clause_optseq 
-                   ;
+                 ;
                   /*Do we need to care about the expression-stmt and the structure-stmt? Page235*/
 
 atomic_clause_optseq:/* empty */
@@ -514,9 +514,9 @@ atomic_clause_class : atomic_clause
                     | atomic_clause ',' atomic_clause_seq
 		    ;
 atomic_clause_seq : atomic_clause_seq_general
-                | atomic_clause_seq atomic_clause_seq_general
-                | atomic_clause_seq ',' atomic_clause_seq_general
-                ;
+                  | atomic_clause_seq atomic_clause_seq_general
+                  | atomic_clause_seq ',' atomic_clause_seq_general
+                  ;
 atomic_clause_seq_general : memory_order_clause
                           | hint_clause
                           ;
@@ -539,7 +539,7 @@ read_clause : READ { current_clause = current_directive->addOpenMPClause(OMPC_re
                    } 
             ;
 write_clause : WRITE { current_clause = current_directive->addOpenMPClause(OMPC_write);
-                   } 
+                     } 
              ;
 update_clause : UPDATE { current_clause = current_directive->addOpenMPClause(OMPC_update);
                        } 
@@ -564,7 +564,7 @@ taskwait_clause_optseq :/* empty */
                        ;
 taskgroup_clause_optseq :/* empty */
                         |taskgroup_clause_seq
-                       ;
+                        ;
 
 task_clause_seq : task_clause
                 | task_clause_seq task_clause
@@ -575,38 +575,38 @@ taskloop_clause_seq : taskloop_clause
                     | taskloop_clause_seq ',' taskloop_clause
                     ;
 taskloop_simd_clause_seq : taskloop_simd_clause
-                    | taskloop_simd_clause_seq taskloop_simd_clause
-                    | taskloop_simd_clause_seq ',' taskloop_simd_clause
-                    ;
+                         | taskloop_simd_clause_seq taskloop_simd_clause
+                         | taskloop_simd_clause_seq ',' taskloop_simd_clause
+                         ;
 requires_clause_seq : requires_clause
                     | requires_clause_seq requires_clause
                     | requires_clause_seq ',' requires_clause
                     ;
 
 target_data_clause_seq : target_data_clause
-                    | target_data_clause_seq target_data_clause
-                    | target_data_clause_seq ',' target_data_clause
-                    ;
+                       | target_data_clause_seq target_data_clause
+                       | target_data_clause_seq ',' target_data_clause
+                       ;
 target_enter_data_clause_seq : target_enter_data_clause
-                    | target_enter_data_clause_seq target_enter_data_clause
-                    | target_enter_data_clause_seq ',' target_enter_data_clause
-                    ;
+                             | target_enter_data_clause_seq target_enter_data_clause
+                             | target_enter_data_clause_seq ',' target_enter_data_clause
+                             ;
 target_exit_data_clause_seq : target_exit_data_clause
-                    | target_exit_data_clause_seq target_exit_data_clause
-                    | target_exit_data_clause_seq ',' target_exit_data_clause
-                    ;
+                            | target_exit_data_clause_seq target_exit_data_clause
+                            | target_exit_data_clause_seq ',' target_exit_data_clause
+                            ;
 target_clause_seq : target_clause
-                    | target_clause_seq target_clause
-                    | target_clause_seq ',' target_clause
-                    ;
+                  | target_clause_seq target_clause
+                  | target_clause_seq ',' target_clause
+                  ;
 target_update_clause_seq : target_update_clause
-                    | target_update_clause_seq target_update_clause
-                    | target_update_clause_seq ',' target_update_clause
-                    ;
+                         | target_update_clause_seq target_update_clause
+                         | target_update_clause_seq ',' target_update_clause
+                         ;
 declare_target_seq : declare_target_clause
-                    | declare_target_seq declare_target_clause
-                    | declare_target_seq ',' declare_target_clause
-                    ;
+                   | declare_target_seq declare_target_clause
+                   | declare_target_seq ',' declare_target_clause
+                   ;
 taskwait_clause_seq : taskwait_clause
                     | taskwait_clause_seq taskwait_clause
                     | taskwait_clause_seq ',' taskwait_clause
@@ -617,20 +617,20 @@ taskgroup_clause_seq : taskgroup_clause
                      ;
 
 task_clause : if_clause
-                | final_clause
-                | untied_clause
-                | default_clause
-                | mergeable_clause
-                | private_clause
-                | firstprivate_clause
-                | shared_clause
-                | in_reduction_clause
-                | depend_clause
-                | priority_clause
-                | allocate_clause
-                | affinity_clause
-                | detach_clause
-                ;
+            | final_clause
+            | untied_clause
+            | default_clause
+            | mergeable_clause
+            | private_clause
+            | firstprivate_clause
+            | shared_clause
+            | in_reduction_clause
+            | depend_clause
+            | priority_clause
+            | allocate_clause
+            | affinity_clause
+            | detach_clause
+            ;
 taskloop_clause : if_clause
                 | shared_clause
                 | private_clause
@@ -649,30 +649,30 @@ taskloop_clause : if_clause
                 | nogroup_clause
                 | allocate_clause
                 ;
-taskloop_simd_clause: if_clause
-                    | shared_clause
-                    | private_clause
-                    | firstprivate_clause
-                    | lastprivate_clause
-                    | reduction_clause 
-                    | in_reduction_clause
-                    | default_clause
-                    | grainsize_clause
-                    | num_tasks_clause
-                    | collapse_clause
-                    | final_clause
-                    | priority_clause
-                    | untied_clause
-                    | mergeable_clause
-                    | nogroup_clause
-                    | allocate_clause               
-                    | safelen_clause
-                    | simdlen_clause
-                    | linear_clause
-                    | aligned_clause
-                    | nontemporal_clause
-                    | order_clause 
-                    ;
+taskloop_simd_clause : if_clause
+                     | shared_clause
+                     | private_clause
+                     | firstprivate_clause
+                     | lastprivate_clause
+                     | reduction_clause 
+                     | in_reduction_clause
+                     | default_clause
+                     | grainsize_clause
+                     | num_tasks_clause
+                     | collapse_clause
+                     | final_clause
+                     | priority_clause
+                     | untied_clause
+                     | mergeable_clause
+                     | nogroup_clause
+                     | allocate_clause               
+                     | safelen_clause
+                     | simdlen_clause
+                     | linear_clause
+                     | aligned_clause
+                     | nontemporal_clause
+                     | order_clause 
+                     ;
 requires_clause : reverse_offload_clause
                 | unified_address_clause
                 | unified_shared_memory_clause   
@@ -680,12 +680,12 @@ requires_clause : reverse_offload_clause
                 | dynamic_allocators_clause
                 | ext_implementation_defined_requirement       
                 ;
-target_data_clause: if_clause
-                    | device_clause
-                    | map_clause
-                    | use_device_ptr_clause
-                    | use_device_addr_clause
-                    ;
+target_data_clause : if_clause
+                   | device_clause
+                   | map_clause
+                   | use_device_ptr_clause
+                   | use_device_addr_clause
+                   ;
 target_enter_data_clause: if_clause
                         | device_clause
                         | map_clause
@@ -693,24 +693,24 @@ target_enter_data_clause: if_clause
                         | nowait_clause
                         ;
 target_exit_data_clause: if_clause
-                    | device_clause
-                    | map_clause
-                    | depend_clause
-                    | nowait_clause
-                    ;
+                       | device_clause
+                       | map_clause
+                       | depend_clause
+                       | nowait_clause
+                       ;
 target_clause: if_clause
-                    | device_clause
-                    | private_clause
-                    | firstprivate_clause
-                    | in_reduction_clause
-                    | map_clause
-                    | is_device_ptr_clause
-                    | defaultmap_clause
-                    | nowait_clause
-                    | allocate_clause
-                    | depend_clause
-                    | uses_allocators_clause
-                    ;
+             | device_clause
+             | private_clause
+             | firstprivate_clause
+             | in_reduction_clause
+             | map_clause
+             | is_device_ptr_clause
+             | defaultmap_clause
+             | nowait_clause
+             | allocate_clause
+             | depend_clause
+             | uses_allocators_clause
+             ;
 target_update_clause: motion_clause
                     | target_update_other_clause
                     ;
@@ -718,10 +718,10 @@ motion_clause: to_clause
              | from_clause
              ;
 target_update_other_clause:if_clause
-              | device_clause
-              | depend_clause
-              | nowait_clause
-                    ;
+                          | device_clause
+                          | depend_clause
+                          | nowait_clause
+                          ;
 declare_target_clause : to_clause
                       | link_clause
                       | device_type_clause
@@ -730,25 +730,25 @@ taskwait_clause : depend_clause
                 ;
 taskgroup_clause : task_reduction_clause
                  | allocate_clause
-                ;
+                 ;
 final_clause: FINAL {
                             current_clause = current_directive->addOpenMPClause(OMPC_final);
                          } '(' expression ')'
-                      ;
+            ;
 untied_clause: UNTIED {
                             current_clause = current_directive->addOpenMPClause(OMPC_untied);
                          } 
-                      ;
+             ;
 mergeable_clause: MERGEABLE {
                             current_clause = current_directive->addOpenMPClause(OMPC_mergeable);
                          } 
-                      ;
+                ;
 in_reduction_clause : IN_REDUCTION '(' in_reduction_identifier ':' var_list ')' {
-}
-;
+                    }
+                    ;
 in_reduction_identifier : in_reduction_enum_identifier
-| EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_user, $1); }
-        ;
+                        | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_user, $1); }
+                        ;
 
 in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_plus); }
 | '-'{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_minus); }
