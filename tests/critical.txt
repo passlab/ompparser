@@ -5,16 +5,14 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare mapper(defualt : const int * a)
-PASS: #pragma omp declare mapper ( defualt : const int * a )
+#pragma omp critical(test1) hint(test2)
+PASS: #pragma omp critical (test1) hint (test2)
 
-#pragma omp declare mapper(userdeID : const int * a)
-PASS: #pragma omp declare mapper ( userdeID : const int * a )
+#pragma omp critical
+PASS: #pragma omp critical 
 
-#pragma omp declare mapper(const int * a)
-PASS: #pragma omp declare mapper ( const int * a )
-
-// invalid test without paired validation.
+#pragma omp critical(test3)
+PASS: #pragma omp critical (test3) 
 
 
 

@@ -59,6 +59,9 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(barrier)
     OPENMP_DIRECTIVE(taskwait)
     OPENMP_DIRECTIVE(taskgroup)
+    OPENMP_DIRECTIVE(flush)
+    OPENMP_DIRECTIVE(atomic)
+    OPENMP_DIRECTIVE(critical)
 
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
@@ -152,6 +155,18 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(link, OMPLinkClause)
     OPENMP_CLAUSE(device_type, OMPDeviceTypeClause)
     OPENMP_CLAUSE(task_reduction, OMPTaskReductionClause)
+
+    OPENMP_CLAUSE(acq_rel, OMPAcqRelClause)
+    OPENMP_CLAUSE(release, OMPReleaseClause)
+    OPENMP_CLAUSE(acquire, OMPAcquireClause)
+
+    OPENMP_CLAUSE(read, OMPReadClause)
+    OPENMP_CLAUSE(write, OMPWriteClause)
+    OPENMP_CLAUSE(update, OMPUpdateClause)
+    OPENMP_CLAUSE(capture, OMPCaptureClause)
+    OPENMP_CLAUSE(seq_cst, OMPSeqCstClause)
+    OPENMP_CLAUSE(relaxed, OMPRelaxedClause)
+    OPENMP_CLAUSE(hint, OMPHintClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
