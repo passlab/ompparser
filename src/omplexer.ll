@@ -143,8 +143,7 @@ lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
 linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
 schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
 collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered         {return ORDERED;}
-ordered{blank}*/"(" { yy_push_state(ORDERED_STATE); return ORDERED;}
+ordered         { return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 safelen         { return SAFELEN;}
@@ -356,10 +355,10 @@ task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_RED
 <COLLAPSE_STATE>{blank}*                    { ; }
 <COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ORDERED_STATE>"("                          { return '('; }
+<ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                     { ; }
-<ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ORDERED_STATE>.                            { yy_pop_state(); unput(yytext[0]); }
 
 <ALIGNED_STATE>"("                          { return '('; }
 <ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
@@ -367,7 +366,7 @@ task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_RED
 <ALIGNED_STATE>{blank}*                     { ; }
 <ALIGNED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<DIST_SCHEDULE_STATE>static/{blank}*        {return STATIC;}
+<DIST_SCHEDULE_STATE>static/{blank}*        { return STATIC;}
 <DIST_SCHEDULE_STATE>"("                    { return '('; }
 <DIST_SCHEDULE_STATE>","                    { return ','; }
 <DIST_SCHEDULE_STATE>")"                    { yy_pop_state(); return ')'; }
