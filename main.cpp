@@ -210,11 +210,11 @@ int main( int argc, const char* argv[] ) {
 //const char* input = "omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
 
 
-const char* input = "#pragma omp for ordered(a)";
+//const char* input = "#pragma omp for ordered(a)";
     //const char* input = "omp metadirective when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))";
 
-    OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-    output(openMPAST);
+   // OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
+   // output(openMPAST);
     return 0;
 }
 
