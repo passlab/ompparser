@@ -1118,10 +1118,10 @@ threadprivate_list : threadprivate_variable
                    | threadprivate_list ',' threadprivate_variable
                    ;
 
-declare_reduction_directive : DECLARE REDUCTION {current_directive = new OpenMPDeclareReductionDirective();} '(' reduction_parameter ')' declare_reduction_clause_optseq
+declare_reduction_directive : DECLARE REDUCTION {current_directive = new OpenMPDeclareReductionDirective();} '(' reduction_list ')' declare_reduction_clause_optseq
                             ;
 
-reduction_parameter : reduction_identifiers ':' typername_list ':' combiner;
+reduction_list : reduction_identifiers ':' typername_list ':' combiner;
 
 reduction_identifiers: '+'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("+"); }
                      | '-'{ ((OpenMPDeclareReductionDirective*)current_directive)->setIdentifier("-"); }
@@ -1141,10 +1141,10 @@ typername_list : typername_variable
 combiner : EXPR_STRING { std::cout << $1 << "\n"; ((OpenMPDeclareReductionDirective*)current_directive)->setCombiner($1); }
          ;
 
-declare_mapper_directive : DECLARE MAPPER {current_directive = new OpenMPDeclareMapperDirective();} '(' mapper_parameter ')' declare_mapper_clause_optseq
+declare_mapper_directive : DECLARE MAPPER {current_directive = new OpenMPDeclareMapperDirective();} '(' mapper_list ')' declare_mapper_clause_optseq
                          ;
 
-mapper_parameter : mapper_identifier_optseq 
+mapper_list : mapper_identifier_optseq 
             ;
 
 mapper_identifier_optseq : type_var
@@ -1594,6 +1594,7 @@ lastprivate_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause =
               ;
 
 lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional);}
+                 | EXPR_STRING { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_lastprivate, OMPC_LASTPRIVATE_MODIFIER_user, $1); }
                      ;
 
 linear_clause : LINEAR '('  linear_parameter ')'
