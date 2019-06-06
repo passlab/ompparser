@@ -11,8 +11,8 @@ PASS: #pragma omp for private (a, b, c)
 #pragma omp for firstprivate(a,b,c)
 PASS: #pragma omp for firstprivate (a, b, c)
 
-#pragma omp for lastprivate(conditional:a,b,c)
-PASS: #pragma omp for lastprivate (conditional: a, b, c)
+#pragma omp for lastprivate(conditional:a,b,c) lastprivate(conditional:d,c)
+PASS: #pragma omp for lastprivate (conditional: a, b, c, d)
 
 #pragma omp for linear(a,b,c:2)
 PASS: #pragma omp for linear (a, b, c:2)
@@ -26,8 +26,8 @@ PASS: #pragma omp for schedule (monotonic,simd:runtime, 2)
 #pragma omp for collapse(a)
 PASS: #pragma omp for collapse (a)
 
-#pragma omp for ordered(a)
-PASS: #pragma omp for ordered (a)
+#pragma omp for ordered(a) order(concurrent)
+PASS: #pragma omp for ordered (a) order (concurrent)
 
 #pragma omp for nowait
 PASS: #pragma omp for nowait
@@ -37,6 +37,10 @@ PASS: #pragma omp for allocate (a, b, c)
 
 #pragma omp for order(concurrent)
 PASS: #pragma omp for order (concurrent)
+
+#pragma omp for ordered allocate(a,b,c)
+PASS: #pragma omp for allocate (a, b, c) ordered
+
 
 // invalid test without paired validation.
 
