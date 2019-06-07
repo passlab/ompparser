@@ -368,7 +368,6 @@ critical                  { return CRITICAL;}
 
 <ORDERED_STATE>"("                          { return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
-
 <ORDERED_STATE>{blank}*                     { ; }
 <ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
