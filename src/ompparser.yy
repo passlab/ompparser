@@ -257,7 +257,7 @@ trait_selector_list : trait_selector { trait_score = ""; }
 
 trait_selector : condition_selector
                 | construct_selector {
-                    ((OpenMPVariantClause*)current_parent_clause)->addConstructDirective(current_directive);
+                    ((OpenMPVariantClause*)current_parent_clause)->addConstructDirective(trait_score, current_directive);
                     std::cout << "A construct directive has been added to WHEN clause.\n"; 
                 }
                 | device_selector
@@ -316,12 +316,12 @@ parallel_selector : PARALLEL { current_directive = new OpenMPDirective(OMPD_para
                 | PARALLEL '(' { current_directive = new OpenMPDirective(OMPD_parallel); } parallel_selector_parameter ')'
                 ;
 
-parallel_selector_parameter : trait_score ':' parallel_clause_optseq
-                | parallel_clause_optseq
-                ;
+parallel_selector_parameter : trait_score parallel_clause_optseq
+                            | parallel_clause_optseq
+                            ;
 
 trait_score : /* empty */
-            | SCORE '(' EXPR_STRING { trait_score = $3; /*current_directive->setTraitScore($3);*/ } ')' ':'
+            | SCORE '(' EXPR_STRING { trait_score = $3; } ')' ':'
                 ;
 
 declare_variant_directive : DECLARE VARIANT {

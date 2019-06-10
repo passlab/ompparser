@@ -2940,99 +2940,71 @@ void OpenMPDirective::generateDOT() {
 };
 
 
-void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node, std::string trait_score) {
 
     std::string directive_kind;
     OpenMPDirectiveKind kind = this->getKind();
     switch(kind) {
         case OMPD_cancellation_point :
-            directive_kind = "cancellation_point " ;
+            directive_kind = "cancellation_point";
             break;
         case OMPD_for_simd:
-            directive_kind = "for_simd ";
+            directive_kind = "for_simd";
             break;
         case OMPD_distribute_simd:
-            directive_kind = "distribute_simd ";
+            directive_kind = "distribute_simd";
             break;
         case OMPD_distribute_parallel_for:
-            directive_kind = "distribute_parallel_for ";
+            directive_kind = "distribute_parallel_for";
             break;
         case OMPD_distribute_parallel_for_simd:
-            directive_kind = "distribute_parallel_for_simd ";
+            directive_kind = "distribute_parallel_for_simd";
             break;
         case OMPD_declare_reduction:
-            directive_kind = "declare_reduction ";
+            directive_kind = "declare_reduction";
             break;
         case OMPD_declare_mapper:
-            directive_kind = "declare_mapper ";
-            break;
-        case OMPD_teams:
-            directive_kind = "teams ";
-            break;
-        case OMPD_requires:
-            directive_kind = "requires ";
-            break;
-        case OMPD_task:
-            directive_kind = "task ";
-            break;
-        case OMPD_taskloop:
-            directive_kind = "taskloop ";
+            directive_kind = "declare_mapper";
             break;
         case OMPD_taskloop_simd:
-            directive_kind = "taskloop_simd ";
-            break;
-        case OMPD_taskyield:
-            directive_kind = "taskyield ";
+            directive_kind = "taskloop_simd";
             break;
         case OMPD_target_data:
-            directive_kind = "target_data ";
+            directive_kind = "target_data";
             break;
         case OMPD_target_enter_data:
-            directive_kind = "target_enter_data ";
+            directive_kind = "target_enter_data";
             break;
         case OMPD_target_exit_data:
-            directive_kind = "target_exit_data ";
-            break;
-        case OMPD_target:
-            directive_kind = "target ";
+            directive_kind = "target_exit_data";
             break;
         case OMPD_target_update:
-            directive_kind = "target_update ";
+            directive_kind = "target_update";
             break;
         case OMPD_declare_target:
-            directive_kind = "declare_target ";
+            directive_kind = "declare_target";
             break;
         case OMPD_end_declare_target:
-            directive_kind = "end_declare_target ";
-            break;
-        case OMPD_master:
-            directive_kind = "master ";
-            break;
-        case OMPD_barrier:
-            directive_kind = "barrier ";
-            break;
-        case OMPD_taskwait:
-            directive_kind = "taskwait ";
-            break;
-        case OMPD_flush:
-            directive_kind = "flush ";
-            break;
-        case OMPD_atomic:
-            directive_kind = "atomic ";
-            break;
-        case OMPD_critical:
-            directive_kind = "critical ";
+            directive_kind = "end_declare_target";
             break;
         default:
-            directive_kind = this->toString();
+            directive_kind = this->toString().substr(0, this->toString().size()-1);
     }
     std::string current_line;
-
     std::string indent = std::string(depth, '\t');
-    directive_kind = parent_node + "_" + directive_kind;
-    dot_file << indent << directive_kind.c_str() << "\n";
-    current_line = indent + parent_node + " -- " + directive_kind + "\n";
+    std::string directive_id = parent_node + "_" + directive_kind + "_" + std::to_string(index);
+    current_line = indent + parent_node + " -- " + directive_id + "\n";
     dot_file << current_line.c_str();
+    indent += "\t";
+    dot_file << indent << directive_id.c_str() << " [label = \"" + directive_kind + "\"]\n";
+
+    // output score
+    if (trait_score != "") {
+        current_line = indent + directive_id + " -- " + directive_id + "_score" + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + directive_id + "_score" + " [label = \"score\\n " + trait_score + "\"]\n";
+        dot_file << current_line.c_str();
+    }; 
 
     switch (kind) {
         case OMPD_allocate: {
@@ -3145,12 +3117,11 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             std::vector<OpenMPClause*>* current_clauses = it->second;
             std::vector<OpenMPClause*>::iterator clause_iter;
             for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
-                (*clause_iter)->generateDOT(dot_file, 1, clause_index, directive_kind);
+                (*clause_iter)->generateDOT(dot_file, depth+1, clause_index, directive_id);
                 clause_index += 1;
             }
         }
     };
-
 };
 
 void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
@@ -3337,19 +3308,19 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         default:
             printf("The clause enum is not supported yet.\n");
     }
-    parent_node = parent_node.substr(0, parent_node.size()-1);
+    //parent_node = parent_node.substr(0, parent_node.size()-1);
     std::string clause_label = clause_kind;
     clause_kind = parent_node + "_" + clause_kind + "_" + std::to_string(depth) + "_" + std::to_string(index);
-    current_line = indent + clause_kind + " [label = \"" + clause_label + + "\"]\n";
-    dot_file << current_line.c_str();
     current_line = indent + parent_node + " -- " + clause_kind + "\n";
     dot_file << current_line.c_str();
     indent += "\t";
+    current_line = indent + clause_kind + " [label = \"" + clause_label + + "\"]\n";
+    dot_file << current_line.c_str();
 
     if (this->getKind() == OMPC_default) {
         OpenMPDirective* variant_directive = ((OpenMPDefaultClause*)this)->getVariantDirective();
         if (variant_directive != NULL) {
-            variant_directive->generateDOT(dot_file, depth+1, 0, clause_kind);
+            variant_directive->generateDOT(dot_file, depth+1, 0, clause_kind, "");
         };
     };
 
@@ -3505,8 +3476,9 @@ std::string OpenMPVariantClause::toString() {
     std::string result;
     std::string clause_string;
     std::string parameter_string;
-    std::pair<std::string, std::string> parameter_pair;
-    std::vector<OpenMPDirective*>* parameter_directives;
+    std::string beginning_symbol;
+    std::string ending_symbol;
+    std::pair<std::string, std::string> parameter_pair_string;
     OpenMPDirective* variant_directive = NULL;
     OpenMPClauseKind clause_kind = this->getKind();
     switch (clause_kind) {
@@ -3522,22 +3494,33 @@ std::string OpenMPVariantClause::toString() {
     result += " (";
 
     // check user
-    //parameter_string = this->getUserCondition().second;
-    parameter_pair = this->getUserCondition();
-    if (parameter_pair.first != "") {
-        clause_string += "user = {condition(score(" + parameter_pair.first + "): " + parameter_pair.second + ")}" + ", ";
+    parameter_pair_string = this->getUserCondition();
+    if (parameter_pair_string.first != "") {
+        clause_string += "user = {condition(score(" + parameter_pair_string.first + "): " + parameter_pair_string.second + ")}" + ", ";
     }
-    else if (parameter_pair.second != "") {
-        clause_string += "user = {condition(" + parameter_pair.second + ")}" + ", ";
+    else if (parameter_pair_string.second != "") {
+        clause_string += "user = {condition(" + parameter_pair_string.second + ")}" + ", ";
     };
 
     // check construct
-    parameter_directives = this->getConstructDirective();
-    if (parameter_directives->size() != 0) {
+    std::vector<std::pair<std::string, OpenMPDirective*>>* parameter_pair_directives = this->getConstructDirective();
+    if (parameter_pair_directives->size() != 0) {
         clause_string += "construct = {";
-        std::vector<OpenMPDirective*>::iterator iter;
-        for (iter = parameter_directives->begin(); iter != parameter_directives->end(); iter++) {
-            clause_string += (*iter)->generatePragmaString("", "(", ")", true) + ", ";
+        std::vector<std::pair<std::string, OpenMPDirective*>>::iterator iter;
+        for (iter = parameter_pair_directives->begin(); iter != parameter_pair_directives->end(); iter++) {
+            if ((*iter).first != "") {
+                beginning_symbol = "score(" + (*iter).first + "): ";
+                ending_symbol = ")";
+            }
+            else if ((*iter).second->getAllClauses()->size() != 0){
+                beginning_symbol = "(";
+                ending_symbol = ")";
+            }
+            else {
+                beginning_symbol = "";
+                ending_symbol = "";
+            };
+            clause_string += (*iter).second->generatePragmaString("", beginning_symbol, ending_symbol, true) + ", ";
         };
         clause_string = clause_string.substr(0, clause_string.size()-2);
         clause_string += "}, ";
@@ -3678,8 +3661,8 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     //std::string result;
     //std::string clause_string;
     std::string parameter_string;
-    std::pair<std::string, std::string> parameter_pair;
-    //std::vector<OpenMPDirective*>* parameter_directives;
+    std::pair<std::string, std::string> parameter_pair_string;
+    std::vector<std::pair<std::string, OpenMPDirective*>>* parameter_pair_directives;
     OpenMPDirective* variant_directive = NULL;
     /*
     OpenMPClauseKind clause_kind = this->getKind();
@@ -3845,43 +3828,40 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
 
     std::string node_id = "";
     // check user
-    //parameter_string = this->getUserCondition().second;
-    parameter_pair = this->getUserCondition();
-    if (parameter_pair.second != "") {
+    parameter_pair_string = this->getUserCondition();
+    if (parameter_pair_string.second != "") {
         node_id = clause_string + "_user_condition";
         current_line = indent + clause_string + " -- " + node_id + "\n";
         dot_file << current_line.c_str();
         current_line = indent + "\t" + node_id + " [label = \"user_condition\"]\n";
         dot_file << current_line.c_str();
         // output score
-        if (parameter_pair.first != "") {
+        if (parameter_pair_string.first != "") {
             current_line = indent + "\t" + node_id + " -- " + node_id + "_score\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t\t" + node_id + "_score [label = \"score\\n " + parameter_pair.first + "\"]\n";
+            current_line = indent + "\t\t" + node_id + "_score [label = \"score\\n " + parameter_pair_string.first + "\"]\n";
             dot_file << current_line.c_str();
         };
         // output condition expression
         current_line = indent + "\t" + node_id + " -- " + node_id + "_expr\n";
         dot_file << current_line.c_str();
-        current_line = indent + "\t\t" + node_id + "_expr [label = \"expr\\n " + parameter_pair.second + "\"]\n";
+        current_line = indent + "\t\t" + node_id + "_expr [label = \"expr\\n " + parameter_pair_string.second + "\"]\n";
         dot_file << current_line.c_str();
     };
-/*
+
     // check construct
-    parameter_directives = this->getConstructDirective();
-    if (parameter_directives->size() != 0) {
-        clause_string += "construct = {";
-        std::vector<OpenMPDirective*>::iterator iter;
-        for (iter = parameter_directives->begin(); iter != parameter_directives->end(); iter++) {
-            clause_string += (*iter)->generatePragmaString("", "(", ")", true) + ", ";
+    parameter_pair_directives = this->getConstructDirective();
+    if (parameter_pair_directives->size() != 0) {
+        node_id = clause_string + "_construct";
+        current_line = indent + clause_string + " -- " + node_id + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + node_id + " [label = \"construct\"]\n";
+        dot_file << current_line.c_str();
+        for (int i = 0; i < parameter_pair_directives->size(); i++) {
+            parameter_pair_directives->at(i).second->generateDOT(dot_file, depth+2, i, node_id, parameter_pair_directives->at(i).first);
         };
-        clause_string = clause_string.substr(0, clause_string.size()-2);
-        clause_string += "}, ";
-    }
-
-    result += clause_string;
-    parameter_string.clear();
-
+    };
+/*
     OpenMPReductionClauseModifier modifier = this->getModifier();
     OpenMPReductionClauseIdentifier identifier = this->getIdentifier();
     std::string parameter_string;
@@ -3967,11 +3947,9 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
         };
     };*/
     if (clause_kind == OMPC_when) {
-        //clause_string = " : ";
         variant_directive = ((OpenMPWhenClause*)this)->getVariantDirective();
         if (variant_directive != NULL) {
-            //clause_string += variant_directive->generatePragmaString("");
-            variant_directive->generateDOT(dot_file, depth+1, 0, clause_string);
+            variant_directive->generateDOT(dot_file, depth+1, 0, clause_string, "");
         };
     };
 };
@@ -3989,13 +3967,13 @@ void OpenMPDefaultClause::generateDOT(std::ofstream& dot_file, int depth, int in
 
     clause_string = "default";
 
-    clause_string = parent_node + "_" + clause_string + std::to_string(depth) + "_" + std::to_string(index);
+    clause_string = parent_node + "_" + clause_string + "_" + std::to_string(depth) + "_" + std::to_string(index);
     current_line = indent + parent_node + " -- " + clause_string + "\n";
     dot_file << current_line.c_str();
     indent += "\t";
     variant_directive = ((OpenMPDefaultClause*)this)->getVariantDirective();
     if (variant_directive != NULL) {
-        variant_directive->generateDOT(dot_file, depth+1, 0, clause_string);
+        variant_directive->generateDOT(dot_file, depth+1, 0, clause_string, "");
     };
 };
 

@@ -146,7 +146,7 @@ public:
     std::string toString();
 
     /* generate DOT representation of the directive */
-    void generateDOT(std::ofstream&, int, int, std::string);
+    void generateDOT(std::ofstream&, int, int, std::string, std::string);
     void generateDOT();
     std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "", bool _output_score = false);
     // To call this method directly to add new clause, it can't be protected.
@@ -433,7 +433,7 @@ public:
 // OpenMP clauses with variant directives, such as WHEN and MATCH clauses.
 class OpenMPVariantClause : public OpenMPClause {
 protected:
-    std::vector<OpenMPDirective*> construct_directives;
+    std::vector<std::pair<std::string, OpenMPDirective*>> construct_directives;
     std::pair<std::string, std::string> user_condition_expression;
     std::string isa_expression;
     std::string arch_expression;
@@ -448,10 +448,10 @@ public:
 
     std::pair<std::string, std::string> getUserCondition() { return user_condition_expression; };
     void setUserCondition(const char* _score, const char* _user_condition_expression) { user_condition_expression = std::make_pair(std::string(_score), std::string(_user_condition_expression)); };
-    void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
+    void addConstructDirective(const char* _score, OpenMPDirective* _construct_directive) { construct_directives.push_back(std::make_pair(std::string(_score), _construct_directive)); };
     void setContextKind(OpenMPClauseContextKind _context_kind_name) { context_kind_name = _context_kind_name; };
     OpenMPClauseContextKind getContextKind() { return context_kind_name; };
-    std::vector<OpenMPDirective*>* getConstructDirective() { return &construct_directives; };
+    std::vector<std::pair<std::string, OpenMPDirective*>>* getConstructDirective() { return &construct_directives; };
     void setIsaExpression(const char* _isa_expression) { isa_expression = std::string(_isa_expression); };
     std::string getIsaExpression() { return isa_expression; };
     void setArchExpression(const char* _arch_expression) { arch_expression = std::string(_arch_expression); };
