@@ -434,7 +434,7 @@ public:
 class OpenMPVariantClause : public OpenMPClause {
 protected:
     std::vector<OpenMPDirective*> construct_directives;
-    std::string user_condition_expression;
+    std::pair<std::string, std::string> user_condition_expression;
     std::string isa_expression;
     std::string arch_expression;
     std::string extension_expression;
@@ -446,8 +446,8 @@ protected:
 public:
     OpenMPVariantClause(OpenMPClauseKind _kind) : OpenMPClause(_kind) { };
 
-    std::string getUserCondition() { return user_condition_expression; };
-    void setUserCondition(const char* _user_condition_expression) { user_condition_expression = std::string(_user_condition_expression); };
+    std::pair<std::string, std::string> getUserCondition() { return user_condition_expression; };
+    void setUserCondition(const char* _score, const char* _user_condition_expression) { user_condition_expression = std::make_pair(std::string(_score), std::string(_user_condition_expression)); };
     void addConstructDirective(OpenMPDirective* _construct_directive) { construct_directives.push_back(_construct_directive); };
     void setContextKind(OpenMPClauseContextKind _context_kind_name) { context_kind_name = _context_kind_name; };
     OpenMPClauseContextKind getContextKind() { return context_kind_name; };

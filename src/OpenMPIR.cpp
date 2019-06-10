@@ -3505,6 +3505,7 @@ std::string OpenMPVariantClause::toString() {
     std::string result;
     std::string clause_string;
     std::string parameter_string;
+    std::pair<std::string, std::string> parameter_pair;
     std::vector<OpenMPDirective*>* parameter_directives;
     OpenMPDirective* variant_directive = NULL;
     OpenMPClauseKind clause_kind = this->getKind();
@@ -3521,9 +3522,13 @@ std::string OpenMPVariantClause::toString() {
     result += " (";
 
     // check user
-    parameter_string = this->getUserCondition();
-    if (parameter_string != "") {
-        clause_string += "user = {condition(" + parameter_string + ")}" + ", ";
+    //parameter_string = this->getUserCondition().second;
+    parameter_pair = this->getUserCondition();
+    if (parameter_pair.first != "") {
+        clause_string += "user = {condition(score(" + parameter_pair.first + "): " + parameter_pair.second + ")}" + ", ";
+    }
+    else if (parameter_pair.second != "") {
+        clause_string += "user = {condition(" + parameter_pair.second + ")}" + ", ";
     };
 
     // check construct
@@ -3673,6 +3678,7 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     //std::string result;
     //std::string clause_string;
     std::string parameter_string;
+    std::pair<std::string, std::string> parameter_pair;
     //std::vector<OpenMPDirective*>* parameter_directives;
     OpenMPDirective* variant_directive = NULL;
     /*
@@ -3815,33 +3821,49 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     std::string current_line;
     std::string indent = std::string(depth, '\t');
     std::string clause_string;
-    //std::string parameter_string;
+    std::string clause_type;
     std::vector<OpenMPDirective*>* parameter_directives;
     //OpenMPDirective* variant_directive = NULL;
     parent_node = parent_node.substr(0, parent_node.size()-1);
     OpenMPClauseKind clause_kind = this->getKind();
     switch (clause_kind) {
         case OMPC_when:
-            clause_string = "when";
+            clause_type = "when";
             break;
         case OMPC_match:
-            clause_string = "match";
+            clause_type = "match";
             break;
         default:
             std::cout << "The variant clause is not supported.\n";
     };
-    clause_string = parent_node + "_" + clause_string + std::to_string(depth) + "_" + std::to_string(index);
+    clause_string = parent_node + "_" + clause_type + "_" + std::to_string(depth) + "_" + std::to_string(index);
     current_line = indent + parent_node + " -- " + clause_string + "\n";
     dot_file << current_line.c_str();
     indent += "\t";
+    current_line = indent + clause_string + " [label = \"" + clause_type + "\"]\n";
+    dot_file << current_line.c_str();
 
+    std::string node_id = "";
     // check user
-    parameter_string = this->getUserCondition();
-    if (parameter_string != "") {
-        std::string node_id = clause_string + "_user_condition";
+    //parameter_string = this->getUserCondition().second;
+    parameter_pair = this->getUserCondition();
+    if (parameter_pair.second != "") {
+        node_id = clause_string + "_user_condition";
         current_line = indent + clause_string + " -- " + node_id + "\n";
         dot_file << current_line.c_str();
-        current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+        current_line = indent + "\t" + node_id + " [label = \"user_condition\"]\n";
+        dot_file << current_line.c_str();
+        // output score
+        if (parameter_pair.first != "") {
+            current_line = indent + "\t" + node_id + " -- " + node_id + "_score\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t\t" + node_id + "_score [label = \"score\\n " + parameter_pair.first + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+        // output condition expression
+        current_line = indent + "\t" + node_id + " -- " + node_id + "_expr\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t\t" + node_id + "_expr [label = \"expr\\n " + parameter_pair.second + "\"]\n";
         dot_file << current_line.c_str();
     };
 /*

@@ -21,6 +21,7 @@
 %X TYPE_STR_STATE
 %x WHEN_STATE
 %x MATCH_STATE
+%x SCORE_STATE
 %x ISA_STATE
 %x CONDITION_STATE
 %x VENDOR_STATE
@@ -510,10 +511,16 @@ critical                  { return CRITICAL;}
 <ARCH_STATE>{blank}*                        { ; }
 <ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<CONDITION_STATE>"("                        { return '('; }
+<SCORE_STATE>"("{blank}*                    { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<SCORE_STATE>")"                            { return ')'; }
+<SCORE_STATE>":"                            { yy_pop_state(); parenthesis_global_count = 1; yy_push_state(EXPR_STATE); return ':'; }
+<SCORE_STATE>{blank}*                       { ; }
+
+<CONDITION_STATE>"("/score{blank}*\(        { return '('; }
+<CONDITION_STATE>"("                        { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
-<CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<CONDITION_STATE>score/{blank}*\(           { yy_push_state(SCORE_STATE); return SCORE; }
 
 <VENDOR_STATE>"("                           { return '('; }
 <VENDOR_STATE>")"                           { yy_pop_state(); return ')'; }

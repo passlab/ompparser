@@ -35,6 +35,7 @@ static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
 static int fourthParameter;
+static const char* trait_score = "";
 
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
@@ -249,9 +250,9 @@ trait_set_selector_name : USER { }
                 | IMPLEMENTATION { }
                 ;
 
-trait_selector_list : trait_selector
-                | trait_selector_list trait_selector
-                | trait_selector_list ',' trait_selector
+trait_selector_list : trait_selector { trait_score = ""; }
+                | trait_selector_list trait_selector { trait_score = ""; }
+                | trait_selector_list ',' trait_selector { trait_score = ""; }
                 ;
 
 trait_selector : condition_selector
@@ -263,7 +264,7 @@ trait_selector : condition_selector
                 | implementation_selector
                 ;
 
-condition_selector : CONDITION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setUserCondition($3); } ')'
+condition_selector : CONDITION '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setUserCondition(trait_score, $4); } ')'
                 ;
 
 device_selector : context_kind
@@ -271,7 +272,7 @@ device_selector : context_kind
                 | context_arch
                 ;
 
-context_kind : KIND '(' context_kind_name ')'
+context_kind : KIND '(' trait_score context_kind_name ')'
              ;
 
 context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
@@ -282,15 +283,16 @@ context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKin
                   | FPGA { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
                   ;
 
-context_isa : ISA '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression($3); } ')'
+context_isa : ISA '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression($4); } ')'
             ;
 
-context_arch : ARCH '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($3); } ')'
+context_arch : ARCH '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($4); } ')'
              ;
 
-implementation_selector : VENDOR '(' context_vendor_name ')'
-                        | EXTENSION '(' EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($3); } ')'
+implementation_selector : VENDOR '(' trait_score context_vendor_name ')'
+                        | EXTENSION '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($4); } ')'
                         | EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setImplementationExpression($1); }
+                        | EXPR_STRING '(' trait_score ')' { ((OpenMPVariantClause*)current_clause)->setImplementationExpression($1); }
                         ;
 
 context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
@@ -318,7 +320,8 @@ parallel_selector_parameter : trait_score ':' parallel_clause_optseq
                 | parallel_clause_optseq
                 ;
 
-trait_score : SCORE '(' EXPR_STRING { current_directive->setTraitScore($3); } ')'
+trait_score : /* empty */
+            | SCORE '(' EXPR_STRING { trait_score = $3; /*current_directive->setTraitScore($3);*/ } ')' ':'
                 ;
 
 declare_variant_directive : DECLARE VARIANT {
