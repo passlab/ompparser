@@ -5,5 +5,5 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)
+#pragma omp depobj depend(in:mrtyu) destroy update(in)
 PASS: #pragma omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , out : v, b) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , inout : x, c)

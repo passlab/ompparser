@@ -250,6 +250,7 @@ hint                      { return HINT; }
 critical                  { return CRITICAL;}
 depobj                    { return DEPOBJ;}
 destroy                   { return DESTROY;}
+threads                   { return THREADS;}
 
 
 

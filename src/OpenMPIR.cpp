@@ -121,7 +121,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_seq_cst:
         case OMPC_relaxed:
         case OMPC_hint:
-        case OMPC_thread:
+        case OMPC_threads:
         case OMPC_simd:
         case OMPC_destroy:
         
@@ -1200,8 +1200,8 @@ std::string OpenMPClause::toString() {
         case OMPC_hint:
             result += "hint ";
             break;
-        case OMPC_thread:
-            result += "thread ";
+        case OMPC_threads:
+            result += "threads ";
             break;
         case OMPC_simd:
             result += "simd ";
@@ -3458,6 +3458,12 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
         case OMPC_destroy:
             clause_kind += "destroy";
+            break;
+        case OMPC_threads:
+            clause_kind += "threads";
+            break;
+        case OMPC_simd:
+            clause_kind += "simd";
             break;
         default:
             printf("The clause enum is not supported yet.\n");

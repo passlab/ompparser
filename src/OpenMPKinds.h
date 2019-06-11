@@ -170,7 +170,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(hint, OMPHintClause)
     OPENMP_CLAUSE(destroy, OMPDestroyClause)
     OPENMP_CLAUSE(depobj_update, OMPDepobjUpdateClause)
-    OPENMP_CLAUSE(thread, OMPThreadClause)
+    OPENMP_CLAUSE(threads, OMPThreadsClause)
     OPENMP_CLAUSE(simd, OMPSimdClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)

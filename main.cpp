@@ -161,7 +161,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-const char* input = "#pragma omp metadirective when(implementation = {vendor(score(13): cray)}, construct={parallel(score(30): private(m))}, device = {kind(any), isa(score(60): avx)}: ) when(device = {isa(sse), arch(arm)}, implementation ={vendor(score(9) : llvm)}, construct={parallel}:) when (user={condition(n<20)}, device = {kind(score(100) : nohost)}: ) default (parallel private(i) shared(m) shared(n))";
+const char* input = "#pragma omp ordered threads simd";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

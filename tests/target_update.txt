@@ -7,7 +7,6 @@
 
 #pragma omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait
 PASS: #pragma omp target update if (target update: 3456) nowait depend (iterator, in : m, n) device (5)
-//error here. iterator need to be modified
 
 #pragma omp target update to(mapper(default):m,i,o) from(m,i,o)
 PASS: #pragma omp target update to (mapper(default) : m, i, o) from (m, i, o)
