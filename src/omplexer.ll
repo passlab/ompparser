@@ -22,6 +22,7 @@
 %x WHEN_STATE
 %x MATCH_STATE
 %x ISA_STATE
+%x SCORE_STATE
 %x CONDITION_STATE
 %x VENDOR_STATE
 %x ARCH_STATE
@@ -252,7 +253,6 @@ destroy                   { return DESTROY;}
 
 
 
-
 "("             { return '('; }
 ")"             { return ')'; }
 ":"             { return ':'; }
@@ -371,10 +371,11 @@ destroy                   { return DESTROY;}
 <COLLAPSE_STATE>{blank}*                    { ; }
 <COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
+ <ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                     { ; }
 <ORDERED_STATE>.                            { yy_pop_state(); unput(yytext[0]); }
+
 
 <ALIGNED_STATE>"("                          { return '('; }
 <ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
@@ -505,19 +506,30 @@ destroy                   { return DESTROY;}
 <MATCH_STATE>{blank}*                       { ; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ISA_STATE>"("                              { return '('; }
+<ISA_STATE>"("/score{blank}*\(              { return '('; }
+<ISA_STATE>"("                              { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <ISA_STATE>")"                              { yy_pop_state(); return ')'; }
 <ISA_STATE>{blank}*                         { ; }
+<ISA_STATE>score/{blank}*\(                 { yy_push_state(SCORE_STATE); return SCORE; }
 <ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ARCH_STATE>"("                             { return '('; }
+<ARCH_STATE>"("/score{blank}*\(             { return '('; }
+<ARCH_STATE>"("                             { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
 <ARCH_STATE>{blank}*                        { ; }
+<ARCH_STATE>score/{blank}*\(                { yy_push_state(SCORE_STATE); return SCORE; }
 <ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<CONDITION_STATE>"("                        { return '('; }
+<SCORE_STATE>"("{blank}*                    { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<SCORE_STATE>")"                            { return ')'; }
+<SCORE_STATE>":"                            { yy_pop_state(); parenthesis_global_count = 1; return ':'; }
+<SCORE_STATE>{blank}*                       { ; }
+
+<CONDITION_STATE>"("/score{blank}*\(        { return '('; }
+<CONDITION_STATE>"("                        { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
+<CONDITION_STATE>score/{blank}*\(           { yy_push_state(SCORE_STATE); return SCORE; }
 <CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <VENDOR_STATE>"("                           { return '('; }
@@ -535,7 +547,7 @@ destroy                   { return DESTROY;}
 <VENDOR_STATE>pgi/{blank}*\)                { return PGI; }
 <VENDOR_STATE>ti/{blank}*\)                 { return TI; }
 <VENDOR_STATE>unknown/{blank}*\)            { return UNKNOWN; }
-<VENDOR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<VENDOR_STATE>score/{blank}*\(              { yy_push_state(SCORE_STATE); return SCORE; }
 
 <EXTENSION_STATE>"("                        { return '('; }
 <EXTENSION_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -720,7 +732,6 @@ destroy                   { return DESTROY;}
 <MAP_STATE>delete                            { return MAP_TYPE_DELETE; }
 <MAP_STATE>{blank}*                          { ; }
 
-
 <MAP_MAPPER_STATE>"("                        { return '('; }
 <MAP_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
 <MAP_MAPPER_STATE>.                          { yy_push_state(EXPR_STATE); unput(yytext[0]); }
@@ -746,7 +757,6 @@ destroy                   { return DESTROY;}
 <UPDATE_STATE>")"                           { yy_pop_state(); return ')'; }
 <UPDATE_STATE>source                        {return SOURCE;}
 <UPDATE_STATE>{blank}*                      { ; }
-
 
 <EXPR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {
