@@ -21,7 +21,6 @@
 %X TYPE_STR_STATE
 %x WHEN_STATE
 %x MATCH_STATE
-%x SCORE_STATE
 %x ISA_STATE
 %x CONDITION_STATE
 %x VENDOR_STATE
@@ -49,6 +48,7 @@
 %x MAP_MAPPER_STATE
 %x TASK_REDUCTION_STATE
 %x IMPLEMENTATION_STATE
+%x UPDATE_STATE
 
 %{
 
@@ -144,7 +144,8 @@ lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
 linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
 schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
 collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered         { yy_push_state(ORDERED_STATE);return ORDERED;}
+ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED;}
+ordered         { return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 safelen         { return SAFELEN;}
@@ -225,7 +226,7 @@ enter                     { return ENTER; }
 exit                      { return EXIT; }
 is_device_ptr             { return IS_DEVICE_PTR; }
 defaultmap                { yy_push_state(DEFAULTMAP_STATE); return DEFAULTMAP; }
-update                    { return UPDATE; }
+update                    { yy_push_state(UPDATE_STATE);return UPDATE; }
 
 to                        { yy_push_state(TO_STATE); return TO; }
 from                      { yy_push_state(FROM_STATE); return FROM; }
@@ -246,6 +247,9 @@ write                     { return WRITE;}
 capture                   { return CAPTURE;}
 hint                      { return HINT; }
 critical                  { return CRITICAL;}
+depobj                    { return DEPOBJ;}
+destroy                   { return DESTROY;}
+
 
 
 
@@ -367,10 +371,10 @@ critical                  { return CRITICAL;}
 <COLLAPSE_STATE>{blank}*                    { ; }
 <COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ORDERED_STATE>"("                          { return '('; }
+<ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                     { ; }
-<ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ORDERED_STATE>.                            { yy_pop_state(); unput(yytext[0]); }
 
 <ALIGNED_STATE>"("                          { return '('; }
 <ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
@@ -501,30 +505,19 @@ critical                  { return CRITICAL;}
 <MATCH_STATE>{blank}*                       { ; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ISA_STATE>"("/score{blank}*\(              { return '('; }
-<ISA_STATE>"("                              { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<ISA_STATE>"("                              { return '('; }
 <ISA_STATE>")"                              { yy_pop_state(); return ')'; }
 <ISA_STATE>{blank}*                         { ; }
-<ISA_STATE>score/{blank}*\(                 { yy_push_state(SCORE_STATE); return SCORE; }
 <ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ARCH_STATE>"("/score{blank}*\(             { return '('; }
-<ARCH_STATE>"("                             { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<ARCH_STATE>"("                             { return '('; }
 <ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
 <ARCH_STATE>{blank}*                        { ; }
-<ARCH_STATE>score/{blank}*\(                { yy_push_state(SCORE_STATE); return SCORE; }
 <ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<SCORE_STATE>"("{blank}*                    { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
-<SCORE_STATE>")"                            { return ')'; }
-<SCORE_STATE>":"                            { yy_pop_state(); parenthesis_global_count = 1; return ':'; }
-<SCORE_STATE>{blank}*                       { ; }
-
-<CONDITION_STATE>"("/score{blank}*\(        { return '('; }
-<CONDITION_STATE>"("                        { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<CONDITION_STATE>"("                        { return '('; }
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
-<CONDITION_STATE>score/{blank}*\(           { yy_push_state(SCORE_STATE); return SCORE; }
 <CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <VENDOR_STATE>"("                           { return '('; }
@@ -542,7 +535,7 @@ critical                  { return CRITICAL;}
 <VENDOR_STATE>pgi/{blank}*\)                { return PGI; }
 <VENDOR_STATE>ti/{blank}*\)                 { return TI; }
 <VENDOR_STATE>unknown/{blank}*\)            { return UNKNOWN; }
-<VENDOR_STATE>score/{blank}*\(              { yy_push_state(SCORE_STATE); return SCORE; }
+<VENDOR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <EXTENSION_STATE>"("                        { return '('; }
 <EXTENSION_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -578,6 +571,8 @@ critical                  { return CRITICAL;}
 <DEPEND_STATE>inout/{blank}*                {return INOUT;}
 <DEPEND_STATE>mutexinoutset/{blank}*        {return MUTEXINOUTSET;}
 <DEPEND_STATE>depobj/{blank}*               {return DEPOBJ;}
+<DEPEND_STATE>source/{blank}*               {return SOURCE;}
+<DEPEND_STATE>sink/{blank}*                 {return SINK;}
 <DEPEND_STATE>{blank}*                      { ; }
 <DEPEND_STATE>.                             { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -724,7 +719,7 @@ critical                  { return CRITICAL;}
 <MAP_STATE>release/{blank}*:                 { return MAP_TYPE_RELEASE; }
 <MAP_STATE>delete                            { return MAP_TYPE_DELETE; }
 <MAP_STATE>{blank}*                          { ; }
-<MAP_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
 
 <MAP_MAPPER_STATE>"("                        { return '('; }
 <MAP_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -746,6 +741,12 @@ critical                  { return CRITICAL;}
 <TASK_REDUCTION_STATE>max/{blank}*:           { return MAX; }
 <TASK_REDUCTION_STATE>{blank}*                { ; }
 <TASK_REDUCTION_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<UPDATE_STATE>"("                           { return '('; }
+<UPDATE_STATE>")"                           { yy_pop_state(); return ')'; }
+<UPDATE_STATE>source                        {return SOURCE;}
+<UPDATE_STATE>{blank}*                      { ; }
+
 
 <EXPR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {

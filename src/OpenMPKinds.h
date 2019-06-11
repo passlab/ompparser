@@ -62,7 +62,8 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(flush)
     OPENMP_DIRECTIVE(atomic)
     OPENMP_DIRECTIVE(critical)
-
+    OPENMP_DIRECTIVE(depobj)
+    OPENMP_DIRECTIVE(ordered)
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT
@@ -167,6 +168,10 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(seq_cst, OMPSeqCstClause)
     OPENMP_CLAUSE(relaxed, OMPRelaxedClause)
     OPENMP_CLAUSE(hint, OMPHintClause)
+    OPENMP_CLAUSE(destroy, OMPDestroyClause)
+    OPENMP_CLAUSE(depobj_update, OMPDepobjUpdateClause)
+    OPENMP_CLAUSE(thread, OMPThreadClause)
+    OPENMP_CLAUSE(simd, OMPSimdClause)
 
     OPENMP_CLAUSE(unknown, OMPUnknownClause)
 #undef OPENMP_CLAUSE
@@ -486,20 +491,22 @@ enum OpenMPInReductionClauseIdentifier {
 
 enum OpenMPDependClauseModifier {
 #define OPENMP_DEPEND_MODIFIER(Name) OMPC_DEPEND_MODIFIER_##Name,
-    OPENMP_DEPEND_MODIFIER(iterator)
     OPENMP_DEPEND_MODIFIER(unknown)
+    OPENMP_DEPEND_MODIFIER(iterator)
 #undef OPENMP_DEPEND_MODIFIER
 };
 
 enum OpenMPDependClauseType {
-#define OPENMP_DEPEND_TYPE(Name) OMPC_DEPEND_TYPE_##Name,
-    OPENMP_DEPEND_TYPE(in)
-    OPENMP_DEPEND_TYPE(out)
-    OPENMP_DEPEND_TYPE(inout)
-    OPENMP_DEPEND_TYPE(mutexinoutset)
-    OPENMP_DEPEND_TYPE(depobj)
-    OPENMP_DEPEND_TYPE(unknown)
-#undef OPENMP_DEPEND_TYPE
+#define OPENMP_DEPENDENCE_TYPE(Name) OMPC_DEPENDENCE_TYPE_##Name,
+    OPENMP_DEPENDENCE_TYPE(in)
+    OPENMP_DEPENDENCE_TYPE(out)
+    OPENMP_DEPENDENCE_TYPE(inout)
+    OPENMP_DEPENDENCE_TYPE(mutexinoutset)
+    OPENMP_DEPENDENCE_TYPE(depobj)
+    OPENMP_DEPENDENCE_TYPE(source)
+    OPENMP_DEPENDENCE_TYPE(sink)
+    OPENMP_DEPENDENCE_TYPE(unknown)
+#undef OPENMP_DEPENDENCE_TYPE
 };
 
 enum OpenMPAffinityClauseModifier {
@@ -558,10 +565,10 @@ enum OpenMPDeviceTypeClauseKind {
 /// modifiers for 'map' clause.
 enum OpenMPMapClauseModifier {
 #define OPENMP_MAP_MODIFIER(Name) OMPC_MAP_MODIFIER_##Name,
+    OPENMP_MAP_MODIFIER(unknown)
     OPENMP_MAP_MODIFIER(always)
     OPENMP_MAP_MODIFIER(close)
     OPENMP_MAP_MODIFIER(mapper)
-    OPENMP_MAP_MODIFIER(unknown)
 #undef OPENMP_MAP_MODIFIER
 };
 enum OpenMPMapClauseType {
@@ -594,5 +601,12 @@ enum OpenMPTaskReductionClauseIdentifier {
     OPENMP_TASK_REDUCTION_IDENTIFIER(unknown)
 #undef OPENMP_TASK_REDUCTION_IDENTIFIER
 };
+enum OpenMPDepobjUpdateClauseDependeceType {
+#define OPENMP_DEPOBJ_UPDATE_DEPENDENCE_TYPE(Name) OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_##Name,
+    OPENMP_DEPOBJ_UPDATE_DEPENDENCE_TYPE(source)
+    OPENMP_DEPOBJ_UPDATE_DEPENDENCE_TYPE(unknown)
+#undef OPENMP_DEPOBJ_UPDATE_DEPENDENCE_TYPE
+};
+
 #endif
 
