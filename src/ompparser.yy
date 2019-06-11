@@ -194,24 +194,22 @@ end_directive : END { current_directive = new OpenMPEndDirective();
 end_clause_seq : fortran_paired_directive
                ;
 
-metadirective_directive : METADIRECTIVE {
-                        current_directive = new OpenMPDirective(OMPD_metadirective);
-                     }
-                     metadirective_clause_optseq
-                   ;
+metadirective_directive : METADIRECTIVE { current_directive = new OpenMPDirective(OMPD_metadirective); }
+                          metadirective_clause_optseq
+                        ;
 
 metadirective_clause_optseq : /* empty */
-                       | metadirective_clause_seq
-                       ;
+                            | metadirective_clause_seq
+                            ;
 
 metadirective_clause_seq : metadirective_clause
-                    | metadirective_clause_seq metadirective_clause
-                    | metadirective_clause_seq ',' metadirective_clause
-                    ;
+                         | metadirective_clause_seq metadirective_clause
+                         | metadirective_clause_seq ',' metadirective_clause
+                         ;
 
 metadirective_clause : when_clause
-                | default_clause
-                ;
+                     | default_variant_clause
+                     ;
 
 when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_when); }
                 '(' context_selector_specification ':' {
@@ -222,7 +220,8 @@ when_clause : WHEN { current_clause = current_directive->addOpenMPClause(OMPC_wh
                 current_clause = current_parent_clause;
                 current_parent_directive = NULL;
                 current_parent_clause = NULL;
-                } ')' { } ;
+                } ')'
+            ;
 
 when_variant_directive : variant_directive {((OpenMPWhenClause*)current_parent_clause)->setVariantDirective(current_directive);}
                 | { ; }
@@ -317,12 +316,11 @@ parallel_selector : PARALLEL { current_directive = new OpenMPDirective(OMPD_para
                 ;
 
 parallel_selector_parameter : trait_score parallel_clause_optseq
-                            | parallel_clause_optseq
                             ;
 
 trait_score : /* empty */
             | SCORE '(' EXPR_STRING { trait_score = $3; } ')' ':'
-                ;
+            ;
 
 declare_variant_directive : DECLARE VARIANT {
                         current_directive = new OpenMPDeclareVariantDirective();
@@ -1291,7 +1289,7 @@ declare_reduction_clause_seq : initializer_clause
                              ;
 declare_mapper_clause_seq : map_clause
                           ;
-parallel_clause : if_clause
+parallel_clause : if_parallel_clause
                 | num_threads_clause
                 | default_clause
                 | private_clause
@@ -1456,15 +1454,21 @@ construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMP
                       | FOR { current_clause = current_directive->addOpenMPClause(OMPC_for);}
                       | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup);}
                       ;
-if_clause: IF '(' if_parameter ')' { ; }
-                    ;
+if_parallel_clause : IF '(' if_parallel_parameter ')' { ; }
+                   ;
 
-if_parameter :  PARALLEL {if (current_directive->getKind() != OMPD_parallel) {
-                            yyerror("IF clause can only have PARALLEL parameter in PARALLEL directive\n");
-                            YYABORT;};} ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel);
-                } expression { ; }
-              | SIMD ':' {
+if_parallel_parameter : PARALLEL ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel); }
+                        expression { ; }
+                      | EXPR_STRING {
+                        current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                        current_clause->addLangExpr($1);
+                        }
+                      ;
+
+if_clause : IF '(' if_parameter ')' { ; }
+          ;
+
+if_parameter : SIMD ':' {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd);
                 } expression { ; }
               | TASK ':' {
@@ -1495,7 +1499,7 @@ if_parameter :  PARALLEL {if (current_directive->getKind() != OMPD_parallel) {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
                 current_clause->addLangExpr($1);
                 }
-                ;
+              ;
 
 num_threads_clause: NUM_THREADS {
                             current_clause = current_directive->addOpenMPClause(OMPC_num_threads);
@@ -1517,18 +1521,15 @@ copyin_clause: COPYIN {
 default_clause : DEFAULT '(' default_parameter ')' { } ;
 
 default_parameter : SHARED { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_shared); }
-                    | NONE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
-                    | FIRSTPRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
-                    | PRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
-                    | default_variant_directive
-                    ;
+                  | NONE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
+                  | FIRSTPRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
+                  | PRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
+                  ;
+
+default_variant_clause : DEFAULT '(' default_variant_directive ')' { } ;
 
 
-default_variant_directive : { if (current_directive->getKind() != OMPD_metadirective) {
-                                yyerror("DEFAULT clause with variant directive can be only used in METADIRECTIVE directive.\n");
-                                YYABORT;
-                              };
-                            current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_variant);
+default_variant_directive : { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_variant);
                             current_parent_directive = current_directive;
                             current_parent_clause = current_clause; } variant_directive {
                             ((OpenMPDefaultClause*)current_parent_clause)->setVariantDirective(current_directive);
