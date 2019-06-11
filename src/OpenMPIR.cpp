@@ -689,7 +689,7 @@ end:
     return new_clause;
 }
 
-std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol, bool output_score) {
+std::string OpenMPDirective::generatePragmaString(std::string prefix, std::string beginning_symbol, std::string ending_symbol) {
 
     if (this->getBaseLang() == Lang_Fortran && prefix == "#pragma omp ") {
         prefix = "!$omp ";
@@ -815,13 +815,6 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
         }
         default:
             ;
-    };
-
-    if (output_score) {
-        std::string trait_score = this->getTraitScore();
-        if (trait_score != "") {
-            result += "score(" + trait_score + ") : ";
-        };
     };
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
@@ -3520,7 +3513,7 @@ std::string OpenMPVariantClause::toString() {
                 beginning_symbol = "";
                 ending_symbol = "";
             };
-            clause_string += (*iter).second->generatePragmaString("", beginning_symbol, ending_symbol, true) + ", ";
+            clause_string += (*iter).second->generatePragmaString("", beginning_symbol, ending_symbol) + ", ";
         };
         clause_string = clause_string.substr(0, clause_string.size()-2);
         clause_string += "}, ";

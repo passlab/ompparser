@@ -131,8 +131,6 @@ protected:
      */
     void * normalizeClause(OpenMPClauseKind kind);
 
-    std::string trait_score;
-
 public:
     OpenMPDirective(OpenMPDirectiveKind k, OpenMPBaseLang _lang = Lang_unknown, int _line = 0, int _col = 0) :
             SourceLocation(_line, _col), kind(k), lang(_lang) {};
@@ -148,11 +146,9 @@ public:
     /* generate DOT representation of the directive */
     void generateDOT(std::ofstream&, int, int, std::string, std::string);
     void generateDOT();
-    std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "", bool _output_score = false);
+    std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "");
     // To call this method directly to add new clause, it can't be protected.
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
-    void setTraitScore(const char* _score) { trait_score = std::string(_score); };
-    std::string getTraitScore () { return trait_score; };
     void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
     OpenMPBaseLang getBaseLang() { return lang; };
 };
