@@ -274,18 +274,18 @@ device_selector : context_kind
 context_kind : KIND '(' trait_score context_kind_name ')'
              ;
 
-context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_host); }
-                  | NOHOST { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_nohost); }
-                  | ANY { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_any); }
-                  | CPU { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_cpu); }
-                  | GPU { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_gpu); }
-                  | FPGA { ((OpenMPVariantClause*)current_clause)->setContextKind(OMPC_CONTEXT_KIND_fpga); }
+context_kind_name : HOST { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_host); }
+                  | NOHOST { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_nohost); }
+                  | ANY { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_any); }
+                  | CPU { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_cpu); }
+                  | GPU { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_gpu); }
+                  | FPGA { ((OpenMPVariantClause*)current_clause)->setContextKind(trait_score, OMPC_CONTEXT_KIND_fpga); }
                   ;
 
-context_isa : ISA '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression($4); } ')'
+context_isa : ISA '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setIsaExpression(trait_score, $4); } ')'
             ;
 
-context_arch : ARCH '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression($4); } ')'
+context_arch : ARCH '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setArchExpression(trait_score, $4); } ')'
              ;
 
 implementation_selector : VENDOR '(' trait_score context_vendor_name ')'

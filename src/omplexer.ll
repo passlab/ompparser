@@ -501,15 +501,17 @@ critical                  { return CRITICAL;}
 <MATCH_STATE>{blank}*                       { ; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ISA_STATE>"("                              { return '('; }
+<ISA_STATE>"("/score{blank}*\(              { return '('; }
+<ISA_STATE>"("                              { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <ISA_STATE>")"                              { yy_pop_state(); return ')'; }
 <ISA_STATE>{blank}*                         { ; }
-<ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ISA_STATE>score/{blank}*\(                 { yy_push_state(SCORE_STATE); return SCORE; }
 
-<ARCH_STATE>"("                             { return '('; }
+<ARCH_STATE>"("/score{blank}*\(             { return '('; }
+<ARCH_STATE>"("                             { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
 <ARCH_STATE>{blank}*                        { ; }
-<ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<ARCH_STATE>score/{blank}*\(                { yy_push_state(SCORE_STATE); return SCORE; }
 
 <SCORE_STATE>"("{blank}*                    { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <SCORE_STATE>")"                            { return ')'; }
