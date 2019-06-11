@@ -506,16 +506,18 @@ critical                  { return CRITICAL;}
 <ISA_STATE>")"                              { yy_pop_state(); return ')'; }
 <ISA_STATE>{blank}*                         { ; }
 <ISA_STATE>score/{blank}*\(                 { yy_push_state(SCORE_STATE); return SCORE; }
+<ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ARCH_STATE>"("/score{blank}*\(             { return '('; }
 <ARCH_STATE>"("                             { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
 <ARCH_STATE>{blank}*                        { ; }
 <ARCH_STATE>score/{blank}*\(                { yy_push_state(SCORE_STATE); return SCORE; }
+<ARCH_STATE>.                               { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <SCORE_STATE>"("{blank}*                    { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
 <SCORE_STATE>")"                            { return ')'; }
-<SCORE_STATE>":"                            { yy_pop_state(); parenthesis_global_count = 1; yy_push_state(EXPR_STATE); return ':'; }
+<SCORE_STATE>":"                            { yy_pop_state(); parenthesis_global_count = 1; return ':'; }
 <SCORE_STATE>{blank}*                       { ; }
 
 <CONDITION_STATE>"("/score{blank}*\(        { return '('; }
@@ -523,6 +525,7 @@ critical                  { return CRITICAL;}
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
 <CONDITION_STATE>score/{blank}*\(           { yy_push_state(SCORE_STATE); return SCORE; }
+<CONDITION_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <VENDOR_STATE>"("                           { return '('; }
 <VENDOR_STATE>")"                           { yy_pop_state(); return ')'; }
@@ -539,7 +542,7 @@ critical                  { return CRITICAL;}
 <VENDOR_STATE>pgi/{blank}*\)                { return PGI; }
 <VENDOR_STATE>ti/{blank}*\)                 { return TI; }
 <VENDOR_STATE>unknown/{blank}*\)            { return UNKNOWN; }
-<VENDOR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+<VENDOR_STATE>score/{blank}*\(              { yy_push_state(SCORE_STATE); return SCORE; }
 
 <EXTENSION_STATE>"("                        { return '('; }
 <EXTENSION_STATE>")"                        { yy_pop_state(); return ')'; }

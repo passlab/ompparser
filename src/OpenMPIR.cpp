@@ -3471,7 +3471,7 @@ std::string OpenMPVariantClause::toString() {
     std::string parameter_string;
     std::string beginning_symbol;
     std::string ending_symbol;
-    std::pair<std::string, std::string> parameter_pair_string;
+    std::pair<std::string, std::string>* parameter_pair_string = NULL;
     OpenMPDirective* variant_directive = NULL;
     OpenMPClauseKind clause_kind = this->getKind();
     switch (clause_kind) {
@@ -3488,11 +3488,11 @@ std::string OpenMPVariantClause::toString() {
 
     // check user
     parameter_pair_string = this->getUserCondition();
-    if (parameter_pair_string.first != "") {
-        clause_string += "user = {condition(score(" + parameter_pair_string.first + "): " + parameter_pair_string.second + ")}" + ", ";
+    if (parameter_pair_string->first != "") {
+        clause_string += "user = {condition(score(" + parameter_pair_string->first + "): " + parameter_pair_string->second + ")}" + ", ";
     }
-    else if (parameter_pair_string.second != "") {
-        clause_string += "user = {condition(" + parameter_pair_string.second + ")}" + ", ";
+    else if (parameter_pair_string->second != "") {
+        clause_string += "user = {condition(" + parameter_pair_string->second + ")}" + ", ";
     };
 
     // check construct
@@ -3526,20 +3526,20 @@ std::string OpenMPVariantClause::toString() {
     clause_string.clear();
     // check device arch
     parameter_pair_string = this->getArchExpression();
-    if (parameter_pair_string.first.size() > 0) {
-        clause_string += "arch(score(" + parameter_pair_string.first + "): " + parameter_pair_string.second + "), ";
+    if (parameter_pair_string->first.size() > 0) {
+        clause_string += "arch(score(" + parameter_pair_string->first + "): " + parameter_pair_string->second + "), ";
     }
-    else if (parameter_pair_string.second.size() > 0) {
-        clause_string += "arch(" + parameter_pair_string.second + "), ";
+    else if (parameter_pair_string->second.size() > 0) {
+        clause_string += "arch(" + parameter_pair_string->second + "), ";
     };
 
     // check device isa
     parameter_pair_string = this->getIsaExpression();
-    if (parameter_pair_string.first.size() > 0) {
-        clause_string += "isa(score(" + parameter_pair_string.first + "): " + parameter_pair_string.second + "), ";
+    if (parameter_pair_string->first.size() > 0) {
+        clause_string += "isa(score(" + parameter_pair_string->first + "): " + parameter_pair_string->second + "), ";
     }
-    else if (parameter_pair_string.second.size() > 0) {
-        clause_string += "isa(" + parameter_pair_string.second + "), ";
+    else if (parameter_pair_string->second.size() > 0) {
+        clause_string += "isa(" + parameter_pair_string->second + "), ";
     };
 
     // check device_kind
@@ -3584,8 +3584,8 @@ std::string OpenMPVariantClause::toString() {
     clause_string.clear();
     parameter_string.clear();
     // check implementation vendor
-    OpenMPClauseContextVendor context_vendor = this->getImplementationKind();
-    switch (context_vendor) {
+    std::pair<std::string, OpenMPClauseContextVendor>* context_vendor = this->getImplementationKind();
+    switch (context_vendor->second) {
         case OMPC_CONTEXT_VENDOR_amd:
             parameter_string = "amd";
             break;
@@ -3627,14 +3627,20 @@ std::string OpenMPVariantClause::toString() {
         default:
             std::cout << "The context vendor is not supported.\n";
     };
-    if (parameter_string.size() > 0) {
+    if (context_vendor->first.size() > 0) {
+        clause_string += "vendor(score(" + context_vendor->first + "): " + parameter_string + "), ";
+    }
+    else if (parameter_string.size() > 0) {
         clause_string += "vendor(" + parameter_string + "), ";
     };
 
     // check implementation extension
-    parameter_string = this->getExtensionExpression();
-    if (parameter_string.size() > 0) {
-        clause_string += "extension(" + parameter_string + "), ";
+    parameter_pair_string = this->getExtensionExpression();
+    if (parameter_pair_string->first.size() > 0) {
+        clause_string += "extension(score(" + parameter_pair_string->first + "): " + parameter_pair_string->second + "), ";
+    }
+    else if (parameter_pair_string->second.size() > 0) {
+        clause_string += "extension(" + parameter_pair_string->second + "), ";
     };
 
     if (clause_string.size() > 0) {
@@ -3660,7 +3666,7 @@ std::string OpenMPVariantClause::toString() {
 void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string parameter_string;
-    std::pair<std::string, std::string> parameter_pair_string;
+    std::pair<std::string, std::string>* parameter_pair_string;
     std::vector<std::pair<std::string, OpenMPDirective*>>* parameter_pair_directives;
     OpenMPDirective* variant_directive = NULL;
 
@@ -3762,23 +3768,23 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     std::string node_id = "";
     // check user
     parameter_pair_string = this->getUserCondition();
-    if (parameter_pair_string.second != "") {
+    if (parameter_pair_string->second.size() > 0) {
         node_id = clause_string + "_user_condition";
         current_line = indent + clause_string + " -- " + node_id + "\n";
         dot_file << current_line.c_str();
         current_line = indent + "\t" + node_id + " [label = \"user_condition\"]\n";
         dot_file << current_line.c_str();
         // output score
-        if (parameter_pair_string.first != "") {
+        if (parameter_pair_string->first.size() > 0) {
             current_line = indent + "\t" + node_id + " -- " + node_id + "_score\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t\t" + node_id + "_score [label = \"score\\n " + parameter_pair_string.first + "\"]\n";
+            current_line = indent + "\t\t" + node_id + "_score [label = \"score\\n " + parameter_pair_string->first + "\"]\n";
             dot_file << current_line.c_str();
         };
         // output condition expression
         current_line = indent + "\t" + node_id + " -- " + node_id + "_expr\n";
         dot_file << current_line.c_str();
-        current_line = indent + "\t\t" + node_id + "_expr [label = \"expr\\n " + parameter_pair_string.second + "\"]\n";
+        current_line = indent + "\t\t" + node_id + "_expr [label = \"expr\\n " + parameter_pair_string->second + "\"]\n";
         dot_file << current_line.c_str();
     };
 
@@ -3798,7 +3804,7 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     // check device_arch
     bool has_device = false;
     parameter_pair_string = this->getArchExpression();
-    if (parameter_pair_string.second != "") {
+    if (parameter_pair_string->second.size() > 0) {
         if (!has_device) {
             node_id = clause_string + "_device";
             current_line = indent + clause_string + " -- " + node_id + "\n";
@@ -3812,22 +3818,22 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
         current_line = indent + "\t\t" + node_id + "_arch [label = \"arch\"]\n";
         dot_file << current_line.c_str();
         // output score
-        if (parameter_pair_string.first != "") {
+        if (parameter_pair_string->first.size() > 0 ) {
             current_line = indent + "\t\t" + node_id + "_arch -- " + node_id + "_arch_score\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t\t\t" + node_id + "_arch_score [label = \"score\\n " + parameter_pair_string.first + "\"]\n";
+            current_line = indent + "\t\t\t" + node_id + "_arch_score [label = \"score\\n " + parameter_pair_string->first + "\"]\n";
             dot_file << current_line.c_str();
         };
         // output arch expression
         current_line = indent + "\t\t" + node_id + "_arch -- " + node_id + "_arch_expr\n";
         dot_file << current_line.c_str();
-        current_line = indent + "\t\t\t" + node_id + "_arch_expr [label = \"expr\\n " + parameter_pair_string.second + "\"]\n";
+        current_line = indent + "\t\t\t" + node_id + "_arch_expr [label = \"expr\\n " + parameter_pair_string->second + "\"]\n";
         dot_file << current_line.c_str();
     };
 
     // check device_isa
     parameter_pair_string = this->getIsaExpression();
-    if (parameter_pair_string.second != "") {
+    if (parameter_pair_string->second != "") {
         if (!has_device) {
             node_id = clause_string + "_device";
             current_line = indent + clause_string + " -- " + node_id + "\n";
@@ -3841,16 +3847,16 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
         current_line = indent + "\t\t" + node_id + "_isa [label = \"isa\"]\n";
         dot_file << current_line.c_str();
         // output score
-        if (parameter_pair_string.first != "") {
+        if (parameter_pair_string->first.size() > 0) {
             current_line = indent + "\t\t" + node_id + "_isa -- " + node_id + "_isa_score\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t\t\t" + node_id + "_isa_score [label = \"score\\n " + parameter_pair_string.first + "\"]\n";
+            current_line = indent + "\t\t\t" + node_id + "_isa_score [label = \"score\\n " + parameter_pair_string->first + "\"]\n";
             dot_file << current_line.c_str();
         };
         // output isa expression
         current_line = indent + "\t\t" + node_id + "_isa -- " + node_id + "_isa_expr\n";
         dot_file << current_line.c_str();
-        current_line = indent + "\t\t\t" + node_id + "_isa_expr [label = \"expr\\n " + parameter_pair_string.second + "\"]\n";
+        current_line = indent + "\t\t\t" + node_id + "_isa_expr [label = \"expr\\n " + parameter_pair_string->second + "\"]\n";
         dot_file << current_line.c_str();
     };
 

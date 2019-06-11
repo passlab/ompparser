@@ -289,23 +289,23 @@ context_arch : ARCH '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current
              ;
 
 implementation_selector : VENDOR '(' trait_score context_vendor_name ')'
-                        | EXTENSION '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression($4); } ')'
-                        | EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setImplementationExpression($1); }
-                        | EXPR_STRING '(' trait_score ')' { ((OpenMPVariantClause*)current_clause)->setImplementationExpression($1); }
+                        | EXTENSION '(' trait_score EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setExtensionExpression(trait_score, $4); } ')'
+                        | EXPR_STRING { ((OpenMPVariantClause*)current_clause)->setImplementationExpression(trait_score, $1); }
+                        | EXPR_STRING '(' trait_score ')' { ((OpenMPVariantClause*)current_clause)->setImplementationExpression(trait_score, $1); }
                         ;
 
-context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_amd); }
-                    | ARM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_arm); }
-                    | BSC { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_bsc); }
-                    | CRAY { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_cray); }
-                    | FUJITSU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_fujitsu); }
-                    | GNU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_gnu); }
-                    | IBM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_ibm); }
-                    | INTEL { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_intel); }
-                    | LLVM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_llvm); }
-                    | PGI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_pgi); }
-                    | TI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_ti); }
-                    | UNKNOWN { ((OpenMPVariantClause*)current_clause)->setImplementationKind(OMPC_CONTEXT_VENDOR_unknown); }
+context_vendor_name : AMD { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_amd); }
+                    | ARM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_arm); }
+                    | BSC { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_bsc); }
+                    | CRAY { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_cray); }
+                    | FUJITSU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_fujitsu); }
+                    | GNU { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_gnu); }
+                    | IBM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_ibm); }
+                    | INTEL { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_intel); }
+                    | LLVM { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_llvm); }
+                    | PGI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_pgi); }
+                    | TI { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_ti); }
+                    | UNKNOWN { ((OpenMPVariantClause*)current_clause)->setImplementationKind(trait_score, OMPC_CONTEXT_VENDOR_unknown); }
                     ;
 
 construct_selector : parallel_selector
