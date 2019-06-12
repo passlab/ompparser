@@ -470,12 +470,18 @@ depobj_clause : depend_depobj_clause
               | destroy_clause
               | depobj_update_clause
               ;
-destroy_clause : DESTROY{current_clause = current_directive->addOpenMPClause(OMPC_destroy);printf("i am here");}
+destroy_clause : DESTROY{current_clause = current_directive->addOpenMPClause(OMPC_destroy);}
                ;
 
 depobj_update_clause : UPDATE '(' update_dependence_type ')'
                      ;
-update_dependence_type : SOURCE { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_source); printf("test2\n");}
+update_dependence_type : SOURCE { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_source);}
+                       | IN { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_in); }
+                       | OUT { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_out);}
+                       | INOUT { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_inout); }
+                       | MUTEXINOUTSET { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update,OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_mutexinoutset); }
+                       | DEPOBJ { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_depobj); }
+                       | SINK { current_clause = current_directive->addOpenMPClause(OMPC_depobj_update, OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_sink); }
                        ;
 
 critical_name : EXPR_STRING { std::cout << $1 << " - name in critical clause.\n"; ((OpenMPCriticalDirective*)current_directive)->setCriticalName($1); }

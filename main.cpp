@@ -161,7 +161,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-const char* input = "#pragma omp ordered threads simd";
+const char* input = "#pragma omp target update if(target update: qwer)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

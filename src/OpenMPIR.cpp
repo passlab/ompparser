@@ -1492,6 +1492,24 @@ std::string OpenMPDepobjUpdateClause::toString() {
         case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_source:
             clause_string += "source";
             break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_in:
+            clause_string += "in";
+            break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_out:
+            clause_string += "out";
+            break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_inout:
+            clause_string += "inout";
+            break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_mutexinoutset:
+            clause_string += "mutexinoutset";
+            break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_depobj:
+            clause_string += "depobj";
+            break;
+        case OMPC_DEPOBJ_UPDATE_DEPENDENCE_TYPE_sink:
+            clause_string += "sink";
+            break;
         default:
             ;
     }
