@@ -372,10 +372,9 @@ threads                   { return THREADS;}
 <COLLAPSE_STATE>{blank}*                    { ; }
 <COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
- <ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
+<ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                     { ; }
-<ORDERED_STATE>.                            { yy_pop_state(); unput(yytext[0]); }
 
 
 <ALIGNED_STATE>"("                          { return '('; }
@@ -754,16 +753,17 @@ threads                   { return THREADS;}
 <TASK_REDUCTION_STATE>{blank}*                { ; }
 <TASK_REDUCTION_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<UPDATE_STATE>"("                           { return '('; }
-<UPDATE_STATE>")"                           { yy_pop_state(); return ')'; }
-<UPDATE_STATE>source                        {return SOURCE;}
-<UPDATE_STATE>in/{blank}*                   {return IN;}
-<UPDATE_STATE>out/{blank}*                  {return OUT;}
-<UPDATE_STATE>inout/{blank}*                {return INOUT;}
-<UPDATE_STATE>mutexinoutset/{blank}*        {return MUTEXINOUTSET;}
-<UPDATE_STATE>depobj/{blank}*               {return DEPOBJ;}
-<UPDATE_STATE>sink/{blank}*                 {return SINK;}
-<UPDATE_STATE>{blank}*                      { ; }
+<UPDATE_STATE>"("                             { return '('; }
+<UPDATE_STATE>")"                             { yy_pop_state(); return ')'; }
+<UPDATE_STATE>source                          { return SOURCE; }
+<UPDATE_STATE>in                              { return IN; }
+<UPDATE_STATE>out                             { return OUT; }
+<UPDATE_STATE>inout                           { return INOUT; }
+<UPDATE_STATE>mutexinoutset                   { return MUTEXINOUTSET; }
+<UPDATE_STATE>depobj                          { return DEPOBJ; }
+<UPDATE_STATE>sink                            { return SINK; }
+<UPDATE_STATE>{blank}*                        { ; }
+<UPDATE_STATE>.                               { yy_pop_state();unput(yytext[0]); }
 
 <EXPR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {

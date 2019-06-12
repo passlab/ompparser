@@ -623,22 +623,22 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_defaultmap :      {
             OpenMPDefaultmapClauseBehavior behavior = (OpenMPDefaultmapClauseBehavior) va_arg(args,int);
             OpenMPDefaultmapClauseCategory category = (OpenMPDefaultmapClauseCategory) va_arg(args,int);
-    if (current_clauses->size() == 0) {
-        new_clause = new OpenMPDefaultmapClause(behavior,category);
-        current_clauses = new std::vector<OpenMPClause*>();
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPDefaultmapClause(behavior,category);
+                current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
-clauses[kind] = current_clauses;
-           } else{
+                clauses[kind] = current_clauses;
+                } else{
             for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                        if (((OpenMPDefaultmapClause*)(*it))->getBehavior() == behavior&&((OpenMPDefaultmapClause*)(*it))->getCategory() == category) {
-                           new_clause = (*it);
-                           goto end;
-                    }
-               }
+               if (((OpenMPDefaultmapClause*)(*it))->getBehavior() == behavior&&((OpenMPDefaultmapClause*)(*it))->getCategory() == category) {
+                     new_clause = (*it);
+                     goto end;
+                }
+            }
                     new_clause = new OpenMPDefaultmapClause(behavior,category);
                     current_clauses->push_back(new_clause);
 
-         }
+           }
                  break;        
         }
         case OMPC_task_reduction : {
