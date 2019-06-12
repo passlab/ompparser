@@ -474,7 +474,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-       case OMPC_in_reduction : {
+        case OMPC_in_reduction : {
             OpenMPInReductionClauseIdentifier identifier = (OpenMPInReductionClauseIdentifier) va_arg(args, int);
             char * user_defined_identifier = NULL;
             if (identifier == OMPC_IN_REDUCTION_IDENTIFIER_user) user_defined_identifier = va_arg(args, char *);
@@ -506,7 +506,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-       case OMPC_depobj_update : {
+        case OMPC_depobj_update : {
             OpenMPDepobjUpdateClauseDependeceType type = (OpenMPDepobjUpdateClauseDependeceType) va_arg(args, int);            
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPDepobjUpdateClause(type);                
@@ -520,18 +520,18 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                         goto end;
                     }
                 }
-                /* could fine the matching object for this clause */
+                 /* could fine the matching object for this clause */
                 new_clause = new OpenMPDepobjUpdateClause(type);
                 current_clauses->push_back(new_clause);
-            }
+           }
             break;
         }
         case OMPC_depend : {
             OpenMPDependClauseModifier modifier = (OpenMPDependClauseModifier) va_arg(args, int);
             OpenMPDependClauseType type = (OpenMPDependClauseType) va_arg(args, int);
-             std::vector<std::vector<const char*>* > depend_iterators_definition_class =(std::vector<std::vector<const char*>* >) va_arg(args, std::vector<std::vector<const char*>* >);
+            std::vector<std::vector<const char*>* > depend_iterators_definition_class =(std::vector<std::vector<const char*>* >) va_arg(args, std::vector<std::vector<const char*>* >);
             if (current_clauses->size() == 0) {
-                 new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
+                new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
                 clauses[kind] = current_clauses;
@@ -545,7 +545,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 }
                 /* could fine the matching object for this clause */
                  new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
-                current_clauses->push_back(new_clause);
+                 current_clauses->push_back(new_clause);
             }
             break;
         }
@@ -620,7 +620,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             break;
         }
  
-        case OMPC_defaultmap :      {
+        case OMPC_defaultmap : {
             OpenMPDefaultmapClauseBehavior behavior = (OpenMPDefaultmapClauseBehavior) va_arg(args,int);
             OpenMPDefaultmapClauseCategory category = (OpenMPDefaultmapClauseCategory) va_arg(args,int);
             if (current_clauses->size() == 0) {
@@ -628,17 +628,16 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
                 clauses[kind] = current_clauses;
-                } else{
+            } else {
             for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
                if (((OpenMPDefaultmapClause*)(*it))->getBehavior() == behavior&&((OpenMPDefaultmapClause*)(*it))->getCategory() == category) {
                      new_clause = (*it);
                      goto end;
-                }
+               }
             }
                     new_clause = new OpenMPDefaultmapClause(behavior,category);
                     current_clauses->push_back(new_clause);
-
-           }
+            }
                  break;        
         }
         case OMPC_task_reduction : {
@@ -670,24 +669,22 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 if (identifier == OMPC_TASK_REDUCTION_IDENTIFIER_user)
                     ((OpenMPTaskReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
                 current_clauses->push_back(new_clause);
-            }
+                }
             break;
         }
         case OMPC_map: {
-            OpenMPMapClauseModifier modifier1 = (OpenMPMapClauseModifier) va_arg(args, int);
-            OpenMPMapClauseModifier modifier2 = (OpenMPMapClauseModifier) va_arg(args, int);
-            OpenMPMapClauseModifier modifier3 = (OpenMPMapClauseModifier) va_arg(args, int);
-            OpenMPMapClauseType type = (OpenMPMapClauseType) va_arg(args, int);
-             std::string mapper_identifier = (std::string)va_arg(args,std::string);
+            OpenMPMapClauseModifier modifier1 = (OpenMPMapClauseModifier)va_arg(args, int);
+            OpenMPMapClauseModifier modifier2 = (OpenMPMapClauseModifier)va_arg(args, int);
+            OpenMPMapClauseModifier modifier3 = (OpenMPMapClauseModifier)va_arg(args, int);
+            OpenMPMapClauseType type = (OpenMPMapClauseType)va_arg(args, int);
+            std::string mapper_identifier = (std::string)va_arg(args, std::string);
             if (current_clauses->size() == 0) {
-                new_clause = new OpenMPMapClause(modifier1,modifier2,modifier3, type,mapper_identifier);
+                new_clause = new OpenMPMapClause(modifier1, modifier2, modifier3, type,mapper_identifier);
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
                 clauses[kind] = current_clauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-
-
                     if (((OpenMPMapClause*)(*it))->getModifier1() == modifier1 && ((OpenMPMapClause*)(*it))->getModifier2() == modifier2 &&((OpenMPMapClause*)(*it))->getModifier3() == modifier3&&
                         ((OpenMPMapClause*)(*it))->getType() == type) {
                         new_clause = (*it);
@@ -695,7 +692,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                     }
                 }
                 /* could fine the matching object for this clause */
-                 new_clause = new OpenMPMapClause(modifier1,modifier2,modifier3, type,mapper_identifier);
+                new_clause = new OpenMPMapClause (modifier1, modifier2, modifier3, type, mapper_identifier);
                 current_clauses->push_back(new_clause);
             }
             break;
@@ -840,9 +837,9 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
         }
         case OMPD_depobj: {
             std::string depobj = ((OpenMPDepobjDirective*)this)->getDepobj();
-               result += "(";
-               result += depobj;
-               result += ") ";
+            result += "(";
+            result += depobj;
+            result += ") ";
             break;
         }
         default:
@@ -2902,23 +2899,8 @@ void OpenMPDirective::generateDOT() {
         case OMPD_declare_mapper:
                 directive_kind = "declare_mapper ";
                 break;
-        case OMPD_teams:
-                directive_kind = "teams ";
-                break;
-        case OMPD_requires:
-                directive_kind = "requires ";
-                break;
-        case OMPD_task:
-                directive_kind = "task ";
-                break;
-        case OMPD_taskloop:
-                directive_kind = "taskloop ";
-                break;
         case OMPD_taskloop_simd:
                 directive_kind = "taskloop_simd ";
-                break;
-        case OMPD_taskyield:
-                directive_kind = "taskyield ";
                 break;
         case OMPD_target_data:
                 directive_kind = "target_data ";
@@ -2929,9 +2911,6 @@ void OpenMPDirective::generateDOT() {
         case OMPD_target_exit_data:
                 directive_kind = "target_exit_data ";
                 break;
-        case OMPD_target:
-                directive_kind = "target ";
-                break;
         case OMPD_target_update:
                 directive_kind = "target_update ";
                 break;
@@ -2940,33 +2919,6 @@ void OpenMPDirective::generateDOT() {
                 break;
         case OMPD_end_declare_target:
                 directive_kind = "end_declare_target ";
-                break;
-        case OMPD_master:
-                directive_kind = "master ";
-                break;
-        case OMPD_barrier:
-                directive_kind = "barrier ";
-                break;
-        case OMPD_taskwait:
-                directive_kind = "taskwait ";
-                break;
-        case OMPD_taskgroup:
-                directive_kind = "taskgroup ";
-                break;
-        case OMPD_flush:
-                directive_kind = "flush ";
-                break;
-        case OMPD_atomic:
-                directive_kind = "atomic ";
-                break;
-        case OMPD_critical:
-                directive_kind = "critical ";
-                break;
-        case OMPD_ordered:
-                directive_kind = "ordered ";
-                break;
-        case OMPD_depobj:
-                directive_kind = "depobj ";
                 break;
         default:
                 directive_kind = this->toString();
