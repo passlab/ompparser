@@ -2,8 +2,14 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp target data if(target data:3456) device(5) use_device_ptr(*p,*pt,*ptr) use_device_addr(5)
-PASS: #pragma omp target data if (target data: 3456) device (5) use_device_ptr (*p, *pt, *ptr) use_device_addr (5)
+#pragma omp target data if(target data:3456) device(5) use_device_ptr(*p,*pt,*ptr) use_device_addr(5) map(mapper(test),to :w,e,r)
+PASS: #pragma omp target data if (target data: 3456) device (5) map (mapper(test) to : w, e, r) use_device_ptr (*p, *pt, *ptr) use_device_addr (5)
+
+#pragma omp target data map(to :w,e,r)
+PASS: #pragma omp target data map ( to : w, e, r)
+
+#pragma omp target data if(target data:3456) device(5) use_device_ptr(*p,*pt,*ptr) use_device_addr(5) map(always,to :w,e,r)
+PASS: #pragma omp target data if (target data: 3456) device (5) map (always to : w, e, r) use_device_ptr (*p, *pt, *ptr) use_device_addr (5)

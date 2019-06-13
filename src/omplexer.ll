@@ -21,8 +21,8 @@
 %X TYPE_STR_STATE
 %x WHEN_STATE
 %x MATCH_STATE
-%x SCORE_STATE
 %x ISA_STATE
+%x SCORE_STATE
 %x CONDITION_STATE
 %x VENDOR_STATE
 %x ARCH_STATE
@@ -49,6 +49,7 @@
 %x MAP_MAPPER_STATE
 %x TASK_REDUCTION_STATE
 %x IMPLEMENTATION_STATE
+%x UPDATE_STATE
 
 %{
 
@@ -144,7 +145,8 @@ lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
 linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
 schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
 collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered         { yy_push_state(ORDERED_STATE);return ORDERED;}
+ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED;}
+ordered         { return ORDERED;}
 nowait          { return NOWAIT;}
 order           { return ORDER;}
 safelen         { return SAFELEN;}
@@ -225,7 +227,7 @@ enter                     { return ENTER; }
 exit                      { return EXIT; }
 is_device_ptr             { return IS_DEVICE_PTR; }
 defaultmap                { yy_push_state(DEFAULTMAP_STATE); return DEFAULTMAP; }
-update                    { return UPDATE; }
+update                    { yy_push_state(UPDATE_STATE); return UPDATE; }
 
 to                        { yy_push_state(TO_STATE); return TO; }
 from                      { yy_push_state(FROM_STATE); return FROM; }
@@ -237,15 +239,18 @@ ext_                      { parenthesis_global_count = 0; yy_push_state(EXPR_STA
 barrier                   { return BARRIER; }
 taskwait                  { return TASKWAIT; }
 task_reduction            { yy_push_state(TASK_REDUCTION_STATE); return TASK_REDUCTION; }
-flush                     { return FLUSH;}
-release                   { return RELEASE;}
-acquire                   { return ACQUIRE;}
-atomic                    { return ATOMIC;}
-read                      { return READ;}
-write                     { return WRITE;}
-capture                   { return CAPTURE;}
+flush                     { return FLUSH; }
+release                   { return RELEASE; }
+acquire                   { return ACQUIRE; }
+atomic                    { return ATOMIC; }
+read                      { return READ; }
+write                     { return WRITE; }
+capture                   { return CAPTURE; }
 hint                      { return HINT; }
-critical                  { return CRITICAL;}
+critical                  { return CRITICAL; }
+depobj                    { return DEPOBJ; }
+destroy                   { return DESTROY; }
+threads                   { return THREADS; }
 
 
 
@@ -367,10 +372,10 @@ critical                  { return CRITICAL;}
 <COLLAPSE_STATE>{blank}*                    { ; }
 <COLLAPSE_STATE>.                           { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<ORDERED_STATE>"("                          { return '('; }
+<ORDERED_STATE>"("                          { yy_push_state(EXPR_STATE); return '('; }
 <ORDERED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ORDERED_STATE>{blank}*                     { ; }
-<ORDERED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
 
 <ALIGNED_STATE>"("                          { return '('; }
 <ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
@@ -573,11 +578,13 @@ critical                  { return CRITICAL;}
 <DEPEND_STATE>":"                           { yy_push_state(EXPR_STATE); return ':'; }
 <DEPEND_STATE>iterator/{blank}*"("          { current_string.clear(); yy_push_state(DEPEND_ITERATOR_STATE);return MODIFIER_ITERATOR;}
 
-<DEPEND_STATE>in/{blank}*                   {return IN;}
-<DEPEND_STATE>out/{blank}*                  {return OUT;}
-<DEPEND_STATE>inout/{blank}*                {return INOUT;}
-<DEPEND_STATE>mutexinoutset/{blank}*        {return MUTEXINOUTSET;}
-<DEPEND_STATE>depobj/{blank}*               {return DEPOBJ;}
+<DEPEND_STATE>in                            { return IN; }
+<DEPEND_STATE>out                           { return OUT; }
+<DEPEND_STATE>inout                         { return INOUT; }
+<DEPEND_STATE>mutexinoutset                 { return MUTEXINOUTSET; }
+<DEPEND_STATE>depobj                        { return DEPOBJ; }
+<DEPEND_STATE>source                        { return SOURCE; }
+<DEPEND_STATE>sink                          { return SINK; }
 <DEPEND_STATE>{blank}*                      { ; }
 <DEPEND_STATE>.                             { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -647,7 +654,6 @@ critical                  { return CRITICAL;}
 <DEFAULTMAP_STATE>tofrom/{blank}*           { return BEHAVIOR_TOFROM; }
 <DEFAULTMAP_STATE>firstprivate/{blank}*     { return BEHAVIOR_FIRSTPRIVATE; }
 <DEFAULTMAP_STATE>none/{blank}*             { return BEHAVIOR_NONE; }
-
 <DEFAULTMAP_STATE>default/{blank}*          { return BEHAVIOR_DEFAULT; }
 <DEFAULTMAP_STATE>scalar/{blank}*           { return CATEGORY_SCALAR; }
 <DEFAULTMAP_STATE>aggregate/{blank}*        { return CATEGORY_AGGREGATE; }
@@ -724,7 +730,6 @@ critical                  { return CRITICAL;}
 <MAP_STATE>release/{blank}*:                 { return MAP_TYPE_RELEASE; }
 <MAP_STATE>delete                            { return MAP_TYPE_DELETE; }
 <MAP_STATE>{blank}*                          { ; }
-<MAP_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <MAP_MAPPER_STATE>"("                        { return '('; }
 <MAP_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
@@ -746,6 +751,18 @@ critical                  { return CRITICAL;}
 <TASK_REDUCTION_STATE>max/{blank}*:           { return MAX; }
 <TASK_REDUCTION_STATE>{blank}*                { ; }
 <TASK_REDUCTION_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<UPDATE_STATE>"("                             { return '('; }
+<UPDATE_STATE>")"                             { yy_pop_state(); return ')'; }
+<UPDATE_STATE>source                          { return SOURCE; }
+<UPDATE_STATE>in                              { return IN; }
+<UPDATE_STATE>out                             { return OUT; }
+<UPDATE_STATE>inout                           { return INOUT; }
+<UPDATE_STATE>mutexinoutset                   { return MUTEXINOUTSET; }
+<UPDATE_STATE>depobj                          { return DEPOBJ; }
+<UPDATE_STATE>sink                            { return SINK; }
+<UPDATE_STATE>{blank}*                        { ; }
+<UPDATE_STATE>.                               { yy_pop_state(); unput(yytext[0]); }
 
 <EXPR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {
