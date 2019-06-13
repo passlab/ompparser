@@ -1,0 +1,50 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp distribute private(a,b,c)
+PASS: #pragma omp distribute private (a, b, c)
+
+#pragma omp distribute firstprivate(a,b,c)
+PASS: #pragma omp distribute firstprivate (a, b, c)
+
+#pragma omp distribute lastprivate(conditional:a,b,c)
+PASS: #pragma omp distribute lastprivate (conditional: a, b, c)
+
+#pragma omp distribute collapse(a)
+PASS: #pragma omp distribute collapse (a)
+
+#pragma omp distribute allocate(a,b,c)
+PASS: #pragma omp distribute allocate (a, b, c)
+
+#pragma omp distribute allocate(omp_allocator_handle_t:a,b,c)
+PASS: #pragma omp distribute allocate (omp_allocator_handle_t: a, b, c)
+
+#pragma omp distribute allocate(omp_default_mem_alloc:a,b,c)
+PASS: #pragma omp distribute allocate (omp_default_mem_alloc: a, b, c)
+
+#pragma omp distribute dist_schedule(static,2)
+PASS: #pragma omp distribute dist_schedule (static, 2)
+
+#pragma omp distribute dist_schedule(static)
+PASS: #pragma omp distribute dist_schedule (static)
+
+// invalid test without paired validation.
+
+#pragma omp distribute lastprivate(userde:a,b,c)
+
+#pragma omp distribute collapse
+
+#pragma omp distribute dist_schedule(user,2)
+
+
+
+
+
+
+
+
+

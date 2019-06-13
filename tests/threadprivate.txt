@@ -13,6 +13,7 @@ PASS: #pragma omp threadprivate (c,b,d)
 
 // invalid test without paired validation.
 
+#pragma omp threadprivate
 
-
+#pragma omp threadprivate (c,b,d) if(a)
 

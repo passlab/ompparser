@@ -2,19 +2,24 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-//One is starting with "omp", which is the input.
+  //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare mapper(defualt : const int * a)
-PASS: #pragma omp declare mapper ( defualt : const int * a )
+#pragma omp scan inclusive(a,b,c)
+PASS: #pragma omp scan inclusive (a, b, c)
 
-#pragma omp declare mapper(userdeID : double a)
-PASS: #pragma omp declare mapper ( userdeID : double a )
+#pragma omp scan exclusive(a,b,c)
+PASS: #pragma omp scan exclusive (a, b, c)
 
-#pragma omp declare mapper(short * a)
-PASS: #pragma omp declare mapper ( short * a )
 
 // invalid test without paired validation.
+
+#pragma omp scan inclusive(a,b,c) exclusive(a,b,c)
+
+
+
+
+
 
 
 

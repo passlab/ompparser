@@ -35,10 +35,32 @@ PASS: #pragma omp for nowait
 #pragma omp for allocate(a,b,c)
 PASS: #pragma omp for allocate (a, b, c)
 
+#pragma omp for allocate(omp_allocator_handle_t:a,b,c)
+PASS: #pragma omp for allocate (omp_allocator_handle_t: a, b, c)
+
+#pragma omp for allocate(omp_default_mem_alloc:a,b,c)
+PASS: #pragma omp for allocate (omp_default_mem_alloc: a, b, c)
+
 #pragma omp for order(concurrent)
 PASS: #pragma omp for order (concurrent)
 
 // invalid test without paired validation.
+
+#pragma omp for lastprivate(userde:a,b,c)
+
+#pragma omp for collapse
+
+#pragma omp for nowait(dsfasf)
+
+#pragma omp for order
+
+#pragma omp for schedule(use,user:runtime,2)
+
+#pragma omp for schedule(simd,simd:runtime,2)
+
+
+
+
 
 
 

@@ -23,7 +23,8 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(for) 
     OPENMP_DIRECTIVE(simd)
     OPENMP_DIRECTIVE(for_simd)
-    OPENMP_DIRECTIVE(declare)
+    OPENMP_DIRECTIVE(parallel_for_simd)
+    OPENMP_DIRECTIVE(declare_simd)
     OPENMP_DIRECTIVE(distribute)
     OPENMP_DIRECTIVE(distribute_simd)
     OPENMP_DIRECTIVE(distribute_parallel_for)
@@ -38,7 +39,10 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(allocate)      
     OPENMP_DIRECTIVE(threadprivate)    
     OPENMP_DIRECTIVE(declare_reduction)
-    OPENMP_DIRECTIVE(declare_mapper)    /*YAYING*/
+    OPENMP_DIRECTIVE(declare_mapper)
+    OPENMP_DIRECTIVE(parallel_for)
+    OPENMP_DIRECTIVE(parallel_loop)
+    OPENMP_DIRECTIVE(parallel_sections)    /*YAYING*/
     OPENMP_DIRECTIVE(teams)
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)

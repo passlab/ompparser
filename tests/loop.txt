@@ -1,0 +1,50 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp loop private(a,b,c)
+PASS: #pragma omp loop private (a, b, c)
+
+#pragma omp loop lastprivate(conditional:a,b,c)
+PASS: #pragma omp loop lastprivate (conditional: a, b, c)
+
+#pragma omp loop reduction(default,max:a,b,c)
+PASS: #pragma omp loop reduction (default, max : a, b, c)
+
+#pragma omp loop collapse(a)
+PASS: #pragma omp loop collapse (a)
+
+#pragma omp loop order(concurrent)
+PASS: #pragma omp loop order (concurrent)
+
+#pragma omp loop bind(teams)
+PASS: #pragma omp loop bind (teams)
+
+#pragma omp loop bind(parallel)
+PASS: #pragma omp loop bind (parallel)
+
+#pragma omp loop bind(thread)
+PASS: #pragma omp loop bind (thread)
+
+// invalid test without paired validation.
+
+#pragma omp loop lastprivate(userde:a,b,c)
+
+#pragma omp loop collapse
+
+#pragma omp loop order
+
+#pragma omp loop schedule(task,max:a,b,c)
+
+
+
+
+
+
+
+
+
+

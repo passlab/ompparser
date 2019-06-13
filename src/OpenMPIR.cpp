@@ -83,7 +83,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_nowait:
         case OMPC_safelen:
         case OMPC_simdlen:
-        case OMPC_aligned:
         case OMPC_nontemporal:
         case OMPC_uniform:
         case OMPC_inbranch:
@@ -218,32 +217,20 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 
         case OMPC_lastprivate: {
             OpenMPLastprivateClauseModifier modifier = (OpenMPLastprivateClauseModifier) va_arg(args,int);
-            char * user_defined_modifier = NULL;
-            if (modifier == OMPC_LASTPRIVATE_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPLastprivateClause(modifier);
-                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user) {
-                    ((OpenMPLastprivateClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
             clauses[kind] = current_clauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_modifier_expression;
-                    if (user_defined_modifier) {
-                        current_user_defined_modifier_expression = std::string(user_defined_modifier);
-                    };
-                    if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier&&
-                        current_user_defined_modifier_expression.compare(((OpenMPLastprivateClause*)(*it))->getUserDefinedModifier()) == 0) {
+
+                    if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier) {
                         new_clause = (*it);
                         goto end;
                     };
                 };
                 new_clause = new OpenMPLastprivateClause(modifier);
-                if (modifier == OMPC_LASTPRIVATE_MODIFIER_user) {
-                    ((OpenMPLastprivateClause *) new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses->push_back(new_clause);
             }
             break;
@@ -251,34 +238,30 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
 
         case OMPC_linear: {
             OpenMPLinearClauseModifier modifier = (OpenMPLinearClauseModifier) va_arg(args,int);
-            char * user_defined_modifier = NULL;
-            if (modifier == OMPC_LINEAR_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPLinearClause(modifier);
-                if (modifier == OMPC_LINEAR_MODIFIER_user) {
-                    ((OpenMPLinearClause *) new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses = new std::vector<OpenMPClause*>();
                 current_clauses->push_back(new_clause);
                 clauses[kind] = current_clauses;
             } else {
                 for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_modifier_expression;
-                    if (user_defined_modifier) {
-                        current_user_defined_modifier_expression = std::string(user_defined_modifier);
-                    };
-                    if (((OpenMPLinearClause*)(*it))->getModifier() == modifier &&
-                    current_user_defined_modifier_expression.compare(((OpenMPLinearClause*)(*it))->getUserDefinedModifier()) == 0) {
+                    if (((OpenMPLinearClause*)(*it))->getModifier() == modifier) {
                         new_clause = (*it);
                         goto end;
                     }
                 }
                 new_clause = new OpenMPLinearClause(modifier);
-                if (modifier == OMPC_LINEAR_MODIFIER_user) {
-                    ((OpenMPLinearClause *) new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
                 current_clauses->push_back(new_clause);
             }
+            break;
+        }
+        case OMPC_aligned:{
+            if (current_clauses->size() == 0) {
+                new_clause = new OpenMPAlignedClause();
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+            } 
             break;
         }
         case OMPC_dist_schedule: {
@@ -851,11 +834,15 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_simd:
             result += "simd ";
+            break;
         case OMPD_for_simd:
             result += "for simd ";
             break;
-        case OMPD_declare:
-            result += "declare ";
+        case OMPD_parallel_for_simd:
+            result += "parallel for simd ";
+            break;
+        case OMPD_declare_simd:
+            result += "declare simd ";
             break;
         case OMPD_distribute:
             result += "distribute ";
@@ -868,6 +855,15 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_distribute_parallel_for_simd:
             result += "distribute parallel for simd ";
+            break;
+        case OMPD_parallel_for:
+            result += "parallel for ";
+            break;
+        case OMPD_parallel_loop:
+            result += "parallel loop ";
+            break;
+        case OMPD_parallel_sections:
+            result += "parallel sections ";
             break;
         case OMPD_loop:
             result += "loop ";
@@ -1038,9 +1034,6 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_simdlen:
             result += "simdlen ";
-            break;
-        case OMPC_aligned:
-            result += "aligned ";
             break;
         case OMPC_nontemporal:
             result += "nontemporal ";
@@ -2472,10 +2465,23 @@ std::string OpenMPLinearClause::toString() {
     if (clause_string.size() > 3) {
         result += clause_string;
     };
-
-
     return result;
 };
+
+std::string OpenMPAlignedClause::toString() {
+
+    std::string result = "aligned ";
+    std::string clause_string = "(";
+    clause_string += this->expressionToString();
+    if(this->getUserDefinedAlignment() != ""){
+        clause_string += ":";
+        clause_string += this->getUserDefinedAlignment();
+    }
+        clause_string += ") ";
+        result += clause_string;
+    return result;
+};
+
 std::string OpenMPDistscheduleClause::toString() {
 
     std::string result = "dist_schedule ";
@@ -2488,15 +2494,11 @@ std::string OpenMPDistscheduleClause::toString() {
         default:
             ;
     }
-    if (clause_string.size() > 1) {
-        clause_string += ": ";
-    };
-    clause_string += this->expressionToString();
+    if (this->expressionToString() != "") {
+        clause_string += ", ";
+    clause_string += this->expressionToString();}
     clause_string += ") ";
-    if (clause_string.size() > 2) {
-        result += clause_string;
-    };
-
+    result += clause_string;
     return result;
 };
 std::string OpenMPScheduleClause::toString() {
@@ -2658,6 +2660,9 @@ std::string OpenMPAllocateClause::toString() {
         default:
             ;
     }
+    if (this->getUserDefinedAllocator() !=""){
+        clause_string += this->getUserDefinedAllocator();
+    }
     if (clause_string.size() > 1) {
         clause_string += ": ";
     };
@@ -2702,10 +2707,15 @@ std::string OpenMPAllocatorClause::toString() {
         default:
             ;
     }
+   if (this->getUserDefinedAllocator() !=""){
+        clause_string += this->getUserDefinedAllocator();
+    }
+    clause_string += this->expressionToString();
     clause_string += ") ";
     if (clause_string.size() > 2) {
         result += clause_string;
     };
+
 
     return result;
 };
@@ -2720,6 +2730,12 @@ void OpenMPDirective::generateDOT() {
         case OMPD_for_simd:
                 directive_kind = "for_simd ";
                 break;
+        case OMPD_parallel_for_simd:
+                directive_kind = "parallel_for_simd ";
+                break;
+        case OMPD_declare_simd:
+                directive_kind = "declare_simd ";
+                break;
         case OMPD_distribute_simd:
                 directive_kind = "distribute_simd ";
                 break;
@@ -2728,6 +2744,15 @@ void OpenMPDirective::generateDOT() {
                 break;
         case OMPD_distribute_parallel_for_simd:
                 directive_kind = "distribute_parallel_for_simd ";
+                break;
+        case OMPD_parallel_for:
+                directive_kind = "parallel_for ";
+                break;
+        case OMPD_parallel_loop:
+                directive_kind = "parallel_loop ";
+                break;
+        case OMPD_parallel_sections:
+                directive_kind = "parallel_sections ";
                 break;
         case OMPD_declare_reduction:
                 directive_kind = "declare_reduction ";
@@ -3981,6 +4006,35 @@ std::string OpenMPDefaultClause::toString() {
     return result;
 }
 
+std::string OpenMPBindClause::toString() {
+
+    std::string result = "bind (";
+    std::string parameter_string;
+    OpenMPBindClauseKind bind_kind = this->getBindClauseKind();
+    switch (bind_kind) {
+        case OMPC_BIND_teams:
+            parameter_string = "teams";
+            break;
+        case OMPC_BIND_parallel:
+            parameter_string = "parallel";
+            break;
+        case OMPC_BIND_thread:
+            parameter_string = "thread";
+            break;
+        default:
+            std::cout << "The parameter of bind clause is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        result += parameter_string + ") ";
+    }
+    else {
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
 std::string OpenMPProcBindClause::toString() {
 
     std::string result = "proc_bind (";
@@ -4109,6 +4163,43 @@ void OpenMPLinearClause::generateDOT(std::ofstream& dot_file, int depth, int ind
         current_line = indent + clause_kind + " -- " + step_name + "\n";
         dot_file << current_line.c_str();
         current_line = indent + "\t" + step_name + " [label = \"" + step_name + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    };    
+
+};
+
+void OpenMPAlignedClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+
+    std::string clause_kind = "aligned_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + "-- " + clause_kind + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+    std::string parameter_string;
+
+    std::vector<const char*>* expr = this->getExpressions();
+    if (expr != NULL) {
+        std::vector<const char*>::iterator it;
+        int expr_index = 0;
+        std::string expr_name;
+        for (it = expr->begin(); it != expr->end(); it++) {
+            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
+            expr_index += 1;
+            current_line = indent + clause_kind + " -- " + expr_name + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
+            dot_file << current_line.c_str();
+        };
+    };
+    std:string alignment = this->getUserDefinedAlignment();
+    if (alignment != "") {
+        parameter_string = alignment;
+        std::string alignment_name = clause_kind + "_aligned_alignment";
+        current_line = indent + clause_kind + " -- " + alignment_name + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + alignment_name + " [label = \"" + alignment_name + "\\n " + parameter_string + "\"]\n";
         dot_file << current_line.c_str();
     };    
 

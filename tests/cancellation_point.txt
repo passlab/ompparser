@@ -5,17 +5,22 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare mapper(defualt : const int * a)
-PASS: #pragma omp declare mapper ( defualt : const int * a )
+#pragma omp cancellation point parallel
+PASS: #pragma omp cancellation point parallel
 
-#pragma omp declare mapper(userdeID : double a)
-PASS: #pragma omp declare mapper ( userdeID : double a )
+#pragma omp cancellation point sections
+PASS: #pragma omp cancellation point sections
 
-#pragma omp declare mapper(short * a)
-PASS: #pragma omp declare mapper ( short * a )
+#pragma omp cancellation point for
+PASS: #pragma omp cancellation point for
+
+#pragma omp cancellation point taskgroup
+PASS: #pragma omp cancellation point taskgroup
 
 // invalid test without paired validation.
 
+#pragma omp cancellation point simd
 
+#pragma omp cancellation point for private(j,d)
 
 

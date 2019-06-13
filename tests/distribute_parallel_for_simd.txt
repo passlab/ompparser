@@ -1,0 +1,114 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp distribute parallel for simd private (a, b) private (a, c)
+PASS: #pragma omp distribute parallel for simd private (a, b, c)
+  
+#pragma omp distribute parallel for simd num_threads (3*5+4/(7+10))
+PASS: #pragma omp distribute parallel for simd num_threads (3*5+4/(7+10))
+
+#pragma omp distribute parallel for simd firstprivate (x, y)
+PASS: #pragma omp distribute parallel for simd firstprivate (x, y)
+
+#pragma omp distribute parallel for simd lastprivate(conditional:a,b,c)
+PASS: #pragma omp distribute parallel for simd lastprivate (conditional: a, b, c)
+
+#pragma omp distribute parallel for simd linear(a,b,c:2)
+PASS: #pragma omp distribute parallel for simd linear (a, b, c:2)
+
+#pragma omp distribute parallel for simd schedule(monotonic,simd:runtime,2)
+PASS: #pragma omp distribute parallel for simd schedule (monotonic,simd:runtime, 2)
+
+#pragma omp distribute parallel for simd collapse(a)
+PASS: #pragma omp distribute parallel for simd collapse (a)
+
+#pragma omp distribute parallel for simd ordered(a)
+PASS: #pragma omp distribute parallel for simd ordered (a)
+
+#pragma omp distribute parallel for simd nowait
+PASS: #pragma omp distribute parallel for simd nowait
+
+#pragma omp distribute parallel for simd shared (a, b, c[1:10])
+PASS: #pragma omp distribute parallel for simd shared (a, b, c[1:10])
+
+#pragma omp distribute parallel for simd copyin (a[foo(goo(x)):20],a,y)
+PASS: #pragma omp distribute parallel for simd copyin (a[foo(goo(x)):20], a, y)
+
+#pragma omp distribute parallel for simd default (shared)
+PASS: #pragma omp distribute parallel for simd default (shared)
+
+#pragma omp distribute parallel for simd default (none)
+PASS: #pragma omp distribute parallel for simd default (none)
+
+#pragma omp distribute parallel for simd if (a) if (parallel : b) default (firstprivate) if (simd : b)
+PASS: #pragma omp distribute parallel for simd if (a) if (parallel: b) if (simd: b) default (firstprivate)
+
+#pragma omp distribute parallel for simd proc_bind (master)
+PASS: #pragma omp distribute parallel for simd proc_bind (master)
+
+#pragma omp distribute parallel for simd proc_bind (close) default (private)
+PASS: #pragma omp distribute parallel for simd default (private) proc_bind (close)
+
+#pragma omp distribute parallel for simd proc_bind (spread)
+PASS: #pragma omp distribute parallel for simd proc_bind (spread)
+
+#pragma omp distribute parallel for simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+PASS: #pragma omp distribute parallel for simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+
+#pragma omp distribute parallel for simd allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: #pragma omp distribute parallel for simd allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+#pragma omp distribute parallel for simd dist_schedule(static,2)
+PASS: #pragma omp distribute parallel for simd dist_schedule (static, 2)
+
+#pragma omp distribute parallel for simd dist_schedule(static)
+PASS: #pragma omp distribute parallel for simd dist_schedule (static)
+
+#pragma omp distribute parallel for simd safelen(4)
+PASS: #pragma omp distribute parallel for simd safelen (4)
+
+#pragma omp distribute parallel for simd simdlen(4)
+PASS: #pragma omp distribute parallel for simd simdlen (4)
+
+#pragma omp distribute parallel for simd aligned(*a,&b,c:2)
+PASS: #pragma omp distribute parallel for simd aligned (*a, &b, c:2)
+
+#pragma omp distribute parallel for simd nontemporal(a)
+PASS: #pragma omp distribute parallel for simd nontemporal (a)
+
+// invalid test without paired validation.
+
+#pragma omp distribute parallel for simd private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
+
+#pragma omp distribute parallel for simd private (a, b, c) private (a, b, e) firstprivate (foo(x), y), shared (a, b, c[1:10])
+
+#pragma omp distribute parallel for simd private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4)
+
+#pragma omp distribute parallel for simd reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
+
+#pragma omp distribute parallel for simd lastprivate(userde:a,b,c)
+
+#pragma omp distribute parallel for simd collapse
+
+#pragma omp distribute parallel for simd nowait(dsfasf)
+
+#pragma omp distribute parallel for simd order
+
+#pragma omp distribute parallel for simd schedule(use,user:runtime,2)
+
+#pragma omp distribute parallel for simd schedule(simd,simd:runtime,2)
+
+#pragma omp distribute parallel for simd dist_schedule(user,2)
+
+#pragma omp distribute parallel for simd nontemporal
+
+#pragma omp distribute parallel for simd safelen
+
+#pragma omp distribute parallel for simd simdlen
+
+
+

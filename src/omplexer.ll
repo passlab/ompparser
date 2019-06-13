@@ -404,7 +404,7 @@ critical                  { return CRITICAL;}
 <ALLOCATOR_STATE>{blank}*                   { ; }
 <ALLOCATOR_STATE>"("                        { return '('; }
 <ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
-<ALLOCATOR_STATE>.                          { return -1; }
+<ALLOCATOR_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <INITIALIZER_STATE>omp_priv                 { return OMP_PRIV;}
 <INITIALIZER_STATE>"="                      { return '=';}

@@ -8,9 +8,16 @@
 #pragma omp declare reduction(+ : const, int : a) initializer(omp_priv=foo(c,a,d))
 PASS: #pragma omp declare reduction ( + : const,int : a ) initializer (omp_priv=foo(c,a,d))
 
+#pragma omp declare reduction(&& : const, int : a) initializer(omp_priv=a)
+PASS: #pragma omp declare reduction ( && : const,int : a ) initializer (omp_priv=a)
 
+#pragma omp declare reduction(^ : const, int : a) initializer(omp_priv=test)
+PASS: #pragma omp declare reduction ( ^ : const,int : a ) initializer (omp_priv=test)
 // invalid test without paired validation.
 
+#pragma omp declare reduction(max : const, int : a) initializer(omp_priv=foo(c,a,d))
 
+#pragma omp declare reduction(- : const, int : a) initializer(omp_p=foo(c,a,d))
 
+#pragma omp declare reduction(|| : const, int : a) initializer(omp_priv= c,a,d)
 
