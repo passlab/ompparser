@@ -2824,7 +2824,7 @@ std::string OpenMPAllocateClause::toString() {
         default:
             ;
     }
-    if (this->getUserDefinedAllocator() !=""){
+    if (this->getUserDefinedAllocator() != ""){
         clause_string += this->getUserDefinedAllocator();
     }
     if (clause_string.size() > 1) {
@@ -2871,7 +2871,7 @@ std::string OpenMPAllocatorClause::toString() {
         default:
             ;
     }
-   if (this->getUserDefinedAllocator() !=""){
+   if (this->getUserDefinedAllocator() != ""){
         clause_string += this->getUserDefinedAllocator();
     }
     clause_string += this->expressionToString();
