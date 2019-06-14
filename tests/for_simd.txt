@@ -1,0 +1,97 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp for simd private(a,b,c)
+PASS: #pragma omp for simd private (a, b, c)
+
+#pragma omp for simd firstprivate(a,b,c)
+PASS: #pragma omp for simd firstprivate (a, b, c)
+
+#pragma omp for simd lastprivate(conditional:a,b,c)
+PASS: #pragma omp for simd lastprivate (conditional: a, b, c)
+
+#pragma omp for simd linear(a,b,c:2)
+PASS: #pragma omp for simd linear (a, b, c:2)
+
+#pragma omp for simd reduction(task,max:a,b,c)
+PASS: #pragma omp for simd reduction (task, max : a, b, c)
+
+#pragma omp for simd schedule(monotonic,simd:runtime,2)
+PASS: #pragma omp for simd schedule (monotonic,simd:runtime, 2)
+
+#pragma omp for simd collapse(a)
+PASS: #pragma omp for simd collapse (a)
+
+#pragma omp for simd ordered(a)
+PASS: #pragma omp for simd ordered (a)
+
+#pragma omp for simd nowait
+PASS: #pragma omp for simd nowait
+
+#pragma omp for simd allocate(a,b,c)
+PASS: #pragma omp for simd allocate (a, b, c)
+
+#pragma omp for simd allocate(omp_allocator_handle_t:a,b,c)
+PASS: #pragma omp for simd allocate (omp_allocator_handle_t: a, b, c)
+
+#pragma omp for simd allocate(omp_default_mem_alloc:a,b,c)
+PASS: #pragma omp for simd allocate (omp_default_mem_alloc: a, b, c)
+
+#pragma omp for simd order(concurrent)
+PASS: #pragma omp for simd order (concurrent)
+
+#pragma omp for simd if(a)
+PASS: #pragma omp for simd if (a)
+
+#pragma omp for simd if(simd:a)
+PASS: #pragma omp for simd if (simd: a)
+
+#pragma omp for simd safelen(4)
+PASS: #pragma omp for simd safelen (4)
+
+#pragma omp for simd simdlen(4)
+PASS: #pragma omp for simd simdlen (4)
+
+#pragma omp for simd aligned(*a,&b,c:2)
+PASS: #pragma omp for simd aligned (*a, &b, c:2)
+
+#pragma omp for simd nontemporal(a)
+PASS: #pragma omp for simd nontemporal (a)
+
+// invalid test without paired validation.
+
+#pragma omp for simd lastprivate(userde:a,b,c)
+
+#pragma omp for simd collapse
+
+#pragma omp for simd nowait(dsfasf)
+
+#pragma omp for simd order
+
+#pragma omp for simd schedule(use,user:runtime,2)
+
+#pragma omp for simd schedule(simd,simd:runtime,2)
+
+#pragma omp for simd nontemporal
+
+#pragma omp for simd if(parallel:,b,c)
+
+#pragma omp for simd safelen
+
+#pragma omp for simd simdlen
+
+#pragma omp for simd linear
+
+#pragma omp for simd aligned
+
+#pragma omp for simd private(conditional:a,b,c)
+
+
+
+
+
+

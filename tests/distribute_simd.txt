@@ -1,0 +1,95 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp distribute simd if(a)
+PASS: #pragma omp distribute simd if (a)
+
+#pragma omp distribute simd if(simd:a)
+PASS: #pragma omp distribute simd if (simd: a)
+
+#pragma omp distribute simd safelen(4)
+PASS: #pragma omp distribute simd safelen (4)
+
+#pragma omp distribute simd simdlen(4)
+PASS: #pragma omp distribute simd simdlen (4)
+
+#pragma omp distribute simd private(a,b,c)
+PASS: #pragma omp distribute simd private (a, b, c)
+
+#pragma omp distribute simd firstprivate(a,b,c)
+PASS: #pragma omp distribute simd firstprivate (a, b, c)
+
+#pragma omp distribute simd lastprivate(conditional:a,b,c)
+PASS: #pragma omp distribute simd lastprivate (conditional: a, b, c)
+
+#pragma omp distribute simd collapse(a)
+PASS: #pragma omp distribute simd collapse (a)
+
+#pragma omp distribute simd allocate(a,b,c)
+PASS: #pragma omp distribute simd allocate (a, b, c)
+
+#pragma omp distribute simd allocate(omp_allocator_handle_t:a,b,c)
+PASS: #pragma omp distribute simd allocate (omp_allocator_handle_t: a, b, c)
+
+#pragma omp distribute simd allocate(omp_default_mem_alloc:a,b,c)
+PASS: #pragma omp distribute simd allocate (omp_default_mem_alloc: a, b, c)
+
+#pragma omp distribute simd dist_schedule(static,2)
+PASS: #pragma omp distribute simd dist_schedule (static, 2)
+
+#pragma omp distribute simd dist_schedule(static)
+PASS: #pragma omp distribute simd dist_schedule (static)
+
+#pragma omp distribute simd linear(a,b,c:2)
+PASS: #pragma omp distribute simd linear (a, b, c:2)
+
+#pragma omp distribute simd aligned(*a,&b,c:2)
+PASS: #pragma omp distribute simd aligned (*a, &b, c:2)
+
+#pragma omp distribute simd reduction(task,max:a,b,c)
+PASS: #pragma omp distribute simd reduction (task, max : a, b, c)
+
+#pragma omp distribute simd nontemporal(a)
+PASS: #pragma omp distribute simd nontemporal (a)
+
+#pragma omp distribute simd collapse(a)
+PASS: #pragma omp distribute simd collapse (a)
+
+#pragma omp simd order(concurrent)
+PASS: #pragma omp simd order (concurrent)
+
+// invalid test without paired validation.
+
+#pragma omp distribute simd lastprivate(userde:a,b,c)
+
+#pragma omp distribute simd collapse
+
+#pragma omp distribute simd dist_schedule(user,2)
+
+#pragma omp distribute simd nontemporal
+
+#pragma omp distribute simd order
+
+#pragma omp distribute simd if(parallel:,b,c)
+
+#pragma omp distribute simd safelen
+
+#pragma omp distribute simd simdlen
+
+#pragma omp distribute simd linear
+
+#pragma omp distribute simd aligned
+
+#pragma omp distribute simd private(conditional:a,b,c)
+
+
+
+
+
+
+
+

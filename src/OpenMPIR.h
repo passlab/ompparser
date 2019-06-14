@@ -326,19 +326,14 @@ public:
 class OpenMPLastprivateClause : public OpenMPClause {
 protected:
     OpenMPLastprivateClauseModifier modifier; // lastprivate modifier
-    std::string user_defined_modifier;        /* user defined value if it is used */
 
 public:
     OpenMPLastprivateClause() : OpenMPClause(OMPC_lastprivate) { }
 
     OpenMPLastprivateClause(OpenMPLastprivateClauseModifier _modifier) :
-            OpenMPClause(OMPC_lastprivate), modifier(_modifier), user_defined_modifier ("") { };
+            OpenMPClause(OMPC_lastprivate), modifier(_modifier) { };
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
-
-    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; }
-
-    std::string getUserDefinedModifier() { return user_defined_modifier; };
 
     static OpenMPLastprivateClause* addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
 
@@ -350,18 +345,14 @@ public:
 class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
-    std::string user_defined_modifier;        /* user defined value if it is used */
+
     std::string user_defined_step;
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
-            OpenMPClause(OMPC_linear), modifier(_modifier), user_defined_modifier ("") { };
+            OpenMPClause(OMPC_linear), modifier(_modifier) { };
 
     OpenMPLinearClauseModifier getModifier() { return modifier; };
-
-    void setUserDefinedModifier(char *_modifier) { user_defined_modifier = _modifier; };
-
-    std::string getUserDefinedModifier() { return user_defined_modifier; };
 
     void setUserDefinedStep(const char *_step) { user_defined_step = _step; };
 
@@ -375,6 +366,24 @@ public:
 
 };
 
+// aligned Clause
+class OpenMPAlignedClause : public OpenMPClause {
+protected:
+
+    std::string user_defined_alignment;
+
+public:
+    OpenMPAlignedClause( ) : OpenMPClause(OMPC_aligned) { };
+
+    void setUserDefinedAlignment(const char *_alignment) { user_defined_alignment = _alignment; };
+
+    std::string getUserDefinedAlignment() { return user_defined_alignment; };
+
+    std::string toString();
+    //std::string expressionToString(bool);
+    void generateDOT(std::ofstream&, int, int, std::string);
+
+};
 // dist_schedule Clause
 class OpenMPDistscheduleClause : public OpenMPClause {
 
@@ -514,6 +523,8 @@ public:
             OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
 
     OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
+    
+    std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 

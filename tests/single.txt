@@ -1,0 +1,43 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp single private(a,b,c)
+PASS: #pragma omp single private (a, b, c)
+
+#pragma omp single firstprivate(a,b,c)
+PASS: #pragma omp single firstprivate (a, b, c)
+
+#pragma omp single copyprivate(a,b,c)
+PASS: #pragma omp single copyprivate (a, b, c)
+
+#pragma omp single nowait
+PASS: #pragma omp single nowait
+
+#pragma omp single allocate(a,b,c)
+PASS: #pragma omp single allocate (a, b, c)
+
+#pragma omp single allocate(omp_allocator_handle_t:a,b,c)
+PASS: #pragma omp single allocate (omp_allocator_handle_t: a, b, c)
+
+#pragma omp single allocate(omp_default_mem_alloc:a,b,c)
+PASS: #pragma omp single allocate (omp_default_mem_alloc: a, b, c)
+
+
+// invalid test without paired validation.
+
+#pragma omp single lastprivate(userde:a,b,c)
+
+#pragma omp single nowait(dsfasf)
+
+#pragma omp single copyprivate(conditional:a,b,c)
+
+
+
+
+
+
+
