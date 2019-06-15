@@ -998,6 +998,54 @@ std::string OpenMPDirective::toString() {
         case OMPD_depobj:
             result += "depobj ";
             break;
+        case OMPD_teams_distribute:
+            result += "teams distribute ";
+            break;
+        case OMPD_teams_distribute_simd:
+            result += "teams distribute simd ";
+            break;
+        case OMPD_teams_distribute_parallel_for:
+            result += "teams distribute parallel for ";
+            break;
+        case OMPD_teams_distribute_parallel_for_simd:
+            result += "teams distribute parallel for simd ";
+            break;
+        case OMPD_teams_loop:
+            result += "teams loop ";
+            break;
+        case OMPD_target_parallel:
+            result += "target parallel ";
+            break;
+        case OMPD_target_parallel_for:
+            result += "target parallel for ";
+            break;
+        case OMPD_target_parallel_for_simd:
+            result += "target parallel for simd ";
+            break;
+        case OMPD_target_parallel_loop:
+            result += "target parallel loop ";
+            break;
+        case OMPD_target_simd:
+            result += "target simd ";
+            break;
+        case OMPD_target_teams:
+            result += "target teams ";
+            break;
+        case OMPD_target_teams_distribute:
+            result += "target teams distribute ";
+            break;
+        case OMPD_target_teams_distribute_simd:
+            result += "target teams distribute simd ";
+            break;
+        case OMPD_target_teams_loop:
+            result += "target teams loop ";
+            break;
+        case OMPD_target_teams_distribute_parallel_for:
+            result += "target teams distribute parallel for ";
+            break;
+        case OMPD_target_teams_distribute_parallel_for_simd:
+            result += "target teams distribute parallel for simd ";
+            break; 
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -2945,6 +2993,54 @@ void OpenMPDirective::generateDOT() {
         case OMPD_end_declare_target:
                 directive_kind = "end_declare_target ";
                 break;
+        case OMPD_teams_distribute:
+                directive_kind += "teams_distribute ";
+                break;
+        case OMPD_teams_distribute_simd:
+                directive_kind += "teams_distribute_simd ";
+                break;
+        case OMPD_teams_distribute_parallel_for:
+                directive_kind += "teams_distribute_parallel_for ";
+                break;
+        case OMPD_teams_distribute_parallel_for_simd:
+                directive_kind += "teams_distribute_parallel_for_simd ";
+                break;
+        case OMPD_teams_loop:
+                directive_kind += "teams_loop ";
+                break;
+        case OMPD_target_parallel:
+                directive_kind += "target_parallel ";
+                break;
+        case OMPD_target_parallel_for:
+                directive_kind += "target_parallel_for ";
+                break;
+        case OMPD_target_parallel_for_simd:
+                directive_kind += "target_parallel_for_simd ";
+                break;
+        case OMPD_target_parallel_loop:
+                directive_kind += "target_parallel_loop ";
+                break;
+        case OMPD_target_simd:
+                directive_kind += "target_simd ";
+                break;
+        case OMPD_target_teams:
+                directive_kind += "target_teams ";
+                break;
+        case OMPD_target_teams_distribute:
+                directive_kind += "target_teams_distribute ";
+                break;
+        case OMPD_target_teams_distribute_simd:
+                directive_kind += "target_teams_distribute_simd ";
+                break;
+        case OMPD_target_teams_loop:
+                directive_kind += "target_teams_loop ";
+                break;
+        case OMPD_target_teams_distribute_parallel_for:
+                directive_kind += "target_teams_distribute_parallel_for ";
+                break;
+        case OMPD_target_teams_distribute_parallel_for_simd:
+                directive_kind += "target_teams_distribute_parallel_for simd ";
+                break;
         default:
                 directive_kind = this->toString();
     }
@@ -3132,6 +3228,54 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_depobj:
             directive_kind = "depobj ";
+            break;
+        case OMPD_teams_distribute:
+            directive_kind += "teams_distribute ";
+            break;
+        case OMPD_teams_distribute_simd:
+            directive_kind += "teams_distribute_simd ";
+            break;
+        case OMPD_teams_distribute_parallel_for:
+            directive_kind += "teams_distribute_parallel_for ";
+            break;
+        case OMPD_teams_distribute_parallel_for_simd:
+            directive_kind += "teams_distribute_parallel_for_simd ";
+            break;
+        case OMPD_teams_loop:
+            directive_kind += "teams_loop ";
+            break;
+        case OMPD_target_parallel:
+            directive_kind += "target_parallel ";
+            break;
+        case OMPD_target_parallel_for:
+            directive_kind += "target_parallel_for ";
+            break;
+        case OMPD_target_parallel_for_simd:
+            directive_kind += "target_parallel_for_simd ";
+            break;
+        case OMPD_target_parallel_loop:
+            directive_kind += "target_parallel_loop ";
+            break;
+        case OMPD_target_simd:
+            directive_kind += "target_simd ";
+            break;
+        case OMPD_target_teams:
+            directive_kind += "target_teams ";
+            break;
+        case OMPD_target_teams_distribute:
+            directive_kind += "target_teams_distribute ";
+            break;
+        case OMPD_target_teams_distribute_simd:
+            directive_kind += "target_teams_distribute_simd ";
+            break;
+        case OMPD_target_teams_loop:
+            directive_kind += "target_teams_loop ";
+            break;
+        case OMPD_target_teams_distribute_parallel_for:
+            directive_kind += "target_teams_distribute_parallel_for ";
+            break;
+        case OMPD_target_teams_distribute_parallel_for_simd:
+            directive_kind += "target_teams_distribute_parallel_for_simd ";
             break;
         default:
             directive_kind = this->toString().substr(0, this->toString().size()-1);
