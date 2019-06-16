@@ -161,7 +161,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    const char* input = "#pragma omp taskloop simd if(task:34567) if(simd: 123455) ";
+    const char* input = "#pragma omp target teams distribute simd";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 
