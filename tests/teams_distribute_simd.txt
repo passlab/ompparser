@@ -1,0 +1,18 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp teams distribute simd
+PASS: #pragma omp teams distribute simd 
+
+#pragma omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
+PASS: #pragma omp teams distribute simd default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+
+#pragma omp teams distribute simd dist_schedule(static,2) lastprivate(conditional:a,b,c) if(simd:a) safelen(4) linear(a,b,c:2) aligned(*a,&b,c:2) nontemporal(a) order(concurrent)
+PASS: #pragma omp teams distribute simd if (simd: a) lastprivate (conditional: a, b, c) order (concurrent) linear (a, b, c:2) safelen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static, 2)
+
+#pragma omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none) dist_schedule(static,2) lastprivate(conditional:a,b,c) if(simd:a) safelen(4) linear(a,b,c:2) aligned(*a,&b,c:2) nontemporal(a) order(concurrent)
+PASS: #pragma omp teams distribute simd if (simd: a) default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5) lastprivate (conditional: a, b, c) order (concurrent) linear (a, b, c:2) safelen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static, 2)

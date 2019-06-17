@@ -156,6 +156,22 @@ openmp_directive : parallel_directive
                  | critical_directive
                  | depobj_directive
                  | ordered_directive
+                 | teams_distribute_directive
+                 | teams_distribute_simd_directive
+                 | teams_distribute_parallel_for_directive
+                 | teams_distribute_parallel_for_simd_directive
+                 | teams_loop_directive
+                 | target_parallel_directive
+                 | target_parallel_for_directive
+                 | target_parallel_for_simd_directive
+                 | target_parallel_loop_directive
+                 | target_simd_directive
+                 | target_teams_directive
+                 | target_teams_distribute_directive
+                 | target_teams_distribute_simd_directive
+                 | target_teams_loop_directive
+                 | target_teams_distribute_parallel_for_directive
+                 | target_teams_distribute_parallel_for_simd_directive
                  ;
 
 variant_directive : parallel_directive
@@ -658,7 +674,7 @@ taskgroup_clause_seq : taskgroup_clause
                      | taskgroup_clause_seq ',' taskgroup_clause
                      ;
 
-task_clause : if_clause
+task_clause : if_task_clause
             | final_clause
             | untied_clause
             | default_clause
@@ -673,7 +689,7 @@ task_clause : if_clause
             | affinity_clause
             | detach_clause
             ;
-taskloop_clause : if_clause
+taskloop_clause : if_taskloop_clause
                 | shared_clause
                 | private_clause
                 | firstprivate_clause
@@ -691,7 +707,7 @@ taskloop_clause : if_clause
                 | nogroup_clause
                 | allocate_clause
                 ;
-taskloop_simd_clause : if_clause
+taskloop_simd_clause : if_taskloop_simd_clause
                      | shared_clause
                      | private_clause
                      | firstprivate_clause
@@ -722,25 +738,25 @@ requires_clause : reverse_offload_clause
                 | dynamic_allocators_clause
                 | ext_implementation_defined_requirement       
                 ;
-target_data_clause : if_clause
+target_data_clause : if_target_data_clause
                    | device_clause
                    | map_clause
                    | use_device_ptr_clause
                    | use_device_addr_clause
                    ;
-target_enter_data_clause: if_clause
+target_enter_data_clause: if_target_enter_data_clause
                         | device_clause
                         | map_clause
                         | depend_with_modifier_clause
                         | nowait_clause
                         ;
-target_exit_data_clause: if_clause
+target_exit_data_clause: if_target_exit_data_clause
                        | device_clause
                        | map_clause
                        | depend_with_modifier_clause
                        | nowait_clause
                        ;
-target_clause: if_clause
+target_clause: if_target_clause
              | device_clause
              | private_clause
              | firstprivate_clause
@@ -759,7 +775,7 @@ target_update_clause: motion_clause
 motion_clause: to_clause
              | from_clause
              ;
-target_update_other_clause: if_clause
+target_update_other_clause: if_target_update_clause
                           | device_clause
                           | depend_with_modifier_clause
                           | nowait_clause
@@ -1098,6 +1114,555 @@ simd_ordered_clause : SIMD {
                             current_clause = current_directive->addOpenMPClause(OMPC_simd);
                          } 
                     ;
+teams_distribute_directive : TEAMS DISTRIBUTE {
+                        current_directive = new OpenMPDirective(OMPD_teams_distribute);
+                                         }
+                     teams_distribute_clause_optseq 
+                           ;
+teams_distribute_clause_optseq : /* empty */
+                               | teams_distribute_clause_seq
+                               ;
+teams_distribute_clause_seq : teams_distribute_clause
+                            | teams_distribute_clause_seq teams_distribute_clause
+                            | teams_distribute_clause_seq ',' teams_distribute_clause
+                            ;
+teams_distribute_clause : num_teams_clause
+                        | thread_limit_clause
+                        | default_clause
+                        | private_clause
+                        | firstprivate_clause
+                        | shared_clause
+                        | reduction_clause
+                        | allocate_clause              
+                        | lastprivate_clause
+                        | collapse_clause
+                        | dist_schedule_clause
+                        ;
+teams_distribute_simd_directive :  TEAMS DISTRIBUTE SIMD {
+                        current_directive = new OpenMPDirective(OMPD_teams_distribute_simd);
+                                         }
+                     teams_distribute_simd_clause_optseq 
+                                ;
+teams_distribute_simd_clause_optseq : /* empty */
+                                    | teams_distribute_simd_clause_seq
+                                    ;
+teams_distribute_simd_clause_seq : teams_distribute_simd_clause
+                                 | teams_distribute_simd_clause_seq teams_distribute_simd_clause
+                                 | teams_distribute_simd_clause_seq ',' teams_distribute_simd_clause
+                                 ;
+teams_distribute_simd_clause : num_teams_clause
+                             | thread_limit_clause
+                             | default_clause
+                             | private_clause
+                             | firstprivate_clause
+                             | shared_clause
+                             | reduction_clause
+                             | allocate_clause
+                             | lastprivate_clause
+                             | collapse_clause
+                             | dist_schedule_clause
+                             | if_simd_clause
+                             | safelen_clause
+                             | simdlen_clause
+                             | linear_clause
+                             | aligned_clause
+                             | nontemporal_clause
+                             | order_clause
+                             ;
+teams_distribute_parallel_for_directive :  TEAMS DISTRIBUTE PARALLEL FOR {
+                     current_directive = new OpenMPDirective(OMPD_teams_distribute_parallel_for);
+                                         }
+                     teams_distribute_parallel_for_clause_optseq 
+                                        ;
+teams_distribute_parallel_for_clause_optseq : /* empty */
+                                            | teams_distribute_parallel_for_clause_seq
+                                            ;
+teams_distribute_parallel_for_clause_seq : teams_distribute_parallel_for_clause
+                                         | teams_distribute_parallel_for_clause_seq teams_distribute_parallel_for_clause
+                                         | teams_distribute_parallel_for_clause_seq ',' teams_distribute_parallel_for_clause
+                                         ;
+teams_distribute_parallel_for_clause : num_teams_clause
+                                     | thread_limit_clause
+                                     | default_clause
+                                     | private_clause
+                                     | firstprivate_clause
+                                     | shared_clause
+                                     | reduction_clause
+                                     | allocate_clause
+                                     | if_parallel_clause
+                                     | num_threads_clause                   
+                                     | copyin_clause                            
+                                     | proc_bind_clause                      
+                                     | lastprivate_clause 
+                                     | linear_clause
+                                     | schedule_clause
+                                     | collapse_clause
+                                     | ordered_clause
+                                     | nowait_clause
+                                     | order_clause 
+                                     | dist_schedule_clause                                   
+                                     ;
+teams_distribute_parallel_for_simd_directive : TEAMS DISTRIBUTE PARALLEL FOR SIMD {
+                        current_directive = new OpenMPDirective(OMPD_teams_distribute_parallel_for_simd);
+                                         }
+                       teams_distribute_parallel_for_simd_clause_optseq 
+                                             ;
+teams_distribute_parallel_for_simd_clause_optseq : /* empty */
+                                                 | teams_distribute_parallel_for_simd_clause_seq
+                                                 ;
+teams_distribute_parallel_for_simd_clause_seq : teams_distribute_parallel_for_simd_clause
+                                              | teams_distribute_parallel_for_simd_clause_seq teams_distribute_parallel_for_simd_clause
+                                              | teams_distribute_parallel_for_simd_clause_seq ',' teams_distribute_parallel_for_simd_clause
+                                              ;
+teams_distribute_parallel_for_simd_clause : num_teams_clause
+                                          | thread_limit_clause
+                                          | default_clause
+                                          | private_clause
+                                          | firstprivate_clause
+                                          | shared_clause
+                                          | reduction_clause
+                                          | allocate_clause
+                                          | if_parallel_simd_clause
+                                          | num_threads_clause
+                                          | copyin_clause                               
+                                          | proc_bind_clause                                  
+                                          | lastprivate_clause 
+                                          | linear_clause
+                                          | schedule_clause
+                                          | collapse_clause
+                                          | ordered_clause
+                                          | nowait_clause
+                                          | order_clause 
+                                          | dist_schedule_clause
+                                          | safelen_clause
+                                          | simdlen_clause
+                                          | aligned_clause
+                                          | nontemporal_clause
+                                          ;
+teams_loop_directive : TEAMS LOOP{
+                        current_directive = new OpenMPDirective(OMPD_teams_loop);
+                                         }
+                     teams_loop_clause_optseq 
+                     ;
+teams_loop_clause_optseq : /* empty */
+                         | teams_loop_clause_seq
+                         ;
+teams_loop_clause_seq : teams_loop_clause
+                      | teams_loop_clause_seq teams_loop_clause
+                      | teams_loop_clause_seq ',' teams_loop_clause
+                      ;
+teams_loop_clause : num_teams_clause
+                  | thread_limit_clause
+                  | default_clause
+                  | private_clause
+                  | firstprivate_clause
+                  | shared_clause
+                  | reduction_clause
+                  | allocate_clause
+                  | bind_clause
+                  | collapse_clause
+                  | order_clause
+                  | lastprivate_clause
+                  ;
+target_parallel_directive : TARGET PARALLEL{
+                        current_directive = new OpenMPDirective(OMPD_target_parallel);
+                                         }
+                     target_parallel_clause_optseq 
+                          ;
+target_parallel_clause_optseq : /* empty */
+                              | target_parallel_clause_seq
+                              ;
+target_parallel_clause_seq : target_parallel_clause
+                           | target_parallel_clause_seq target_parallel_clause
+                           | target_parallel_clause_seq ',' target_parallel_clause
+                           ;
+target_parallel_clause : if_target_parallel_clause
+                       | device_clause
+                       | private_clause
+                       | firstprivate_clause
+                       | in_reduction_clause
+                       | map_clause
+                       | is_device_ptr_clause
+                       | defaultmap_clause
+                       | nowait_clause
+                       | allocate_clause
+                       | depend_with_modifier_clause
+                       | uses_allocators_clause
+                       | num_threads_clause
+                       | default_clause
+                       | shared_clause
+                       | copyin_clause
+                       | reduction_clause
+                       | proc_bind_clause
+                       ;
+target_parallel_for_directive : TARGET PARALLEL FOR{
+                        current_directive = new OpenMPDirective(OMPD_target_parallel_for);
+                                         }
+                     target_parallel_for_clause_optseq 
+                              ;
+target_parallel_for_clause_optseq : /* empty */
+                                  | target_parallel_for_clause_seq
+                                  ;
+target_parallel_for_clause_seq : target_parallel_for_clause
+                               | target_parallel_for_clause_seq target_parallel_for_clause
+                               | target_parallel_for_clause_seq ',' target_parallel_for_clause
+                               ;
+target_parallel_for_clause : if_target_parallel_clause
+                           | device_clause
+                           | private_clause
+                           | firstprivate_clause
+                           | in_reduction_clause
+                           | map_clause
+                           | is_device_ptr_clause
+                           | defaultmap_clause
+                           | nowait_clause
+                           | allocate_clause
+                           | depend_with_modifier_clause
+                           | uses_allocators_clause
+                           | num_threads_clause
+                           | default_clause                          
+                           | shared_clause
+                           | copyin_clause
+                           | reduction_clause
+                           | proc_bind_clause
+                           | lastprivate_clause 
+                           | linear_clause
+                           | schedule_clause
+                           | collapse_clause
+                           | ordered_clause
+                           | order_clause 
+                           | dist_schedule_clause
+                           ;
+target_parallel_for_simd_directive : TARGET PARALLEL FOR SIMD{
+                        current_directive = new OpenMPDirective(OMPD_target_parallel_for_simd);
+                                         }
+                     target_parallel_for_simd_clause_optseq 
+                                   ;
+target_parallel_for_simd_clause_optseq : /* empty */
+                                       | target_parallel_for_simd_clause_seq
+                                       ;
+target_parallel_for_simd_clause_seq : target_parallel_for_simd_clause
+                                    | target_parallel_for_simd_clause_seq target_parallel_for_simd_clause
+                                    | target_parallel_for_simd_clause_seq ',' target_parallel_for_simd_clause
+                                    ;
+target_parallel_for_simd_clause : if_target_parallel_simd_clause
+                                | device_clause
+                                | private_clause
+                                | firstprivate_clause
+                                | in_reduction_clause
+                                | map_clause
+                                | is_device_ptr_clause
+                                | defaultmap_clause
+                                | nowait_clause
+                                | allocate_clause
+                                | depend_with_modifier_clause
+                                | uses_allocators_clause
+                                | num_threads_clause
+                                | default_clause                    
+                                | shared_clause
+                                | copyin_clause
+                                | reduction_clause
+                                | proc_bind_clause                       
+                                | lastprivate_clause 
+                                | linear_clause
+                                | schedule_clause
+                                | collapse_clause
+                                | ordered_clause                        
+                                | order_clause
+                                | safelen_clause
+                                | simdlen_clause
+                                | aligned_clause
+                                | nontemporal_clause
+                                ;
+target_parallel_loop_directive : TARGET PARALLEL LOOP{
+                        current_directive = new OpenMPDirective(OMPD_target_parallel_loop);
+                                         }
+                     target_parallel_loop_clause_optseq 
+                               ;
+target_parallel_loop_clause_optseq : /* empty */
+                                   | target_parallel_loop_clause_seq
+                                   ;
+target_parallel_loop_clause_seq : target_parallel_loop_clause
+                                | target_parallel_loop_clause_seq target_parallel_loop_clause
+                                | target_parallel_loop_clause_seq ',' target_parallel_loop_clause
+                                ;
+target_parallel_loop_clause : if_target_parallel_clause
+                            | device_clause
+                            | private_clause
+                            | firstprivate_clause
+                            | in_reduction_clause
+                            | map_clause
+                            | is_device_ptr_clause
+                            | defaultmap_clause
+                            | nowait_clause
+                            | allocate_clause
+                            | depend_with_modifier_clause
+                            | uses_allocators_clause
+                            | num_threads_clause
+                            | default_clause             
+                            | shared_clause
+                            | copyin_clause
+                            | reduction_clause
+                            | proc_bind_clause                   
+                            | lastprivate_clause 
+                            | collapse_clause
+                            | bind_clause
+                            | order_clause 
+                            ;
+target_simd_directive : TARGET SIMD{
+                        current_directive = new OpenMPDirective(OMPD_target_simd);
+                                         }
+                     target_simd_clause_optseq 
+                      ;
+target_simd_clause_optseq : /* empty */
+                          | target_simd_clause_seq
+                          ;
+target_simd_clause_seq : target_simd_clause
+                       | target_simd_clause_seq target_simd_clause
+                       | target_simd_clause_seq ',' target_simd_clause
+                       ;
+target_simd_clause : if_target_simd_clause
+                   | device_clause
+                   | private_clause
+                   | firstprivate_clause
+                   | in_reduction_clause
+                   | map_clause
+                   | is_device_ptr_clause
+                   | defaultmap_clause
+                   | nowait_clause
+                   | allocate_clause
+                   | depend_with_modifier_clause
+                   | uses_allocators_clause
+                   | safelen_clause
+                   | simdlen_clause
+                   | linear_clause
+                   | aligned_clause
+                   | nontemporal_clause
+                   | lastprivate_clause
+                   | reduction_clause
+                   | collapse_clause
+                   | order_clause
+                   ;
+target_teams_directive : TARGET TEAMS{
+                        current_directive = new OpenMPDirective(OMPD_target_teams);
+                                         }
+                     target_teams_clause_optseq 
+                       ;
+target_teams_clause_optseq : /* empty */
+                           | target_teams_clause_seq
+                           ;
+target_teams_clause_seq : target_teams_clause
+                        | target_teams_clause_seq target_teams_clause
+                        | target_teams_clause_seq ',' target_teams_clause
+                        ;
+target_teams_clause : if_target_clause
+                    | device_clause
+                    | private_clause
+                    | firstprivate_clause
+                    | in_reduction_clause
+                    | map_clause
+                    | is_device_ptr_clause
+                    | defaultmap_clause
+                    | nowait_clause
+                    | allocate_clause
+                    | depend_with_modifier_clause
+                    | uses_allocators_clause
+                    | num_teams_clause
+                    | thread_limit_clause
+                    | default_clause
+                    | shared_clause
+                    | reduction_clause
+                    ;
+target_teams_distribute_directive : TARGET TEAMS DISTRIBUTE{
+                        current_directive = new OpenMPDirective(OMPD_target_teams_distribute);
+                                         }
+                     target_teams_distribute_clause_optseq 
+                                  ;
+target_teams_distribute_clause_optseq : /* empty */
+                                      | target_teams_distribute_clause_seq
+                                      ;
+target_teams_distribute_clause_seq : target_teams_distribute_clause
+                                   | target_teams_distribute_clause_seq target_teams_distribute_clause
+                                   | target_teams_distribute_clause_seq ',' target_teams_distribute_clause
+                                   ;
+target_teams_distribute_clause : if_target_clause
+                               | device_clause
+                               | private_clause
+                               | firstprivate_clause
+                               | in_reduction_clause
+                               | map_clause
+                               | is_device_ptr_clause
+                               | defaultmap_clause
+                               | nowait_clause
+                               | allocate_clause
+                               | depend_with_modifier_clause
+                               | uses_allocators_clause
+                               | num_teams_clause
+                               | thread_limit_clause
+                               | default_clause                   
+                               | shared_clause
+                               | reduction_clause
+                               | lastprivate_clause
+                               | collapse_clause
+                               | dist_schedule_clause
+                               ;
+target_teams_distribute_simd_directive : TARGET TEAMS DISTRIBUTE SIMD{
+                        current_directive = new OpenMPDirective(OMPD_target_teams_distribute_simd);
+                                         }
+                     target_teams_distribute_simd_clause_optseq 
+                                       ;
+target_teams_distribute_simd_clause_optseq : /* empty */
+                                           | target_teams_distribute_simd_clause_seq
+                                           ;
+target_teams_distribute_simd_clause_seq : target_teams_distribute_simd_clause
+                                        | target_teams_distribute_simd_clause_seq target_teams_distribute_simd_clause
+                                        | target_teams_distribute_simd_clause_seq ',' target_teams_distribute_simd_clause
+                                        ;
+target_teams_distribute_simd_clause : if_target_simd_clause
+                                    | device_clause
+                                    | private_clause
+                                    | firstprivate_clause
+                                    | in_reduction_clause
+                                    | map_clause
+                                    | is_device_ptr_clause
+                                    | defaultmap_clause
+                                    | nowait_clause
+                                    | allocate_clause
+                                    | depend_with_modifier_clause
+                                    | uses_allocators_clause 
+                                    | num_teams_clause
+                                    | thread_limit_clause
+                                    | default_clause
+                                    | shared_clause
+                                    | reduction_clause
+                                    | lastprivate_clause
+                                    | collapse_clause
+                                    | dist_schedule_clause
+                                    | safelen_clause
+                                    | simdlen_clause
+                                    | linear_clause
+                                    | aligned_clause
+                                    | nontemporal_clause
+                                    | order_clause
+                                    ;
+target_teams_loop_directive : TARGET TEAMS LOOP{
+                        current_directive = new OpenMPDirective(OMPD_target_teams_loop);
+                                         }
+                     target_teams_loop_clause_optseq 
+                            ;
+target_teams_loop_clause_optseq : /* empty */
+                                | target_teams_loop_clause_seq
+                                ;
+target_teams_loop_clause_seq : target_teams_loop_clause
+                             | target_teams_loop_clause_seq target_teams_loop_clause
+                             | target_teams_loop_clause_seq ',' target_teams_loop_clause
+                             ;
+target_teams_loop_clause : if_target_clause
+                         | device_clause
+                         | private_clause
+                         | firstprivate_clause
+                         | in_reduction_clause
+                         | map_clause
+                         | is_device_ptr_clause
+                         | defaultmap_clause
+                         | nowait_clause
+                         | allocate_clause
+                         | depend_with_modifier_clause
+                         | uses_allocators_clause 
+                         | num_teams_clause
+                         | thread_limit_clause
+                         | default_clause
+                         | shared_clause
+                         | reduction_clause                                 
+                         | bind_clause
+                         | collapse_clause
+                         | order_clause
+                         | lastprivate_clause
+                         ;
+target_teams_distribute_parallel_for_directive : TARGET TEAMS DISTRIBUTE PARALLEL FOR{
+                        current_directive = new OpenMPDirective(OMPD_target_teams_distribute_parallel_for);
+                                         }
+                     target_teams_distribute_parallel_for_clause_optseq 
+                                               ;
+target_teams_distribute_parallel_for_clause_optseq : /* empty */
+                                                   | target_teams_distribute_parallel_for_clause_seq
+                                                   ;
+target_teams_distribute_parallel_for_clause_seq : target_teams_distribute_parallel_for_clause
+                                                | target_teams_distribute_parallel_for_clause_seq target_teams_distribute_parallel_for_clause
+                                                | target_teams_distribute_parallel_for_clause_seq ',' target_teams_distribute_parallel_for_clause
+                                                ;
+target_teams_distribute_parallel_for_clause : if_target_parallel_clause
+                                            | device_clause
+                                            | private_clause
+                                            | firstprivate_clause
+                                            | in_reduction_clause
+                                            | map_clause
+                                            | is_device_ptr_clause
+                                            | defaultmap_clause
+                                            | nowait_clause
+                                            | allocate_clause
+                                            | depend_with_modifier_clause
+                                            | uses_allocators_clause 
+                                            | num_teams_clause
+                                            | thread_limit_clause
+                                            | default_clause                                 
+                                            | shared_clause
+                                            | reduction_clause                            
+                                            | num_threads_clause                   
+                                            | copyin_clause                            
+                                            | proc_bind_clause                      
+                                            | lastprivate_clause 
+                                            | linear_clause
+                                            | schedule_clause
+                                            | collapse_clause
+                                            | ordered_clause                                
+                                            | order_clause 
+                                            | dist_schedule_clause
+                                            ;
+target_teams_distribute_parallel_for_simd_directive : TARGET TEAMS DISTRIBUTE PARALLEL FOR SIMD{
+                        current_directive = new OpenMPDirective(OMPD_target_teams_distribute_parallel_for_simd);
+                                         }
+                     target_teams_distribute_parallel_for_simd_clause_optseq 
+                                                    ;
+target_teams_distribute_parallel_for_simd_clause_optseq : /* empty */
+                                                        | target_teams_distribute_parallel_for_simd_clause_seq
+                                                        ;
+target_teams_distribute_parallel_for_simd_clause_seq : target_teams_distribute_parallel_for_simd_clause
+                                                     | target_teams_distribute_parallel_for_simd_clause_seq target_teams_distribute_parallel_for_simd_clause
+                                                     | target_teams_distribute_parallel_for_simd_clause_seq ',' target_teams_distribute_parallel_for_simd_clause
+                                                     ;
+target_teams_distribute_parallel_for_simd_clause : if_target_parallel_simd_clause
+                                                 | device_clause
+                                                 | private_clause
+                                                 | firstprivate_clause
+                                                 | in_reduction_clause
+                                                 | map_clause
+                                                 | is_device_ptr_clause
+                                                 | defaultmap_clause
+                                                 | nowait_clause
+                                                 | allocate_clause
+                                                 | depend_with_modifier_clause
+                                                 | uses_allocators_clause 
+                                                 | num_teams_clause
+                                                 | thread_limit_clause
+                                                 | default_clause                                     
+                                                 | shared_clause
+                                                 | reduction_clause
+                                                 | num_threads_clause
+                                                 | copyin_clause                               
+                                                 | proc_bind_clause                                  
+                                                 | lastprivate_clause 
+                                                 | linear_clause
+                                                 | schedule_clause
+                                                 | collapse_clause
+                                                 | ordered_clause                          
+                                                 | order_clause 
+                                                 | dist_schedule_clause
+                                                 | safelen_clause
+                                                 | simdlen_clause
+                                                 | aligned_clause
+                                                 | nontemporal_clause
+                                                 ;
 /*YAYING*/
 for_directive :  FOR {
                         current_directive = new OpenMPDirective(OMPD_for);
@@ -1669,6 +2234,99 @@ if_parallel_parameter : PARALLEL ':' { current_clause = current_directive->addOp
                         current_clause->addLangExpr($1);
                         }
                       ;
+if_task_clause : IF '(' if_task_parameter ')' { ; }
+               ;
+
+if_task_parameter : TASK ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_task); } expression { ; }
+                  | EXPR_STRING {
+                        current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                        current_clause->addLangExpr($1);
+                        }
+                  ;
+if_taskloop_clause : IF '(' if_taskloop_parameter ')' { ; }
+                   ;
+
+if_taskloop_parameter : TASKLOOP ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop); } expression { ; }
+                      | EXPR_STRING {
+                            current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                            current_clause->addLangExpr($1);
+                        }
+                      ;
+if_target_data_clause : IF '(' if_target_data_parameter ')' { ; }
+                      ;
+
+if_target_data_parameter : TARGET DATA ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_data); } expression { ; }
+                         | EXPR_STRING {
+                               current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                               current_clause->addLangExpr($1);
+                           } 
+                         ;
+if_target_parallel_clause : IF '(' if_target_parallel_parameter ')' { ; }
+                          ;
+
+if_target_parallel_parameter : TARGET ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target); } expression { ; }
+                             | PARALLEL ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel); } expression { ; }
+                             | EXPR_STRING {
+                               current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                               current_clause->addLangExpr($1);
+                           } 
+                             ;
+if_target_simd_clause : IF '(' if_target_simd_parameter ')' { ; }
+                      ;
+
+if_target_simd_parameter : TARGET ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target); } expression { ; }
+                         | SIMD ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd); } expression { ; }
+                         | EXPR_STRING {
+                               current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                               current_clause->addLangExpr($1);
+                           } 
+                             ;
+if_target_enter_data_clause : IF '(' if_target_enter_data_parameter ')' { ; }
+                            ;
+
+if_target_enter_data_parameter : TARGET ENTER DATA ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_enter_data); } expression { ; }
+                               | EXPR_STRING {
+                                     current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                     current_clause->addLangExpr($1);
+                                 }
+                               ;
+if_target_exit_data_clause : IF '(' if_target_exit_data_parameter ')' { ; }
+                           ;
+
+if_target_exit_data_parameter : TARGET EXIT DATA ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_exit_data); } expression { ; }
+                              | EXPR_STRING {
+                                    current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                    current_clause->addLangExpr($1);
+                                }
+                              ;
+if_target_clause : IF '(' if_target_parameter ')' { ; }
+                 ;
+
+if_target_parameter : TARGET ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target); } expression { ; }
+                    | EXPR_STRING {
+                          current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                          current_clause->addLangExpr($1);
+                      }
+                    ;
+if_target_update_clause : IF '(' if_target_update_parameter ')' { ; }
+                        ;
+
+if_target_update_parameter : TARGET UPDATE ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_update); } expression { ; }
+                           | EXPR_STRING {
+                                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                 current_clause->addLangExpr($1);
+                             }
+                           ;
+if_taskloop_simd_clause : IF '(' if_taskloop_simd_parameter ')' { ; }
+                        ;
+
+if_taskloop_simd_parameter : TASKLOOP ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop); } expression { ; }
+                           | SIMD ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd); } expression { ; }
+                           | EXPR_STRING {
+                                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                 current_clause->addLangExpr($1);
+                             }
+                           ;
 if_simd_clause : IF '(' if_simd_parameter ')' { ; }
                ;
 if_simd_parameter : SIMD ':' {current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd);} expression { ; }
@@ -1686,6 +2344,16 @@ if_parallel_simd_parameter : SIMD ':' {current_clause = current_directive->addOp
                                 current_clause->addLangExpr($1);
                            }
                            ;
+if_target_parallel_simd_clause : IF '(' if_target_parallel_simd_parameter ')' { ; }
+                               ;
+if_target_parallel_simd_parameter : SIMD ':' {current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd);} expression { ; }
+                                  | PARALLEL ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel); } expression { ; }
+                                  | TARGET ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target); } expression { ; }
+                                  | EXPR_STRING {
+                                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                current_clause->addLangExpr($1);
+                           }
+                                  ;
 if_cancel_clause : IF '(' if_cancel_parameter ')' { ; }
                  ;
 if_cancel_parameter : CANCEL ':' {current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_cancel);} expression { ; }
@@ -1694,36 +2362,15 @@ if_cancel_parameter : CANCEL ':' {current_clause = current_directive->addOpenMPC
                         current_clause->addLangExpr($1);
                         }
                     ;
-if_clause : IF '(' if_parameter ')' { ; }
+/*if_clause : IF '(' if_parameter ')' { ; }
           ;
 
-if_parameter : TASK ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_task);
-                } expression { ; }
-             | TASKLOOP ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop);
-                } expression { ; }
-             | TARGET DATA ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_data);
-                } expression { ; }
-             | TARGET ENTER DATA ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_enter_data);
-                } expression { ; }
-             | TARGET EXIT DATA ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_exit_data);
-                } expression { ; }
-             | TARGET ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target);
-                } expression { ; }
-             | TARGET UPDATE ':' {
-                current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_target_update);
-                }expression { ; }
-             | EXPR_STRING {
+if_parameter : EXPR_STRING {
                 current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
                 current_clause->addLangExpr($1);
                 }
              ;
-
+*/
 num_threads_clause: NUM_THREADS {
                             current_clause = current_directive->addOpenMPClause(OMPC_num_threads);
                          } '(' expression ')'
