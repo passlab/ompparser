@@ -140,44 +140,45 @@ close           { return CLOSE; }
 spread          { return SPREAD; } /* master should already be recognized */
 teams           { return TEAMS; }
 master          { return MASTER; } /*YAYING */
-for             { return FOR;}
-lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE;}
-linear          { yy_push_state(LINEAR_STATE); return LINEAR;}
-schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE;}
-collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE;}
-ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED;}
-ordered         { return ORDERED;}
-nowait          { return NOWAIT;}
-order           { return ORDER;}
-safelen         { return SAFELEN;}
-nontemporal     { return NONTEMPORAL;}
-aligned         { yy_push_state(ALIGNED_STATE);return ALIGNED;}
-declare         { return DECLARE;}
-uniform         { return UNIFORM;}
-inbranch        { return INBRANCH;}
-notinbranch     { return NOTINBRANCH;}
-distribute      { return DISTRIBUTE;}
-dist_schedule   { yy_push_state(DIST_SCHEDULE_STATE); return DIST_SCHEDULE;}
-loop            { return LOOP;}
-bind            { yy_push_state(BIND_STATE); return BIND;}
-scan            { return SCAN;}
-inclusive       { return INCLUSIVE;}
-exclusive       { return EXCLUSIVE;}
-sections        { return SECTIONS;}
-section         { return SECTION;}
-single          { return SINGLE;}
-copyprivate     { return COPYPRIVATE;}
-cancel          { return CANCEL;}
-taskgroup       { return TASKGROUP;}
-allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR;}
-threadprivate   { return THREADPRIVATE;}
-cancellation    { return CANCELLATION;}
-point           { return POINT;}
+for             { return FOR; }
+lastprivate     { yy_push_state(LASTPRIVATE_STATE); return LASTPRIVATE; }
+linear          { yy_push_state(LINEAR_STATE); return LINEAR; }
+schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE; }
+collapse        { yy_push_state(COLLAPSE_STATE);return COLLAPSE; }
+ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED; }
+ordered         { return ORDERED; }
+nowait          { return NOWAIT; }
+order           { return ORDER; }
+safelen         { return SAFELEN; }
+nontemporal     { return NONTEMPORAL; }
+aligned         { yy_push_state(ALIGNED_STATE);return ALIGNED; }
+declare         { return DECLARE; }
+uniform         { return UNIFORM; }
+inbranch        { return INBRANCH; }
+notinbranch     { return NOTINBRANCH; }
+distribute      { return DISTRIBUTE; }
+dist_schedule   { yy_push_state(DIST_SCHEDULE_STATE); return DIST_SCHEDULE; }
+loop            { return LOOP; }
+bind            { yy_push_state(BIND_STATE); return BIND; }
+scan            { return SCAN; }
+inclusive       { return INCLUSIVE; }
+exclusive       { return EXCLUSIVE; }
+sections        { return SECTIONS; }
+section         { return SECTION; }
+single          { return SINGLE; }
+copyprivate     { return COPYPRIVATE; }
+cancel          { return CANCEL; }
+workshare       { return WORKSHARE; }
+taskgroup       { return TASKGROUP; }
+allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR; }
+threadprivate   { return THREADPRIVATE; }
+cancellation    { return CANCELLATION; }
+point           { return POINT; }
 variant         { return VARIANT; }
 when            { yy_push_state(WHEN_STATE); return WHEN; }
 match           { yy_push_state(MATCH_STATE); return MATCH; }
-initializer     { yy_push_state(INITIALIZER_STATE);return INITIALIZER;}
-mapper          { yy_push_state(MAPPER_STATE);return MAPPER;}
+initializer     { yy_push_state(INITIALIZER_STATE);return INITIALIZER; }
+mapper          { yy_push_state(MAPPER_STATE);return MAPPER; }
 
 end             { return END; }
 score           { return SCORE; }

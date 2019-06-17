@@ -66,7 +66,7 @@ corresponding C type is union name defaults to YYSTYPE.
 %token  OMP PARALLEL FOR DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE MAPPER
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
-        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT/*YAYING*/
+        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT WORKSHARE/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -123,6 +123,12 @@ openmp_directive : parallel_directive
                  | parallel_for_directive
                  | parallel_loop_directive
                  | parallel_sections_directive
+                 | parallel_workshare_directive
+                 | parallel_master_directive
+                 | master_taskloop_directive
+                 | master_taskloop_simd_directive
+                 | parallel_master_taskloop_directive
+                 | parallel_master_taskloop_simd_directive
                  | loop_directive
                  | scan_directive
                  | sections_directive
@@ -197,6 +203,7 @@ variant_directive : parallel_directive
                  ;
 
 fortran_paired_directive : parallel_directive
+                         | parallel_workshare_directive
                          | metadirective_directive
                          | teams_directive
                          | sections_directive
@@ -1707,26 +1714,56 @@ distribute_parallel_for_directive : DISTRIBUTE PARALLEL FOR {
                                   distribute_parallel_for_clause_optseq
                                   ;
 
-distribute_parallel_for_simd_directive: DISTRIBUTE PARALLEL FOR SIMD {
+distribute_parallel_for_simd_directive : DISTRIBUTE PARALLEL FOR SIMD {
                                              current_directive = new OpenMPDirective(OMPD_distribute_parallel_for_simd);
-                                      }
-                                      distribute_parallel_for_simd_clause_optseq
-                                      ;
-parallel_for_directive: PARALLEL FOR {
+                                       }
+                                       distribute_parallel_for_simd_clause_optseq
+                                       ;
+parallel_for_directive : PARALLEL FOR {
                          current_directive = new OpenMPDirective(OMPD_parallel_for);
-                      }
-                      parallel_for_clause_optseq
-                      ;
-parallel_loop_directive: PARALLEL LOOP {
-                        current_directive = new OpenMPDirective(OMPD_parallel_loop);
                        }
-                       parallel_loop_clause_optseq
+                       parallel_for_clause_optseq
                        ;
-parallel_sections_directive: PARALLEL SECTIONS {
-                              current_directive = new OpenMPDirective(OMPD_parallel_sections);
-                           }
-                           parallel_sections_clause_optseq
-                           ;
+parallel_loop_directive : PARALLEL LOOP {
+                         current_directive = new OpenMPDirective(OMPD_parallel_loop);
+                        }
+                        parallel_loop_clause_optseq
+                        ;
+parallel_sections_directive : PARALLEL SECTIONS {
+                               current_directive = new OpenMPDirective(OMPD_parallel_sections);
+                            }
+                            parallel_sections_clause_optseq
+                            ;
+parallel_workshare_directive : PARALLEL WORKSHARE {
+                               current_directive = new OpenMPDirective(OMPD_parallel_workshare);
+                             }
+                             parallel_workshare_clause_optseq
+                             ;
+parallel_master_directive : PARALLEL MASTER {
+                               current_directive = new OpenMPDirective(OMPD_parallel_master);
+                          }
+                          parallel_master_clause_optseq
+                          ;
+master_taskloop_directive : MASTER TASKLOOP {
+                               current_directive = new OpenMPDirective(OMPD_master_taskloop);
+                          }
+                          master_taskloop_clause_optseq
+                          ;
+master_taskloop_simd_directive : MASTER TASKLOOP SIMD {
+                                    current_directive = new OpenMPDirective(OMPD_master_taskloop_simd);
+                               }
+                               master_taskloop_simd_clause_optseq
+                               ;
+parallel_master_taskloop_directive : PARALLEL MASTER TASKLOOP {
+                                          current_directive = new OpenMPDirective(OMPD_parallel_master_taskloop);
+                                   }
+                                   parallel_master_taskloop_clause_optseq
+                                   ; 
+parallel_master_taskloop_simd_directive : PARALLEL MASTER TASKLOOP SIMD {
+                                          current_directive = new OpenMPDirective(OMPD_parallel_master_taskloop_simd);
+                                        }
+                                        parallel_master_taskloop_simd_clause_optseq
+                                        ; 
 loop_directive : LOOP {
                         current_directive = new OpenMPDirective(OMPD_loop);
                      }
@@ -1874,8 +1911,26 @@ parallel_loop_clause_optseq : /*empty*/
                             | parallel_loop_clause_seq
                             ;
 parallel_sections_clause_optseq : /*empty*/
-                            | parallel_sections_clause_seq
-                            ;
+                                | parallel_sections_clause_seq
+                                ;
+parallel_workshare_clause_optseq : /*empty*/
+                                 | parallel_workshare_clause_seq
+                                 ;
+parallel_master_clause_optseq : /*empty*/
+                              | parallel_master_clause_seq
+                              ;
+master_taskloop_clause_optseq : /*empty*/
+                              | master_taskloop_clause_seq
+                              ;
+master_taskloop_simd_clause_optseq : /*empty*/
+                                   | master_taskloop_simd_clause_seq
+                                   ;
+parallel_master_taskloop_clause_optseq : /*empty*/
+                                       | parallel_master_taskloop_clause_seq
+                                       ;
+parallel_master_taskloop_simd_clause_optseq : /*empty*/
+                                            | parallel_master_taskloop_simd_clause_seq
+                                            ;
 loop_clause_optseq : /*empty*/
                    | loop_clause_seq
                    ;
@@ -1963,6 +2018,30 @@ parallel_sections_clause_seq : parallel_sections_clause
                              | parallel_sections_clause_seq parallel_sections_clause
                              | parallel_sections_clause_seq "," parallel_sections_clause
                              ;
+parallel_workshare_clause_seq : parallel_workshare_clause
+                              | parallel_workshare_clause_seq parallel_workshare_clause
+                              | parallel_workshare_clause_seq "," parallel_workshare_clause
+                              ;
+parallel_master_clause_seq : parallel_master_clause
+                           | parallel_master_clause_seq parallel_master_clause
+                           | parallel_master_clause_seq "," parallel_master_clause
+                           ;
+master_taskloop_clause_seq : master_taskloop_clause
+                           | master_taskloop_clause_seq master_taskloop_clause
+                           | master_taskloop_clause_seq "," master_taskloop_clause
+                           ;
+master_taskloop_simd_clause_seq : master_taskloop_simd_clause
+                                | master_taskloop_simd_clause_seq master_taskloop_simd_clause
+                                | master_taskloop_simd_clause_seq "," master_taskloop_simd_clause
+                                ;
+parallel_master_taskloop_clause_seq : parallel_master_taskloop_clause
+                                    | parallel_master_taskloop_clause_seq parallel_master_taskloop_clause
+                                    | parallel_master_taskloop_clause_seq "," parallel_master_taskloop_clause
+                                    ;
+parallel_master_taskloop_simd_clause_seq : parallel_master_taskloop_simd_clause
+                                         | parallel_master_taskloop_simd_clause_seq parallel_master_taskloop_simd_clause
+                                         | parallel_master_taskloop_simd_clause_seq "," parallel_master_taskloop_simd_clause
+                                         ;
 loop_clause_seq : loop_clause
                 | loop_clause_seq loop_clause
                 | loop_clause_seq "," loop_clause
@@ -2070,7 +2149,6 @@ parallel_for_simd_clause : if_parallel_simd_clause
                          | schedule_clause
                          | collapse_clause
                          | ordered_clause
-                         | nowait_clause
                          | order_clause
                          | safelen_clause
                          | simdlen_clause
@@ -2127,48 +2205,30 @@ distribute_parallel_for_clause : if_parallel_clause
                                | order_clause 
                                | dist_schedule_clause
                                ;
-distribute_parallel_for_simd_clause: if_parallel_simd_clause
-                                   | num_threads_clause
-                                   | default_clause
-                                   | private_clause
-                                   | firstprivate_clause
-                                   | shared_clause
-                                   | copyin_clause
-                                   | reduction_clause
-                                   | proc_bind_clause
-                                   | allocate_clause
-                                   | lastprivate_clause 
-                                   | linear_clause
-                                   | schedule_clause
-                                   | collapse_clause
-                                   | ordered_clause
-                                   | nowait_clause
-                                   | order_clause 
-                                   | dist_schedule_clause
-                                   | safelen_clause
-                                   | simdlen_clause
-                                   | aligned_clause
-                                   | nontemporal_clause
-                                   ;
-parallel_for_clause: if_parallel_clause
-                   | num_threads_clause
-                   | default_clause
-                   | private_clause
-                   | firstprivate_clause
-                   | shared_clause
-                   | copyin_clause
-                   | reduction_clause
-                   | proc_bind_clause
-                   | allocate_clause
-                   | lastprivate_clause 
-                   | linear_clause
-                   | schedule_clause
-                   | collapse_clause
-                   | ordered_clause
-                   | nowait_clause
-                   | order_clause 
-                   ;
-parallel_loop_clause: if_parallel_clause
+distribute_parallel_for_simd_clause : if_parallel_simd_clause
+                                    | num_threads_clause
+                                    | default_clause
+                                    | private_clause
+                                    | firstprivate_clause
+                                    | shared_clause
+                                    | copyin_clause
+                                    | reduction_clause
+                                    | proc_bind_clause
+                                    | allocate_clause
+                                    | lastprivate_clause 
+                                    | linear_clause
+                                    | schedule_clause
+                                    | collapse_clause
+                                    | ordered_clause
+                                    | nowait_clause
+                                    | order_clause 
+                                    | dist_schedule_clause
+                                    | safelen_clause
+                                    | simdlen_clause
+                                    | aligned_clause
+                                    | nontemporal_clause
+                                    ;
+parallel_for_clause : if_parallel_clause
                     | num_threads_clause
                     | default_clause
                     | private_clause
@@ -2179,23 +2239,152 @@ parallel_loop_clause: if_parallel_clause
                     | proc_bind_clause
                     | allocate_clause
                     | lastprivate_clause 
+                    | linear_clause
+                    | schedule_clause
                     | collapse_clause
-                    | bind_clause
+                    | ordered_clause
+                    | nowait_clause
                     | order_clause 
                     ;
-parallel_sections_clause: if_parallel_clause
-                        | num_threads_clause
-                        | default_clause
-                        | private_clause
-                        | firstprivate_clause
-                        | shared_clause
-                        | copyin_clause
-                        | reduction_clause
-                        | proc_bind_clause
-                        | allocate_clause
-                        | lastprivate_clause 
-                        | nowait_clause 
-                        ;
+parallel_loop_clause : if_parallel_clause
+                     | num_threads_clause
+                     | default_clause
+                     | private_clause
+                     | firstprivate_clause
+                     | shared_clause
+                     | copyin_clause
+                     | reduction_clause
+                     | proc_bind_clause
+                     | allocate_clause
+                     | lastprivate_clause 
+                     | collapse_clause
+                     | bind_clause
+                     | order_clause 
+                     ;
+parallel_sections_clause : if_parallel_clause
+                         | num_threads_clause
+                         | default_clause
+                         | private_clause
+                         | firstprivate_clause
+                         | shared_clause
+                         | copyin_clause
+                         | reduction_clause
+                         | proc_bind_clause
+                         | allocate_clause
+                         | lastprivate_clause 
+                         ;
+parallel_workshare_clause : if_parallel_clause
+                          | num_threads_clause
+                          | default_clause
+                          | private_clause
+                          | firstprivate_clause
+                          | shared_clause
+                          | copyin_clause
+                          | reduction_clause
+                          | proc_bind_clause
+                          | allocate_clause
+                          ;
+parallel_master_clause : if_parallel_clause
+                       | num_threads_clause
+                       | default_clause
+                       | private_clause
+                       | firstprivate_clause
+                       | shared_clause
+                       | copyin_clause
+                       | reduction_clause
+                       | proc_bind_clause
+                       | allocate_clause
+                       ;
+master_taskloop_clause : if_taskloop_clause
+                       | shared_clause
+                       | private_clause
+                       | firstprivate_clause
+                       | lastprivate_clause
+                       | reduction_clause
+                       | in_reduction_clause
+                       | default_clause
+                       | grainsize_clause
+                       | num_tasks_clause
+                       | collapse_clause
+                       | final_clause
+                       | priority_clause
+                       | untied_clause
+                       | mergeable_clause
+                       | nogroup_clause
+                       | allocate_clause
+                       ;
+master_taskloop_simd_clause : if_taskloop_simd_clause
+                            | shared_clause
+                            | private_clause
+                            | firstprivate_clause
+                            | lastprivate_clause
+                            | reduction_clause
+                            | in_reduction_clause
+                            | default_clause
+                            | grainsize_clause
+                            | num_tasks_clause
+                            | collapse_clause
+                            | final_clause
+                            | priority_clause
+                            | untied_clause
+                            | mergeable_clause
+                            | nogroup_clause
+                            | allocate_clause
+                            | safelen_clause
+                            | simdlen_clause
+                            | linear_clause
+                            | aligned_clause
+                            | nontemporal_clause
+                            | order_clause 
+                            ;
+parallel_master_taskloop_clause : if_parallel_taskloop_clause
+                                | num_threads_clause
+                                | default_clause
+                                | private_clause
+                                | firstprivate_clause
+                                | shared_clause
+                                | copyin_clause
+                                | reduction_clause
+                                | proc_bind_clause
+                                | allocate_clause
+                                | lastprivate_clause 
+                                | nowait_clause 
+                                | grainsize_clause
+                                | num_tasks_clause
+                                | collapse_clause
+                                | final_clause
+                                | priority_clause
+                                | untied_clause
+                                | mergeable_clause
+                                | nogroup_clause
+                                ;
+parallel_master_taskloop_simd_clause : if_parallel_taskloop_simd_clause
+                                     | num_threads_clause
+                                     | default_clause
+                                     | private_clause
+                                     | firstprivate_clause
+                                     | shared_clause
+                                     | copyin_clause
+                                     | reduction_clause
+                                     | proc_bind_clause
+                                     | allocate_clause
+                                     | lastprivate_clause 
+                                     | nowait_clause 
+                                     | grainsize_clause
+                                     | num_tasks_clause
+                                     | collapse_clause
+                                     | final_clause
+                                     | priority_clause
+                                     | untied_clause
+                                     | mergeable_clause
+                                     | nogroup_clause
+                                     | safelen_clause
+                                     | simdlen_clause
+                                     | linear_clause
+                                     | aligned_clause
+                                     | nontemporal_clause
+                                     | order_clause
+                                     ;
 loop_clause : bind_clause
             | collapse_clause
             | order_clause
@@ -2362,6 +2551,25 @@ if_cancel_parameter : CANCEL ':' {current_clause = current_directive->addOpenMPC
                         current_clause->addLangExpr($1);
                         }
                     ;
+if_parallel_taskloop_clause : IF '(' if_parallel_taskloop_parameter ')' { ; }
+                            ;
+if_parallel_taskloop_parameter : PARALLEL ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel); } expression { ; }
+                               | TASKLOOP ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop); } expression { ; }
+                               | EXPR_STRING {
+                               current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                               current_clause->addLangExpr($1);
+                                }
+                               ;
+if_parallel_taskloop_simd_clause : IF '(' if_parallel_taskloop_simd_parameter ')' { ; }
+                                 ;
+if_parallel_taskloop_simd_parameter : PARALLEL ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_parallel); } expression { ; }
+                                    | TASKLOOP ':' { current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_taskloop); } expression { ; }
+                                    | SIMD ':' {current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_simd);} expression { ; }
+                                    | EXPR_STRING {
+                                      current_clause = current_directive->addOpenMPClause(OMPC_if, OMPC_IF_MODIFIER_unspecified);
+                                      current_clause->addLangExpr($1);
+                                    }
+                                    ;
 /*if_clause : IF '(' if_parameter ')' { ; }
           ;
 

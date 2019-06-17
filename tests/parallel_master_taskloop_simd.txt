@@ -1,0 +1,158 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp parallel master taskloop simd private (a, b) private (a, c)
+PASS: #pragma omp parallel master taskloop simd private (a, b, c)
+  
+#pragma omp parallel master taskloop simd num_threads (3*5+4/(7+10))
+PASS: #pragma omp parallel master taskloop simd num_threads (3*5+4/(7+10))
+
+#pragma omp parallel master taskloop simd firstprivate (x, y)
+PASS: #pragma omp parallel master taskloop simd firstprivate (x, y)
+
+#pragma omp parallel master taskloop simd shared (a, b, c[1:10])
+PASS: #pragma omp parallel master taskloop simd shared (a, b, c[1:10])
+
+#pragma omp parallel master taskloop simd copyin (a[foo(goo(x)):20],a,y)
+PASS: #pragma omp parallel master taskloop simd copyin (a[foo(goo(x)):20], a, y)
+
+#pragma omp parallel master taskloop simd default (shared)
+PASS: #pragma omp parallel master taskloop simd default (shared)
+
+#pragma omp parallel master taskloop simd default (none)
+PASS: #pragma omp parallel master taskloop simd default (none)
+
+#pragma omp parallel master taskloop simd if (a) if (parallel : b) if (taskloop : b)
+PASS: #pragma omp parallel master taskloop simd if (a) if (parallel: b) if (taskloop: b)
+
+#pragma omp parallel master taskloop simd proc_bind (master)
+PASS: #pragma omp parallel master taskloop simd proc_bind (master)
+
+#pragma omp parallel master taskloop simd proc_bind (close) default (private)
+PASS: #pragma omp parallel master taskloop simd default (private) proc_bind (close)
+
+#pragma omp parallel master taskloop simd proc_bind (spread)
+PASS: #pragma omp parallel master taskloop simd proc_bind (spread)
+
+#pragma omp parallel master taskloop simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+PASS: #pragma omp parallel master taskloop simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+
+#pragma omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: #pragma omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+#pragma omp parallel master taskloop simd shared (a, b, c[1:10])
+PASS: #pragma omp parallel master taskloop simd shared (a, b, c[1:10])
+
+#pragma omp parallel master taskloop simd lastprivate(conditional:a,b,c)
+PASS: #pragma omp parallel master taskloop simd lastprivate (conditional: a, b, c)
+
+#pragma omp parallel master taskloop simd grainsize (3)
+PASS: #pragma omp parallel master taskloop simd grainsize (3)
+ 
+#pragma omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+PASS: #pragma omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+
+#pragma omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+PASS: #pragma omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+
+#pragma omp parallel master taskloop simd collapse (asd)
+PASS: #pragma omp parallel master taskloop simd collapse (asd)
+
+#pragma omp parallel master taskloop simd final (2839/9823)
+PASS: #pragma omp parallel master taskloop simd final (2839/9823)
+
+#pragma omp parallel master taskloop simd priority (256)
+PASS: #pragma omp parallel master taskloop simd priority (256)
+
+#pragma omp parallel master taskloop simd untied
+PASS: #pragma omp parallel master taskloop simd untied
+
+#pragma omp parallel master taskloop simd mergeable
+PASS: #pragma omp parallel master taskloop simd mergeable
+
+#pragma omp parallel master taskloop simd nogroup
+PASS: #pragma omp parallel master taskloop simd nogroup
+
+#pragma omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: #pragma omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+#pragma omp parallel master taskloop simd safelen(4)
+PASS: #pragma omp parallel master taskloop simd safelen (4)
+
+#pragma omp parallel master taskloop simd simdlen(4)
+PASS: #pragma omp parallel master taskloop simd simdlen (4)
+
+#pragma omp parallel master taskloop simd linear(a,b,c:2)
+PASS: #pragma omp parallel master taskloop simd linear (a, b, c:2)
+
+#pragma omp parallel master taskloop simd aligned(*a,&b,c:2)
+PASS: #pragma omp parallel master taskloop simd aligned (*a, &b, c:2)
+
+#pragma omp parallel master taskloop simd nontemporal(a)
+PASS: #pragma omp parallel master taskloop simd nontemporal (a)
+
+#pragma omp parallel master taskloop simd order(concurrent)
+PASS: #pragma omp parallel master taskloop simd order (concurrent)
+
+// invalid test without paired validation.
+#pragma omp parallel master taskloop simd private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
+
+#pragma omp parallel master taskloop simd private (a, b, c) private (a, b, e) firstprivate (foo(x), y), shared (a, b, c[1:10]) // invalid test without paired validation.
+
+#pragma omp parallel master taskloop simd private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4)
+
+#pragma omp parallel master taskloop simd reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
+
+#pragma omp parallel master taskloop simd in_reduction (+ : a, foo(x)) in_reduction (abc : x, y, z) in_reduction (user_defined_value : x, y, z) in_reduction (max : a, foo(x))
+
+#pragma omp parallel master taskloop simd if (a) if (simd : b)
+
+#pragma omp parallel master taskloop simd shared 
+
+#pragma omp parallel master taskloop simd private (a, b) private
+ 
+#pragma omp parallel master taskloop simd firstprivate 
+
+#pragma omp parallel master taskloop simd lastprivate(sde:a,b,c)
+
+#pragma omp parallel master taskloop simd reduction (task, + : a, foo(x))
+
+#pragma omp parallel master taskloop simd in_reduction (task, so : a, foo(x))
+
+#pragma omp parallel master taskloop simd default
+
+#pragma omp parallel master taskloop simd grainsize
+
+#pragma omp parallel master taskloop simd num_tasks
+
+#pragma omp parallel master taskloop simd collapse
+
+#pragma omp parallel master taskloop simd priority
+
+#pragma omp parallel master taskloop simd final
+
+#pragma omp parallel master taskloop simd untied (23)
+
+#pragma omp parallel master taskloop simd mergeable (23)
+
+#pragma omp parallel master taskloop simd nogroup (23)
+
+#pragma omp parallel master taskloop simd safelen
+
+#pragma omp parallel master taskloop simd simdlen
+
+#pragma omp parallel master taskloop simd linear
+
+#pragma omp parallel master taskloop simd aligned
+
+#pragma omp parallel master taskloop simd collapse
+
+#pragma omp parallel master taskloop simd nontemporal
+
+#pragma omp parallel master taskloop simd order
+
+

@@ -894,6 +894,24 @@ std::string OpenMPDirective::toString() {
         case OMPD_parallel_sections:
             result += "parallel sections ";
             break;
+        case OMPD_parallel_workshare:
+            result += "parallel workshare ";
+            break;
+        case OMPD_parallel_master:
+            result += "parallel master ";
+            break;
+        case OMPD_master_taskloop:
+            result += "master taskloop ";
+            break;
+        case OMPD_master_taskloop_simd:
+            result += "master taskloop simd ";
+            break;
+        case OMPD_parallel_master_taskloop:
+            result += "parallel master taskloop ";
+            break;
+        case OMPD_parallel_master_taskloop_simd:
+            result += "parallel master taskloop simd ";
+            break;
         case OMPD_loop:
             result += "loop ";
             break;
@@ -2965,6 +2983,24 @@ void OpenMPDirective::generateDOT() {
                 break;
         case OMPD_parallel_sections:
                 directive_kind = "parallel_sections ";
+                break;
+        case OMPD_parallel_workshare:
+                directive_kind += "parallel_workshare ";
+                break;
+        case OMPD_parallel_master:
+                directive_kind += "parallel_master ";
+                break;
+        case OMPD_master_taskloop:
+                directive_kind += "master_taskloop ";
+                break;
+        case OMPD_master_taskloop_simd:
+                directive_kind += "master_taskloop_simd ";
+                break;
+        case OMPD_parallel_master_taskloop:
+                directive_kind += "parallel_master_taskloop ";
+                break;
+        case OMPD_parallel_master_taskloop_simd:
+                directive_kind += "parallel_master_taskloop_simd ";
                 break;
         case OMPD_declare_reduction:
                 directive_kind = "declare_reduction ";

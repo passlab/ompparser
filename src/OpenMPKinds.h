@@ -42,7 +42,13 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(declare_mapper)
     OPENMP_DIRECTIVE(parallel_for)
     OPENMP_DIRECTIVE(parallel_loop)
-    OPENMP_DIRECTIVE(parallel_sections)    /*YAYING*/
+    OPENMP_DIRECTIVE(parallel_sections)
+    OPENMP_DIRECTIVE(parallel_workshare)
+    OPENMP_DIRECTIVE(parallel_master)
+    OPENMP_DIRECTIVE(master_taskloop)
+    OPENMP_DIRECTIVE(master_taskloop_simd)
+    OPENMP_DIRECTIVE(parallel_master_taskloop)
+    OPENMP_DIRECTIVE(parallel_master_taskloop_simd)    /*YAYING*/
     OPENMP_DIRECTIVE(teams)
     OPENMP_DIRECTIVE(metadirective)
     OPENMP_DIRECTIVE(declare_variant)
@@ -366,7 +372,7 @@ enum OpenMPLastprivateClauseModifier {
     OPENMP_LASTPRIVATE_MODIFIER(conditional)
     OPENMP_LASTPRIVATE_MODIFIER(user)
 
-    OPENMP_LASTPRIVATE_MODIFIER(unknow)
+    OPENMP_LASTPRIVATE_MODIFIER(unknown)
 #undef OPENMP_LASTPRIVATE_MODIFIER
 };
 
@@ -374,9 +380,10 @@ enum OpenMPLastprivateClauseModifier {
 enum OpenMPLinearClauseStep {
 #define OPENMP_LINEAR_STEP(Name) OMPC_LINEAR_Step_##Name,
 
+    OPENMP_LINEAR_STEP(unknown)
+
     OPENMP_LINEAR_STEP(user)
 
-    OPENMP_LINEAR_STEP(unknow)
 #undef OPENMP_LINEAR_STEP
 };
 
@@ -389,7 +396,7 @@ enum OpenMPLinearClauseModifier {
     OPENMP_LINEAR_MODIFIER(uval)
     OPENMP_LINEAR_MODIFIER(user)
 
-    OPENMP_LINEAR_MODIFIER(unknow)
+    OPENMP_LINEAR_MODIFIER(unknown)
 #undef OPENMP_LINEAR_MODIFIER
 };
 
@@ -401,7 +408,7 @@ enum OpenMPScheduleClauseModifier {
     OPENMP_SCHEDULE_MODIFIER(simd)
     OPENMP_SCHEDULE_MODIFIER(user)
 
-    OPENMP_SCHEDULE_MODIFIER(unknow)
+    OPENMP_SCHEDULE_MODIFIER(unknown)
 #undef OPENMP_SCHEDULE_MODIFIER
 };
 
@@ -447,9 +454,10 @@ enum OpenMPBindClauseKind {
 enum OpenMPInitializerClausePriv {
 #define OPENMP_INITIALIZER_PRIV(Name) OMPC_INITIALIZER_PRIV_##Name,
 
+    OPENMP_INITIALIZER_PRIV(unknown)
+
     OPENMP_INITIALIZER_PRIV(user)
 
-    OPENMP_INITIALIZER_PRIV(unknow)
 #undef OPENMP_INITIALIZER_PRIV
 };
 

@@ -29,9 +29,6 @@ PASS: #pragma omp parallel for simd collapse (a)
 #pragma omp parallel for simd ordered(a)
 PASS: #pragma omp parallel for simd ordered (a)
 
-#pragma omp parallel for simd nowait
-PASS: #pragma omp parallel for simd nowait
-
 #pragma omp parallel for simd shared (a, b, c[1:10])
 PASS: #pragma omp parallel for simd shared (a, b, c[1:10])
 
@@ -88,7 +85,7 @@ PASS: #pragma omp parallel for simd nontemporal (a)
 
 #pragma omp  parallel for simd collapse
 
-#pragma omp  parallel for simd nowait(dsfasf)
+#pragma omp parallel for simd nowait
 
 #pragma omp  parallel for simd order
 
