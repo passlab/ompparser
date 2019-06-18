@@ -2660,6 +2660,7 @@ std::string OpenMPLinearClause::toString() {
 
     std::string result = "linear ";
     std::string clause_string = "(";
+    bool flag = false;
     OpenMPLinearClauseModifier modifier = this->getModifier();
     switch (modifier) {
         case OMPC_LINEAR_MODIFIER_val:
