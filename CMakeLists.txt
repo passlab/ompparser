@@ -31,6 +31,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # The temporary test file
 add_executable(main ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPIR.cpp main.cpp)
 
+# The temporary test file
+add_executable(tester ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPIR.cpp tester.cpp)
+
 # The ompparser library for install and distribution
 add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} src/OpenMPIR.cpp)
 

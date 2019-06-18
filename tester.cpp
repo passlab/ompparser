@@ -53,18 +53,26 @@ int main( int argc, const char* argv[] ) {
         mode = argv[2];
     };
     std::ifstream input_file;
+    std::ofstream output_file;
 
     if (filename != NULL) {
         result = openFile(input_file, filename);
-    }
-    else {
-        std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
-        result = openFile(input_file, "../tests/parallel.txt");
+    //}
+    //else {
+    //    std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
+    //    result = openFile(input_file, "../tests/parallel.txt");
     };
     if (result) {
         std::cout << "No testing file is available.\n";
         return -1;
     };
+    // open the result table file
+    output_file.open("../results.md", ios_base::app);
+    if (result) {
+        std::cout << "No output file is available.\n";
+        return -1;
+    };
+
     std::string input_pragma;
     std::string output_pragma;
     std::string validation_string;
@@ -80,6 +88,9 @@ int main( int argc, const char* argv[] ) {
     OpenMPBaseLang base_lang = Lang_C;
     std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
     bool is_fortran = false;
+
+    std::string filename_string = std::string(filename);
+    filename_string = filename_string.substr(filename_string.rfind("/")+1);
 
     while (!input_file.eof()) {
         line_no += 1;
@@ -117,6 +128,7 @@ int main( int argc, const char* argv[] ) {
                     */
                     OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), NULL);
                     output_pragma = test(openMPAST);
+                    output_file << filename_string.c_str() << " | ` " << current_line.c_str() << " ` | ` " << output_pragma.c_str() << " ` | true \n"; 
                     is_fortran = false;
                 }
                 else if (current_line.substr(0, 6) == "PASS: ") {
@@ -160,11 +172,8 @@ int main( int argc, const char* argv[] ) {
     std::cout << "FAILED TESTS : " << failed_amount << "\n";
     std::cout << "INVALID TESTS: " << invalid_amount << "\n";
 
-
-    // example of calling ompparser without test file or producing DOT file.
-    const char* input = "#pragma omp target teams distribute simd";
-        OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
-        output(openMPAST);
+    input_file.close();
+    output_file.close();
 
     return 0;
 }
