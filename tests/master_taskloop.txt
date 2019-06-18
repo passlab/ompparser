@@ -1,0 +1,99 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+#pragma omp master taskloop if (a) if (taskloop : b)
+PASS: #pragma omp master taskloop if (a) if (taskloop: b)
+
+#pragma omp master taskloop shared (a, b, c[1:10])
+PASS: #pragma omp master taskloop shared (a, b, c[1:10])
+
+#pragma omp master taskloop private (a, b) private (a, c)
+PASS: #pragma omp master taskloop private (a, b, c)
+ 
+#pragma omp master taskloop firstprivate (x, y)
+PASS: #pragma omp master taskloop firstprivate (x, y)
+
+#pragma omp master taskloop lastprivate(conditional:a,b,c)
+PASS: #pragma omp master taskloop lastprivate (conditional: a, b, c)
+
+#pragma omp master taskloop reduction (default, + : a, foo(x))
+PASS: #pragma omp master taskloop reduction (default, + : a, foo(x))
+
+#pragma omp master taskloop in_reduction (+ : a, foo(x)) in_reduction (abc : x, y, z) in_reduction (user_defined_value : x, y, z) in_reduction (max : a, foo(x))
+PASS: #pragma omp master taskloop in_reduction (+ : a, foo(x)) in_reduction (abc : x, y, z) in_reduction (user_defined_value : x, y, z) in_reduction (max : a, foo(x))
+
+#pragma omp master taskloop default (shared)
+PASS: #pragma omp master taskloop default (shared)
+
+#pragma omp master taskloop default (none)
+PASS: #pragma omp master taskloop default (none)
+
+#pragma omp master taskloop grainsize (3)
+PASS: #pragma omp master taskloop grainsize (3)
+ 
+#pragma omp master taskloop num_tasks (3*5+4/(7+10))
+PASS: #pragma omp master taskloop num_tasks (3*5+4/(7+10))
+
+#pragma omp master taskloop num_tasks (3*5+4/(7+10))
+PASS: #pragma omp master taskloop num_tasks (3*5+4/(7+10))
+
+#pragma omp master taskloop collapse (asd)
+PASS: #pragma omp master taskloop collapse (asd)
+
+#pragma omp master taskloop final (2839/9823)
+PASS: #pragma omp master taskloop final (2839/9823)
+
+#pragma omp master taskloop priority (256)
+PASS: #pragma omp master taskloop priority (256)
+
+#pragma omp master taskloop untied
+PASS: #pragma omp master taskloop untied
+
+#pragma omp master taskloop mergeable
+PASS: #pragma omp master taskloop mergeable
+
+#pragma omp master taskloop nogroup
+PASS: #pragma omp master taskloop nogroup
+
+#pragma omp master taskloop allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: #pragma omp master taskloop allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+// invalid test without paired validation.
+
+#pragma omp master taskloop if (a) if (simd : b)
+
+#pragma omp master taskloop shared 
+
+#pragma omp master taskloop private (a, b) private
+ 
+#pragma omp master taskloop firstprivate 
+
+#pragma omp master taskloop lastprivate(sde:a,b,c)
+
+#pragma omp master taskloop reduction (task, + : a, foo(x))
+
+#pragma omp master taskloop in_reduction (task, so : a, foo(x))
+
+#pragma omp master taskloop default
+
+#pragma omp master taskloop grainsize
+
+#pragma omp master taskloop num_tasks
+
+#pragma omp master taskloop collapse
+
+#pragma omp master taskloop priority
+
+#pragma omp master taskloop final
+
+#pragma omp master taskloop untied (23)
+
+#pragma omp master taskloop mergeable (23)
+
+#pragma omp master taskloop nogroup (23)
+
+
