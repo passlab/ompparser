@@ -390,13 +390,14 @@ enum OpenMPLinearClauseStep {
 /// modifiers for 'linear' clause.
 enum OpenMPLinearClauseModifier {
 #define OPENMP_LINEAR_MODIFIER(Name) OMPC_LINEAR_MODIFIER_##Name,
+    OPENMP_LINEAR_MODIFIER(unknown)
 
     OPENMP_LINEAR_MODIFIER(val)
     OPENMP_LINEAR_MODIFIER(ref)
     OPENMP_LINEAR_MODIFIER(uval)
     OPENMP_LINEAR_MODIFIER(user)
 
-    OPENMP_LINEAR_MODIFIER(unknown)
+
 #undef OPENMP_LINEAR_MODIFIER
 };
 
