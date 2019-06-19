@@ -77,6 +77,7 @@ int main( int argc, const char* argv[] ) {
     std::string output_pragma;
     std::string validation_string;
     std::string pass = "true";
+    std::map<std::string, std::string> processed_data;
     int total_amount = 0;
     int passed_amount = 0;
     int failed_amount = 0;
@@ -122,12 +123,17 @@ int main( int argc, const char* argv[] ) {
                     };
                     current_pragma_line_no = line_no;
                     input_pragma = current_line;
+                    auto search_pragma = processed_data.find(input_pragma);
+                    if (search_pragma != processed_data.end()) {
+                        break;
+                    };
                     OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), NULL);
                     output_pragma = test(openMPAST);
                     if (output_pragma.size() == 0) {
                         pass = "false";
                     };
                     output_file << filename_string.c_str() << " | ` " << current_line.c_str() << " ` | ` " << output_pragma.c_str() << " ` | " << pass.c_str() << "\n"; 
+                    processed_data[input_pragma] = output_pragma;
                     pass = "true";
                     is_fortran = false;
                 }

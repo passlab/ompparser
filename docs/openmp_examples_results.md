@@ -21,7 +21,7 @@ Example_affinity.6.f90 | ` !$omp parallel num_threads(n_procs) proc_bind(close) 
 Example_affinity.6.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_affinity.6.f90 | ` !$omp parallel num_threads(n_sockets) private(socket_num) & ` | `  ` | false
 Example_affinity.6.f90 | ` !$omp&         proc_bind(spread) ` | `  ` | false
-Example_affinity.6.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
+Example_affinity.6.f90 | ` end program ` | `  ` | false
 Example_array_sections.1.c | ` #pragma omp target data map( A[0:4] ) ` | `  ` | false
 Example_array_sections.1.c | ` #pragma omp target map( A[7:20] ) ` | `  ` | false
 Example_array_sections.1.f90 | ` !$omp target data map( A(1:4) ) ` | `  ` | false
@@ -82,8 +82,6 @@ Example_async_target.2.f90 | ` !$omp end task ` | `  ` | false
 Example_async_target.2.f90 | ` !$omp task shared(v1,v2,p) depend(in: N) ` | ` !$omp task shared (v1, v2, p) depend (in : n) ` | true
 Example_async_target.2.f90 | ` !$omp target device(idev) map(from: p) ` | ` !$omp target device (idev) map ( from : p) ` | true
 Example_async_target.2.f90 | ` !$omp parallel do ` | `  ` | false
-Example_async_target.2.f90 | ` !$omp end target ` | `  ` | false
-Example_async_target.2.f90 | ` !$omp end task ` | `  ` | false
 Example_async_target.2.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_async_target.2.f90 | ` !$omp end target data ` | `  ` | false
 Example_async_target.3.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
@@ -111,13 +109,11 @@ Example_async_target.4.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_async_target.4.f90 | ` !$omp task depend(out:v1) ` | ` !$omp task depend (out : v1) ` | true
 Example_async_target.4.f90 | ` !$omp end task ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp task depend(out:v2) ` | ` !$omp task depend (out : v2) ` | true
-Example_async_target.4.f90 | ` !$omp end task ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp target nowait depend(in:v1,v2) depend(out:p) & ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp&                 map(to:v1,v2)  map(from: p) ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp parallel do ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp end target ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp task depend(in:p) ` | ` !$omp task depend (in : p) ` | true
-Example_async_target.4.f90 | ` !$omp end task ` | `  ` | false
 Example_async_target.4.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_async_target.4.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_atomic.1.c | ` #pragma omp parallel for shared(x, y, index, n) ` | ` #pragma omp parallel for shared (x, y, index, n) ` | true
@@ -130,20 +126,17 @@ Example_atomic.2.f | ` !$omp atomic read ` | ` !$omp atomic read ` | true
 Example_atomic.2.f | ` !$omp atomic write ` | ` !$omp atomic write ` | true
 Example_atomic.3.c | ` #pragma omp atomic capture ` | ` #pragma omp atomic capture ` | true
 Example_atomic.3.c | ` #pragma omp flush ` | ` #pragma omp flush  ` | true
-Example_atomic.3.c | ` #pragma omp flush ` | ` #pragma omp flush  ` | true
 Example_atomic.3.f | ` !$omp atomic capture ` | ` !$omp atomic capture ` | true
 Example_atomic.3.f | ` !$omp end atomic ` | `  ` | false
 Example_atomic.3.f | ` !$omp flush ` | ` !$omp flush  ` | true
-Example_atomic.3.f | ` !$omp flush ` | ` !$omp flush  ` | true
+Example_atomic.3.f | ` ! Release the lock ` | `  ` | false
 Example_atomic_restrict.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_atomic_restrict.1.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
 Example_atomic_restrict.1.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
 Example_atomic_restrict.1.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
 Example_atomic_restrict.1.f | ` !$OMP     ATOMIC UPDATE ` | ` !$omp atomic update ` | true
-Example_atomic_restrict.1.f | ` !$OMP     ATOMIC UPDATE ` | ` !$omp atomic update ` | true
+Example_atomic_restrict.1.f | ` R = R + 1.0 ` | `  ` | false
 Example_atomic_restrict.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_atomic_restrict.2.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_atomic_restrict.2.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
 Example_atomic_restrict.2.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
 Example_atomic_restrict.2.f | ` !$OMP   ATOMIC UPDATE ` | ` !$omp atomic update ` | true
 Example_atomic_restrict.2.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
@@ -152,9 +145,8 @@ Example_atomic_restrict.2.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  `
 Example_atomic_restrict.3.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
 Example_atomic_restrict.3.f | ` !$OMP     ATOMIC UPDATE ` | ` !$omp atomic update ` | true
 Example_atomic_restrict.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
-Example_atomic_restrict.3.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
-Example_atomic_restrict.3.f | ` !$OMP     ATOMIC UPDATE ` | ` !$omp atomic update ` | true
-Example_atomic_restrict.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
+Example_atomic_restrict.3.f | ` R = R + 1.0 ` | `  ` | false
+Example_atomic_restrict.3.f | ` END SUBROUTINE ATOMIC_WRONG3 ` | `  ` | false
 Example_barrier_regions.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
 Example_barrier_regions.1.c | ` #pragma omp parallel shared(k) ` | ` #pragma omp parallel shared (k) ` | true
 Example_barrier_regions.1.c | ` #pragma omp parallel private(i) shared(n) ` | ` #pragma omp parallel private (i) shared (n) ` | true
@@ -164,7 +156,7 @@ Example_barrier_regions.1.f | ` !$OMP   PARALLEL SHARED(K) ` | ` !$omp parallel 
 Example_barrier_regions.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_barrier_regions.1.f | ` !$OMP   PARALLEL PRIVATE(I) SHARED(N) ` | ` !$omp parallel private (i) shared (n) ` | true
 Example_barrier_regions.1.f | ` !$OMP     DO ` | `  ` | false
-Example_barrier_regions.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
+Example_barrier_regions.1.f | ` END SUBROUTINE SUB1 ` | `  ` | false
 Example_cancellation.1.cpp | ` #pragma omp parallel shared(ex) ` | ` #pragma omp parallel shared (ex) ` | true
 Example_cancellation.1.cpp | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_cancellation.1.cpp | ` #pragma omp atomic write ` | ` #pragma omp atomic write ` | true
@@ -180,9 +172,6 @@ Example_cancellation.1.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | 
 Example_cancellation.2.c | ` #pragma omp task shared(found) if(level < 10) ` | ` #pragma omp task if (level<10) shared (found) ` | true
 Example_cancellation.2.c | ` #pragma omp atomic write ` | ` #pragma omp atomic write ` | true
 Example_cancellation.2.c | ` #pragma omp cancel taskgroup ` | ` #pragma omp cancel taskgroup ` | true
-Example_cancellation.2.c | ` #pragma omp task shared(found) if(level < 10) ` | ` #pragma omp task if (level<10) shared (found) ` | true
-Example_cancellation.2.c | ` #pragma omp atomic write ` | ` #pragma omp atomic write ` | true
-Example_cancellation.2.c | ` #pragma omp cancel taskgroup ` | ` #pragma omp cancel taskgroup ` | true
 Example_cancellation.2.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_cancellation.2.c | ` #pragma omp parallel shared(found, tree, value) ` | ` #pragma omp parallel shared (found, tree, value) ` | true
 Example_cancellation.2.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
@@ -192,11 +181,9 @@ Example_cancellation.2.f90 | ` !$omp critical ` | ` !$omp critical  ` | true
 Example_cancellation.2.f90 | ` !$omp end critical ` | `  ` | false
 Example_cancellation.2.f90 | ` !$omp cancel taskgroup ` | ` !$omp cancel taskgroup ` | true
 Example_cancellation.2.f90 | ` !$omp end task ` | `  ` | false
-Example_cancellation.2.f90 | ` !$omp task shared(found) if(level<10) ` | ` !$omp task if (level<10) shared (found) ` | true
-Example_cancellation.2.f90 | ` !$omp critical ` | ` !$omp critical  ` | true
-Example_cancellation.2.f90 | ` !$omp end critical ` | `  ` | false
-Example_cancellation.2.f90 | ` !$omp cancel taskgroup ` | ` !$omp cancel taskgroup ` | true
-Example_cancellation.2.f90 | ` !$omp end task ` | `  ` | false
+Example_cancellation.2.f90 | ` call search_tree(tree%right, value, level+1, found_right) ` | `  ` | false
+Example_cancellation.2.f90 | ` found => found_right ` | `  ` | false
+Example_cancellation.2.f90 | ` endif ` | `  ` | false
 Example_cancellation.2.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_cancellation.2.f90 | ` !$omp parallel shared(found, tree, value) ` | ` !$omp parallel shared (found, tree, value) ` | true
 Example_cancellation.2.f90 | ` !$omp master ` | ` !$omp master threadprivate  ` | true
@@ -239,15 +226,13 @@ Example_copyprivate.1.f | ` !$OMP   END SINGLE COPYPRIVATE (A,B,/XY/) ` | ` !$om
 Example_copyprivate.2.c | ` #pragma omp single copyprivate(tmp) ` | ` #pragma omp single copyprivate (tmp) ` | true
 Example_copyprivate.2.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
 Example_copyprivate.2.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
-Example_copyprivate.2.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
 Example_copyprivate.2.c | ` #pragma omp single nowait ` | ` #pragma omp single nowait ` | true
 Example_copyprivate.2.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
 Example_copyprivate.2.f | ` !$OMP   END SINGLE COPYPRIVATE (TMP)  ! copies the pointer only ` | `  ` | false
 Example_copyprivate.2.f | ` !$OMP   MASTER ` | ` !$omp master threadprivate  ` | true
 Example_copyprivate.2.f | ` !$OMP   END MASTER ` | `  ` | false
 Example_copyprivate.2.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
-Example_copyprivate.2.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
-Example_copyprivate.2.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
+Example_copyprivate.2.f | ` DEALLOCATE (TMP) ` | `  ` | false
 Example_copyprivate.2.f | ` !$OMP   END SINGLE NOWAIT ` | ` !$omp end single nowait ` | true
 Example_copyprivate.3.c | ` #pragma omp single copyprivate(lock_ptr) ` | ` #pragma omp single copyprivate (lock_ptr) ` | true
 Example_copyprivate.3.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
@@ -255,7 +240,7 @@ Example_copyprivate.3.f | ` !$OMP   END SINGLE COPYPRIVATE(NEW_LOCK) ` | ` !$omp
 Example_copyprivate.4.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
 Example_copyprivate.4.f | ` !$OMP   END SINGLE COPYPRIVATE(A,B) ` | ` !$omp end single copyprivate (a, b) ` | true
 Example_copyprivate.4.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
-Example_copyprivate.4.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
+Example_copyprivate.4.f | ` DEALLOCATE (B) ` | `  ` | false
 Example_copyprivate.4.f | ` !$OMP   END SINGLE NOWAIT ` | ` !$omp end single nowait ` | true
 Example_cpp_reference.1.cpp | ` #pragma omp task // x is implicitly determined firstprivate(x) ` | ` #pragma omp task  ` | true
 Example_cpp_reference.1.cpp | ` #pragma omp parallel private(y) ` | ` #pragma omp parallel private (y) ` | true
@@ -328,7 +313,6 @@ Example_declare_target.5.f90 | ` !$omp end target ` | `  ` | false
 Example_declare_target.6.c | ` #pragma omp declare target link(sp,sv1,sv2) \ ` | ` #pragma omp declare target link (sp, sv1, sv2) ` | true
 Example_declare_target.6.c | ` #pragma omp declare target ` | ` #pragma omp declare target  ` | true
 Example_declare_target.6.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
-Example_declare_target.6.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_declare_target.6.c | ` #pragma omp end declare target ` | ` #pragma omp end declare target  ` | true
 Example_declare_target.6.c | ` #pragma omp target map(to:sv1,sv2) map(from:sp) ` | ` #pragma omp target map ( to : sv1, sv2) map ( from : sp) ` | true
 Example_declare_target.6.c | ` #pragma omp target map(to:dv1,dv2) map(from:dp) ` | ` #pragma omp target map ( to : dv1, dv2) map ( from : dp) ` | true
@@ -336,12 +320,12 @@ Example_declare_target.6.f90 | ` !$omp declare target link(sp,sv1,sv2) ` | ` !$o
 Example_declare_target.6.f90 | ` !$omp declare target link(dp,dv1,dv2) ` | ` !$omp declare target link (dp, dv1, dv2) ` | true
 Example_declare_target.6.f90 | ` !$omp declare target ` | ` !$omp declare target  ` | true
 Example_declare_target.6.f90 | ` !$omp parallel do ` | `  ` | false
-Example_declare_target.6.f90 | ` !$omp declare target ` | ` !$omp declare target  ` | true
-Example_declare_target.6.f90 | ` !$omp parallel do ` | `  ` | false
+Example_declare_target.6.f90 | ` integer :: i ` | `  ` | false
+Example_declare_target.6.f90 | ` do i = 1,N ` | `  ` | false
 Example_declare_target.6.f90 | ` !$omp target map(to:sv1,sv2) map(from:sp) ` | ` !$omp target map ( to : sv1, sv2) map ( from : sp) ` | true
 Example_declare_target.6.f90 | ` !$omp end target ` | `  ` | false
 Example_declare_target.6.f90 | ` !$omp target map(to:dv1,dv2) map(from:dp) ` | ` !$omp target map ( to : dv1, dv2) map ( from : dp) ` | true
-Example_declare_target.6.f90 | ` !$omp end target ` | `  ` | false
+Example_declare_target.6.f90 | ` call d_output(dp, N) ` | `  ` | false
 Example_default_none.1.c | ` #pragma omp threadprivate(x) ` | ` #pragma omp threadprivate (x) ` | true
 Example_default_none.1.c | ` #pragma omp parallel default(none) private(a) shared(z, c) ` | ` #pragma omp parallel default (none) private (a) shared (z, c) ` | true
 Example_default_none.1.c | ` #pragma omp for firstprivate(y) ` | ` #pragma omp for firstprivate (y) ` | true
@@ -395,18 +379,17 @@ Example_doacross.5.f90 | ` !$omp ordered depend(sink: i-1) ` | ` !$omp ordered d
 Example_doacross.5.f90 | ` !$omp ordered depend(source) ` | ` !$omp ordered depend (source) ` | true
 Example_flush_nolist.1.c | ` #pragma omp flush ` | ` #pragma omp flush  ` | true
 Example_flush_nolist.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
-Example_flush_nolist.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
 Example_flush_nolist.1.c | ` #pragma omp parallel reduction(+: sum) num_threads(10) ` | ` #pragma omp parallel num_threads (10) reduction (+ : sum) ` | true
 Example_flush_nolist.1.f | ` !$OMP   FLUSH ` | ` !$omp flush  ` | true
 Example_flush_nolist.1.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
-Example_flush_nolist.1.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
+Example_flush_nolist.1.f | ` ! a barrier implies a flush ` | `  ` | false
 Example_flush_nolist.1.f | ` !$OMP   PARALLEL REDUCTION(+: SUM) NUM_THREADS(10) ` | ` !$omp parallel num_threads (10) reduction (+ : sum) ` | true
 Example_flush_nolist.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_do.1.f | ` !$OMP     DO ` | `  ` | false
 Example_fort_do.1.f | ` !$OMP   DO ` | `  ` | false
 Example_fort_do.1.f | ` !$OMP   ENDDO ` | `  ` | false
-Example_fort_do.1.f | ` !$OMP   DO ` | `  ` | false
-Example_fort_do.1.f | ` !$OMP   ENDDO ` | `  ` | false
+Example_fort_do.1.f | ` DO 300 I = 1,10 ` | `  ` | false
+Example_fort_do.1.f | ` END SUBROUTINE DO_GOOD ` | `  ` | false
 Example_fort_do.2.f | ` !$OMP     DO ` | `  ` | false
 Example_fort_do.2.f | ` !$OMP   ENDDO ` | `  ` | false
 Example_fort_loopvar.1.f90 | ` !$OMP PARALLEL PRIVATE(MYOFFSET) ` | ` !$omp parallel private (myoffset) ` | true
@@ -414,7 +397,7 @@ Example_fort_loopvar.1.f90 | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | 
 Example_fort_loopvar.2.f90 | ` !$OMP PARALLEL SHARED(A,B,I1,I2) ` | ` !$omp parallel shared (a, b, i1, i2) ` | true
 Example_fort_loopvar.2.f90 | ` !$OMP SECTIONS ` | ` !$omp sections  ` | true
 Example_fort_loopvar.2.f90 | ` !$OMP SECTION ` | ` !$omp section  ` | true
-Example_fort_loopvar.2.f90 | ` !$OMP SECTION ` | ` !$omp section  ` | true
+Example_fort_loopvar.2.f90 | ` DO I2 = I2, N ` | `  ` | false
 Example_fort_loopvar.2.f90 | ` !$OMP END SECTIONS ` | ` !$omp end sections  ` | true
 Example_fort_loopvar.2.f90 | ` !$OMP SINGLE ` | ` !$omp single  ` | true
 Example_fort_loopvar.2.f90 | ` !$OMP END SINGLE ` | ` !$omp end single  ` | true
@@ -436,17 +419,16 @@ Example_fort_sa_private.5.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  `
 Example_fort_sp_common.1.f | ` !$OMP   PARALLEL PRIVATE (/C/) ` | `  ` | false
 Example_fort_sp_common.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_sp_common.1.f | ` !$OMP   PARALLEL SHARED (X,Y) ` | ` !$omp parallel shared (x, y) ` | true
-Example_fort_sp_common.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
+Example_fort_sp_common.1.f | ` END SUBROUTINE COMMON_GOOD ` | `  ` | false
 Example_fort_sp_common.2.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
 Example_fort_sp_common.2.f | ` !$OMP     DO PRIVATE(/C/) ` | `  ` | false
 Example_fort_sp_common.2.f | ` !$OMP     END DO ` | `  ` | false
 Example_fort_sp_common.2.f | ` !$OMP     DO PRIVATE(X) ` | `  ` | false
-Example_fort_sp_common.2.f | ` !$OMP     END DO ` | `  ` | false
 Example_fort_sp_common.2.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_sp_common.3.f | ` !$OMP   PARALLEL PRIVATE (/C/) ` | `  ` | false
 Example_fort_sp_common.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_sp_common.3.f | ` !$OMP   PARALLEL SHARED (/C/) ` | `  ` | false
-Example_fort_sp_common.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
+Example_fort_sp_common.3.f | ` END SUBROUTINE COMMON_GOOD3 ` | `  ` | false
 Example_fort_sp_common.4.f | ` !$OMP   PARALLEL PRIVATE(/C/), SHARED(X) ` | `  ` | false
 Example_fort_sp_common.4.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_sp_common.5.f | ` !$OMP   PARALLEL PRIVATE (/C/), SHARED(/C/) ` | `  ` | false
@@ -454,11 +436,10 @@ Example_fort_sp_common.5.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` 
 Example_fpriv_sections.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_fpriv_sections.1.c | ` #pragma omp sections firstprivate( section_count ) ` | `  ` | false
 Example_fpriv_sections.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
-Example_fpriv_sections.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
 Example_fpriv_sections.1.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_fpriv_sections.1.f90 | ` !$omp sections firstprivate ( section_count ) ` | `  ` | false
 Example_fpriv_sections.1.f90 | ` !$omp section ` | ` !$omp section  ` | true
-Example_fpriv_sections.1.f90 | ` !$omp section ` | ` !$omp section  ` | true
+Example_fpriv_sections.1.f90 | ` section_count = section_count + 1 ` | `  ` | false
 Example_fpriv_sections.1.f90 | ` !$omp end sections ` | ` !$omp end sections  ` | true
 Example_fpriv_sections.1.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_get_nthrs.1.c | ` #pragma omp parallel for schedule(static) ` | ` #pragma omp parallel for schedule (:static) ` | true
@@ -468,19 +449,16 @@ Example_get_nthrs.2.c | ` #pragma omp parallel private(i) ` | ` #pragma omp para
 Example_get_nthrs.2.f | ` !$OMP    PARALLEL PRIVATE(I) ` | ` !$omp parallel private (i) ` | true
 Example_get_nthrs.2.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_icv.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_icv.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_icv.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_icv.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
-Example_icv.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_icv.1.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
-Example_icv.1.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
+Example_icv.1.f | ` call omp_set_num_threads(4) ` | `  ` | false
 Example_icv.1.f | ` !$omp single ` | ` !$omp single  ` | true
 Example_icv.1.f | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_icv.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_icv.1.f | ` !$omp barrier ` | ` !$omp barrier  ` | true
-Example_icv.1.f | ` !$omp single ` | ` !$omp single  ` | true
-Example_icv.1.f | ` !$omp end single ` | ` !$omp end single  ` | true
-Example_icv.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
+Example_icv.1.f | ` !      The following should print: ` | `  ` | false
+Example_icv.1.f | ` end ` | `  ` | false
 Example_init_lock.1.cpp | ` #pragma omp parallel for private(i) ` | ` #pragma omp parallel for private (i) ` | true
 Example_init_lock.1.f | ` !$OMP   PARALLEL DO PRIVATE(I) ` | `  ` | false
 Example_init_lock.1.f | ` !$OMP   END PARALLEL DO ` | `  ` | false
@@ -524,42 +502,33 @@ Example_mem_model.1.f90 | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | tru
 Example_mem_model.2.c | ` #pragma omp parallel num_threads(2) ` | ` #pragma omp parallel num_threads (2) ` | true
 Example_mem_model.2.c | ` #pragma omp flush(flag, data) ` | ` #pragma omp flush (flag,data)  ` | true
 Example_mem_model.2.c | ` #pragma omp flush(flag) ` | ` #pragma omp flush (flag)  ` | true
-Example_mem_model.2.c | ` #pragma omp flush(flag, data) ` | ` #pragma omp flush (flag,data)  ` | true
-Example_mem_model.2.c | ` #pragma omp flush(flag, data) ` | ` #pragma omp flush (flag,data)  ` | true
-Example_mem_model.2.c | ` #pragma omp flush(flag, data) ` | ` #pragma omp flush (flag,data)  ` | true
 Example_mem_model.2.f | ` !$OMP PARALLEL NUM_THREADS(2) ` | ` !$omp parallel num_threads (2) ` | true
 Example_mem_model.2.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
 Example_mem_model.2.f | ` !$OMP FLUSH(FLAG) ` | ` !$omp flush (flag)  ` | true
-Example_mem_model.2.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
-Example_mem_model.2.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
-Example_mem_model.2.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
+Example_mem_model.2.f | ` DO WHILE(FLAG .LT. 1) ` | `  ` | false
+Example_mem_model.2.f | ` ENDDO ` | `  ` | false
+Example_mem_model.2.f | ` !Values DATA will be 42, value of FLAG still undefined */ ` | `  ` | false
 Example_mem_model.2.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_mem_model.3.c | ` #pragma omp parallel num_threads(3) ` | ` #pragma omp parallel num_threads (3) ` | true
 Example_mem_model.3.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
 Example_mem_model.3.c | ` #pragma omp flush(flag) ` | ` #pragma omp flush (flag)  ` | true
-Example_mem_model.3.c | ` #pragma omp flush(flag) ` | ` #pragma omp flush (flag)  ` | true
-Example_mem_model.3.c | ` #pragma omp atomic update ` | ` #pragma omp atomic update ` | true
-Example_mem_model.3.c | ` #pragma omp flush(flag) ` | ` #pragma omp flush (flag)  ` | true
-Example_mem_model.3.c | ` #pragma omp flush(flag) ` | ` #pragma omp flush (flag)  ` | true
 Example_mem_model.3.f | ` !$OMP PARALLEL NUM_THREADS(3) ` | ` !$omp parallel num_threads (3) ` | true
 Example_mem_model.3.f | ` !$OMP ATOMIC UPDATE ` | ` !$omp atomic update ` | true
 Example_mem_model.3.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
-Example_mem_model.3.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
-Example_mem_model.3.f | ` !$OMP ATOMIC UPDATE ` | ` !$omp atomic update ` | true
-Example_mem_model.3.f | ` !$OMP FLUSH(FLAG, DATA) ` | ` !$omp flush (flag,data)  ` | true
+Example_mem_model.3.f | ` ENDDO ` | `  ` | false
+Example_mem_model.3.f | ` FLAG = FLAG + 1 ` | `  ` | false
+Example_mem_model.3.f | ` DO WHILE(FLAG .LT. 2) ` | `  ` | false
 Example_mem_model.3.f | ` !$OMP FLUSH(FLAG,    DATA) ` | ` !$omp flush (flag,data)  ` | true
 Example_mem_model.3.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nestable_lock.1.c | ` #pragma omp parallel sections ` | ` #pragma omp parallel sections  ` | true
 Example_nestable_lock.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
-Example_nestable_lock.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
 Example_nestable_lock.1.f | ` !$OMP   PARALLEL SECTIONS ` | ` !$omp parallel sections  ` | true
 Example_nestable_lock.1.f | ` !$OMP   SECTION ` | ` !$omp section  ` | true
-Example_nestable_lock.1.f | ` !$OMP   SECTION ` | ` !$omp section  ` | true
+Example_nestable_lock.1.f | ` CALL INCR_B(P, WORK3()) ` | `  ` | false
 Example_nestable_lock.1.f | ` !$OMP   END PARALLEL SECTIONS ` | `  ` | false
 Example_nested_loop.1.c | ` #pragma omp parallel default(shared) ` | ` #pragma omp parallel default (shared) ` | true
 Example_nested_loop.1.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nested_loop.1.c | ` #pragma omp parallel shared(i, n) ` | ` #pragma omp parallel shared (i, n) ` | true
-Example_nested_loop.1.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nested_loop.1.f | ` !$OMP   PARALLEL DEFAULT(SHARED) ` | ` !$omp parallel default (shared) ` | true
 Example_nested_loop.1.f | ` !$OMP     DO ` | `  ` | false
 Example_nested_loop.1.f | ` !$OMP       PARALLEL SHARED(I,N) ` | ` !$omp parallel shared (i, n) ` | true
@@ -568,16 +537,12 @@ Example_nested_loop.1.f | ` !$OMP       END PARALLEL ` | ` !$omp end parallel  `
 Example_nested_loop.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nested_loop.2.c | ` #pragma omp parallel default(shared) ` | ` #pragma omp parallel default (shared) ` | true
 Example_nested_loop.2.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
-Example_nested_loop.2.c | ` #pragma omp parallel default(shared) ` | ` #pragma omp parallel default (shared) ` | true
-Example_nested_loop.2.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nested_loop.2.f | ` !$OMP PARALLEL DEFAULT(SHARED) ` | ` !$omp parallel default (shared) ` | true
 Example_nested_loop.2.f | ` !$OMP DO ` | `  ` | false
 Example_nested_loop.2.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
-Example_nested_loop.2.f | ` !$OMP PARALLEL DEFAULT(SHARED) ` | ` !$omp parallel default (shared) ` | true
-Example_nested_loop.2.f | ` !$OMP DO ` | `  ` | false
-Example_nested_loop.2.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
+Example_nested_loop.2.f | ` DO I = 1, N ` | `  ` | false
+Example_nested_loop.2.f | ` END SUBROUTINE GOOD_NESTING2 ` | `  ` | false
 Example_nesting_restrict.1.c | ` #pragma omp parallel default(shared) ` | ` #pragma omp parallel default (shared) ` | true
-Example_nesting_restrict.1.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nesting_restrict.1.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nesting_restrict.1.f | ` !$OMP   PARALLEL DEFAULT(SHARED) ` | ` !$omp parallel default (shared) ` | true
 Example_nesting_restrict.1.f | ` !$OMP     DO ` | `  ` | false
@@ -585,7 +550,6 @@ Example_nesting_restrict.1.f | ` !$OMP       DO             ! incorrect nesting 
 Example_nesting_restrict.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nesting_restrict.2.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nesting_restrict.2.c | ` #pragma omp parallel default(shared) ` | ` #pragma omp parallel default (shared) ` | true
-Example_nesting_restrict.2.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_nesting_restrict.2.f | ` !$OMP   DO      ! incorrect nesting of loop regions ` | `  ` | false
 Example_nesting_restrict.2.f | ` !$OMP   PARALLEL DEFAULT(SHARED) ` | ` !$omp parallel default (shared) ` | true
 Example_nesting_restrict.2.f | ` !$OMP     DO ` | `  ` | false
@@ -623,24 +587,18 @@ Example_nesting_restrict.6.f | ` !$OMP     END SINGLE ` | ` !$omp end single  ` 
 Example_nesting_restrict.6.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nowait.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_nowait.1.c | ` #pragma omp for nowait ` | ` #pragma omp for nowait ` | true
-Example_nowait.1.c | ` #pragma omp for nowait ` | ` #pragma omp for nowait ` | true
 Example_nowait.1.f | ` !$OMP PARALLEL ` | ` !$omp parallel  ` | true
 Example_nowait.1.f | ` !$OMP DO ` | `  ` | false
 Example_nowait.1.f | ` !$OMP END DO NOWAIT ` | `  ` | false
-Example_nowait.1.f | ` !$OMP DO ` | `  ` | false
-Example_nowait.1.f | ` !$OMP END DO NOWAIT ` | `  ` | false
+Example_nowait.1.f | ` DO I=1,M ` | `  ` | false
 Example_nowait.1.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nowait.2.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_nowait.2.c | ` #pragma omp for schedule(static) nowait ` | ` #pragma omp for nowait schedule (:static) ` | true
-Example_nowait.2.c | ` #pragma omp for schedule(static) nowait ` | ` #pragma omp for nowait schedule (:static) ` | true
 Example_nowait.2.c | ` #pragma omp for schedule(static) nowait ` | ` #pragma omp for nowait schedule (:static) ` | true
 Example_nowait.2.f90 | ` !$OMP PARALLEL ` | ` !$omp parallel  ` | true
 Example_nowait.2.f90 | ` !$OMP DO SCHEDULE(STATIC) ` | `  ` | false
 Example_nowait.2.f90 | ` !$OMP END DO NOWAIT ` | `  ` | false
-Example_nowait.2.f90 | ` !$OMP DO SCHEDULE(STATIC) ` | `  ` | false
-Example_nowait.2.f90 | ` !$OMP END DO NOWAIT ` | `  ` | false
-Example_nowait.2.f90 | ` !$OMP DO SCHEDULE(STATIC) ` | `  ` | false
-Example_nowait.2.f90 | ` !$OMP END DO NOWAIT ` | `  ` | false
+Example_nowait.2.f90 | ` DO I=1,N ` | `  ` | false
+Example_nowait.2.f90 | ` DO I=2,N+1 ` | `  ` | false
 Example_nowait.2.f90 | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nthrs_dynamic.1.c | ` #pragma omp parallel num_threads(10) ` | ` #pragma omp parallel num_threads (10) ` | true
 Example_nthrs_dynamic.1.f | ` !$OMP     PARALLEL NUM_THREADS(10) ` | ` !$omp parallel num_threads (10) ` | true
@@ -649,27 +607,16 @@ Example_nthrs_dynamic.2.c | ` #pragma omp parallel num_threads(10) ` | ` #pragma
 Example_nthrs_dynamic.2.f | ` !$OMP     PARALLEL NUM_THREADS(10) ` | ` !$omp parallel num_threads (10) ` | true
 Example_nthrs_dynamic.2.f | ` !$OMP     END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nthrs_nesting.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_nthrs_nesting.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_nthrs_nesting.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_nthrs_nesting.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
-Example_nthrs_nesting.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_nthrs_nesting.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_nthrs_nesting.1.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
-Example_nthrs_nesting.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_nthrs_nesting.1.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_nthrs_nesting.1.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_nthrs_nesting.1.f | ` !$omp single ` | ` !$omp single  ` | true
 Example_nthrs_nesting.1.f | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_nthrs_nesting.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_nthrs_nesting.1.f | ` !$omp barrier ` | ` !$omp barrier  ` | true
-Example_nthrs_nesting.1.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
-Example_nthrs_nesting.1.f | ` !$omp single ` | ` !$omp single  ` | true
-Example_nthrs_nesting.1.f | ` !$omp end single ` | ` !$omp end single  ` | true
-Example_nthrs_nesting.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
-Example_nthrs_nesting.1.f | ` !$omp barrier ` | ` !$omp barrier  ` | true
-Example_nthrs_nesting.1.f | ` !$omp single ` | ` !$omp single  ` | true
-Example_nthrs_nesting.1.f | ` !$omp end single ` | ` !$omp end single  ` | true
-Example_nthrs_nesting.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
+Example_nthrs_nesting.1.f | ` ! Even if OMP_NUM_THREADS=2,3 was set, the following should print, ` | `  ` | false
+Example_nthrs_nesting.1.f | ` ! If OMP_NUM_THREADS=2,3 was set, the following should print: ` | `  ` | false
+Example_nthrs_nesting.1.f | ` end ` | `  ` | false
 Example_ordered.1.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
 Example_ordered.1.c | ` #pragma omp parallel for ordered schedule(dynamic) ` | ` #pragma omp parallel for ordered schedule (:dynamic) ` | true
 Example_ordered.1.f | ` !$OMP ORDERED ` | ` !$omp ordered  ` | true
@@ -678,20 +625,18 @@ Example_ordered.1.f | ` !$OMP PARALLEL DO ORDERED SCHEDULE(DYNAMIC) ` | `  ` | f
 Example_ordered.1.f | ` !$OMP END PARALLEL DO ` | `  ` | false
 Example_ordered.2.c | ` #pragma omp for ordered ` | ` #pragma omp for ordered ` | true
 Example_ordered.2.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
-Example_ordered.2.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
 Example_ordered.2.f | ` !$OMP   DO ORDERED ` | `  ` | false
 Example_ordered.2.f | ` !$OMP     ORDERED ` | ` !$omp ordered  ` | true
 Example_ordered.2.f | ` !$OMP     END ORDERED ` | `  ` | false
-Example_ordered.2.f | ` !$OMP     ORDERED ` | ` !$omp ordered  ` | true
-Example_ordered.2.f | ` !$OMP     END ORDERED ` | `  ` | false
+Example_ordered.2.f | ` CALL WORK(I+1) ` | `  ` | false
+Example_ordered.2.f | ` END DO ` | `  ` | false
 Example_ordered.3.c | ` #pragma omp for ordered ` | ` #pragma omp for ordered ` | true
-Example_ordered.3.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
 Example_ordered.3.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
 Example_ordered.3.f | ` !$OMP   DO ORDERED ` | `  ` | false
 Example_ordered.3.f | ` !$OMP       ORDERED ` | ` !$omp ordered  ` | true
 Example_ordered.3.f | ` !$OMP       END ORDERED ` | `  ` | false
-Example_ordered.3.f | ` !$OMP       ORDERED ` | ` !$omp ordered  ` | true
-Example_ordered.3.f | ` !$OMP       END ORDERED ` | `  ` | false
+Example_ordered.3.f | ` CALL WORK(I+1) ` | `  ` | false
+Example_ordered.3.f | ` ENDIF ` | `  ` | false
 Example_parallel.1.c | ` #pragma omp parallel default(shared) private(iam,nt,ipoints,istart) ` | ` #pragma omp parallel default (shared) private (iam, nt, ipoints, istart) ` | true
 Example_parallel.1.f | ` !$OMP PARALLEL DEFAULT(PRIVATE) SHARED(X,NPOINTS) ` | ` !$omp parallel default (private) shared (x, npoints) ` | true
 Example_parallel.1.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
@@ -713,12 +658,10 @@ Example_private.3.f | ` !$OMP     END PARALLEL DO ` | `  ` | false
 Example_private.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_psections.1.c | ` #pragma omp parallel sections ` | ` #pragma omp parallel sections  ` | true
 Example_psections.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
-Example_psections.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
-Example_psections.1.c | ` #pragma omp section ` | ` #pragma omp section  ` | true
 Example_psections.1.f | ` !$OMP PARALLEL SECTIONS ` | ` !$omp parallel sections  ` | true
 Example_psections.1.f | ` !$OMP SECTION ` | ` !$omp section  ` | true
-Example_psections.1.f | ` !$OMP SECTION ` | ` !$omp section  ` | true
-Example_psections.1.f | ` !$OMP SECTION ` | ` !$omp section  ` | true
+Example_psections.1.f | ` CALL YAXIS() ` | `  ` | false
+Example_psections.1.f | ` CALL ZAXIS() ` | `  ` | false
 Example_psections.1.f | ` !$OMP END PARALLEL SECTIONS ` | `  ` | false
 Example_reduction.1.c | ` #pragma omp parallel for private(i) shared(x, y, n) \ ` | ` #pragma omp parallel for private (i) shared (x, y, n) ` | true
 Example_reduction.1.f90 | ` !$OMP PARALLEL DO PRIVATE(I) SHARED(X, Y, N) REDUCTION(+:A) & ` | `  ` | false
@@ -773,16 +716,14 @@ Example_SIMD.5.f90 | ` !$omp do simd collapse(2) private(tmp) ` | `  ` | false
 Example_SIMD.6.c | ` #pragma omp declare simd linear(p:1) notinbranch ` | ` #pragma omp declare simd linear (p:1) notinbranch ` | true
 Example_SIMD.6.c | ` #pragma omp simd ` | ` #pragma omp simd  ` | true
 Example_SIMD.6.c | ` #pragma omp declare simd linear(p:1) inbranch ` | ` #pragma omp declare simd linear (p:1) inbranch ` | true
-Example_SIMD.6.c | ` #pragma omp simd ` | ` #pragma omp simd  ` | true
 Example_SIMD.6.f90 | ` !$omp declare simd(foo) notinbranch ` | `  ` | false
 Example_SIMD.6.f90 | ` !$omp simd ` | ` !$omp simd  ` | true
 Example_SIMD.6.f90 | ` !$omp declare simd(goo) inbranch ` | `  ` | false
-Example_SIMD.6.f90 | ` !$omp simd ` | ` !$omp simd  ` | true
+Example_SIMD.6.f90 | ` do i=1, n ` | `  ` | false
 Example_SIMD.7.c | ` #pragma omp declare simd inbranch ` | ` #pragma omp declare simd inbranch ` | true
 Example_SIMD.7.c | ` #pragma omp simd ` | ` #pragma omp simd  ` | true
-Example_SIMD.7.c | ` #pragma omp simd ` | ` #pragma omp simd  ` | true
 Example_SIMD.7.f90 | ` !$omp simd ` | ` !$omp simd  ` | true
-Example_SIMD.7.f90 | ` !$omp simd ` | ` !$omp simd  ` | true
+Example_SIMD.7.f90 | ` do i=0,N-1 ` | `  ` | false
 Example_SIMD.7.f90 | ` !$omp declare simd(fib) inbranch ` | `  ` | false
 Example_SIMD.8.c | ` #pragma omp simd lastprivate(pri) ` | ` #pragma omp simd lastprivate (pri) ` | true
 Example_SIMD.8.f90 | ` !$omp simd private(j) lastprivate(pri) ` | ` !$omp simd private (j) lastprivate (pri) ` | true
@@ -791,14 +732,12 @@ Example_simple_lock.1.f | ` !$OMP   PARALLEL SHARED(LCK) PRIVATE(ID) ` | ` !$omp
 Example_simple_lock.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_single.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_single.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_single.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_single.1.c | ` #pragma omp single nowait ` | ` #pragma omp single nowait ` | true
 Example_single.1.f | ` !$OMP PARALLEL ` | ` !$omp parallel  ` | true
 Example_single.1.f | ` !$OMP SINGLE ` | ` !$omp single  ` | true
 Example_single.1.f | ` !$OMP END SINGLE ` | ` !$omp end single  ` | true
-Example_single.1.f | ` !$OMP SINGLE ` | ` !$omp single  ` | true
-Example_single.1.f | ` !$OMP END SINGLE ` | ` !$omp end single  ` | true
-Example_single.1.f | ` !$OMP SINGLE ` | ` !$omp single  ` | true
+Example_single.1.f | ` print *, "Finishing work1." ` | `  ` | false
+Example_single.1.f | ` print *, "Finished work1 and beginning work2." ` | `  ` | false
 Example_single.1.f | ` !$OMP END SINGLE NOWAIT ` | ` !$omp end single nowait ` | true
 Example_single.1.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_standalone.1.c | ` #pragma omp flush(a) ` | ` #pragma omp flush (a)  ` | true
@@ -814,10 +753,10 @@ Example_standalone.2.f90 | ` !$OMP FLUSH(A) ` | ` !$omp flush (a)  ` | true
 Example_standalone.2.f90 | ` !$OMP BARRIER ` | ` !$omp barrier  ` | true
 Example_standalone.2.f90 | ` !$OMP TASKWAIT ` | ` !$omp taskwait  ` | true
 Example_standalone.2.f90 | ` !$OMP TASKYIELD ` | ` !$omp taskyield  ` | true
-Example_standalone.2.f90 | ` !$OMP FLUSH(A) ` | ` !$omp flush (a)  ` | true
-Example_standalone.2.f90 | ` !$OMP BARRIER ` | ` !$omp barrier  ` | true
-Example_standalone.2.f90 | ` !$OMP TASKWAIT ` | ` !$omp taskwait  ` | true
-Example_standalone.2.f90 | ` !$OMP TASKYIELD ` | ` !$omp taskyield  ` | true
+Example_standalone.2.f90 | ` GOTO 200 ` | `  ` | false
+Example_standalone.2.f90 | ` GOTO 300 ` | `  ` | false
+Example_standalone.2.f90 | ` GOTO 400 ` | `  ` | false
+Example_standalone.2.f90 | ` END SUBROUTINE ` | `  ` | false
 Example_target.1.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
 Example_target.1.c | ` #pragma omp parallel for private(i) ` | ` #pragma omp parallel for private (i) ` | true
 Example_target.1.f90 | ` !$omp target ` | ` !$omp target  ` | true
@@ -862,15 +801,11 @@ Example_target_data.1.f90 | ` !$omp end target data ` | `  ` | false
 Example_target_data.2.c | ` #pragma omp target data map(from: p[0:N]) ` | ` #pragma omp target data map ( from : p[0:N]) ` | true
 Example_target_data.2.c | ` #pragma omp target map(to: v1[:N], v2[:N]) ` | ` #pragma omp target map ( to : v1[:N], v2[:N]) ` | true
 Example_target_data.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
-Example_target_data.2.c | ` #pragma omp target map(to: v1[:N], v2[:N]) ` | ` #pragma omp target map ( to : v1[:N], v2[:N]) ` | true
-Example_target_data.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_data.2.f90 | ` !$omp target data map(from: p) ` | ` !$omp target data map ( from : p) ` | true
 Example_target_data.2.f90 | ` !$omp target map(to: v1, v2 ) ` | ` !$omp target map ( to : v1, v2) ` | true
 Example_target_data.2.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target_data.2.f90 | ` !$omp end target ` | `  ` | false
-Example_target_data.2.f90 | ` !$omp target map(to: v1, v2 ) ` | ` !$omp target map ( to : v1, v2) ` | true
-Example_target_data.2.f90 | ` !$omp parallel do ` | `  ` | false
-Example_target_data.2.f90 | ` !$omp end target ` | `  ` | false
+Example_target_data.2.f90 | ` do i=1,N ` | `  ` | false
 Example_target_data.2.f90 | ` !$omp end target data ` | `  ` | false
 Example_target_data.3.c | ` #pragma omp target data map(Q[0:rows][0:cols]) ` | `  ` | false
 Example_target_data.3.c | ` #pragma omp target map(tofrom: tmp) ` | ` #pragma omp target map ( tofrom : tmp) ` | true
@@ -883,7 +818,7 @@ Example_target_data.3.f90 | ` !$omp parallel do reduction(+:tmp) ` | `  ` | fals
 Example_target_data.3.f90 | ` !$omp end target ` | `  ` | false
 Example_target_data.3.f90 | ` !$omp target ` | ` !$omp target  ` | true
 Example_target_data.3.f90 | ` !$omp parallel do ` | `  ` | false
-Example_target_data.3.f90 | ` !$omp end target ` | `  ` | false
+Example_target_data.3.f90 | ` end do ` | `  ` | false
 Example_target_data.3.f90 | ` !$omp end target data ` | `  ` | false
 Example_target_data.4.c | ` #pragma omp target data map(to: v1[0:N], v2[:N]) map(from: p0[0:N]) ` | ` #pragma omp target data map ( to : v1[0:N], v2[:N]) map ( from : p0[0:N]) ` | true
 Example_target_data.4.c | ` #pragma omp target map(to: v3[0:N], v4[:N]) map(from: p1[0:N]) ` | ` #pragma omp target map ( to : v3[0:N], v4[:N]) map ( from : p1[0:N]) ` | true
@@ -904,15 +839,11 @@ Example_target_data.5.f90 | ` !$omp end target ` | `  ` | false
 Example_target_data.6.c | ` #pragma omp target data if(N>THRESHOLD) map(from: p[0:N]) ` | ` #pragma omp target data if (N>THRESHOLD) map ( from : p[0:N]) ` | true
 Example_target_data.6.c | ` #pragma omp target if (N>THRESHOLD) map(to: v1[:N], v2[:N]) ` | ` #pragma omp target if (N>THRESHOLD) map ( to : v1[:N], v2[:N]) ` | true
 Example_target_data.6.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
-Example_target_data.6.c | ` #pragma omp target if (N>THRESHOLD) map(to: v1[:N], v2[:N]) ` | ` #pragma omp target if (N>THRESHOLD) map ( to : v1[:N], v2[:N]) ` | true
-Example_target_data.6.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_data.6.f90 | ` !$omp target data if(N>THRESHOLD) map(from: p) ` | ` !$omp target data if (n>threshold) map ( from : p) ` | true
 Example_target_data.6.f90 | ` !$omp target if(N>THRESHOLD) map(to: v1, v2) ` | ` !$omp target if (n>threshold) map ( to : v1, v2) ` | true
 Example_target_data.6.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target_data.6.f90 | ` !$omp end target ` | `  ` | false
-Example_target_data.6.f90 | ` !$omp target if(N>THRESHOLD) map(to: v1, v2) ` | ` !$omp target if (n>threshold) map ( to : v1, v2) ` | true
-Example_target_data.6.f90 | ` !$omp parallel do ` | `  ` | false
-Example_target_data.6.f90 | ` !$omp end target ` | `  ` | false
+Example_target_data.6.f90 | ` do i=1,N ` | `  ` | false
 Example_target_data.6.f90 | ` !$omp end target data ` | `  ` | false
 Example_target_data.7.c | ` #pragma omp target data map(from: p[0:N]) ` | ` #pragma omp target data map ( from : p[0:N]) ` | true
 Example_target_data.7.c | ` #pragma omp target if (N>THRESHOLD) map(to: v1[:N], v2[:N]) ` | ` #pragma omp target if (N>THRESHOLD) map ( to : v1[:N], v2[:N]) ` | true
@@ -932,33 +863,25 @@ Example_target_update.1.c | ` #pragma omp target data map(to: v1[:N], v2[:N]) ma
 Example_target_update.1.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
 Example_target_update.1.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_update.1.c | ` #pragma omp target update to(v1[:N], v2[:N]) ` | ` #pragma omp target update to (v1[:N], v2[:N]) ` | true
-Example_target_update.1.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
-Example_target_update.1.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_update.1.f90 | ` !$omp target data map(to: v1, v2) map(from: p) ` | ` !$omp target data map ( to : v1, v2) map ( from : p) ` | true
 Example_target_update.1.f90 | ` !$omp target ` | ` !$omp target  ` | true
 Example_target_update.1.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target_update.1.f90 | ` !$omp end target ` | `  ` | false
 Example_target_update.1.f90 | ` !$omp target update to(v1, v2) ` | ` !$omp target update to (v1, v2) ` | true
-Example_target_update.1.f90 | ` !$omp target ` | ` !$omp target  ` | true
-Example_target_update.1.f90 | ` !$omp parallel do ` | `  ` | false
-Example_target_update.1.f90 | ` !$omp end target ` | `  ` | false
+Example_target_update.1.f90 | ` do i=1,N ` | `  ` | false
 Example_target_update.1.f90 | ` !$omp end target data ` | `  ` | false
 Example_target_update.2.c | ` #pragma omp target data map(to: v1[:N], v2[:N]) map(from: p[0:N]) ` | ` #pragma omp target data map ( to : v1[:N], v2[:N]) map ( from : p[0:N]) ` | true
 Example_target_update.2.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
 Example_target_update.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_update.2.c | ` #pragma omp target update if (changed) to(v1[:N]) ` | ` #pragma omp target update if (changed) to (v1[:N]) ` | true
 Example_target_update.2.c | ` #pragma omp target update if (changed) to(v2[:N]) ` | ` #pragma omp target update if (changed) to (v2[:N]) ` | true
-Example_target_update.2.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
-Example_target_update.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_target_update.2.f90 | ` !$omp target data map(to: v1, v2) map(from: p) ` | ` !$omp target data map ( to : v1, v2) map ( from : p) ` | true
 Example_target_update.2.f90 | ` !$omp target ` | ` !$omp target  ` | true
 Example_target_update.2.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target_update.2.f90 | ` !$omp end target ` | `  ` | false
 Example_target_update.2.f90 | ` !$omp target update if(changed) to(v1(:N)) ` | `  ` | false
 Example_target_update.2.f90 | ` !$omp target update if(changed) to(v2(:N)) ` | `  ` | false
-Example_target_update.2.f90 | ` !$omp target ` | ` !$omp target  ` | true
-Example_target_update.2.f90 | ` !$omp parallel do ` | `  ` | false
-Example_target_update.2.f90 | ` !$omp end target ` | `  ` | false
+Example_target_update.2.f90 | ` do i=1, N ` | `  ` | false
 Example_target_update.2.f90 | ` !$omp end target data ` | `  ` | false
 Example_task_dep.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_task_dep.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
@@ -969,7 +892,6 @@ Example_task_dep.1.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_task_dep.1.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_task_dep.1.f90 | ` !$omp end task ` | `  ` | false
 Example_task_dep.1.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_task_dep.1.f90 | ` !$omp end task ` | `  ` | false
 Example_task_dep.1.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_task_dep.1.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_task_dep.2.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
@@ -981,20 +903,17 @@ Example_task_dep.2.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_task_dep.2.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
 Example_task_dep.2.f90 | ` !$omp end task ` | `  ` | false
 Example_task_dep.2.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
-Example_task_dep.2.f90 | ` !$omp end task ` | `  ` | false
 Example_task_dep.2.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_task_dep.2.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_task_dep.3.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_task_dep.3.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_task_dep.3.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_task_dep.3.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_task_dep.3.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_task_dep.3.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_task_dep.3.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_task_dep.3.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_task_dep.3.f90 | ` !$omp end task ` | `  ` | false
-Example_task_dep.3.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
-Example_task_dep.3.f90 | ` !$omp end task ` | `  ` | false
+Example_task_dep.3.f90 | ` x = 2 ` | `  ` | false
 Example_task_dep.3.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_task_dep.3.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_task_dep.3.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
@@ -1002,15 +921,12 @@ Example_task_dep.4.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | tr
 Example_task_dep.4.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_task_dep.4.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_task_dep.4.c | ` #pragma omp task shared(x) depend(in: x) ` | ` #pragma omp task shared (x) depend (in : x) ` | true
-Example_task_dep.4.c | ` #pragma omp task shared(x) depend(in: x) ` | ` #pragma omp task shared (x) depend (in : x) ` | true
 Example_task_dep.4.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_task_dep.4.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_task_dep.4.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_task_dep.4.f90 | ` !$omp end task ` | `  ` | false
 Example_task_dep.4.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_task_dep.4.f90 | ` !$omp end task ` | `  ` | false
-Example_task_dep.4.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_task_dep.4.f90 | ` !$omp end task ` | `  ` | false
+Example_task_dep.4.f90 | ` print*, "x + 2 = ", x+2, "." ` | `  ` | false
 Example_task_dep.4.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_task_dep.4.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_task_dep.5.c | ` #pragma omp task private(ii, jj, kk) \ ` | ` #pragma omp task private (ii, jj, kk) ` | true
@@ -1019,39 +935,33 @@ Example_task_dep.5.f90 | ` !$omp depend ( in: A(i:i+BM, k:k+BM), B(k:k+BM, j:j+B
 Example_task_dep.5.f90 | ` !$omp depend ( inout: C(i:i+BM, j:j+BM) ) ` | `  ` | false
 Example_task_dep.5.f90 | ` !$omp end task ` | `  ` | false
 Example_taskgroup.1.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_taskgroup.1.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_taskgroup.1.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_taskgroup.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_taskgroup.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_taskgroup.1.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_taskgroup.1.c | ` #pragma omp taskgroup ` | ` #pragma omp taskgroup  ` | true
-Example_taskgroup.1.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_taskgroup.1.f90 | ` !$omp task ` | ` !$omp task  ` | true
 Example_taskgroup.1.f90 | ` !$omp end task ` | `  ` | false
-Example_taskgroup.1.f90 | ` !$omp task ` | ` !$omp task  ` | true
-Example_taskgroup.1.f90 | ` !$omp end task ` | `  ` | false
-Example_taskgroup.1.f90 | ` !$omp task ` | ` !$omp task  ` | true
-Example_taskgroup.1.f90 | ` !$omp end task ` | `  ` | false
+Example_taskgroup.1.f90 | ` call compute_tree(tree%right) ` | `  ` | false
+Example_taskgroup.1.f90 | ` endif ` | `  ` | false
+Example_taskgroup.1.f90 | ` call compute_something(tree) ` | `  ` | false
+Example_taskgroup.1.f90 | ` end subroutine ` | `  ` | false
 Example_taskgroup.1.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_taskgroup.1.f90 | ` !$omp single ` | ` !$omp single  ` | true
-Example_taskgroup.1.f90 | ` !$omp task ` | ` !$omp task  ` | true
-Example_taskgroup.1.f90 | ` !$omp end task ` | `  ` | false
+Example_taskgroup.1.f90 | ` call start_background_work() ` | `  ` | false
+Example_taskgroup.1.f90 | ` do i=1, max_steps ` | `  ` | false
 Example_taskgroup.1.f90 | ` !$omp taskgroup ` | ` !$omp taskgroup  ` | true
-Example_taskgroup.1.f90 | ` !$omp task ` | ` !$omp task  ` | true
-Example_taskgroup.1.f90 | ` !$omp end task ` | `  ` | false
+Example_taskgroup.1.f90 | ` call compute_tree(tree) ` | `  ` | false
 Example_taskgroup.1.f90 | ` !$omp end taskgroup ! wait on tree traversal in this step ` | `  ` | false
 Example_taskgroup.1.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_taskgroup.1.f90 | ` !$omp end parallel    ! only now is background work required to be complete ` | `  ` | false
 Example_tasking.10.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_tasking.10.c | ` #pragma omp for ` | ` #pragma omp for  ` | true
 Example_tasking.10.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_tasking.10.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.10.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_tasking.10.f90 | ` !$omp do ` | `  ` | false
 Example_tasking.10.f90 | ` !$omp task ` | ` !$omp task  ` | true
 Example_tasking.10.f90 | ` !$omp task     ! Task Scheduling Point 1 ` | `  ` | false
 Example_tasking.10.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.10.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.10.f90 | ` end do ` | `  ` | false
 Example_tasking.10.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.11.c | ` #pragma omp task shared(x) mergeable ` | ` #pragma omp task shared (x) mergeable ` | true
 Example_tasking.11.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
@@ -1064,31 +974,25 @@ Example_tasking.12.f90 | ` !$omp task mergeable ` | ` !$omp task mergeable ` | t
 Example_tasking.12.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.12.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_tasking.13.c | ` #pragma omp task final( pos > LIMIT ) mergeable ` | ` #pragma omp task final (pos>LIMIT) mergeable ` | true
-Example_tasking.13.c | ` #pragma omp task final( pos > LIMIT ) mergeable ` | ` #pragma omp task final (pos>LIMIT) mergeable ` | true
 Example_tasking.13.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_tasking.13.f90 | ` !$omp task final(pos > LIMIT) mergeable ` | ` !$omp task final (pos>limit) mergeable ` | true
 Example_tasking.13.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.13.f90 | ` !$omp task final(pos > LIMIT) mergeable ` | ` !$omp task final (pos>limit) mergeable ` | true
-Example_tasking.13.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.13.f90 | ` if (.not. omp_in_final()) then ` | `  ` | false
 Example_tasking.13.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_tasking.14.c | ` #pragma omp task if(0)  // This task is undeferred ` | ` #pragma omp task if (0) ` | true
-Example_tasking.14.c | ` #pragma omp task     // This task is a regular task ` | ` #pragma omp task  ` | true
 Example_tasking.14.c | ` #pragma omp task     // This task is a regular task ` | ` #pragma omp task  ` | true
 Example_tasking.14.c | ` #pragma omp task final(1) // This task is a regular task ` | ` #pragma omp task final (1) ` | true
 Example_tasking.14.c | ` #pragma omp task  // This task is included ` | ` #pragma omp task  ` | true
 Example_tasking.14.c | ` #pragma omp task     // This task is also included ` | ` #pragma omp task  ` | true
 Example_tasking.14.f90 | ` !$omp task if(.FALSE.) ! This task is undeferred ` | `  ` | false
 Example_tasking.14.f90 | ` !$omp task             ! This task is a regular task ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp task             ! This task is a regular task ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.14.f90 | ` call bar() ` | `  ` | false
 Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.14.f90 | ` !$omp task final(.TRUE.) ! This task is a regular task ` | `  ` | false
 Example_tasking.14.f90 | ` !$omp task               ! This task is included ` | `  ` | false
 Example_tasking.14.f90 | ` !$omp task               ! This task is also included ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.14.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.14.f90 | ` enddo ` | `  ` | false
+Example_tasking.14.f90 | ` end subroutine ` | `  ` | false
 Example_tasking.15.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_tasking.15.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_tasking.15.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
@@ -1098,7 +1002,6 @@ Example_tasking.15.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_tasking.15.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_tasking.15.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.15.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_tasking.15.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.15.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_tasking.15.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.16.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
@@ -1110,20 +1013,17 @@ Example_tasking.16.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_tasking.16.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
 Example_tasking.16.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.16.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
-Example_tasking.16.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.16.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_tasking.16.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.17.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_tasking.17.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
-Example_tasking.17.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_tasking.17.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_tasking.17.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_tasking.17.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_tasking.17.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_tasking.17.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_tasking.17.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.17.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
-Example_tasking.17.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.17.f90 | ` x = 2 ` | `  ` | false
 Example_tasking.17.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_tasking.17.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_tasking.17.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
@@ -1131,15 +1031,12 @@ Example_tasking.18.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | tr
 Example_tasking.18.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_tasking.18.c | ` #pragma omp task shared(x) depend(out: x) ` | ` #pragma omp task shared (x) depend (out : x) ` | true
 Example_tasking.18.c | ` #pragma omp task shared(x) depend(in: x) ` | ` #pragma omp task shared (x) depend (in : x) ` | true
-Example_tasking.18.c | ` #pragma omp task shared(x) depend(in: x) ` | ` #pragma omp task shared (x) depend (in : x) ` | true
 Example_tasking.18.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_tasking.18.f90 | ` !$omp single ` | ` !$omp single  ` | true
 Example_tasking.18.f90 | ` !$omp task shared(x) depend(out: x) ` | ` !$omp task shared (x) depend (out : x) ` | true
 Example_tasking.18.f90 | ` !$omp end task ` | `  ` | false
 Example_tasking.18.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_tasking.18.f90 | ` !$omp end task ` | `  ` | false
-Example_tasking.18.f90 | ` !$omp task shared(x) depend(in: x) ` | ` !$omp task shared (x) depend (in : x) ` | true
-Example_tasking.18.f90 | ` !$omp end task ` | `  ` | false
+Example_tasking.18.f90 | ` print*, "x + 2 = ", x+2, "." ` | `  ` | false
 Example_tasking.18.f90 | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_tasking.18.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.19.c | ` #pragma omp task depend ( in: A[i:BS][k:BS], B[k:BS][j:BS] ) \ ` | ` #pragma omp task depend (in : A[i:BS][k:BS], B[k:BS][j:BS]) ` | true
@@ -1150,15 +1047,15 @@ Example_tasking.1.c | ` #pragma omp task   // p is firstprivate by default ` | `
 Example_tasking.1.c | ` #pragma omp task    // p is firstprivate by default ` | ` #pragma omp task  ` | true
 Example_tasking.1.f90 | ` !$OMP TASK     ! P is firstprivate by default ` | `  ` | false
 Example_tasking.1.f90 | ` !$OMP END TASK ` | `  ` | false
-Example_tasking.1.f90 | ` !$OMP TASK     ! P is firstprivate by default ` | `  ` | false
-Example_tasking.1.f90 | ` !$OMP END TASK ` | `  ` | false
+Example_tasking.1.f90 | ` CALL traverse(P%right) ` | `  ` | false
+Example_tasking.1.f90 | ` ENDIF ` | `  ` | false
 Example_tasking.2.c | ` #pragma omp task    // p is firstprivate by default ` | ` #pragma omp task  ` | true
 Example_tasking.2.c | ` #pragma omp task   // p is firstprivate by default ` | ` #pragma omp task  ` | true
 Example_tasking.2.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_tasking.2.f90 | ` !$OMP TASK    ! P is firstprivate by default ` | `  ` | false
 Example_tasking.2.f90 | ` !$OMP END TASK ` | `  ` | false
-Example_tasking.2.f90 | ` !$OMP TASK    ! P is firstprivate by default ` | `  ` | false
-Example_tasking.2.f90 | ` !$OMP END TASK ` | `  ` | false
+Example_tasking.2.f90 | ` CALL traverse(P%right) ` | `  ` | false
+Example_tasking.2.f90 | ` ENDIF ` | `  ` | false
 Example_tasking.2.f90 | ` !$OMP TASKWAIT ` | ` !$omp taskwait  ` | true
 Example_tasking.3.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_tasking.3.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
@@ -1175,7 +1072,6 @@ Example_tasking.4.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | tru
 Example_tasking.4.f | ` !$OMP TASK SHARED(i) ` | ` !$omp task shared (i) ` | true
 Example_tasking.4.f | ` !$OMP END TASK ` | `  ` | false
 Example_tasking.4.f | ` !$OMP TASK SHARED(j) ` | ` !$omp task shared (j) ` | true
-Example_tasking.4.f | ` !$OMP END TASK ` | `  ` | false
 Example_tasking.4.f | ` !$OMP TASKWAIT ` | ` !$omp taskwait  ` | true
 Example_tasking.5.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_tasking.5.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
@@ -1195,46 +1091,37 @@ Example_tasking.6.f | ` !$omp single ` | ` !$omp single  ` | true
 Example_tasking.6.f | ` !$omp task untied ` | ` !$omp task untied ` | true
 Example_tasking.6.f | ` !$omp task ! i is firstprivate, item is shared ` | `  ` | false
 Example_tasking.6.f | ` !$omp end task ` | `  ` | false
-Example_tasking.6.f | ` !$omp end task ` | `  ` | false
 Example_tasking.6.f | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_tasking.6.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.7.c | ` #pragma omp threadprivate(tp) ` | ` #pragma omp threadprivate (tp) ` | true
 Example_tasking.7.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_tasking.7.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_tasking.7.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.7.f | ` !$omp threadprivate(tp) ` | ` !$omp threadprivate (tp) ` | true
 Example_tasking.7.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.7.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.7.f | ` !$omp task ` | ` !$omp task  ` | true
+Example_tasking.7.f | ` tp = 1 ` | `  ` | false
+Example_tasking.7.f | ` ! no modification of tp ` | `  ` | false
 Example_tasking.7.f | ` !$omp end task ` | `  ` | false
-Example_tasking.7.f | ` !$omp end task ` | `  ` | false
-Example_tasking.7.f | ` !$omp end task ` | `  ` | false
+Example_tasking.7.f | ` tp = 2 ` | `  ` | false
+Example_tasking.7.f | ` end subroutine ` | `  ` | false
 Example_tasking.8.c | ` #pragma omp threadprivate(tp) ` | ` #pragma omp threadprivate (tp) ` | true
 Example_tasking.8.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_tasking.8.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.8.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.8.f | ` !$omp threadprivate(tp) ` | ` !$omp threadprivate (tp) ` | true
 Example_tasking.8.f | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_tasking.8.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.8.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.8.f | ` !$omp end task ` | `  ` | false
+Example_tasking.8.f | ` ! do work here but don't modify tp ` | `  ` | false
 Example_tasking.8.f | ` !$omp end task ` | `  ` | false
 Example_tasking.8.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_tasking.9.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
-Example_tasking.9.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.9.c | ` #pragma omp critical //Critical region 1 ` | ` #pragma omp critical  ` | true
 Example_tasking.9.c | ` #pragma omp critical //Critical Region 2 ` | ` #pragma omp critical  ` | true
-Example_tasking.9.c | ` #pragma omp task ` | ` #pragma omp task  ` | true
 Example_tasking.9.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.9.f | ` !$omp task ` | ` !$omp task  ` | true
+Example_tasking.9.f | ` ! Task 2 ` | `  ` | false
 Example_tasking.9.f | ` !$omp critical ` | ` !$omp critical  ` | true
 Example_tasking.9.f | ` !$omp end critical ` | `  ` | false
 Example_tasking.9.f | ` !$omp end task ` | `  ` | false
-Example_tasking.9.f | ` !$omp critical ` | ` !$omp critical  ` | true
-Example_tasking.9.f | ` !$omp task ` | ` !$omp task  ` | true
-Example_tasking.9.f | ` !$omp end task ` | `  ` | false
-Example_tasking.9.f | ` !$omp end critical ` | `  ` | false
-Example_tasking.9.f | ` !$omp end task ` | `  ` | false
+Example_tasking.9.f | ` ! Critical region 2 ` | `  ` | false
+Example_tasking.9.f | ` !Task 3 ` | `  ` | false
+Example_tasking.9.f | ` end subroutine ` | `  ` | false
 Example_taskloop.1.c | ` #pragma omp taskgroup ` | `  ` | false
 Example_taskloop.1.c | ` #pragma omp task ` | `  ` | false
 Example_taskloop.1.c | ` #pragma omp taskloop private(j) grainsize(500) nogroup  ` | `  ` | false
@@ -1336,7 +1223,7 @@ Example_workshare.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | tru
 Example_workshare.2.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
 Example_workshare.2.f | ` !$OMP     WORKSHARE ` | `  ` | false
 Example_workshare.2.f | ` !$OMP     END WORKSHARE NOWAIT ` | `  ` | false
-Example_workshare.2.f | ` !$OMP     WORKSHARE ` | `  ` | false
+Example_workshare.2.f | ` EE = FF ` | `  ` | false
 Example_workshare.2.f | ` !$OMP     END WORKSHARE ` | `  ` | false
 Example_workshare.2.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_workshare.3.f | ` !$OMP   PARALLEL ` | ` !$omp parallel  ` | true
