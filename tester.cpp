@@ -67,7 +67,7 @@ int main( int argc, const char* argv[] ) {
         return -1;
     };
     // open the result table file
-    output_file.open("../results.md", ios_base::app);
+    output_file.open("./results.md", ios_base::app);
     if (result) {
         std::cout << "No output file is available.\n";
         return -1;
@@ -76,6 +76,7 @@ int main( int argc, const char* argv[] ) {
     std::string input_pragma;
     std::string output_pragma;
     std::string validation_string;
+    std::string pass = "true";
     int total_amount = 0;
     int passed_amount = 0;
     int failed_amount = 0;
@@ -121,14 +122,13 @@ int main( int argc, const char* argv[] ) {
                     };
                     current_pragma_line_no = line_no;
                     input_pragma = current_line;
-                    /*
-                    if (is_fortran) {
-                        std::transform(current_line.begin(), current_line.end(), current_line.begin(), ::tolower);
-                    };
-                    */
                     OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), NULL);
                     output_pragma = test(openMPAST);
-                    output_file << filename_string.c_str() << " | ` " << current_line.c_str() << " ` | ` " << output_pragma.c_str() << " ` | true \n"; 
+                    if (output_pragma.size() == 0) {
+                        pass = "false";
+                    };
+                    output_file << filename_string.c_str() << " | ` " << current_line.c_str() << " ` | ` " << output_pragma.c_str() << " ` | " << pass.c_str() << "\n"; 
+                    pass = "true";
                     is_fortran = false;
                 }
                 else if (current_line.substr(0, 6) == "PASS: ") {
