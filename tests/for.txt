@@ -20,11 +20,17 @@ PASS: #pragma omp for linear (a, b, c:2)
 #pragma omp for linear(val(a,b,c):2)
 PASS: #pragma omp for linear (val( a, b, c) :2)
 
+#pragma omp for linear(a)
+PASS: #pragma omp for linear (a)
+
 #pragma omp for reduction(task,max:a,b,c)
 PASS: #pragma omp for reduction (task, max : a, b, c)
 
 #pragma omp for schedule(monotonic,simd:runtime,2)
 PASS: #pragma omp for schedule (monotonic,simd:runtime, 2)
+
+#pragma omp for schedule(runtime,2)
+PASS: #pragma omp for schedule (runtime, 2)
 
 #pragma omp for collapse(a)
 PASS: #pragma omp for collapse (a)

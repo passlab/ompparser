@@ -980,6 +980,7 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_master:
             result += "master ";
+            break;
         case OMPD_threadprivate:
             result += "threadprivate ";
             break;
@@ -2681,7 +2682,7 @@ std::string OpenMPLinearClause::toString() {
     if (clause_string.size() > 1) {
         clause_string += "( ";
     };
-   clause_string += this->expressionToString();
+    clause_string += this->expressionToString();
     if (flag == true) {
         clause_string += ") ";
     };
@@ -2689,12 +2690,8 @@ std::string OpenMPLinearClause::toString() {
         clause_string += ":";
         clause_string += this->getUserDefinedStep();
     }
-    if (clause_string.size() > 2) {
-        clause_string += ") ";
-    };
-    if (clause_string.size() > 3) {
-        result += clause_string;
-    };
+    clause_string += ") ";
+    result += clause_string;
     return result;
 };
 
@@ -2764,7 +2761,9 @@ std::string OpenMPScheduleClause::toString() {
         default:
             ;
     }
-    clause_string += ":";  
+    if (clause_string.size() > 1){
+        clause_string += ":"; 
+    }
     switch (kind) {
         case OMPC_SCHEDULE_KIND_static:
             clause_string += "static";
