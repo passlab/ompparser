@@ -11,6 +11,9 @@ PASS: #pragma omp sections private (a, b, c)
 #pragma omp sections firstprivate(a,b,c)
 PASS: #pragma omp sections firstprivate (a, b, c)
 
+#pragma omp sections firstprivate( ection_count )
+PASS: #pragma omp sections firstprivate (ection_count)
+
 #pragma omp sections lastprivate(conditional:a,b,c)
 PASS: #pragma omp sections lastprivate (conditional: a, b, c)
 
