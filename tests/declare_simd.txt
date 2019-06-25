@@ -23,6 +23,10 @@ PASS: #pragma omp declare simd inbranch
 #pragma omp declare simd notinbranch
 PASS: #pragma omp declare simd notinbranch
 
+#pragma omp declare simd uniform(i) linear(k) notinbranch
+PASS: #pragma omp declare simd linear (k) uniform (i) notinbranch
+
+
 // invalid test without paired validation.
 
 #pragma omp declare simd safelen
