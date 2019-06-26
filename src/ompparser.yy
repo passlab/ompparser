@@ -694,7 +694,7 @@ taskloop_clause : if_taskloop_clause
                 | private_clause
                 | firstprivate_clause
                 | lastprivate_clause
-                | reduction_clause
+                | loop_reduction_clause
                 | in_reduction_clause
                 | default_clause
                 | grainsize_clause
