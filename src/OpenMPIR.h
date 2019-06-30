@@ -778,8 +778,6 @@ public:
     OpenMPMapClause() : OpenMPClause(OMPC_map) { }
 
     OpenMPMapClause(OpenMPMapClauseModifier _modifier1, OpenMPMapClauseModifier _modifier2, OpenMPMapClauseModifier _modifier3, OpenMPMapClauseType _type, std::string _mapper_identifier) : OpenMPClause(OMPC_map), modifier1(_modifier1), modifier2(_modifier2), modifier3(_modifier3),  type(_type), mapper_identifier (_mapper_identifier) { };
-
-
                           
     OpenMPMapClauseModifier getModifier1() { return modifier1; };
     OpenMPMapClauseModifier getModifier2() { return modifier2; };

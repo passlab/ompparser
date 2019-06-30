@@ -993,7 +993,7 @@ uses_allocators_parameter : allocators_list
                           | allocators_list ','uses_allocators_parameter
                           ;
 allocators_list : allocators_list_parameter
-                |allocators_list_parameter '(' EXPR_STRING ')'
+                | allocators_list_parameter '(' EXPR_STRING ')'
                 ;
 
 allocators_list_parameter : DEFAULT_MEM_ALLOC      
@@ -1037,9 +1037,9 @@ device_type_parameter : HOST { current_clause = current_directive->addOpenMPClau
 
 map_clause : MAP { firstParameter = OMPC_MAP_MODIFIER_unknown; secondParameter = OMPC_MAP_MODIFIER_unknown; thirdParameter = OMPC_MAP_MODIFIER_unknown; }'(' map_parameter')';
 
-map_parameter : EXPR_STRING { current_clause = current_directive->addOpenMPClause(OMPC_map); current_clause->addLangExpr($1); }
-              | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_map); current_clause->addLangExpr($1); } var_list
-              | map_modifier_type ':' var_list
+map_parameter : EXPR_STRING { std::cout << "test"<< "\n"; std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); }
+              | EXPR_STRING ',' { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); } var_list
+              | map_modifier_type{std::cout << "test2"<< "\n";} ':' var_list
               ;
 map_modifier_type : map_type
                   | map_modifier1 map_type
