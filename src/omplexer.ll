@@ -731,6 +731,7 @@ threads                   { return THREADS; }
 <MAP_STATE>release/{blank}*:                 { return MAP_TYPE_RELEASE; }
 <MAP_STATE>delete                            { return MAP_TYPE_DELETE; }
 <MAP_STATE>{blank}*                          { ; }
+<MAP_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <MAP_MAPPER_STATE>"("                        { return '('; }
 <MAP_MAPPER_STATE>")"                        { yy_pop_state(); return ')'; }
