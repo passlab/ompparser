@@ -872,7 +872,7 @@ depend_ordered_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; 
 dependence_ordered_parameter : dependence_ordered_type
                              ;
 dependence_ordered_type :  SOURCE { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_source, depend_iterators_definition_class); }
-                        | SINK { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_sink, depend_iterators_definition_class); } ':' EXPR_STRING{ std::cout << $4 << "\n"; ((OpenMPDependClause*)current_clause)->addDependenceVector($4); }
+                        | SINK { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_sink, depend_iterators_definition_class); } ':' var_list
                         ;
 
 priority_clause: PRIORITY {
@@ -1037,9 +1037,9 @@ device_type_parameter : HOST { current_clause = current_directive->addOpenMPClau
 
 map_clause : MAP { firstParameter = OMPC_MAP_MODIFIER_unknown; secondParameter = OMPC_MAP_MODIFIER_unknown; thirdParameter = OMPC_MAP_MODIFIER_unknown; }'(' map_parameter')';
 
-map_parameter : EXPR_STRING { std::cout << "test"<< "\n"; std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); }
-              | EXPR_STRING ',' { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); } var_list
-              | map_modifier_type{std::cout << "test2"<< "\n";} ':' var_list
+map_parameter : EXPR_STRING { std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); }
+              | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); } var_list
+              | map_modifier_type ':' var_list
               ;
 map_modifier_type : map_type
                   | map_modifier1 map_type
