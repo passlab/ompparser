@@ -22,26 +22,26 @@ Example_affinity.6.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_affinity.6.f90 | ` !$omp parallel num_threads(n_sockets) private(socket_num) & ` | `  ` | false
 Example_affinity.6.f90 | ` !$omp&         proc_bind(spread) ` | `  ` | false
 Example_affinity.6.f90 | ` end program ` | `  ` | false
-Example_array_sections.1.c | ` #pragma omp target data map( A[0:4] ) ` | `  ` | false
-Example_array_sections.1.c | ` #pragma omp target map( A[7:20] ) ` | `  ` | false
+Example_array_sections.1.c | ` #pragma omp target data map( A[0:4] ) ` | ` #pragma omp target data map (A[0:4]) ` | true
+Example_array_sections.1.c | ` #pragma omp target map( A[7:20] ) ` | ` #pragma omp target map (A[7:20]) ` | true
 Example_array_sections.1.f90 | ` !$omp target data map( A(1:4) ) ` | `  ` | false
 Example_array_sections.1.f90 | ` !$omp target map( A(8:27) ) ` | `  ` | false
 Example_array_sections.1.f90 | ` !$omp end target ` | `  ` | false
 Example_array_sections.1.f90 | ` !$omp end target data ` | `  ` | false
-Example_array_sections.2.c | ` #pragma omp target data map( A[0:4] ) ` | `  ` | false
-Example_array_sections.2.c | ` #pragma omp target map( p[3:20] ) ` | `  ` | false
+Example_array_sections.2.c | ` #pragma omp target data map( A[0:4] ) ` | ` #pragma omp target data map (A[0:4]) ` | true
+Example_array_sections.2.c | ` #pragma omp target map( p[3:20] ) ` | ` #pragma omp target map (p[3:20]) ` | true
 Example_array_sections.2.f90 | ` !$omp target data map( A(1:4) ) ` | `  ` | false
 Example_array_sections.2.f90 | ` !$omp target map( p(4:23) ) ` | `  ` | false
 Example_array_sections.2.f90 | ` !$omp end target ` | `  ` | false
 Example_array_sections.2.f90 | ` !$omp end target data ` | `  ` | false
-Example_array_sections.3.c | ` #pragma omp target data map( A[0:4] ) ` | `  ` | false
-Example_array_sections.3.c | ` #pragma omp target map( p[7:20] ) ` | `  ` | false
+Example_array_sections.3.c | ` #pragma omp target data map( A[0:4] ) ` | ` #pragma omp target data map (A[0:4]) ` | true
+Example_array_sections.3.c | ` #pragma omp target map( p[7:20] ) ` | ` #pragma omp target map (p[7:20]) ` | true
 Example_array_sections.3.f90 | ` !$omp target data map( A(1:4) ) ` | `  ` | false
 Example_array_sections.3.f90 | ` !$omp target map( p(8:27) ) ` | `  ` | false
 Example_array_sections.3.f90 | ` !$omp end target ` | `  ` | false
 Example_array_sections.3.f90 | ` !$omp end target data ` | `  ` | false
-Example_array_sections.4.c | ` #pragma omp target data map( A[0:10] ) ` | `  ` | false
-Example_array_sections.4.c | ` #pragma omp target map( p[3:7] ) ` | `  ` | false
+Example_array_sections.4.c | ` #pragma omp target data map( A[0:10] ) ` | ` #pragma omp target data map (A[0:10]) ` | true
+Example_array_sections.4.c | ` #pragma omp target map( p[3:7] ) ` | ` #pragma omp target map (p[3:7]) ` | true
 Example_array_sections.4.f90 | ` !$omp target data map( A(1:10) ) ` | `  ` | false
 Example_array_sections.4.f90 | ` !$omp target map( p(4:10) ) ` | `  ` | false
 Example_array_sections.4.f90 | ` !$omp end target ` | `  ` | false
@@ -55,7 +55,7 @@ Example_associate.3.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | tru
 Example_async_target.1.c | ` #pragma omp declare target ` | ` #pragma omp declare target  ` | true
 Example_async_target.1.c | ` #pragma omp end declare target ` | ` #pragma omp end declare target  ` | true
 Example_async_target.1.c | ` #pragma omp task shared(Z) ` | ` #pragma omp task shared (Z) ` | true
-Example_async_target.1.c | ` #pragma omp target map(Z[C:CHUNKSZ]) ` | `  ` | false
+Example_async_target.1.c | ` #pragma omp target map(Z[C:CHUNKSZ]) ` | ` #pragma omp target map (Z[C:CHUNKSZ]) ` | true
 Example_async_target.1.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_async_target.1.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_async_target.1.f90 | ` !$omp declare target ` | ` !$omp declare target  ` | true
@@ -68,13 +68,13 @@ Example_async_target.1.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_async_target.2.c | ` #pragma omp declare target ` | ` #pragma omp declare target  ` | true
 Example_async_target.2.c | ` #pragma omp end declare target ` | ` #pragma omp end declare target  ` | true
 Example_async_target.2.c | ` #pragma omp task shared(v1, v2) depend(out: v1, v2) ` | ` #pragma omp task shared (v1, v2) depend (out : v1, v2) ` | true
-Example_async_target.2.c | ` #pragma omp target device(dev) map(v1, v2) ` | `  ` | false
+Example_async_target.2.c | ` #pragma omp target device(dev) map(v1, v2) ` | ` #pragma omp target device (dev) map (v1, v2) ` | true
 Example_async_target.2.c | ` #pragma omp task shared(v1, v2, p) depend(in: v1, v2) ` | ` #pragma omp task shared (v1, v2, p) depend (in : v1, v2) ` | true
 Example_async_target.2.c | ` #pragma omp target device(dev) map(to: v1, v2) map(from: p[0:N]) ` | ` #pragma omp target device (dev) map ( to : v1, v2) map ( from : p[0:N]) ` | true
 Example_async_target.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
 Example_async_target.2.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_async_target.2.f90 | ` !$omp declare target (init) ` | ` !$omp declare target (init)  ` | true
-Example_async_target.2.f90 | ` !$omp target data map(v1,v2) ` | `  ` | false
+Example_async_target.2.f90 | ` !$omp target data map(v1,v2) ` | ` !$omp target data map (v1, v2) ` | true
 Example_async_target.2.f90 | ` !$omp task shared(v1,v2) depend(out: N) ` | ` !$omp task shared (v1, v2) depend (out : n) ` | true
 Example_async_target.2.f90 | ` !$omp target device(idev) ` | ` !$omp target device (idev) ` | true
 Example_async_target.2.f90 | ` !$omp end target ` | `  ` | false
@@ -85,11 +85,11 @@ Example_async_target.2.f90 | ` !$omp parallel do ` | `  ` | false
 Example_async_target.2.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_async_target.2.f90 | ` !$omp end target data ` | `  ` | false
 Example_async_target.3.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_async_target.3.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_async_target.3.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_async_target.3.c | ` #pragma omp target teams distribute parallel for nowait \ ` | ` #pragma omp target teams distribute parallel for nowait ` | true
-Example_async_target.3.c | ` #pragma omp for schedule(dynamic,chunk) ` | ` #pragma omp for schedule (:dynamic, chunk) ` | true
+Example_async_target.3.c | ` #pragma omp for schedule(dynamic,chunk) ` | ` #pragma omp for schedule (dynamic, chunk) ` | true
 Example_async_target.3.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
-Example_async_target.3.f90 | ` !$omp master ` | ` !$omp master threadprivate  ` | true
+Example_async_target.3.f90 | ` !$omp master ` | ` !$omp master  ` | true
 Example_async_target.3.f90 | ` !$omp target teams distribute parallel do nowait & ` | `  ` | false
 Example_async_target.3.f90 | ` !$omp&                    map(to: v1(1:n/2))   & ` | `  ` | false
 Example_async_target.3.f90 | ` !$omp&                    map(to: v2(1:n/2))   &  ` | `  ` | false
@@ -174,7 +174,7 @@ Example_cancellation.2.c | ` #pragma omp atomic write ` | ` #pragma omp atomic w
 Example_cancellation.2.c | ` #pragma omp cancel taskgroup ` | ` #pragma omp cancel taskgroup ` | true
 Example_cancellation.2.c | ` #pragma omp taskwait ` | ` #pragma omp taskwait  ` | true
 Example_cancellation.2.c | ` #pragma omp parallel shared(found, tree, value) ` | ` #pragma omp parallel shared (found, tree, value) ` | true
-Example_cancellation.2.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_cancellation.2.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_cancellation.2.c | ` #pragma omp taskgroup ` | ` #pragma omp taskgroup  ` | true
 Example_cancellation.2.f90 | ` !$omp task shared(found) if(level<10) ` | ` !$omp task if (level<10) shared (found) ` | true
 Example_cancellation.2.f90 | ` !$omp critical ` | ` !$omp critical  ` | true
@@ -186,7 +186,7 @@ Example_cancellation.2.f90 | ` found => found_right ` | `  ` | false
 Example_cancellation.2.f90 | ` endif ` | `  ` | false
 Example_cancellation.2.f90 | ` !$omp taskwait ` | ` !$omp taskwait  ` | true
 Example_cancellation.2.f90 | ` !$omp parallel shared(found, tree, value) ` | ` !$omp parallel shared (found, tree, value) ` | true
-Example_cancellation.2.f90 | ` !$omp master ` | ` !$omp master threadprivate  ` | true
+Example_cancellation.2.f90 | ` !$omp master ` | ` !$omp master  ` | true
 Example_cancellation.2.f90 | ` !$omp taskgroup ` | ` !$omp taskgroup  ` | true
 Example_cancellation.2.f90 | ` !$omp end taskgroup ` | `  ` | false
 Example_cancellation.2.f90 | ` !$omp end master ` | `  ` | false
@@ -205,7 +205,7 @@ Example_collapse.2.f | ` !$omp single ` | ` !$omp single  ` | true
 Example_collapse.2.f | ` !$omp end single ` | ` !$omp end single  ` | true
 Example_collapse.2.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_collapse.3.c | ` #pragma omp parallel num_threads(2) ` | ` #pragma omp parallel num_threads (2) ` | true
-Example_collapse.3.c | ` #pragma omp for collapse(2) ordered private(j,k) schedule(static,3) ` | ` #pragma omp for private (j, k) collapse (2) ordered schedule (:static, 3) ` | true
+Example_collapse.3.c | ` #pragma omp for collapse(2) ordered private(j,k) schedule(static,3) ` | ` #pragma omp for private (j, k) collapse (2) ordered schedule (static, 3) ` | true
 Example_collapse.3.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
 Example_collapse.3.f | ` !$omp parallel num_threads(2) ` | ` !$omp parallel num_threads (2) ` | true
 Example_collapse.3.f | ` !$omp do collapse(2) ordered private(j,k) schedule(static,3) ` | `  ` | false
@@ -224,12 +224,12 @@ Example_copyprivate.1.f | ` !$OMP   THREADPRIVATE (/XY/) ` | `  ` | false
 Example_copyprivate.1.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
 Example_copyprivate.1.f | ` !$OMP   END SINGLE COPYPRIVATE (A,B,/XY/) ` | ` !$omp end single copyprivate (a, b, /xy/) ` | true
 Example_copyprivate.2.c | ` #pragma omp single copyprivate(tmp) ` | ` #pragma omp single copyprivate (tmp) ` | true
-Example_copyprivate.2.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_copyprivate.2.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_copyprivate.2.c | ` #pragma omp barrier ` | ` #pragma omp barrier  ` | true
 Example_copyprivate.2.c | ` #pragma omp single nowait ` | ` #pragma omp single nowait ` | true
 Example_copyprivate.2.f | ` !$OMP   SINGLE ` | ` !$omp single  ` | true
 Example_copyprivate.2.f | ` !$OMP   END SINGLE COPYPRIVATE (TMP)  ! copies the pointer only ` | `  ` | false
-Example_copyprivate.2.f | ` !$OMP   MASTER ` | ` !$omp master threadprivate  ` | true
+Example_copyprivate.2.f | ` !$OMP   MASTER ` | ` !$omp master  ` | true
 Example_copyprivate.2.f | ` !$OMP   END MASTER ` | `  ` | false
 Example_copyprivate.2.f | ` !$OMP   BARRIER ` | ` !$omp barrier  ` | true
 Example_copyprivate.2.f | ` DEALLOCATE (TMP) ` | `  ` | false
@@ -298,13 +298,13 @@ Example_declare_target.4.f90 | ` !$omp target map(tofrom: tmp) ` | ` !$omp targe
 Example_declare_target.4.f90 | ` !$omp parallel do reduction(+:tmp) ` | `  ` | false
 Example_declare_target.4.f90 | ` !$omp end target ` | `  ` | false
 Example_declare_target.5.c | ` #pragma omp declare target ` | ` #pragma omp declare target  ` | true
-Example_declare_target.5.c | ` #pragma omp declare simd uniform(i) linear(k) notinbranch ` | ` #pragma omp declare simd linear uniform (i) notinbranch ` | true
+Example_declare_target.5.c | ` #pragma omp declare simd uniform(i) linear(k) notinbranch ` | ` #pragma omp declare simd linear (k) uniform (i) notinbranch ` | true
 Example_declare_target.5.c | ` #pragma omp end declare target ` | ` #pragma omp end declare target  ` | true
 Example_declare_target.5.c | ` #pragma omp target map(tofrom: tmp) ` | ` #pragma omp target map ( tofrom : tmp) ` | true
 Example_declare_target.5.c | ` #pragma omp parallel for reduction(+:tmp) ` | ` #pragma omp parallel for reduction (+ : tmp) ` | true
 Example_declare_target.5.c | ` #pragma omp simd reduction(+:tmp1) ` | ` #pragma omp simd reduction (+ : tmp1) ` | true
 Example_declare_target.5.f90 | ` !$omp declare target (N,Q) ` | ` !$omp declare target (n,q)  ` | true
-Example_declare_target.5.f90 | ` !$omp declare simd uniform(i) linear(k) notinbranch ` | ` !$omp declare simd linear uniform (i) notinbranch ` | true
+Example_declare_target.5.f90 | ` !$omp declare simd uniform(i) linear(k) notinbranch ` | ` !$omp declare simd linear (k) uniform (i) notinbranch ` | true
 Example_declare_target.5.f90 | ` !$omp declare target ` | ` !$omp declare target  ` | true
 Example_declare_target.5.f90 | ` !$omp target map(tofrom: tmp) ` | ` !$omp target map ( tofrom : tmp) ` | true
 Example_declare_target.5.f90 | ` !$omp parallel do private(tmp1) reduction(+:tmp) ` | `  ` | false
@@ -335,11 +335,11 @@ Example_default_none.1.f | ` !$OMP DO firstprivate(y) ` | `  ` | false
 Example_default_none.1.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_device.1.c | ` #pragma omp declare target ` | ` #pragma omp declare target  ` | true
 Example_device.1.c | ` #pragma omp end declare target ` | ` #pragma omp end declare target  ` | true
-Example_device.1.c | ` #pragma omp target device(42) map(p[:N], v1[:N], v2[:N]) ` | `  ` | false
+Example_device.1.c | ` #pragma omp target device(42) map(p[:N], v1[:N], v2[:N]) ` | ` #pragma omp target device (42) map (p[:N], v1[:N], v2[:N]) ` | true
 Example_device.1.c | ` #pragma omp parallel for private(i) num_threads(nthreads) ` | ` #pragma omp parallel for num_threads (nthreads) private (i) ` | true
 Example_device.1.f90 | ` !$omp declare target ` | ` !$omp declare target  ` | true
 Example_device.1.f90 | ` !$omp parallel do private(i) num_threads(nthreads) ` | `  ` | false
-Example_device.1.f90 | ` !$omp target device(42) map(p, v1, v2) ` | `  ` | false
+Example_device.1.f90 | ` !$omp target device(42) map(p, v1, v2) ` | ` !$omp target device (42) map (p, v1, v2) ` | true
 Example_device.1.f90 | ` !$omp end target ` | `  ` | false
 Example_device.2.c | ` #pragma omp target if(do_offload) map(to: v1[0:N], v2[:N]) map(from: p[0:N]) ` | ` #pragma omp target if (do_offload) map ( to : v1[0:N], v2[:N]) map ( from : p[0:N]) ` | true
 Example_device.2.c | ` #pragma omp parallel for if(N>1000) private(i) ` | ` #pragma omp parallel for if (N>1000) private (i) ` | true
@@ -355,22 +355,22 @@ Example_doacross.1.f90 | ` !$omp do ordered(1) ` | `  ` | false
 Example_doacross.1.f90 | ` !$omp ordered depend(sink: i-1) ` | ` !$omp ordered depend (sink : i-1) ` | true
 Example_doacross.1.f90 | ` !$omp ordered depend(source) ` | ` !$omp ordered depend (source) ` | true
 Example_doacross.2.c | ` #pragma omp for ordered(2) ` | ` #pragma omp for ordered (2) ` | true
-Example_doacross.2.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i,j-1) ` | `  ` | false
+Example_doacross.2.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i,j-1) ` | ` #pragma omp ordered depend (sink : i-1, j, i, j-1) ` | true
 Example_doacross.2.c | ` #pragma omp ordered depend(source) ` | ` #pragma omp ordered depend (source) ` | true
 Example_doacross.2.f90 | ` !$omp do ordered(2) ` | `  ` | false
-Example_doacross.2.f90 | ` !$omp ordered depend(sink: j-1,i) depend(sink: j,i-1) ` | `  ` | false
+Example_doacross.2.f90 | ` !$omp ordered depend(sink: j-1,i) depend(sink: j,i-1) ` | ` !$omp ordered depend (sink : j-1, i, j, i-1) ` | true
 Example_doacross.2.f90 | ` !$omp ordered depend(source) ` | ` !$omp ordered depend (source) ` | true
 Example_doacross.3.c | ` #pragma omp parallel for ordered(2) private(i,j,k) ` | ` #pragma omp parallel for private (i, j, k) ordered (2) ` | true
-Example_doacross.3.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i+1,j) \ ` | `  ` | false
+Example_doacross.3.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i+1,j) \ ` | ` #pragma omp ordered depend (sink : i-1, j, i+1) ` | true
 Example_doacross.3.f90 | ` !$omp parallel do ordered(2) private(i,j,k,tmp1,tmp2,tmp3) ` | `  ` | false
 Example_doacross.3.f90 | ` !$omp ordered depend(sink: i-1,j) depend(sink: i+1,j) & ` | `  ` | false
 Example_doacross.3.f90 | ` !$omp&        depend(sink: i,j-1) depend(sink: i,j+1) ` | `  ` | false
 Example_doacross.4.c | ` #pragma omp for collapse(2) ordered(2) ` | ` #pragma omp for collapse (2) ordered (2) ` | true
 Example_doacross.4.c | ` #pragma omp ordered depend(source) ` | ` #pragma omp ordered depend (source) ` | true
-Example_doacross.4.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i,j-1) ` | `  ` | false
+Example_doacross.4.c | ` #pragma omp ordered depend(sink: i-1,j) depend(sink: i,j-1) ` | ` #pragma omp ordered depend (sink : i-1, j, i, j-1) ` | true
 Example_doacross.4.f90 | ` !$omp do collapse(2) ordered(2) ` | `  ` | false
 Example_doacross.4.f90 | ` !$omp ordered depend(source) ` | ` !$omp ordered depend (source) ` | true
-Example_doacross.4.f90 | ` !$omp ordered depend(sink: j,i-1) depend(sink: j-1,i) ` | `  ` | false
+Example_doacross.4.f90 | ` !$omp ordered depend(sink: j,i-1) depend(sink: j-1,i) ` | ` !$omp ordered depend (sink : j, i-1, j-1, i) ` | true
 Example_doacross.5.c | ` #pragma omp for ordered(1) ` | ` #pragma omp for ordered (1) ` | true
 Example_doacross.5.c | ` #pragma omp ordered depend(sink: i-1) ` | ` #pragma omp ordered depend (sink : i-1) ` | true
 Example_doacross.5.c | ` #pragma omp ordered depend(source) ` | ` #pragma omp ordered depend (source) ` | true
@@ -413,7 +413,7 @@ Example_fort_sa_private.3.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  `
 Example_fort_sa_private.4.f | ` !$OMP PARALLEL DO DEFAULT(PRIVATE) PRIVATE(I,J) LASTPRIVATE(A) ` | `  ` | false
 Example_fort_sa_private.4.f | ` !$OMP END PARALLEL DO       ! The LASTPRIVATE write for A has ` | `  ` | false
 Example_fort_sa_private.5.f | ` !$OMP   PARALLEL PRIVATE(/BLOCK5/) ` | `  ` | false
-Example_fort_sa_private.5.f | ` !$OMP     MASTER ` | ` !$omp master threadprivate  ` | true
+Example_fort_sa_private.5.f | ` !$OMP     MASTER ` | ` !$omp master  ` | true
 Example_fort_sa_private.5.f | ` !$OMP     END MASTER ` | `  ` | false
 Example_fort_sa_private.5.f | ` !$OMP   END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_fort_sp_common.1.f | ` !$OMP   PARALLEL PRIVATE (/C/) ` | `  ` | false
@@ -442,7 +442,7 @@ Example_fpriv_sections.1.f90 | ` !$omp section ` | ` !$omp section  ` | true
 Example_fpriv_sections.1.f90 | ` section_count = section_count + 1 ` | `  ` | false
 Example_fpriv_sections.1.f90 | ` !$omp end sections ` | ` !$omp end sections  ` | true
 Example_fpriv_sections.1.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
-Example_get_nthrs.1.c | ` #pragma omp parallel for schedule(static) ` | ` #pragma omp parallel for schedule (:static) ` | true
+Example_get_nthrs.1.c | ` #pragma omp parallel for schedule(static) ` | ` #pragma omp parallel for schedule (static) ` | true
 Example_get_nthrs.1.f | ` !$OMP   PARALLEL DO SCHEDULE(STATIC) ` | `  ` | false
 Example_get_nthrs.1.f | ` !$OMP   END PARALLEL DO ` | `  ` | false
 Example_get_nthrs.2.c | ` #pragma omp parallel private(i) ` | ` #pragma omp parallel private (i) ` | true
@@ -476,22 +476,22 @@ Example_linear_in_loop.1.f90 | ` !$omp parallel ` | ` !$omp parallel  ` | true
 Example_linear_in_loop.1.f90 | ` !$omp do linear(j:1) ` | `  ` | false
 Example_linear_in_loop.1.f90 | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_lock_owner.1.c | ` #pragma omp parallel shared (x) ` | ` #pragma omp parallel shared (x) ` | true
-Example_lock_owner.1.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_lock_owner.1.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_lock_owner.1.f | ` !$omp parallel shared (x) ` | ` !$omp parallel shared (x) ` | true
-Example_lock_owner.1.f | ` !$omp master ` | ` !$omp master threadprivate  ` | true
+Example_lock_owner.1.f | ` !$omp master ` | ` !$omp master  ` | true
 Example_lock_owner.1.f | ` !$omp end master ` | `  ` | false
 Example_lock_owner.1.f | ` !$omp end parallel ` | ` !$omp end parallel  ` | true
 Example_master.1.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
 Example_master.1.c | ` #pragma omp for private(i) ` | ` #pragma omp for private (i) ` | true
 Example_master.1.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_master.1.c | ` #pragma omp for private(i,y,error) reduction(+:toobig) ` | ` #pragma omp for private (i, y, error) reduction (+ : toobig) ` | true
-Example_master.1.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_master.1.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_master.1.f | ` !$OMP PARALLEL ` | ` !$omp parallel  ` | true
 Example_master.1.f | ` !$OMP     DO PRIVATE(I) ` | `  ` | false
 Example_master.1.f | ` !$OMP     SINGLE ` | ` !$omp single  ` | true
 Example_master.1.f | ` !$OMP     END SINGLE ` | ` !$omp end single  ` | true
 Example_master.1.f | ` !$OMP     DO PRIVATE(I,Y,ERROR), REDUCTION(+:TOOBIG) ` | `  ` | false
-Example_master.1.f | ` !$OMP     MASTER ` | ` !$omp master threadprivate  ` | true
+Example_master.1.f | ` !$OMP     MASTER ` | ` !$omp master  ` | true
 Example_master.1.f | ` !$OMP     END MASTER ` | `  ` | false
 Example_master.1.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_mem_model.1.c | ` #pragma omp parallel num_threads(2) shared(x) ` | ` #pragma omp parallel num_threads (2) shared (x) ` | true
@@ -593,7 +593,7 @@ Example_nowait.1.f | ` !$OMP END DO NOWAIT ` | `  ` | false
 Example_nowait.1.f | ` DO I=1,M ` | `  ` | false
 Example_nowait.1.f | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_nowait.2.c | ` #pragma omp parallel ` | ` #pragma omp parallel  ` | true
-Example_nowait.2.c | ` #pragma omp for schedule(static) nowait ` | ` #pragma omp for nowait schedule (:static) ` | true
+Example_nowait.2.c | ` #pragma omp for schedule(static) nowait ` | ` #pragma omp for nowait schedule (static) ` | true
 Example_nowait.2.f90 | ` !$OMP PARALLEL ` | ` !$omp parallel  ` | true
 Example_nowait.2.f90 | ` !$OMP DO SCHEDULE(STATIC) ` | `  ` | false
 Example_nowait.2.f90 | ` !$OMP END DO NOWAIT ` | `  ` | false
@@ -618,7 +618,7 @@ Example_nthrs_nesting.1.f | ` ! Even if OMP_NUM_THREADS=2,3 was set, the followi
 Example_nthrs_nesting.1.f | ` ! If OMP_NUM_THREADS=2,3 was set, the following should print: ` | `  ` | false
 Example_nthrs_nesting.1.f | ` end ` | `  ` | false
 Example_ordered.1.c | ` #pragma omp ordered ` | ` #pragma omp ordered  ` | true
-Example_ordered.1.c | ` #pragma omp parallel for ordered schedule(dynamic) ` | ` #pragma omp parallel for ordered schedule (:dynamic) ` | true
+Example_ordered.1.c | ` #pragma omp parallel for ordered schedule(dynamic) ` | ` #pragma omp parallel for ordered schedule (dynamic) ` | true
 Example_ordered.1.f | ` !$OMP ORDERED ` | ` !$omp ordered  ` | true
 Example_ordered.1.f | ` !$OMP END ORDERED ` | `  ` | false
 Example_ordered.1.f | ` !$OMP PARALLEL DO ORDERED SCHEDULE(DYNAMIC) ` | `  ` | false
@@ -676,18 +676,18 @@ Example_reduction.2.f90 | ` !$OMP CRITICAL ` | ` !$omp critical  ` | true
 Example_reduction.2.f90 | ` !$OMP END CRITICAL ` | `  ` | false
 Example_reduction.2.f90 | ` !$OMP END PARALLEL ` | ` !$omp end parallel  ` | true
 Example_reduction.3.c | ` #pragma omp parallel shared(a) private(i) ` | ` #pragma omp parallel private (i) shared (a) ` | true
-Example_reduction.3.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_reduction.3.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_reduction.3.c | ` #pragma omp for reduction(+:a) ` | ` #pragma omp for reduction (+ : a) ` | true
 Example_reduction.3.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_reduction.3.f90 | ` !$OMP PARALLEL DO REDUCTION(MAX: M) ` | `  ` | false
 Example_reduction.4.f90 | ` !$OMP PARALLEL DO REDUCTION(REN: N)     ! still does MAX ` | `  ` | false
 Example_reduction.5.f90 | ` !$OMP PARALLEL DO REDUCTION(MIN: R)     ! still does MAX ` | `  ` | false
 Example_reduction.6.c | ` #pragma omp parallel shared(a) private(i) ` | ` #pragma omp parallel private (i) shared (a) ` | true
-Example_reduction.6.c | ` #pragma omp master ` | ` #pragma omp master threadprivate  ` | true
+Example_reduction.6.c | ` #pragma omp master ` | ` #pragma omp master  ` | true
 Example_reduction.6.c | ` #pragma omp for reduction(+:a) ` | ` #pragma omp for reduction (+ : a) ` | true
 Example_reduction.6.c | ` #pragma omp single ` | ` #pragma omp single  ` | true
 Example_reduction.6.f | ` !$OMP PARALLEL SHARED(A) PRIVATE(I) ` | ` !$omp parallel private (i) shared (a) ` | true
-Example_reduction.6.f | ` !$OMP MASTER ` | ` !$omp master threadprivate  ` | true
+Example_reduction.6.f | ` !$OMP MASTER ` | ` !$omp master  ` | true
 Example_reduction.6.f | ` !$OMP END MASTER ` | `  ` | false
 Example_reduction.6.f | ` !$OMP DO REDUCTION(+:A) ` | `  ` | false
 Example_reduction.6.f | ` !$OMP SINGLE ` | ` !$omp single  ` | true
@@ -762,9 +762,9 @@ Example_target.1.c | ` #pragma omp parallel for private(i) ` | ` #pragma omp par
 Example_target.1.f90 | ` !$omp target ` | ` !$omp target  ` | true
 Example_target.1.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target.1.f90 | ` !$omp end target ` | `  ` | false
-Example_target.2.c | ` #pragma omp target map(v1, v2, p) ` | `  ` | false
+Example_target.2.c | ` #pragma omp target map(v1, v2, p) ` | ` #pragma omp target map (v1, v2, p) ` | true
 Example_target.2.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
-Example_target.2.f90 | ` !$omp target map(v1,v2,p) ` | `  ` | false
+Example_target.2.f90 | ` !$omp target map(v1,v2,p) ` | ` !$omp target map (v1, v2, p) ` | true
 Example_target.2.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target.2.f90 | ` !$omp end target ` | `  ` | false
 Example_target.3.c | ` #pragma omp target map(to: v1, v2) map(from: p) ` | ` #pragma omp target map ( to : v1, v2) map ( from : p) ` | true
@@ -807,12 +807,12 @@ Example_target_data.2.f90 | ` !$omp parallel do ` | `  ` | false
 Example_target_data.2.f90 | ` !$omp end target ` | `  ` | false
 Example_target_data.2.f90 | ` do i=1,N ` | `  ` | false
 Example_target_data.2.f90 | ` !$omp end target data ` | `  ` | false
-Example_target_data.3.c | ` #pragma omp target data map(Q[0:rows][0:cols]) ` | `  ` | false
+Example_target_data.3.c | ` #pragma omp target data map(Q[0:rows][0:cols]) ` | ` #pragma omp target data map (Q[0:rows][0:cols]) ` | true
 Example_target_data.3.c | ` #pragma omp target map(tofrom: tmp) ` | ` #pragma omp target map ( tofrom : tmp) ` | true
 Example_target_data.3.c | ` #pragma omp parallel for reduction(+:tmp) ` | ` #pragma omp parallel for reduction (+ : tmp) ` | true
 Example_target_data.3.c | ` #pragma omp target ` | ` #pragma omp target  ` | true
 Example_target_data.3.c | ` #pragma omp parallel for ` | ` #pragma omp parallel for  ` | true
-Example_target_data.3.f90 | ` !$omp target data map(Q) ` | `  ` | false
+Example_target_data.3.f90 | ` !$omp target data map(Q) ` | ` !$omp target data map (q) ` | true
 Example_target_data.3.f90 | ` !$omp target map(tofrom: tmp) ` | ` !$omp target map ( tofrom : tmp) ` | true
 Example_target_data.3.f90 | ` !$omp parallel do reduction(+:tmp) ` | `  ` | false
 Example_target_data.3.f90 | ` !$omp end target ` | `  ` | false
