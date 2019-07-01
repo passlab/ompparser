@@ -1,0 +1,52 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp distribute private(a,b,c)
+PASS: !$omp distribute private (a, b, c)
+
+!$omp distribute firstprivate(a,b,c)
+PASS: !$omp distribute firstprivate (a, b, c)
+
+!$omp distribute lastprivate(conditional:a,b,c)
+PASS: !$omp distribute lastprivate (conditional: a, b, c)
+
+!$omp distribute collapse(a)
+PASS: !$omp distribute collapse (a)
+
+!$omp distribute allocate(a,b,c)
+PASS: !$omp distribute allocate (a, b, c)
+
+!$omp distribute allocate(omp_allocator_handle_t:a,b,c)
+PASS: !$omp distribute allocate (omp_allocator_handle_t: a, b, c)
+
+!$omp distribute allocate(omp_default_mem_alloc:a,b,c)
+PASS: !$omp distribute allocate (omp_default_mem_alloc: a, b, c)
+
+!$omp distribute dist_schedule(static,2)
+PASS: !$omp distribute dist_schedule (static, 2)
+
+!$omp distribute dist_schedule(static)
+PASS: !$omp distribute dist_schedule (static)
+
+!$omp end distribute
+PASS: !$omp end distribute 
+
+// invalid test without paired validation.
+
+!$omp distribute lastprivate(userde:a,b,c)
+
+!$omp distribute collapse
+
+!$omp distribute dist_schedule(user,2)
+
+!$omp end distribute private(a,b,c)
+
+
+
+
+
+

@@ -1,0 +1,98 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp distribute simd if(a)
+PASS: !$omp distribute simd if (a)
+
+!$omp distribute simd if(simd:a)
+PASS: !$omp distribute simd if (simd: a)
+
+!$omp distribute simd safelen(4)
+PASS: !$omp distribute simd safelen (4)
+
+!$omp distribute simd simdlen(4)
+PASS: !$omp distribute simd simdlen (4)
+
+!$omp distribute simd private(a,b,c)
+PASS: !$omp distribute simd private (a, b, c)
+
+!$omp distribute simd firstprivate(a,b,c)
+PASS: !$omp distribute simd firstprivate (a, b, c)
+
+!$omp distribute simd lastprivate(conditional:a,b,c)
+PASS: !$omp distribute simd lastprivate (conditional: a, b, c)
+
+!$omp distribute simd collapse(a)
+PASS: !$omp distribute simd collapse (a)
+
+!$omp distribute simd allocate(a,b,c)
+PASS: !$omp distribute simd allocate (a, b, c)
+
+!$omp distribute simd allocate(omp_allocator_handle_t:a,b,c)
+PASS: !$omp distribute simd allocate (omp_allocator_handle_t: a, b, c)
+
+!$omp distribute simd allocate(omp_default_mem_alloc:a,b,c)
+PASS: !$omp distribute simd allocate (omp_default_mem_alloc: a, b, c)
+
+!$omp distribute simd dist_schedule(static,2)
+PASS: !$omp distribute simd dist_schedule (static, 2)
+
+!$omp distribute simd dist_schedule(static)
+PASS: !$omp distribute simd dist_schedule (static)
+
+!$omp distribute simd linear(a,b,c:2)
+PASS: !$omp distribute simd linear (a, b, c:2)
+
+!$omp distribute simd aligned(*a,&b,c:2)
+PASS: !$omp distribute simd aligned (*a, &b, c:2)
+
+!$omp distribute simd reduction(task,max:a,b,c)
+PASS: !$omp distribute simd reduction (task, max : a, b, c)
+
+!$omp distribute simd nontemporal(a)
+PASS: !$omp distribute simd nontemporal (a)
+
+!$omp distribute simd collapse(a)
+PASS: !$omp distribute simd collapse (a)
+
+!$omp simd order(concurrent)
+PASS: !$omp simd order (concurrent)
+
+!$omp end simd 
+PASS: !$omp end simd 
+
+// invalid test without paired validation.
+
+!$omp distribute simd lastprivate(userde:a,b,c)
+
+!$omp distribute simd collapse
+
+!$omp distribute simd dist_schedule(user,2)
+
+!$omp distribute simd nontemporal
+
+!$omp distribute simd order
+
+!$omp distribute simd if(parallel:,b,c)
+
+!$omp distribute simd safelen
+
+!$omp distribute simd simdlen
+
+!$omp distribute simd linear
+
+!$omp distribute simd aligned
+
+!$omp distribute simd private(conditional:a,b,c)
+
+!$omp end simd order(concurrent)
+
+
+
+
+
+

@@ -26,6 +26,26 @@ PASS: #pragma omp declare simd notinbranch
 #pragma omp declare simd uniform(i) linear(k) notinbranch
 PASS: #pragma omp declare simd linear (k) uniform (i) notinbranch
 
+#pragma omp declare simd (id) simdlen(4)
+PASS: #pragma omp declare simd (id) simdlen (4)
+
+#pragma omp declare simd (user) linear(a,b,c:2)
+PASS: #pragma omp declare simd (user) linear (a, b, c:2)
+
+#pragma omp declare simd (name) aligned(*a,&b,c:2)
+PASS: #pragma omp declare simd (name) aligned (*a, &b, c:2)
+
+#pragma omp declare simd (a) uniform(*a,&b)
+PASS: #pragma omp declare simd (a) uniform (*a, &b)
+
+#pragma omp declare simd (d) inbranch
+PASS: #pragma omp declare simd (d) inbranch
+
+#pragma omp declare simd (#ljlkfds) notinbranch
+PASS: #pragma omp declare simd (#ljlkfds) notinbranch
+
+#pragma omp declare simd (tol) uniform(i) linear(k) notinbranch
+PASS: #pragma omp declare simd (tol) linear (k) uniform (i) notinbranch
 
 // invalid test without paired validation.
 
@@ -41,7 +61,7 @@ PASS: #pragma omp declare simd linear (k) uniform (i) notinbranch
 
 #pragma omp declare simd inbranch(dfa:23)
 
-#pragma omp declare simd (DFHK) inbranch(dfa:23)
+
 
 
 

@@ -766,6 +766,15 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += " )";
             break;
         }
+        case OMPD_declare_simd:{
+            std::string proc_name = ((OpenMPDeclareSimdDirective*)this)->getProcName();
+            if(proc_name != ""){
+              result += "(";
+              result += proc_name;
+              result += ") ";
+            }
+            break;
+        }
         case OMPD_end: {
             result += ((OpenMPEndDirective*)this)->getPairedDirective()->generatePragmaString("", "", "");
             break;
@@ -861,11 +870,17 @@ std::string OpenMPDirective::toString() {
         case OMPD_for:
             result += "for ";
             break;
+        case OMPD_do:
+            result += "do ";
+            break;
         case OMPD_simd:
             result += "simd ";
             break;
         case OMPD_for_simd:
             result += "for simd ";
+            break;
+        case OMPD_do_simd:
+            result += "do simd ";
             break;
         case OMPD_parallel_for_simd:
             result += "parallel for simd ";
@@ -881,12 +896,21 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_distribute_parallel_for:
             result += "distribute parallel for ";
+            break;        
+        case OMPD_distribute_parallel_do:
+            result += "distribute parallel do ";
             break;
         case OMPD_distribute_parallel_for_simd:
             result += "distribute parallel for simd ";
             break;
+        case OMPD_distribute_parallel_do_simd:
+            result += "distribute parallel do simd ";
+            break;
         case OMPD_parallel_for:
             result += "parallel for ";
+            break;
+        case OMPD_parallel_do:
+            result += "parallel do ";
             break;
         case OMPD_parallel_loop:
             result += "parallel loop ";
@@ -2959,6 +2983,9 @@ void OpenMPDirective::generateDOT() {
         case OMPD_for_simd:
                 directive_kind = "for_simd ";
                 break;
+        case OMPD_do_simd:
+                directive_kind = "do_simd ";
+                break;
         case OMPD_parallel_for_simd:
                 directive_kind = "parallel_for_simd ";
                 break;
@@ -2971,11 +2998,20 @@ void OpenMPDirective::generateDOT() {
         case OMPD_distribute_parallel_for:
                 directive_kind = "distribute_parallel_for ";
                 break;
+        case OMPD_distribute_parallel_do:
+                directive_kind = "distribute_parallel_do ";
+                break;
         case OMPD_distribute_parallel_for_simd:
                 directive_kind = "distribute_parallel_for_simd ";
                 break;
+        case OMPD_distribute_parallel_do_simd:
+                directive_kind = "distribute_parallel_do_simd ";
+                break;
         case OMPD_parallel_for:
                 directive_kind = "parallel_for ";
+                break;
+        case OMPD_parallel_do:
+                directive_kind = "parallel_do ";
                 break;
         case OMPD_parallel_loop:
                 directive_kind = "parallel_loop ";
@@ -3190,6 +3226,20 @@ void OpenMPDirective::generateDOT() {
             output << current_line.c_str();
            break;
         }
+        case OMPD_declare_simd: {
+            std::string indent = std::string(1, '\t');
+            std::string proc_name = ((OpenMPDeclareSimdDirective*)this)->getProcName();
+            int list_index = 0;
+            std::string tkind = "declare_simd";
+            std::string node_id = tkind + "_proc_name";
+            if (proc_name != ""){
+              current_line = indent + tkind + " -- " + node_id + "\n";
+              output << current_line.c_str();
+              current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + proc_name + "\"]\n";
+              output << current_line.c_str();
+            }
+           break;
+        }
         default: {
             ;
         }
@@ -3230,9 +3280,15 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_distribute_parallel_for:
             directive_kind = "distribute_parallel_for";
+            break; 
+       case OMPD_distribute_parallel_do:
+            directive_kind = "distribute_parallel_do";
             break;
         case OMPD_distribute_parallel_for_simd:
             directive_kind = "distribute_parallel_for_simd";
+            break;
+        case OMPD_distribute_parallel_do_simd:
+            directive_kind = "distribute_parallel_do_simd";
             break;
         case OMPD_declare_reduction:
             directive_kind = "declare_reduction";
