@@ -859,6 +859,34 @@ public:
     OpenMPOrderedDirective() : OpenMPDirective(OMPD_ordered) { }  
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+// uses_allocators clause_parameters
+class usesAllocatorParameter {
+protected:
+    OpenMPUsesAllocatorsClauseAllocator allocator;
+    std::string allocator_traits_array;
+    std::string allocator_user;
+public:
+    usesAllocatorParameter(OpenMPUsesAllocatorsClauseAllocator _allocator, std::string _allocator_traits_array, std::string _allocator_user):
+    allocator(_allocator), allocator_traits_array(_allocator_traits_array), allocator_user(_allocator_user){};
+    OpenMPUsesAllocatorsClauseAllocator getUsesAllocatorsAllocator() { return allocator;};
+    std::string getAllocatorTraitsArray(){ return allocator_traits_array;};
+    std::string getAllocatorUser(){ return allocator_user;};
+};
+// uses_allocators clause
+class OpenMPUsesAllocatorsClause : public OpenMPClause {
+protected:
+    std::vector<usesAllocatorParameter*> usesAllocatorsAllocatorSequence;
+public:
+    OpenMPUsesAllocatorsClause() : OpenMPClause(OMPC_uses_allocators) { };
+    void addUsesAllocatorsAllocatorSequence(OpenMPUsesAllocatorsClauseAllocator _allocator, std::string _allocator_traits_array, std::string _allocator_user) {
+        usesAllocatorParameter* usesAllocatorsAllocator = new usesAllocatorParameter(_allocator, _allocator_traits_array, _allocator_user);
+        usesAllocatorsAllocatorSequence.push_back(usesAllocatorsAllocator);
+    };
+    std::vector<usesAllocatorParameter*>* getUsesAllocatorsAllocatorSequence() {
+        return &usesAllocatorsAllocatorSequence;
+    };
+    std::string toString();
+};
 
 #ifdef __cplusplus
 extern "C" {

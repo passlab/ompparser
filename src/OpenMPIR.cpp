@@ -124,6 +124,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_simd:
         case OMPC_destroy:
         
+        
          {
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPClause(kind);
@@ -203,8 +204,17 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
                 std::cerr << "Cannot have two proc_bind clauses for the directive " << kind << ", ignored\n";
             }
             break;
-        }      
-  
+        } 
+        case OMPC_uses_allocators: {
+            //OpenMPProcBindClauseKind pbKind = (OpenMPProcBindClauseKind) va_arg(args, int);
+            
+                new_clause = new OpenMPUsesAllocatorsClause();
+                current_clauses = new std::vector<OpenMPClause*>();
+                current_clauses->push_back(new_clause);
+                clauses[kind] = current_clauses;
+           
+            break;
+        }
         case OMPC_bind: {
             OpenMPBindClauseKind bKind = (OpenMPBindClauseKind) va_arg(args, int);
             if (current_clauses->size() == 0) {
@@ -1266,6 +1276,9 @@ std::string OpenMPClause::toString() {
         case OMPC_destroy:
             result += "destroy ";
             break;
+    //    case OMPC_uses_allocators:
+   //         result += "uses_allocators ";
+    //        break;
         default:
             printf("The clause enum is not supported yet.\n");
     }
@@ -3639,6 +3652,9 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         case OMPC_simd:
             clause_kind += "simd";
             break;
+        case OMPC_uses_allocators:
+            clause_kind += "uses_allocators";
+            break;
         default:
             printf("The clause enum is not supported yet.\n");
     }
@@ -4380,6 +4396,93 @@ std::string OpenMPProcBindClause::toString() {
     return result;
 }
 
+std::string OpenMPUsesAllocatorsClause::toString() {
+    std::vector<usesAllocatorParameter*>* usesAllocatorsAllocatorSequence = this->getUsesAllocatorsAllocatorSequence();
+    std::string result = "uses allocators ";
+    std::string parameter_string;
+    parameter_string += "(";
+    for (int i = 0; i <usesAllocatorsAllocatorSequence->size(); i++){ 
+        switch (usesAllocatorsAllocatorSequence->at(i)->getUsesAllocatorsAllocator()) {
+            case OMPC_USESALLOCATORS_ALLOCATOR_default:
+                parameter_string += "default";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_large_cap:
+                parameter_string += "large_cap";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_cons_mem:
+                parameter_string += "cons_mem";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_high_bw:
+                parameter_string += "high_bw";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_low_lat:
+                parameter_string += "low_lat";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_cgroup:
+                parameter_string += "cgroup";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_pteam:
+                parameter_string += "pteam";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_thread:
+                parameter_string += "thread";
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            case OMPC_USESALLOCATORS_ALLOCATOR_user:
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorUser();
+                if(usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!=""){
+                parameter_string += "(";
+                parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
+                parameter_string += ")";}
+                if(i<usesAllocatorsAllocatorSequence->size()-1) parameter_string += ",";
+                break;
+            default:
+                   ;
+}
+}
+result += parameter_string;
+result += " ) ";
+    return result;
+}
 
 void OpenMPLastprivateClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
