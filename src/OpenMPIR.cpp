@@ -124,7 +124,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_simd:
         case OMPC_destroy:
         
-        
          {
             if (current_clauses->size() == 0) {
                 new_clause = new OpenMPClause(kind);
@@ -1276,9 +1275,6 @@ std::string OpenMPClause::toString() {
         case OMPC_destroy:
             result += "destroy ";
             break;
-    //    case OMPC_uses_allocators:
-   //         result += "uses_allocators ";
-    //        break;
         default:
             printf("The clause enum is not supported yet.\n");
     }
