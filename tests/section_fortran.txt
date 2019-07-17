@@ -1,0 +1,59 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp sections private(a,b,c)
+PASS: !$omp sections private (a, b, c)
+
+!$omp sections firstprivate(a,b,c)
+PASS: !$omp sections firstprivate (a, b, c)
+
+!$omp sections firstprivate( ection_count )
+PASS: !$omp sections firstprivate (ection_count)
+
+!$omp sections lastprivate(conditional:a,b,c)
+PASS: !$omp sections lastprivate (conditional: a, b, c)
+
+!$omp sections reduction(task,max:a,b,c)
+PASS: !$omp sections reduction (task, max : a, b, c)
+
+!$omp sections allocate(a,b,c)
+PASS: !$omp sections allocate (a, b, c)
+
+!$omp sections allocate(omp_allocator_handle_t:a,b,c)
+PASS: !$omp sections allocate (omp_allocator_handle_t: a, b, c)
+
+!$omp sections allocate(omp_default_mem_alloc:a,b,c)
+PASS: !$omp sections allocate (omp_default_mem_alloc: a, b, c)
+
+!$omp section
+PASS: !$omp section 
+
+!$omp end section
+PASS: !$omp end section 
+
+!$omp end sections
+PASS: !$omp end sections 
+
+!$omp end sections nowait
+PASS: !$omp end sections nowait
+
+// invalid test without paired validation.
+
+!$omp section lastprivate(userde:a,b,c)
+
+!$omp section nowait(dsfasf)
+
+!$omp sections nowait
+
+!$omp end sections allocate(omp_default_mem_alloc:a,b,c)
+
+
+
+
+
+
+

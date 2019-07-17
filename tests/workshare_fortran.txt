@@ -1,0 +1,28 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp workshare 
+PASS: !$omp workshare 
+
+!$omp end workshare
+PASS: !$omp end workshare 
+
+!$omp end workshare nowait
+PASS: !$omp end workshare nowait
+
+// invalid test without paired validation.
+
+!$omp workshare allocate(omp_default_mem_alloc:a,b,c)
+
+!$omp end workshare allocate(omp_default_mem_alloc:a,b,c)
+
+
+
+
+
+
+

@@ -1,0 +1,84 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp parallel loop private (a, b) private (a, c)
+PASS: !$omp parallel loop private (a, b, c)
+  
+!$omp parallel loop num_threads (3*5+4/(7+10))
+PASS: !$omp parallel loop num_threads (3*5+4/(7+10))
+
+!$omp parallel loop firstprivate (x, y)
+PASS: !$omp parallel loop firstprivate (x, y)
+
+!$omp parallel loop lastprivate(conditional:a,b,c)
+PASS: !$omp parallel loop lastprivate (conditional: a, b, c)
+
+!$omp parallel loop collapse(a)
+PASS: !$omp parallel loop collapse (a)
+
+!$omp parallel loop shared (a, b, c[1:10])
+PASS: !$omp parallel loop shared (a, b, c[1:10])
+
+!$omp parallel loop copyin (a[foo(goo(x)):20],a,y)
+PASS: !$omp parallel loop copyin (a[foo(goo(x)):20], a, y)
+
+!$omp parallel loop default (shared)
+PASS: !$omp parallel loop default (shared)
+
+!$omp parallel loop default (none)
+PASS: !$omp parallel loop default (none)
+
+!$omp parallel loop default (firstprivate)
+PASS: !$omp parallel loop default (firstprivate)
+
+!$omp parallel loop if (a) if (parallel : b) default (firstprivate)
+PASS: !$omp parallel loop if (a) if (parallel: b) default (firstprivate)
+
+!$omp parallel loop proc_bind (master)
+PASS: !$omp parallel loop proc_bind (master)
+
+!$omp parallel loop proc_bind (close) default (private)
+PASS: !$omp parallel loop default (private) proc_bind (close)
+
+!$omp parallel loop proc_bind (spread)
+PASS: !$omp parallel loop proc_bind (spread)
+
+!$omp parallel loop reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+PASS: !$omp parallel loop reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+
+!$omp parallel loop allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: !$omp parallel loop allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+!$omp parallel loop bind(thread)
+PASS: !$omp parallel loop bind (thread)
+
+!$omp parallel loop bind(teams)
+PASS: !$omp parallel loop bind (teams)
+
+!$omp parallel loop bind(parallel)
+PASS: !$omp parallel loop bind (parallel)
+// invalid test without paired validation.
+
+!$omp parallel loop private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
+
+!$omp parallel loop private (a, b, c) private (a, b, e) firstprivate (foo(x), y), shared (a, b, c[1:10])
+
+!$omp parallel loop private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4)
+
+!$omp parallel loop reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
+
+!$omp parallel loop lastprivate(userde:a,b,c)
+
+!$omp parallel loop collapse
+
+!$omp parallel loop nowait(dsfasf)
+
+!$omp parallel loop order
+
+!$omp parallel loop if (simd:a)
+
+

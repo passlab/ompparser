@@ -34,7 +34,7 @@ PASS: #pragma omp parallel shared (a, b, c[1:10])
 PASS: #pragma omp parallel copyin (a[foo(goo(x)):20], a, y)
 
 #pragma omp parallel copyin(tol,size)
-PASS:  #pragma omp parallel copyin (tol,size)
+PASS: #pragma omp parallel copyin (tol, size)
 
 #pragma omp parallel default (shared)
 PASS: #pragma omp parallel default (shared)
@@ -42,14 +42,14 @@ PASS: #pragma omp parallel default (shared)
 #pragma omp parallel default (none)
 PASS: #pragma omp parallel default (none)
 
-#pragma omp parallel if (a) if (parallel : b) default (firstprivate)
-PASS: #pragma omp parallel if (a) if (parallel: b) default (firstprivate)
+#pragma omp parallel if (a) if (parallel : b) default (none)
+PASS: #pragma omp parallel if (a) if (parallel: b) default (none)
 
 #pragma omp parallel proc_bind (master)
 PASS: #pragma omp parallel proc_bind (master)
 
-#pragma omp parallel proc_bind (close) default (private)
-PASS: #pragma omp parallel default (private) proc_bind (close)
+#pragma omp parallel proc_bind (close) default (shared)
+PASS: #pragma omp parallel default (shared) proc_bind (close)
 
 #pragma omp parallel proc_bind (spread)
 PASS: #pragma omp parallel proc_bind (spread)
@@ -58,7 +58,7 @@ PASS: #pragma omp parallel proc_bind (spread)
 PASS: #pragma omp parallel reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
 
 #pragma omp parallel allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
-PASS: #pragma omp parallel allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (m, n[1:5])
+PASS: #pragma omp parallel allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
 
 // invalid test without paired validation.
 #pragma omp parallel private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
@@ -69,7 +69,9 @@ PASS: #pragma omp parallel allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate 
 
 #pragma omp parallel reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
 
+#pragma omp parallel if (a) if (parallel : b) default (private)
 
+#pragma omp parallel if (a) if (parallel : b) default (copyprivate)
 
 
 

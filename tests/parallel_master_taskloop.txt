@@ -32,8 +32,8 @@ PASS: #pragma omp parallel master taskloop if (a) if (parallel: b) if (taskloop:
 #pragma omp parallel master taskloop proc_bind (master)
 PASS: #pragma omp parallel master taskloop proc_bind (master)
 
-#pragma omp parallel master taskloop proc_bind (close) default (private)
-PASS: #pragma omp parallel master taskloop default (private) proc_bind (close)
+#pragma omp parallel master taskloop proc_bind (close) default (none)
+PASS: #pragma omp parallel master taskloop default (none) proc_bind (close)
 
 #pragma omp parallel master taskloop proc_bind (spread)
 PASS: #pragma omp parallel master taskloop proc_bind (spread)
@@ -122,4 +122,6 @@ PASS: #pragma omp parallel master taskloop allocate (omp_high_bw_mem_alloc: m, n
 #pragma omp parallel master taskloop mergeable (23)
 
 #pragma omp parallel master taskloop nogroup (23)
+
+#pragma omp parallel master taskloop proc_bind (close) default (private)
 

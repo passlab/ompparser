@@ -29,14 +29,14 @@ PASS: #pragma omp parallel master default (shared)
 #pragma omp parallel master default (none)
 PASS: #pragma omp parallel master default (none)
 
-#pragma omp parallel master if (a) if (parallel : b) default (firstprivate)
-PASS: #pragma omp parallel master if (a) if (parallel: b) default (firstprivate)
+#pragma omp parallel master if (a) if (parallel : b) default (shared)
+PASS: #pragma omp parallel master if (a) if (parallel: b) default (shared)
 
 #pragma omp parallel master proc_bind (master)
 PASS: #pragma omp parallel master proc_bind (master)
 
-#pragma omp parallel master proc_bind (close) default (private)
-PASS: #pragma omp parallel master default (private) proc_bind (close)
+#pragma omp parallel master proc_bind (close) default (none)
+PASS: #pragma omp parallel master default (none) proc_bind (close)
 
 #pragma omp parallel master proc_bind (spread)
 PASS: #pragma omp parallel master proc_bind (spread)
@@ -56,7 +56,9 @@ PASS: #pragma omp parallel master allocate (omp_high_bw_mem_alloc: m, n[1:5]) al
 
 #pragma omp parallel master reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
 
+#pragma omp parallel master if (a) if (parallel : b) default (firstprivate)
 
+#pragma omp parallel master proc_bind (close) default (private)
 
 
 

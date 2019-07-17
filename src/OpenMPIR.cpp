@@ -885,6 +885,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_parallel_for_simd:
             result += "parallel for simd ";
             break;
+        case OMPD_parallel_do_simd:
+            result += "parallel do simd ";
+            break;
         case OMPD_declare_simd:
             result += "declare simd ";
             break;
@@ -950,6 +953,9 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_single:
             result += "single ";
+            break;
+        case OMPD_workshare:
+            result += "workshare ";
             break;
         case OMPD_cancel:
             result += "cancel ";

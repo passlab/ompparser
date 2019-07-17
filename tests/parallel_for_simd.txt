@@ -41,14 +41,14 @@ PASS: #pragma omp parallel for simd default (shared)
 #pragma omp parallel for simd default (none)
 PASS: #pragma omp parallel for simd default (none)
 
-#pragma omp parallel for simd if (a) if (parallel : b) default (firstprivate) if (simd : b)
-PASS: #pragma omp parallel for simd if (a) if (parallel: b) if (simd: b) default (firstprivate)
+#pragma omp parallel for simd if (a) if (parallel : b) default (shared) if (simd : b)
+PASS: #pragma omp parallel for simd if (a) if (parallel: b) if (simd: b) default (shared)
 
 #pragma omp parallel for simd proc_bind (master)
 PASS: #pragma omp parallel for simd proc_bind (master)
 
-#pragma omp parallel for simd proc_bind (close) default (private)
-PASS: #pragma omp parallel for simd default (private) proc_bind (close)
+#pragma omp parallel for simd proc_bind (close) default (none)
+PASS: #pragma omp parallel for simd default (none) proc_bind (close)
 
 #pragma omp parallel for simd proc_bind (spread)
 PASS: #pragma omp parallel for simd proc_bind (spread)
@@ -87,19 +87,20 @@ PASS: #pragma omp parallel for simd nontemporal (a)
 
 #pragma omp parallel for simd nowait
 
-#pragma omp  parallel for simd order
+#pragma omp parallel for simd order
 
-#pragma omp  parallel for simd schedule(use,user:runtime,2)
+#pragma omp parallel for simd schedule(use,user:runtime,2)
 
-#pragma omp  parallel for simd schedule(simd,simd:runtime,2)
+#pragma omp parallel for simd schedule(simd,simd:runtime,2)
 
-#pragma omp  parallel for simd dist_schedule(user,2)
+#pragma omp parallel for simd dist_schedule(user,2)
 
-#pragma omp  parallel for simd nontemporal
+#pragma omp parallel for simd nontemporal
 
-#pragma omp  parallel for simd safelen
+#pragma omp parallel for simd safelen
 
-#pragma omp  parallel for simd simdlen
+#pragma omp parallel for simd simdlen
 
+#pragma omp parallel for simd if (a) if (parallel : b) default (firstprivate)
 
 
