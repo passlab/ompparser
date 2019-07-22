@@ -3884,8 +3884,8 @@ std::string OpenMPVariantClause::toString() {
     };
 
     // check device_kind
-    std::pair<std::string, OpenMPClauseContextKind> context_kind = this->getContextKind();
-    switch (context_kind.second) {
+    std::pair<std::string, OpenMPClauseContextKind>* context_kind = this->getContextKind();
+    switch (context_kind->second) {
         case OMPC_CONTEXT_KIND_host:
             parameter_string = "host";
             break;
@@ -3910,8 +3910,8 @@ std::string OpenMPVariantClause::toString() {
             std::cout << "The context kind is not supported.\n";
     };
 
-    if (context_kind.first.size() > 0) {
-        clause_string += "kind(score(" + context_kind.first + "): " + parameter_string + "), ";
+    if (context_kind->first.size() > 0) {
+        clause_string += "kind(score(" + context_kind->first + "): " + parameter_string + "), ";
     }
     else if (parameter_string.size() > 0) {
         clause_string += "kind(" + parameter_string + "), ";
@@ -4203,8 +4203,8 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
 
     // check device_kind
     parameter_string.clear();
-    std::pair<std::string, OpenMPClauseContextKind> context_kind = this->getContextKind();
-    switch (context_kind.second) {
+    std::pair<std::string, OpenMPClauseContextKind>* context_kind = this->getContextKind();
+    switch (context_kind->second) {
         case OMPC_CONTEXT_KIND_host:
             parameter_string = "host";
             break;
@@ -4243,10 +4243,10 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
         current_line = indent + "\t\t" + node_id + "_kind [label = \"kind\"]\n";
         dot_file << current_line.c_str();
         // output score
-        if (context_kind.first.size() > 0) {
+        if (context_kind->first.size() > 0) {
             current_line = indent + "\t\t" + node_id + "_kind -- " + node_id + "_kind_score\n";
             dot_file << current_line.c_str();
-            current_line = indent + "\t\t\t" + node_id + "_kind_score [label = \"score\\n " + context_kind.first + "\"]\n";
+            current_line = indent + "\t\t\t" + node_id + "_kind_score [label = \"score\\n " + context_kind->first + "\"]\n";
             dot_file << current_line.c_str();
         };
         // output kind value

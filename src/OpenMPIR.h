@@ -439,7 +439,7 @@ public:
 class OpenMPVariantClause : public OpenMPClause {
 protected:
     std::pair<std::string, std::string> user_condition_expression;
-    std::vector<std::pair<std::string, OpenMPDirective*>> construct_directives;
+    std::vector<std::pair<std::string, OpenMPDirective*> > construct_directives;
     std::pair<std::string, std::string> arch_expression;
     std::pair<std::string, std::string> isa_expression;
     std::pair<std::string, OpenMPClauseContextKind> context_kind_name = std::make_pair("", OMPC_CONTEXT_KIND_unknown);
@@ -453,13 +453,13 @@ public:
     void setUserCondition(const char* _score, const char* _user_condition_expression) { user_condition_expression = std::make_pair(std::string(_score), std::string(_user_condition_expression)); };
     std::pair<std::string, std::string>* getUserCondition() { return &user_condition_expression; };
     void addConstructDirective(const char* _score, OpenMPDirective* _construct_directive) { construct_directives.push_back(std::make_pair(std::string(_score), _construct_directive)); };
-    std::vector<std::pair<std::string, OpenMPDirective*>>* getConstructDirective() { return &construct_directives; };
+    std::vector<std::pair<std::string, OpenMPDirective*> >* getConstructDirective() { return &construct_directives; };
     void setArchExpression(const char* _score, const char* _arch_expression) { arch_expression = std::make_pair(std::string(_score), std::string(_arch_expression)); };
     std::pair<std::string, std::string>* getArchExpression() { return &arch_expression; };
     void setIsaExpression(const char* _score, const char* _isa_expression) { isa_expression = std::make_pair(std::string(_score), std::string(_isa_expression)); };
     std::pair<std::string, std::string>* getIsaExpression() { return &isa_expression; };
     void setContextKind(const char* _score, OpenMPClauseContextKind _context_kind_name) { context_kind_name = std::make_pair(std::string(_score), _context_kind_name); };
-    std::pair<std::string, OpenMPClauseContextKind> getContextKind() { return context_kind_name; };
+    std::pair<std::string, OpenMPClauseContextKind>* getContextKind() { return &context_kind_name; };
     void setExtensionExpression(const char* _score, const char* _extension_expression) { extension_expression = std::make_pair(std::string(_score), std::string(_extension_expression)); };
     std::pair<std::string, std::string>* getExtensionExpression() { return &extension_expression; };
     void setImplementationKind(const char* _score, OpenMPClauseContextVendor _context_vendor_name) { context_vendor_name = std::make_pair(std::string(_score), _context_vendor_name); };
