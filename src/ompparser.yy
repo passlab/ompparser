@@ -1810,6 +1810,7 @@ parallel_workshare_directive : PARALLEL WORKSHARE {
                                if(lang == Lang_Fortran)
                                {current_directive = new OpenMPDirective(OMPD_parallel_workshare);} else{
                                    yyerror("parallel workshare is only supported in fortran");
+                                   YYABORT;
                                }
                              }
                              parallel_workshare_clause_optseq
@@ -1877,6 +1878,7 @@ workshare_directive : WORKSHARE {
                          if(lang == Lang_Fortran)
                                {current_directive = new OpenMPDirective(OMPD_workshare);} else{
                                    yyerror("workshare is only supported in fortran");
+                                   YYABORT;
                                }
                     }
                     ;
@@ -2838,8 +2840,8 @@ default_clause : DEFAULT '(' default_parameter ')' { }
 
 default_parameter : SHARED { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_shared); }
                   | NONE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
-                  | FIRSTPRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate);} else {yyerror("default clause do not support firstprivate in C");} }
-                  | PRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private);} else {yyerror("default clause do not support private in C");} }
+                  | FIRSTPRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate);} else {yyerror("default clause do not support firstprivate in C"); YYABORT; } }
+                  | PRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private);} else {yyerror("default clause do not support private in C"); YYABORT; } }
                   ;
 
 default_variant_clause : DEFAULT '(' default_variant_directive ')' { }
@@ -2905,7 +2907,7 @@ copyprivate_clause : COPYPRIVATE {
                    }
                    ;
 fortran_copyprivate_clause : COPYPRIVATE {
-                                 if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_copyprivate);} else {yyerror("fortran single not support copyprivate_clause.");}
+                                 if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_copyprivate);} else {yyerror("fortran single not support copyprivate_clause."); YYABORT;}
                                } '(' var_list ')' {
                            }
                            ;
@@ -2969,7 +2971,7 @@ collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(
 ordered_clause: ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); } '(' var_list ')'
               | ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); }
               ;
-fortran_nowait_clause: NOWAIT { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("fortran sections not support nowait clause");} }
+fortran_nowait_clause: NOWAIT { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("fortran sections not support nowait clause"); YYABORT;} }
                      ;
 nowait_clause: NOWAIT { current_clause = current_directive->addOpenMPClause(OMPC_nowait); }
              ;
@@ -3023,9 +3025,9 @@ schedule_modifier : schedule_enum_modifier ',' schedule_modifier2
                   | schedule_enum_modifier
                   ;
 
-schedule_modifier2 : MODIFIER_MONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd) {secondParameter = OMPC_SCHEDULE_MODIFIER_monotonic;} else{yyerror("Two modifiers are incorrect");} }
-                   | MODIFIER_NOMONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){secondParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}else{yyerror("Two modifiers are incorrect");} }
-                   | MODIFIER_SIMD { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){yyerror("Two modifiers are incorrect");} else{secondParameter = OMPC_SCHEDULE_MODIFIER_simd;} }
+schedule_modifier2 : MODIFIER_MONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd) {secondParameter = OMPC_SCHEDULE_MODIFIER_monotonic;} else{yyerror("Two modifiers are incorrect"); YYABORT; } }
+                   | MODIFIER_NOMONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){secondParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}else{yyerror("Two modifiers are incorrect"); YYABORT; } }
+                   | MODIFIER_SIMD { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){yyerror("Two modifiers are incorrect"); YYABORT; } else{secondParameter = OMPC_SCHEDULE_MODIFIER_simd;} }
                    ;
 schedule_enum_modifier : MODIFIER_MONOTONIC { firstParameter = OMPC_SCHEDULE_MODIFIER_monotonic; }
                        | MODIFIER_NOMONOTONIC { firstParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic; }
