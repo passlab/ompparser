@@ -5,61 +5,61 @@
   //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare simd simdlen(4)
-PASS: #pragma omp declare simd simdlen (4)
+!$omp declare simd simdlen(4)
+PASS: !$omp declare simd simdlen (4)
 
-#pragma omp declare simd linear(a,b,c:2)
-PASS: #pragma omp declare simd linear (a, b, c:2)
+!$omp declare simd linear(a,b,c:2)
+PASS: !$omp declare simd linear (a, b, c:2)
 
-#pragma omp declare simd aligned(*a,&b,c:2)
-PASS: #pragma omp declare simd aligned (*a, &b, c:2)
+!$omp declare simd aligned(*a,&b,c:2)
+PASS: !$omp declare simd aligned (*a, &b, c:2)
 
-#pragma omp declare simd uniform(*a,&b)
-PASS: #pragma omp declare simd uniform (*a, &b)
+!$omp declare simd uniform(*a,&b)
+PASS: !$omp declare simd uniform (*a, &b)
 
-#pragma omp declare simd inbranch
-PASS: #pragma omp declare simd inbranch
+!$omp declare simd inbranch
+PASS: !$omp declare simd inbranch
 
-#pragma omp declare simd notinbranch
-PASS: #pragma omp declare simd notinbranch
+!$omp declare simd notinbranch
+PASS: !$omp declare simd notinbranch
 
-#pragma omp declare simd uniform(i) linear(k) notinbranch
-PASS: #pragma omp declare simd linear (k) uniform (i) notinbranch
+!$omp declare simd uniform(i) linear(k) notinbranch
+PASS: !$omp declare simd linear (k) uniform (i) notinbranch
 
-#pragma omp declare simd (id) simdlen(4)
-PASS: #pragma omp declare simd (id) simdlen (4)
+!$omp declare simd (id) simdlen(4)
+PASS: !$omp declare simd (id) simdlen (4)
 
-#pragma omp declare simd (user) linear(a,b,c:2)
-PASS: #pragma omp declare simd (user) linear (a, b, c:2)
+!$omp declare simd (user) linear(a,b,c:2)
+PASS: !$omp declare simd (user) linear (a, b, c:2)
 
-#pragma omp declare simd (name) aligned(*a,&b,c:2)
-PASS: #pragma omp declare simd (name) aligned (*a, &b, c:2)
+!$omp declare simd (name) aligned(*a,&b,c:2)
+PASS: !$omp declare simd (name) aligned (*a, &b, c:2)
 
-#pragma omp declare simd (a) uniform(*a,&b)
-PASS: #pragma omp declare simd (a) uniform (*a, &b)
+!$omp declare simd (a) uniform(*a,&b)
+PASS: !$omp declare simd (a) uniform (*a, &b)
 
-#pragma omp declare simd (d) inbranch
-PASS: #pragma omp declare simd (d) inbranch
+!$omp declare simd (d) inbranch
+PASS: !$omp declare simd (d) inbranch
 
-#pragma omp declare simd (#ljlkfds) notinbranch
-PASS: #pragma omp declare simd (#ljlkfds) notinbranch
+!$omp declare simd (#ljlkfds) notinbranch
+PASS: !$omp declare simd (#ljlkfds) notinbranch
 
-#pragma omp declare simd (tol) uniform(i) linear(k) notinbranch
-PASS: #pragma omp declare simd (tol) linear (k) uniform (i) notinbranch
+!$omp declare simd (tol) uniform(i) linear(k) notinbranch
+PASS: !$omp declare simd (tol) linear (k) uniform (i) notinbranch
 
 // invalid test without paired validation.
 
-#pragma omp declare simd safelen
+!$omp declare simd safelen
 
-#pragma omp declare simd simdlen
+!$omp declare simd simdlen
 
-#pragma omp declare simd linear
+!$omp declare simd linear
 
-#pragma omp declare simd aligned
+!$omp declare simd aligned
 
-#pragma omp declare simd notinbranch(v)
+!$omp declare simd notinbranch(v)
 
-#pragma omp declare simd inbranch(dfa:23)
+!$omp declare simd inbranch(dfa:23)
 
 
 
