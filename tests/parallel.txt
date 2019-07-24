@@ -69,7 +69,7 @@ PASS: #pragma omp parallel allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate 
 
 #pragma omp parallel reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
 
-#pragma omp parallel if (a) if (parallel : b) default (private)
+#pragma omp parallel if (a) if (parallel : b) default (private) if(b)
 
 #pragma omp parallel if (a) if (parallel : b) default (copyprivate)
 
