@@ -20,6 +20,12 @@ PASS: !$omp do linear (a, b, c:2)
 !$omp do linear(val(a,b,c):2)
 PASS: !$omp do linear (val( a, b, c) :2)
 
+!$omp do linear(uval(a,b,c):2)
+PASS: !$omp do linear (uval( a, b, c) :2)
+
+!$omp do linear(ref(a,b,c):2)
+PASS: !$omp do linear (ref( a, b, c) :2)
+
 !$omp do linear(a)
 PASS: !$omp do linear (a)
 

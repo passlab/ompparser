@@ -67,9 +67,9 @@ PASS: #pragma omp for order (concurrent)
 
 #pragma omp for schedule(simd,simd:runtime,2)
 
+#pragma omp for linear(uval(a,b,c):2)
 
-
-
+#pragma omp for linear(ref(a,b,c):2)
 
 
 

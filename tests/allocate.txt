@@ -8,6 +8,9 @@
 #pragma omp allocate(a,b,c)
 PASS: #pragma omp allocate (a,b,c) 
 
+#pragma omp allocate(to,b,c)
+PASS: #pragma omp allocate (to,b,c) 
+
 #pragma omp allocate(f,e) allocator(omp_allocator_handle_t)
 PASS: #pragma omp allocate (f,e) allocator (omp_allocator_handle_t)
 

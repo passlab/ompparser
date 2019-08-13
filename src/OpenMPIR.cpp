@@ -90,7 +90,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_copyprivate : 
         case OMPC_parallel:    
         case OMPC_sections: 
-        case OMPC_for: 
+        case OMPC_for:
+        case OMPC_do:
         case OMPC_taskgroup:
         case OMPC_inclusive:
         case OMPC_exclusive:
@@ -1196,6 +1197,9 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_for:
             result += "for ";
+            break;
+        case OMPC_do:
+            result += "do ";
             break;
         case OMPC_taskgroup:
             result += "taskgroup ";
@@ -3595,6 +3599,9 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
             break;
         case OMPC_for:
             clause_kind += "for";
+            break;
+        case OMPC_do:
+            clause_kind += "do";
             break;
         case OMPC_taskgroup:
             clause_kind += "taskgroup";

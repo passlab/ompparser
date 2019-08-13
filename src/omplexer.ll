@@ -56,6 +56,10 @@
 %x SAFELEN_STATE
 %x NONTEMPORAL_STATE
 %x SIMD_STATE
+%x THREADPRIVATE_STATE
+%x SHARED_STATE
+%x COPYIN_STATE
+%x COPYPRIVATE_STATE
 
 %{
 
@@ -137,10 +141,10 @@ thread_limit    { return THREAD_LIMIT; }
 default         { yy_push_state(DEFAULT_STATE); return DEFAULT; }
 private         { yy_push_state(PRIVATE_STATE); return PRIVATE; }
 firstprivate    { yy_push_state(FIRSTPRIVATE_STATE); return FIRSTPRIVATE; }
-shared          { return SHARED; }
+shared          { yy_push_state(SHARED_STATE); return SHARED; }
 none            { return NONE; }
 reduction       { yy_push_state(REDUCTION_STATE); return REDUCTION; }
-copyin          { return COPYIN; }
+copyin          { yy_push_state(COPYIN_STATE); return COPYIN; }
 proc_bind       { yy_push_state(PROC_BIND_STATE); return PROC_BIND; }
 allocate        { yy_push_state(ALLOCATE_STATE); return ALLOCATE; }
 close           { return CLOSE; }
@@ -174,11 +178,12 @@ exclusive       { return EXCLUSIVE; }
 sections        { return SECTIONS; }
 section         { return SECTION; }
 single          { return SINGLE; }
-copyprivate     { return COPYPRIVATE; }
+copyprivate     { yy_push_state(COPYPRIVATE_STATE); return COPYPRIVATE; }
 cancel          { return CANCEL; }
 workshare       { return WORKSHARE; }
 taskgroup       { return TASKGROUP; }
 allocator       { yy_push_state(ALLOCATOR_STATE); return ALLOCATOR; }
+threadprivate/{blank}*\( { yy_push_state(THREADPRIVATE_STATE); return THREADPRIVATE; }
 threadprivate   { return THREADPRIVATE; }
 cancellation    { return CANCELLATION; }
 point           { return POINT; }
@@ -347,6 +352,10 @@ threads                   { return THREADS; }
 <SIMD_STATE>")"                             { yy_pop_state(); return ')'; }
 <SIMD_STATE>{blank}*                        { ; }
 
+<THREADPRIVATE_STATE>"("                    { yy_push_state(EXPR_STATE); return '('; }
+<THREADPRIVATE_STATE>")"                    { yy_pop_state(); return ')'; }
+<THREADPRIVATE_STATE>{blank}*               { ; }
+
 <PRIVATE_STATE>"("                          { return '('; }
 <PRIVATE_STATE>")"                          { yy_pop_state(); return ')'; }
 <PRIVATE_STATE>{blank}*                     { ; }
@@ -356,6 +365,26 @@ threads                   { return THREADS; }
 <FIRSTPRIVATE_STATE>")"                     { yy_pop_state(); return ')'; }
 <FIRSTPRIVATE_STATE>{blank}*                { ; }
 <FIRSTPRIVATE_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<FIRSTPRIVATE_STATE>"("                     { return '('; }
+<FIRSTPRIVATE_STATE>")"                     { yy_pop_state(); return ')'; }
+<FIRSTPRIVATE_STATE>{blank}*                { ; }
+<FIRSTPRIVATE_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<SHARED_STATE>"("                           { return '('; }
+<SHARED_STATE>")"                           { yy_pop_state(); return ')'; }
+<SHARED_STATE>{blank}*                      { ; }
+<SHARED_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<COPYIN_STATE>"("                           { return '('; }
+<COPYIN_STATE>")"                           { yy_pop_state(); return ')'; }
+<COPYIN_STATE>{blank}*                      { ; }
+<COPYIN_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<COPYPRIVATE_STATE>"("                      { return '('; }
+<COPYPRIVATE_STATE>")"                      { yy_pop_state(); return ')'; }
+<COPYPRIVATE_STATE>{blank}*                 { ; }
+<COPYPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <LASTPRIVATE_STATE>conditional/{blank}*:    { return MODIFIER_CONDITIONAL;}
 <LASTPRIVATE_STATE>"("                      { return '('; }

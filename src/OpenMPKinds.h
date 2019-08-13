@@ -146,6 +146,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(parallel, OMPParallelClause)
     OPENMP_CLAUSE(sections, OMPSectionsClause)
     OPENMP_CLAUSE(for, OMPForClause)
+    OPENMP_CLAUSE(do, OMPDoClause)
     OPENMP_CLAUSE(taskgroup, OMPTaskgroupClause)
 
     OPENMP_CLAUSE(allocator, OMPAllocatorClause)

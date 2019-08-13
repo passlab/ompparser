@@ -137,11 +137,14 @@ openmp_directive : parallel_directive
                  | parallel_master_taskloop_simd_directive
                  | loop_directive
                  | scan_directive
+//                 | sections_fortran_directive
                  | sections_directive
                  | section_directive
                  | single_directive
                  | cancel_directive
+                 | cancel_fortran_directive
                  | cancellation_point_directive
+                 | cancellation_point_fortran_directive
                  | allocate_directive
                  | task_directive
                  | taskloop_directive
@@ -213,7 +216,8 @@ fortran_paired_directive : parallel_directive
                          | parallel_workshare_directive
                          | metadirective_directive
                          | teams_directive
-                         | sections_directive
+                         | sections_paired_directive
+                         | section_directive
                          | simd_directive
                          | do_simd_paired_directive
                          | distribute_directive
@@ -1833,6 +1837,16 @@ sections_directive : SECTIONS {
                      }
                    sections_clause_optseq
                    ;
+/*sections_fortran_directive : SECTIONS {
+                               current_directive = new OpenMPDirective(OMPD_sections);
+                             }
+                           sections_clause_fortran_optseq
+                           ;*/
+sections_paired_directive : SECTIONS {
+                               current_directive = new OpenMPDirective(OMPD_sections);
+                             }
+                           sections_paired_clause_optseq
+                           ;
 section_directive : SECTION {
                         current_directive = new OpenMPDirective(OMPD_section);
                   }
@@ -1847,12 +1861,21 @@ cancel_directive : CANCEL {
                  }
                  cancel_clause_optseq
                  ;
+cancel_fortran_directive : CANCEL {
+                              current_directive = new OpenMPDirective(OMPD_cancel);
+                         }
+                         cancel_clause_fortran_optseq
+                         ;
 cancellation_point_directive : CANCELLATION POINT {
                                 current_directive = new OpenMPDirective(OMPD_cancellation_point);
                                 }
                              cancellation_point_clause_optseq
                              ;
-
+cancellation_point_fortran_directive : CANCELLATION POINT {
+                                         current_directive = new OpenMPDirective(OMPD_cancellation_point);
+                                     }
+                                     cancellation_point_clause_fortran_optseq
+                                     ;
 teams_directive : TEAMS {
                         current_directive = new OpenMPDirective(OMPD_teams);
                 }
@@ -2013,15 +2036,26 @@ scan_clause_optseq : /*empty*/
 sections_clause_optseq : /*empty*/
                        | sections_clause_seq
                        ;
+//sections_clause_fortran_optseq : sections_clause_fortran_seq
+//                               ;
+sections_paired_clause_optseq : /*empty*/
+                              | nowait_clause
+                              ;
 single_clause_optseq : /*empty*/
                      | single_clause_seq
                      ;
 cancel_clause_optseq : /*empty*/
                      | cancel_clause_seq
                      ;
+cancel_clause_fortran_optseq : /*empty*/
+                             | cancel_clause_fortran_seq
+                             ;
 cancellation_point_clause_optseq : /*empty*/
                                  | cancellation_point_clause_seq
                                  ;
+cancellation_point_clause_fortran_optseq : /*empty*/
+                                         | cancellation_point_clause_fortran_seq
+                                         ;
 allocate_clause_optseq : /*empty*/
                        | allocate_clause_seq
                        ;
@@ -2146,7 +2180,10 @@ sections_clause_seq : sections_clause
                     | sections_clause_seq sections_clause
                     | sections_clause_seq "," sections_clause
                     ;
-
+//sections_clause_fortran_seq : sections_fortran_clause
+//                            | sections_clause_fortran_seq sections_fortran_clause
+//                            | sections_clause_fortran_seq "," sections_fortran_clause
+//                            ;
 single_clause_seq : single_clause
                   | single_clause_seq single_clause
                   | single_clause_seq "," single_clause
@@ -2155,8 +2192,14 @@ cancel_clause_seq : construct_type_clause
                   | construct_type_clause if_cancel_clause
                   | construct_type_clause "," if_cancel_clause
                   ;
+cancel_clause_fortran_seq : construct_type_clause_fortran
+                          | construct_type_clause_fortran if_cancel_clause
+                          | construct_type_clause_fortran "," if_cancel_clause
+                          ;
 cancellation_point_clause_seq : construct_type_clause
                               ;
+cancellation_point_clause_fortran_seq : construct_type_clause_fortran
+                                      ;
 allocate_clause_seq :  allocator_clause
                     ;
 declare_reduction_clause_seq : initializer_clause
@@ -2200,7 +2243,7 @@ for_clause : private_clause
 do_clause : private_clause
           | firstprivate_clause
           | lastprivate_clause
-          | linear_clause
+          | linear_clause_fortran
           | reduction_clause
           | schedule_clause
           | collapse_clause
@@ -2242,7 +2285,7 @@ for_simd_clause : if_simd_clause
 do_simd_clause : if_simd_clause
                | safelen_clause
                | simdlen_clause
-               | linear_clause
+               | linear_clause_fortran
                | aligned_clause
                | private_clause 
                | firstprivate_clause 
@@ -2337,7 +2380,7 @@ distribute_parallel_do_clause : if_parallel_clause
                               | proc_bind_clause
                               | allocate_clause
                               | lastprivate_clause 
-                              | linear_clause
+                              | linear_clause_fortran
                               | schedule_clause
                               | collapse_clause
                               | ordered_clause
@@ -2378,7 +2421,7 @@ distribute_parallel_do_simd_clause : if_parallel_simd_clause
                                    | proc_bind_clause
                                    | allocate_clause
                                    | lastprivate_clause 
-                                   | linear_clause
+                                   | linear_clause_fortran
                                    | schedule_clause
                                    | collapse_clause
                                    | ordered_clause
@@ -2418,7 +2461,7 @@ parallel_do_clause : if_parallel_clause
                    | proc_bind_clause
                    | allocate_clause
                    | lastprivate_clause 
-                   | linear_clause
+                   | linear_clause_fortran
                    | schedule_clause
                    | collapse_clause
                    | ordered_clause
@@ -2591,6 +2634,11 @@ construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMP
                       | FOR { current_clause = current_directive->addOpenMPClause(OMPC_for); }
                       | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
                       ;
+construct_type_clause_fortran : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
+                              | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections); }
+                              | DO { current_clause = current_directive->addOpenMPClause(OMPC_do); }
+                              | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
+                              ;
 if_parallel_clause : IF '(' if_parallel_parameter ')' { ; }
                    ;
 
@@ -2861,16 +2909,24 @@ linear_clause : LINEAR '(' linear_parameter ')'
               | LINEAR '(' linear_parameter ':' EXPR_STRING { std::cout << $5 << "\n"; ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5); } ')' 
               ;
 
-
+linear_clause_fortran : LINEAR '(' linear_parameter_fortran ')'
+                      | LINEAR '(' linear_parameter_fortran ':' EXPR_STRING { std::cout << $5 << "\n"; ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5); } ')' 
+                      ;
 linear_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1); }
                  | EXPR_STRING ',' {std::cout << $1 << "\n"; } {current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1); } var_list
                  | linear_modifier '(' var_list ')'
                  ;
-
+linear_parameter_fortran : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1); }
+                         | EXPR_STRING ',' {std::cout << $1 << "\n"; } {current_clause = current_directive->addOpenMPClause(OMPC_linear); current_clause->addLangExpr($1); } var_list
+                         | linear_modifier_fortran '(' var_list ')'
+                         ;
 linear_modifier : MODOFIER_VAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
-                | MODOFIER_REF { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_ref); }
-                | MODOFIER_UVAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_uval); }
                 ;
+
+linear_modifier_fortran : MODOFIER_VAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
+                        | MODOFIER_REF { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_ref); }
+                        | MODOFIER_UVAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_uval); }
+                        ;
 
 aligned_clause : ALIGNED '(' aligned_parameter ')'
                | ALIGNED '(' aligned_parameter ':' EXPR_STRING { std::cout << $5 << "\n"; ((OpenMPAlignedClause*)current_clause)->setUserDefinedAlignment($5);} ')'

@@ -5,18 +5,18 @@
   //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp threadprivate (a)
-PASS: #pragma omp threadprivate (a)
+!$omp threadprivate (a)
+PASS: !$omp threadprivate (a)
 
-#pragma omp threadprivate (to)
-PASS: #pragma omp threadprivate (to)
+!$omp threadprivate (c,b,d)
+PASS: !$omp threadprivate (c,b,d)
 
-#pragma omp threadprivate (c,b,d)
-PASS: #pragma omp threadprivate (c,b,d)
+!$omp threadprivate (from,b,d)
+PASS: !$omp threadprivate (from,b,d)
 
 // invalid test without paired validation.
 
-#pragma omp threadprivate
+!$omp threadprivate
 
-#pragma omp threadprivate (c,b,d) if(a)
+!$omp threadprivate (c,b,d) if(a)
 
