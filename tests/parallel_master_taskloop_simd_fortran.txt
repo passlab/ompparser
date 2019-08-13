@@ -1,0 +1,158 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp parallel master taskloop simd private (a, b) private (a, c)
+PASS: !$omp parallel master taskloop simd private (a, b, c)
+  
+!$omp parallel master taskloop simd num_threads (3*5+4/(7+10))
+PASS: !$omp parallel master taskloop simd num_threads (3*5+4/(7+10))
+
+!$omp parallel master taskloop simd firstprivate (x, y)
+PASS: !$omp parallel master taskloop simd firstprivate (x, y)
+
+!$omp parallel master taskloop simd shared (a, b, c[1:10])
+PASS: !$omp parallel master taskloop simd shared (a, b, c[1:10])
+
+!$omp parallel master taskloop simd copyin (a[foo(goo(x)):20],a,y)
+PASS: !$omp parallel master taskloop simd copyin (a[foo(goo(x)):20], a, y)
+
+!$omp parallel master taskloop simd default (shared)
+PASS: !$omp parallel master taskloop simd default (shared)
+
+!$omp parallel master taskloop simd default (none)
+PASS: !$omp parallel master taskloop simd default (none)
+
+!$omp parallel master taskloop simd if (a) if (parallel : b) if (taskloop : b)
+PASS: !$omp parallel master taskloop simd if (a) if (parallel: b) if (taskloop: b)
+
+!$omp parallel master taskloop simd proc_bind (master)
+PASS: !$omp parallel master taskloop simd proc_bind (master)
+
+!$omp parallel master taskloop simd proc_bind (close) default (private)
+PASS: !$omp parallel master taskloop simd default (private) proc_bind (close)
+
+!$omp parallel master taskloop simd proc_bind (spread)
+PASS: !$omp parallel master taskloop simd proc_bind (spread)
+
+!$omp parallel master taskloop simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+PASS: !$omp parallel master taskloop simd reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+
+!$omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: !$omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+!$omp parallel master taskloop simd shared (a, b, c[1:10])
+PASS: !$omp parallel master taskloop simd shared (a, b, c[1:10])
+
+!$omp parallel master taskloop simd lastprivate(conditional:a,b,c)
+PASS: !$omp parallel master taskloop simd lastprivate (conditional: a, b, c)
+
+!$omp parallel master taskloop simd grainsize (3)
+PASS: !$omp parallel master taskloop simd grainsize (3)
+ 
+!$omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+PASS: !$omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+
+!$omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+PASS: !$omp parallel master taskloop simd num_tasks (3*5+4/(7+10))
+
+!$omp parallel master taskloop simd collapse (asd)
+PASS: !$omp parallel master taskloop simd collapse (asd)
+
+!$omp parallel master taskloop simd final (2839/9823)
+PASS: !$omp parallel master taskloop simd final (2839/9823)
+
+!$omp parallel master taskloop simd priority (256)
+PASS: !$omp parallel master taskloop simd priority (256)
+
+!$omp parallel master taskloop simd untied
+PASS: !$omp parallel master taskloop simd untied
+
+!$omp parallel master taskloop simd mergeable
+PASS: !$omp parallel master taskloop simd mergeable
+
+!$omp parallel master taskloop simd nogroup
+PASS: !$omp parallel master taskloop simd nogroup
+
+!$omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: !$omp parallel master taskloop simd allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+!$omp parallel master taskloop simd safelen(4)
+PASS: !$omp parallel master taskloop simd safelen (4)
+
+!$omp parallel master taskloop simd simdlen(4)
+PASS: !$omp parallel master taskloop simd simdlen (4)
+
+!$omp parallel master taskloop simd linear(a,b,c:2)
+PASS: !$omp parallel master taskloop simd linear (a, b, c:2)
+
+!$omp parallel master taskloop simd aligned(*a,&b,c:2)
+PASS: !$omp parallel master taskloop simd aligned (*a, &b, c:2)
+
+!$omp parallel master taskloop simd nontemporal(a)
+PASS: !$omp parallel master taskloop simd nontemporal (a)
+
+!$omp parallel master taskloop simd order(concurrent)
+PASS: !$omp parallel master taskloop simd order (concurrent)
+
+// invalid test without paired validation.
+!$omp parallel master taskloop simd private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
+
+!$omp parallel master taskloop simd private (a, b, c) private (a, b, e) firstprivate (foo(x), y), shared (a, b, c[1:10]) // invalid test without paired validation.
+
+!$omp parallel master taskloop simd private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4)
+
+!$omp parallel master taskloop simd reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
+
+!$omp parallel master taskloop simd in_reduction (+ : a, foo(x)) in_reduction (abc : x, y, z) in_reduction (user_defined_value : x, y, z) in_reduction (max : a, foo(x))
+
+!$omp parallel master taskloop simd if (a) if (simd : b)
+
+!$omp parallel master taskloop simd shared 
+
+!$omp parallel master taskloop simd private (a, b) private
+ 
+!$omp parallel master taskloop simd firstprivate 
+
+!$omp parallel master taskloop simd lastprivate(sde:a,b,c)
+
+!$omp parallel master taskloop simd reduction (task, + : a, foo(x))
+
+!$omp parallel master taskloop simd in_reduction (task, so : a, foo(x))
+
+!$omp parallel master taskloop simd default
+
+!$omp parallel master taskloop simd grainsize
+
+!$omp parallel master taskloop simd num_tasks
+
+!$omp parallel master taskloop simd collapse
+
+!$omp parallel master taskloop simd priority
+
+!$omp parallel master taskloop simd final
+
+!$omp parallel master taskloop simd untied (23)
+
+!$omp parallel master taskloop simd mergeable (23)
+
+!$omp parallel master taskloop simd nogroup (23)
+
+!$omp parallel master taskloop simd safelen
+
+!$omp parallel master taskloop simd simdlen
+
+!$omp parallel master taskloop simd linear
+
+!$omp parallel master taskloop simd aligned
+
+!$omp parallel master taskloop simd collapse
+
+!$omp parallel master taskloop simd nontemporal
+
+!$omp parallel master taskloop simd order
+
+

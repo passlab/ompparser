@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 !$omp sections private(a,b,c)
@@ -35,9 +35,18 @@ PASS: !$omp section
 !$omp end section
 PASS: !$omp end section 
 
+<<<<<<< HEAD
 !$omp end sections nowait
 PASS: !$omp end sections nowait
  
+=======
+!$omp end sections
+PASS: !$omp end sections 
+
+!$omp end sections nowait
+PASS: !$omp end sections nowait
+
+>>>>>>> 8a7a2d8e375697662a710a13e88faeb10fb59c81
 // invalid test without paired validation.
 
 !$omp section lastprivate(userde:a,b,c)
@@ -46,7 +55,13 @@ PASS: !$omp end sections nowait
 
 !$omp sections nowait
 
+<<<<<<< HEAD
 !$omp end sections nowaite
+=======
+!$omp end sections allocate(omp_default_mem_alloc:a,b,c)
+
+
+>>>>>>> 8a7a2d8e375697662a710a13e88faeb10fb59c81
 
 
 

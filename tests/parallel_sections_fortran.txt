@@ -1,0 +1,71 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp parallel sections private (a, b) private (a, c)
+PASS: !$omp parallel sections private (a, b, c)
+  
+!$omp parallel sections num_threads (3*5+4/(7+10))
+PASS: !$omp parallel sections num_threads (3*5+4/(7+10))
+
+!$omp parallel sections firstprivate (x, y)
+PASS: !$omp parallel sections firstprivate (x, y)
+
+!$omp parallel sections lastprivate(conditional:a,b,c)
+PASS: !$omp parallel sections lastprivate (conditional: a, b, c)
+
+!$omp parallel sections shared (a, b, c[1:10])
+PASS: !$omp parallel sections shared (a, b, c[1:10])
+
+!$omp parallel sections copyin (a[foo(goo(x)):20],a,y)
+PASS: !$omp parallel sections copyin (a[foo(goo(x)):20], a, y)
+
+!$omp parallel sections default (shared)
+PASS: !$omp parallel sections default (shared)
+
+!$omp parallel sections default (none)
+PASS: !$omp parallel sections default (none)
+
+!$omp parallel sections if (a) if (parallel : b) default (firstprivate)
+PASS: !$omp parallel sections if (a) if (parallel: b) default (firstprivate)
+
+!$omp parallel sections proc_bind (master)
+PASS: !$omp parallel sections proc_bind (master)
+
+!$omp parallel sections proc_bind (close) default (private)
+PASS: !$omp parallel sections default (private) proc_bind (close)
+
+!$omp parallel sections proc_bind (spread)
+PASS: !$omp parallel sections proc_bind (spread)
+
+!$omp parallel sections reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+PASS: !$omp parallel sections reduction (inscan, + : a, foo(x)) reduction (abc : x, y, z) reduction (task, user_defined_value : x, y, z) reduction (inscan, max : a, foo(x))
+
+!$omp parallel sections allocate (omp_high_bw_mem_alloc : m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test : m, n[1:5])
+PASS: !$omp parallel sections allocate (omp_high_bw_mem_alloc: m, n[1:5]) allocate (no, allo, cator) allocate (user_defined_test: m, n[1:5])
+
+// invalid test without paired validation.
+
+!$omp parallel sections private (a[foo(x, goo(x, y)):100], b[1:30], c) num_threads (3*5+4/(7+10)) allocate (omp_user_defined_mem_alloc : m, n[1:5]) allocate (no, allo, cator)
+
+!$omp parallel sections private (a, b, c) private (a, b, e) firstprivate (foo(x), y), shared (a, b, c[1:10])
+
+!$omp parallel sections private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y), shared (a, b, c[1:10]) num_threads (4)
+
+!$omp parallel sections reduction (tasktest : x11, y, z) allocate (user_defined_test : m, n[1:5]) allocate (omp_high_bw_mem_alloc : m, n[1:5]) reduction (inscan, max : a, foo(x))
+
+!$omp parallel sections lastprivate(userde:a,b,c)
+
+!$omp parallel sections schedule(simd,simd:runtime,2)
+
+!$omp parallel sections dist_schedule(static,2)
+
+!$omp parallel sections if (simd:a)
+
+!$omp parallel sections nowait
+
+
+

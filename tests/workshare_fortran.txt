@@ -5,18 +5,24 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-!$omp threadprivate (a)
-PASS: !$omp threadprivate (a)
+!$omp workshare 
+PASS: !$omp workshare 
 
-!$omp threadprivate (c,b,d)
-PASS: !$omp threadprivate (c,b,d)
+!$omp end workshare
+PASS: !$omp end workshare 
 
-!$omp threadprivate (from,b,d)
-PASS: !$omp threadprivate (from,b,d)
+!$omp end workshare nowait
+PASS: !$omp end workshare nowait
 
 // invalid test without paired validation.
 
-!$omp threadprivate
+!$omp workshare allocate(omp_default_mem_alloc:a,b,c)
 
-!$omp threadprivate (c,b,d) if(a)
+!$omp end workshare allocate(omp_default_mem_alloc:a,b,c)
+
+
+
+
+
+
 

@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp parallel loop private (a, b) private (a, c)
@@ -32,14 +32,14 @@ PASS: #pragma omp parallel loop default (shared)
 #pragma omp parallel loop default (none)
 PASS: #pragma omp parallel loop default (none)
 
-#pragma omp parallel loop if (a) if (parallel : b) default (firstprivate)
-PASS: #pragma omp parallel loop if (a) if (parallel: b) default (firstprivate)
+#pragma omp parallel loop if (a) if (parallel : b) default (shared)
+PASS: #pragma omp parallel loop if (a) if (parallel: b) default (shared)
 
 #pragma omp parallel loop proc_bind (master)
 PASS: #pragma omp parallel loop proc_bind (master)
 
-#pragma omp parallel loop proc_bind (close) default (private)
-PASS: #pragma omp parallel loop default (private) proc_bind (close)
+#pragma omp parallel loop proc_bind (close) default (none)
+PASS: #pragma omp parallel loop default (none) proc_bind (close)
 
 #pragma omp parallel loop proc_bind (spread)
 PASS: #pragma omp parallel loop proc_bind (spread)
@@ -77,5 +77,9 @@ PASS: #pragma omp parallel loop bind (parallel)
 #pragma omp parallel loop order
 
 #pragma omp parallel loop if (simd:a)
+
+#pragma omp parallel loop default (firstprivate)
+
+#pragma omp parallel loop default (private)
 
 

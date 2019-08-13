@@ -60,6 +60,7 @@
 %x SHARED_STATE
 %x COPYIN_STATE
 %x COPYPRIVATE_STATE
+	
 
 %{
 
@@ -366,25 +367,20 @@ threads                   { return THREADS; }
 <FIRSTPRIVATE_STATE>{blank}*                { ; }
 <FIRSTPRIVATE_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<FIRSTPRIVATE_STATE>"("                     { return '('; }
-<FIRSTPRIVATE_STATE>")"                     { yy_pop_state(); return ')'; }
-<FIRSTPRIVATE_STATE>{blank}*                { ; }
-<FIRSTPRIVATE_STATE>.                       { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
-
 <SHARED_STATE>"("                           { return '('; }
 <SHARED_STATE>")"                           { yy_pop_state(); return ')'; }
 <SHARED_STATE>{blank}*                      { ; }
 <SHARED_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<COPYIN_STATE>"("                           { return '('; }
-<COPYIN_STATE>")"                           { yy_pop_state(); return ')'; }
-<COPYIN_STATE>{blank}*                      { ; }
-<COPYIN_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
-
 <COPYPRIVATE_STATE>"("                      { return '('; }
 <COPYPRIVATE_STATE>")"                      { yy_pop_state(); return ')'; }
 <COPYPRIVATE_STATE>{blank}*                 { ; }
 <COPYPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<COPYIN_STATE>"("                           { return '('; }
+<COPYIN_STATE>")"                           { yy_pop_state(); return ')'; }
+<COPYIN_STATE>{blank}*                      { ; }
+<COPYIN_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <LASTPRIVATE_STATE>conditional/{blank}*:    { return MODIFIER_CONDITIONAL;}
 <LASTPRIVATE_STATE>"("                      { return '('; }

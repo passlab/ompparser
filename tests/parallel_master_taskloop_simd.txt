@@ -32,8 +32,8 @@ PASS: #pragma omp parallel master taskloop simd if (a) if (parallel: b) if (task
 #pragma omp parallel master taskloop simd proc_bind (master)
 PASS: #pragma omp parallel master taskloop simd proc_bind (master)
 
-#pragma omp parallel master taskloop simd proc_bind (close) default (private)
-PASS: #pragma omp parallel master taskloop simd default (private) proc_bind (close)
+#pragma omp parallel master taskloop simd proc_bind (close) default (shared)
+PASS: #pragma omp parallel master taskloop simd default (shared) proc_bind (close)
 
 #pragma omp parallel master taskloop simd proc_bind (spread)
 PASS: #pragma omp parallel master taskloop simd proc_bind (spread)
@@ -155,4 +155,5 @@ PASS: #pragma omp parallel master taskloop simd order (concurrent)
 
 #pragma omp parallel master taskloop simd order
 
+#pragma omp parallel master taskloop simd proc_bind (close) default (private)
 
