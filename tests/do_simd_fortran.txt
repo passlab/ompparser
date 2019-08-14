@@ -1,0 +1,110 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp do simd private(a,b,c)
+PASS: !$omp do simd private (a, b, c)
+
+!$omp do simd firstprivate(a,b,c)
+PASS: !$omp do simd firstprivate (a, b, c)
+
+!$omp do simd lastprivate(conditional:a,b,c)
+PASS: !$omp do simd lastprivate (conditional: a, b, c)
+
+!$omp do simd linear(a,b,c:2)
+PASS: !$omp do simd linear (a, b, c:2)
+
+!$omp do simd reduction(task,max:a,b,c)
+PASS: !$omp do simd reduction (task, max : a, b, c)
+
+!$omp do simd schedule(monotonic,simd:runtime,2)
+PASS: !$omp do simd schedule (monotonic,simd:runtime, 2)
+
+!$omp do simd collapse(a)
+PASS: !$omp do simd collapse (a)
+
+!$omp do simd ordered(a)
+PASS: !$omp do simd ordered (a)
+
+!$omp do simd allocate(a,b,c)
+PASS: !$omp do simd allocate (a, b, c)
+
+!$omp do simd allocate(omp_allocator_handle_t:a,b,c)
+PASS: !$omp do simd allocate (omp_allocator_handle_t: a, b, c)
+
+!$omp do simd allocate(omp_default_mem_alloc:a,b,c)
+PASS: !$omp do simd allocate (omp_default_mem_alloc: a, b, c)
+
+!$omp do simd order(concurrent)
+PASS: !$omp do simd order (concurrent)
+
+!$omp do simd if(a)
+PASS: !$omp do simd if (a)
+
+!$omp do simd if(simd:a)
+PASS: !$omp do simd if (simd: a)
+
+!$omp do simd safelen(4)
+PASS: !$omp do simd safelen (4)
+
+!$omp do simd simdlen(4)
+PASS: !$omp do simd simdlen (4)
+
+!$omp do simd aligned(*a,&b,c:2)
+PASS: !$omp do simd aligned (*a, &b, c:2)
+
+!$omp do simd nontemporal(a)
+PASS: !$omp do simd nontemporal (a)
+
+!$omp end do simd
+PASS: !$omp end do simd 
+
+!$omp end do simd nowait
+PASS: !$omp end do simd nowait
+
+!$omp do simd safelen(tol)
+PASS: !$omp do simd safelen (tol)
+
+!$omp do simd simdlen(tol)
+PASS: !$omp do simd simdlen (tol)
+
+!$omp do simd nontemporal(private)
+PASS: !$omp do simd nontemporal (private)
+
+// invalid test without paired validation.
+
+!$omp do simd lastprivate(userde:a,b,c)
+
+!$omp do simd collapse
+
+!$omp do simd nowait(dsfasf)
+
+!$omp do simd order
+
+!$omp do simd schedule(use,user:runtime,2)
+
+!$omp do simd schedule(simd,simd:runtime,2)
+
+!$omp do simd nontemporal
+
+!$omp do simd if(parallel:,b,c)
+
+!$omp do simd safelen
+
+!$omp do simd simdlen
+
+!$omp do simd linear
+
+!$omp do simd aligned
+
+!$omp do simd private(conditional:a,b,c)
+
+!$omp do simd nowait
+
+!$omp end do simd order(concurrent)
+
+
+

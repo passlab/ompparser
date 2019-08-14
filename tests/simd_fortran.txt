@@ -1,0 +1,87 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp simd if(a)
+PASS: !$omp simd if (a)
+
+!$omp simd if(simd:a)
+PASS: !$omp simd if (simd: a)
+
+!$omp simd safelen(4)
+PASS: !$omp simd safelen (4)
+
+!$omp simd simdlen(4)
+PASS: !$omp simd simdlen (4)
+
+!$omp simd safelen(tol)
+PASS: !$omp simd safelen (tol)
+
+!$omp simd simdlen(tol)
+PASS: !$omp simd simdlen (tol)
+
+!$omp simd lastprivate(conditional:a,b,c)
+PASS: !$omp simd lastprivate (conditional: a, b, c)
+
+!$omp simd private(a,b,c)
+PASS: !$omp simd private (a, b, c)
+
+!$omp simd linear(a,b,c:2)
+PASS: !$omp simd linear (a, b, c:2)
+
+!$omp simd aligned(*a,&b,c:2)
+PASS: !$omp simd aligned (*a, &b, c:2)
+
+!$omp simd reduction(task,max:a,b,c)
+PASS: !$omp simd reduction (task, max : a, b, c)
+
+!$omp simd nontemporal(a)
+PASS: !$omp simd nontemporal (a)
+
+!$omp simd nontemporal(private)
+PASS: !$omp simd nontemporal (private)
+
+!$omp simd collapse(a)
+PASS: !$omp simd collapse (a)
+
+!$omp simd order(concurrent)
+PASS: !$omp simd order (concurrent)
+
+!$omp end simd
+PASS: !$omp end simd 
+
+// invalid test without paired validation.
+
+!$omp simd lastprivate(userde:a,b,c)
+
+!$omp simd collapse
+
+!$omp simd nontemporal
+
+!$omp simd order
+
+!$omp simd if(parallel:,b,c)
+
+!$omp simd safelen
+
+!$omp simd simdlen
+
+!$omp simd linear
+
+!$omp simd aligned
+
+!$omp simd private(conditional:a,b,c)
+
+
+
+
+
+
+
+
+
+
+

@@ -2,14 +2,14 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp for private(a,b,c)
-PASS: #pragma omp for private (a, b, c)
+#pragma omp for private(for,b,c)
+PASS: #pragma omp for private (for, b, c)
 
-#pragma omp for firstprivate(a,b,c)
-PASS: #pragma omp for firstprivate (a, b, c)
+#pragma omp for firstprivate(tol,b,c)
+PASS: #pragma omp for firstprivate (tol, b, c)
 
 #pragma omp for lastprivate(conditional:a,b,c)
 PASS: #pragma omp for lastprivate (conditional: a, b, c)
@@ -32,11 +32,11 @@ PASS: #pragma omp for schedule (monotonic,simd:runtime, 2)
 #pragma omp for schedule(runtime,2)
 PASS: #pragma omp for schedule (runtime, 2)
 
-#pragma omp for collapse(a)
-PASS: #pragma omp for collapse (a)
+#pragma omp for collapse(tol)
+PASS: #pragma omp for collapse (tol)
 
-#pragma omp for ordered(a)
-PASS: #pragma omp for ordered (a)
+#pragma omp for ordered(tol)
+PASS: #pragma omp for ordered (tol)
 
 #pragma omp for nowait
 PASS: #pragma omp for nowait
@@ -67,9 +67,9 @@ PASS: #pragma omp for order (concurrent)
 
 #pragma omp for schedule(simd,simd:runtime,2)
 
+#pragma omp for linear(uval(a,b,c):2)
 
-
-
+#pragma omp for linear(ref(a,b,c):2)
 
 
 

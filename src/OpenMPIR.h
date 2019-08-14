@@ -201,6 +201,17 @@ public:
     std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
+//declear simd directive
+class OpenMPDeclareSimdDirective : public OpenMPDirective {
+protected:
+    std::string proc_name;
+
+public:
+    OpenMPDeclareSimdDirective () : OpenMPDirective(OMPD_declare_simd) {};
+    void addProcName (std::string _proc_name) { proc_name = _proc_name;}
+    std::string getProcName() { return proc_name;}
+};
+
 //declear reduction directive
 class OpenMPDeclareReductionDirective : public OpenMPDirective {
 protected:

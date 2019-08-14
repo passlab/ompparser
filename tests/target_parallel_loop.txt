@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp target parallel loop if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2), in:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))

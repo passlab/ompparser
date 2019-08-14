@@ -2,20 +2,26 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp simd if(a)
+#pragma omp simd if (a)
 PASS: #pragma omp simd if (a)
 
-#pragma omp simd if(simd:a)
+#pragma omp simd if (simd:a)
 PASS: #pragma omp simd if (simd: a)
 
-#pragma omp simd safelen(4)
+#pragma omp simd safelen (4)
 PASS: #pragma omp simd safelen (4)
 
-#pragma omp simd simdlen(4)
+#pragma omp simd simdlen (4)
 PASS: #pragma omp simd simdlen (4)
+
+#pragma omp simd safelen(tol)
+PASS: #pragma omp simd safelen (tol)
+
+#pragma omp simd simdlen(tol)
+PASS: #pragma omp simd simdlen (tol)
 
 #pragma omp simd lastprivate(conditional:a,b,c)
 PASS: #pragma omp simd lastprivate (conditional: a, b, c)
@@ -34,6 +40,9 @@ PASS: #pragma omp simd reduction (task, max : a, b, c)
 
 #pragma omp simd nontemporal(a)
 PASS: #pragma omp simd nontemporal (a)
+
+#pragma omp simd nontemporal (private)
+PASS: #pragma omp simd nontemporal (private)
 
 #pragma omp simd collapse(a)
 PASS: #pragma omp simd collapse (a)

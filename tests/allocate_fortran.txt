@@ -1,0 +1,32 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp allocate(a,b,c)
+PASS: !$omp allocate (a,b,c) 
+
+!$omp allocate(to,b,c)
+PASS: !$omp allocate (to,b,c) 
+
+!$omp allocate(f,e) allocator(omp_allocator_handle_t)
+PASS: !$omp allocate (f,e) allocator (omp_allocator_handle_t)
+
+!$omp allocate (z,x) allocator(omp_default_mem_alloc)
+PASS: !$omp allocate (z,x) allocator (omp_default_mem_alloc)
+
+// invalid test without paired validation.
+
+!$omp allocate allocator(omp_default_mem_alloc:a,b,c)
+
+!$omp allocate(a,b,v) allocator(omp_default_mem_alloc:a,b,c)
+
+!$omp allocate(a,b,v) allocator(omp_default_mem_alloc) allocator(omp_allocator_handle_td) 
+
+
+
+
+
+

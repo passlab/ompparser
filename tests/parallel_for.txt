@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp parallel for private (a, b) private (a, c)
@@ -34,6 +34,12 @@ PASS: #pragma omp parallel for nowait
 
 #pragma omp parallel for shared (a, b, c[1:10])
 PASS: #pragma omp parallel for shared (a, b, c[1:10])
+
+#pragma omp parallel for shared (to)
+PASS: #pragma omp parallel for shared (to)
+
+#pragma omp parallel for copyin (from)
+PASS: #pragma omp parallel for copyin (from)
 
 #pragma omp parallel for copyin (a[foo(goo(x)):20],a,y)
 PASS: #pragma omp parallel for copyin (a[foo(goo(x)):20], a, y)

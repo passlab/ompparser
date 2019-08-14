@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp declare simd simdlen(4)
@@ -41,7 +41,7 @@ PASS: #pragma omp declare simd linear (k) uniform (i) notinbranch
 
 #pragma omp declare simd inbranch(dfa:23)
 
-
+#pragma omp declare simd (DFHK) inbranch(dfa:23)
 
 
 

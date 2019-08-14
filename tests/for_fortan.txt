@@ -1,0 +1,82 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp do private(for,b,c)
+PASS: !$omp do private (for, b, c)
+
+!$omp do firstprivate(tol,b,c)
+PASS: !$omp do firstprivate (tol, b, c)
+
+!$omp do lastprivate(conditional:a,b,c)
+PASS: !$omp do lastprivate (conditional: a, b, c)
+
+!$omp do linear(a,b,c:2)
+PASS: !$omp do linear (a, b, c:2)
+
+!$omp do linear(val(a,b,c):2)
+PASS: !$omp do linear (val( a, b, c) :2)
+
+!$omp do linear(a)
+PASS: !$omp do linear (a)
+
+!$omp do reduction(task,max:a,b,c)
+PASS: !$omp do reduction (task, max : a, b, c)
+
+!$omp do schedule(monotonic,simd:runtime,2)
+PASS: !$omp do schedule (monotonic,simd:runtime, 2)
+
+!$omp do schedule(runtime,2)
+PASS: !$omp do schedule (runtime, 2)
+
+!$omp do collapse(tol)
+PASS: !$omp do collapse (tol)
+
+!$omp do ordered(tol)
+PASS: !$omp do ordered (tol)
+
+!$omp do allocate(a,b,c)
+PASS: !$omp do allocate (a, b, c)
+
+!$omp do allocate(omp_allocator_handle_t:a,b,c)
+PASS: !$omp do allocate (omp_allocator_handle_t: a, b, c)
+
+!$omp do allocate(omp_default_mem_alloc:a,b,c)
+PASS: !$omp do allocate (omp_default_mem_alloc: a, b, c)
+
+!$omp do order(concurrent)
+PASS: !$omp do order (concurrent)
+
+!$omp end do 
+PASS: !$omp end do 
+
+!$omp end do nowait
+PASS: !$omp end do nowait
+
+// invalid test without paired validation.
+
+!$omp do lastprivate(userde:a,b,c)
+
+!$omp do collapse
+
+!$omp do nowait(dsfasf)
+
+!$omp do order
+
+!$omp do schedule(use,user:runtime,2)
+
+!$omp do schedule(simd,simd:runtime,2)
+
+!$omp do nowait
+
+!$omp end do order(concurrent)
+
+
+
+
+
+
+

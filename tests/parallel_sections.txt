@@ -2,7 +2,7 @@
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.
 //Only two kinds of special lines will be recognized.
-  //One is starting with "omp", which is the input.
+//One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp parallel sections private (a, b) private (a, c)
@@ -29,14 +29,14 @@ PASS: #pragma omp parallel sections default (shared)
 #pragma omp parallel sections default (none)
 PASS: #pragma omp parallel sections default (none)
 
-#pragma omp parallel sections if (a) if (parallel : b) default (firstprivate)
-PASS: #pragma omp parallel sections if (a) if (parallel: b) default (firstprivate)
+#pragma omp parallel sections if (a) if (parallel : b) default (shared)
+PASS: #pragma omp parallel sections if (a) if (parallel: b) default (shared)
 
 #pragma omp parallel sections proc_bind (master)
 PASS: #pragma omp parallel sections proc_bind (master)
 
-#pragma omp parallel sections proc_bind (close) default (private)
-PASS: #pragma omp parallel sections default (private) proc_bind (close)
+#pragma omp parallel sections proc_bind (close) default (none)
+PASS: #pragma omp parallel sections default (none) proc_bind (close)
 
 #pragma omp parallel sections proc_bind (spread)
 PASS: #pragma omp parallel sections proc_bind (spread)
@@ -67,5 +67,8 @@ PASS: #pragma omp parallel sections allocate (omp_high_bw_mem_alloc: m, n[1:5]) 
 
 #pragma omp parallel sections nowait
 
+#pragma omp parallel sections if (a) if (parallel : b) default (firstprivate)
+
+#pragma omp parallel sections proc_bind (close) default (private)
 
 

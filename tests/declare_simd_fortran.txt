@@ -1,0 +1,71 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp declare simd simdlen(4)
+PASS: !$omp declare simd simdlen (4)
+
+!$omp declare simd linear(a,b,c:2)
+PASS: !$omp declare simd linear (a, b, c:2)
+
+!$omp declare simd aligned(*a,&b,c:2)
+PASS: !$omp declare simd aligned (*a, &b, c:2)
+
+!$omp declare simd uniform(*a,&b)
+PASS: !$omp declare simd uniform (*a, &b)
+
+!$omp declare simd inbranch
+PASS: !$omp declare simd inbranch
+
+!$omp declare simd notinbranch
+PASS: !$omp declare simd notinbranch
+
+!$omp declare simd uniform(i) linear(k) notinbranch
+PASS: !$omp declare simd linear (k) uniform (i) notinbranch
+
+!$omp declare simd (id) simdlen(4)
+PASS: !$omp declare simd (id) simdlen (4)
+
+!$omp declare simd (user) linear(a,b,c:2)
+PASS: !$omp declare simd (user) linear (a, b, c:2)
+
+!$omp declare simd (name) aligned(*a,&b,c:2)
+PASS: !$omp declare simd (name) aligned (*a, &b, c:2)
+
+!$omp declare simd (a) uniform(*a,&b)
+PASS: !$omp declare simd (a) uniform (*a, &b)
+
+!$omp declare simd (d) inbranch
+PASS: !$omp declare simd (d) inbranch
+
+!$omp declare simd (#ljlkfds) notinbranch
+PASS: !$omp declare simd (#ljlkfds) notinbranch
+
+!$omp declare simd (tol) uniform(i) linear(k) notinbranch
+PASS: !$omp declare simd (tol) linear (k) uniform (i) notinbranch
+
+// invalid test without paired validation.
+
+!$omp declare simd safelen
+
+!$omp declare simd simdlen
+
+!$omp declare simd linear
+
+!$omp declare simd aligned
+
+!$omp declare simd notinbranch(v)
+
+!$omp declare simd inbranch(dfa:23)
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp cancellation point parallel
+PASS: !$omp cancellation point parallel
+
+!$omp cancellation point sections
+PASS: !$omp cancellation point sections
+
+!$omp cancellation point do
+PASS: !$omp cancellation point do
+
+!$omp cancellation point taskgroup
+PASS: !$omp cancellation point taskgroup
+
+// invalid test without paired validation.
+
+!$omp cancellation point simd
+
+!$omp cancellation point for private(j,d)
+
+!$omp cancellation point for
+
+
