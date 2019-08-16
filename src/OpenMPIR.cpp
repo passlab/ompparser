@@ -4404,122 +4404,122 @@ std::string OpenMPUsesAllocatorsClause::toString() {
     std::string result = "uses allocators ";
     std::string parameter_string;
     parameter_string += "(";
-    for (int i = 0; i <usesAllocatorsAllocatorSequence->size(); i++) { 
+    for (int i = 0; i < usesAllocatorsAllocatorSequence->size(); i++) { 
         switch (usesAllocatorsAllocatorSequence->at(i)->getUsesAllocatorsAllocator()) {
             case OMPC_USESALLOCATORS_ALLOCATOR_default: {
                 parameter_string += "default";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_large_cap: {
                 parameter_string += "large_cap";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_cons_mem: {
                 parameter_string += "cons_mem";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_high_bw: {
                 parameter_string += "high_bw";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_low_lat: {
                 parameter_string += "low_lat";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) 
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_cgroup: {
                 parameter_string += "cgroup";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_pteam: {
                 parameter_string += "pteam";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_thread: {
                 parameter_string += "thread";
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             case OMPC_USESALLOCATORS_ALLOCATOR_user: {
                 parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorUser();
-                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray()!="") {
+                if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
                     parameter_string += ")";
                 }
-                if (i<usesAllocatorsAllocatorSequence->size()-1) {
+                if (i < usesAllocatorsAllocatorSequence->size()-1) {
                     parameter_string += ",";
                 }
-                break;
             }
+            break;
             default:
                    ;
+    }
 }
-}
-result += parameter_string;
-result += " ) ";
+    result += parameter_string;
+    result += " ) ";
     return result;
 }
 
