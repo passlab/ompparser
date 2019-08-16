@@ -885,6 +885,7 @@ public:
     std::vector<usesAllocatorParameter*>* getUsesAllocatorsAllocatorSequence() {
         return &usesAllocatorsAllocatorSequence;
     };
+    static OpenMPClause * addUsesAllocatorsClause(OpenMPDirective* directive);
     std::string toString();
 };
 
