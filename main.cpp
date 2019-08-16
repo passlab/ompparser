@@ -162,7 +162,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    const char* input = "#pragma omp ordered depend(sink: i-1,j) depend(sink: i+1,j)";
+    const char* input = "omp target uses_allocators(omp_default_mem_alloc,omp_pteam_mem_alloc(9ihvj),wertyu)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

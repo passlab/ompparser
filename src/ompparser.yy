@@ -34,12 +34,13 @@ static OpenMPClause* current_parent_clause = NULL;
 static int firstParameter;
 static int secondParameter;
 static int thirdParameter;
+OpenMPUsesAllocatorsClauseAllocator usesAllocator;
 std::string fourthParameter;
+std::string fifthParameter;
 std::vector<const char*>* iterator_definition = new std::vector<const char*>();
 std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
 std::vector<std::vector<const char*>* > depend_iterators_definition_class;
 static const char* trait_score = "";
-
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
 static int openmp_error(const char*);
@@ -855,7 +856,7 @@ in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpen
 | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
 ;
 
- depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' {
+depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' {
 }
                              ;
 
@@ -1017,24 +1018,28 @@ defaultmap_category : CATEGORY_SCALAR { current_clause = current_directive->addO
                     | CATEGORY_AGGREGATE { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_aggregate); }
                     | CATEGORY_POINTER { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap,firstParameter,OMPC_DEFAULTMAP_CATEGORY_pointer); }
                     ;
-uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); } '(' uses_allocators_parameter ')' ;
+uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); firstParameter = OMPC_USESALLOCATORS_ALLOCATOR_unknown; fourthParameter = ""; fifthParameter = ""; } '(' uses_allocators_parameter ')' ;
 uses_allocators_parameter : allocators_list
-                          | allocators_list ','uses_allocators_parameter
+                          | allocators_list ',' uses_allocators_parameter
                           ;
-allocators_list : allocators_list_parameter
-                | allocators_list_parameter '(' EXPR_STRING ')'
+
+allocators_list : allocators_list_parameter_enum { fourthParameter = ""; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
+                | allocators_list_parameter_enum '(' EXPR_STRING ')' { fourthParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
+                | allocators_list_parameter_user { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user;fourthParameter = "";((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
+                | allocators_list_parameter_user '(' EXPR_STRING ')' { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user;fourthParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
                 ;
 
-allocators_list_parameter : DEFAULT_MEM_ALLOC      
-                          | LARGE_CAP_MEM_ALLOC
-                          | CONST_MEM_ALLOC
-                          | HIGH_BW_MEM_ALLOC
-                          | LOW_LAT_MEM_ALLOC
-                          | CGROUP_MEM_ALLOC
-                          | PTEAM_MEM_ALLOC
-                          | THREAD_MEM_ALLOC
-                          | EXPR_STRING
-                          ;
+allocators_list_parameter_enum : DEFAULT_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_default;  cout<<"test here"<<endl;}
+                               | LARGE_CAP_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_large_cap;  }
+                               | CONST_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_cons_mem; }
+                               | HIGH_BW_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_high_bw; }
+                               | LOW_LAT_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_low_lat;}
+                               | CGROUP_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_cgroup;  }
+                               | PTEAM_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_pteam;  }
+                               | THREAD_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_thread; }
+                               ;
+allocators_list_parameter_user : EXPR_STRING { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_unknown; fifthParameter = $1; }
+                               ;
 to_clause: TO '(' to_parameter ')' ;
 to_parameter : EXPR_STRING  { std::cout << $1 << "\n"; current_clause = current_directive->addOpenMPClause(OMPC_to); current_clause->addLangExpr($1);  }
              | EXPR_STRING ',' {std::cout << $1 << "\n";current_clause = current_directive->addOpenMPClause(OMPC_to); current_clause->addLangExpr($1); } var_list
