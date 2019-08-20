@@ -5,8 +5,11 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare target to(x,y,z) link(b,n,m) device_type(nohost)
-PASS: #pragma omp declare target to (x, y, z) link (b, n, m) device_type (nohost)
+!$omp ordered depend(source) depend(sink:erty)
+PASS: !$omp ordered depend (source) depend (sink : erty)
 
-#pragma omp declare target (x,y,z)
-PASS: #pragma omp declare target (x,y,z) 
+!$omp ordered threads simd
+PASS: !$omp ordered threads simd
+
+!$omp end ordered
+PASS: !$omp end ordered 

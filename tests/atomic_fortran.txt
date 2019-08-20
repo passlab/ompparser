@@ -1,0 +1,39 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp atomic hint(abc) seq_cst seq_cst read seq_cst
+PASS: !$omp atomic read seq_cst hint (abc)
+
+!$omp atomic
+PASS: !$omp atomic 
+
+!$omp atomic hint(abc)
+PASS: !$omp atomic hint (abc)
+
+!$omp atomic read
+PASS: !$omp atomic read
+
+!$omp atomic hint(abc) read
+PASS: !$omp atomic read hint (abc)
+
+!$omp atomic write hint(abc)
+PASS: !$omp atomic write hint (abc)
+
+!$omp atomic write seq_cst
+PASS: !$omp atomic write seq_cst
+
+
+!$omp atomic release hint(abc)
+PASS: !$omp atomic release hint (abc)
+
+
+!$omp atomic release hint(abc) read acq_rel
+PASS: !$omp atomic acq_rel release read hint (abc)
+
+!$omp end atomic
+PASS: !$omp end atomic 
+

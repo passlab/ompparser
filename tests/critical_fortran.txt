@@ -5,8 +5,17 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare target to(x,y,z) link(b,n,m) device_type(nohost)
-PASS: #pragma omp declare target to (x, y, z) link (b, n, m) device_type (nohost)
+!$omp critical(test1) hint(test2)
+PASS: !$omp critical (test1) hint (test2)
 
-#pragma omp declare target (x,y,z)
-PASS: #pragma omp declare target (x,y,z) 
+!$omp critical
+PASS: !$omp critical 
+
+!$omp critical(test3)
+PASS: !$omp critical (test3) 
+
+!$omp end critical
+PASS: !$omp end critical 
+
+!$omp end critical(test3)
+PASS: !$omp end critical (test3) 

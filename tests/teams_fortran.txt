@@ -1,0 +1,18 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp omp teams num_teams (4)
+PASS: !$omp teams num_teams (4)
+
+!$omp teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
+PASS: !$omp teams default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+
+!$omp teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (firstprivate) 
+PASS: !$omp teams default (firstprivate) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+
+!$omp end teams
+PASS: !$omp end teams 

@@ -97,6 +97,12 @@ enum OpenMPDirectiveKind {
     OPENMP_DIRECTIVE(target_teams_loop)
     OPENMP_DIRECTIVE(target_teams_distribute_parallel_for)
     OPENMP_DIRECTIVE(target_teams_distribute_parallel_for_simd)
+    OPENMP_DIRECTIVE(teams_distribute_parallel_do)
+    OPENMP_DIRECTIVE(teams_distribute_parallel_do_simd)
+    OPENMP_DIRECTIVE(target_parallel_do)
+    OPENMP_DIRECTIVE(target_parallel_do_simd)
+    OPENMP_DIRECTIVE(target_teams_distribute_parallel_do)
+    OPENMP_DIRECTIVE(target_teams_distribute_parallel_do_simd)
     OPENMP_DIRECTIVE(unknown)
 #undef OPENMP_DIRECTIVE
 #undef OPENMP_DIRECTIVE_EXT

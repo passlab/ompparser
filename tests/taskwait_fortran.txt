@@ -1,0 +1,12 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)
+PASS: !$omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , out : v, b) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , inout : x, c)
+
+!$omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n)
+PASS: !$omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n)

@@ -1099,6 +1099,24 @@ std::string OpenMPDirective::toString() {
         case OMPD_target_teams_distribute_parallel_for_simd:
             result += "target teams distribute parallel for simd ";
             break; 
+        case OMPD_teams_distribute_parallel_do:
+            result += "teams distribute parallel do ";
+            break;
+        case OMPD_teams_distribute_parallel_do_simd:
+            result += "teams distribute parallel do simd ";
+            break;
+        case OMPD_target_parallel_do:
+            result += "target parallel do ";
+            break;
+        case OMPD_target_parallel_do_simd:
+            result += "target parallel do simd ";
+            break;
+        case OMPD_target_teams_distribute_parallel_do:
+            result += "target teams distribute parallel do ";
+            break;
+        case OMPD_target_teams_distribute_parallel_do_simd:
+            result += "target teams distribute parallel do simd ";
+            break; 
         default:
             printf("The directive enum is not supported yet.\n");
     };
@@ -1506,7 +1524,6 @@ std::string OpenMPInReductionClause::toString() {
 
     return result;
 };
-
 std::string OpenMPDependClause::toString() {
     std::vector<vector<const char*>* >* depend_iterators_definition_class = this->getDependIteratorsDefinitionClass();
     std::string result = "depend ";
@@ -1524,6 +1541,7 @@ std::string OpenMPDependClause::toString() {
             for (int i = 0; i <depend_iterators_definition_class->size(); i++){  
                  clause_string += depend_iterators_definition_class->at(i)->at(0);
                  if(depend_iterators_definition_class->at(i)->at(0)!=""){clause_string +=" ";};
+                 //cout<<"the loop layer i "<<i<<endl;
                  clause_string +=depend_iterators_definition_class->at(i)->at(1);
                  clause_string +="=";
                  clause_string +=depend_iterators_definition_class->at(i)->at(2);
@@ -1532,7 +1550,7 @@ std::string OpenMPDependClause::toString() {
                  if((string)depend_iterators_definition_class->at(i)->at(4)!=""){clause_string +=":";clause_string +=depend_iterators_definition_class->at(i)->at(4);}
                  if((i<depend_iterators_definition_class->size()-1)&&depend_iterators_definition_class->at(i+1)->at(0)!=""){clause_string +=",";};
             }
-            clause_string += " ) ";
+            clause_string += " ) ";  
         default:
             ;
     }}
@@ -3125,6 +3143,24 @@ void OpenMPDirective::generateDOT() {
         case OMPD_target_teams_distribute_parallel_for_simd:
                 directive_kind += "target_teams_distribute_parallel_for simd ";
                 break;
+        case OMPD_teams_distribute_parallel_do:
+                directive_kind += "teams distribute parallel do ";
+                break;
+        case OMPD_teams_distribute_parallel_do_simd:
+                directive_kind += "teams distribute parallel do simd ";
+                break;
+        case OMPD_target_parallel_do:
+                directive_kind += "target parallel do ";
+                break;
+        case OMPD_target_parallel_do_simd:
+                directive_kind += "target parallel do simd ";
+                break;
+        case OMPD_target_teams_distribute_parallel_do:
+                directive_kind += "target teams distribute parallel do ";
+                break;
+        case OMPD_target_teams_distribute_parallel_do_simd:
+                directive_kind += "target teams distribute parallel do simd ";
+                break;
         default:
                 directive_kind = this->toString();
     }
@@ -3380,6 +3416,24 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         case OMPD_target_teams_distribute_parallel_for_simd:
             directive_kind += "target_teams_distribute_parallel_for_simd ";
+            break;
+        case OMPD_teams_distribute_parallel_do:
+            directive_kind += "teams distribute parallel do ";
+            break;
+        case OMPD_teams_distribute_parallel_do_simd:
+            directive_kind += "teams distribute parallel do simd ";
+            break;
+        case OMPD_target_parallel_do:
+            directive_kind += "target parallel do ";
+            break;
+        case OMPD_target_parallel_do_simd:
+            directive_kind += "target parallel do simd ";
+            break;
+        case OMPD_target_teams_distribute_parallel_do:
+            directive_kind += "target teams distribute parallel do ";
+            break;
+        case OMPD_target_teams_distribute_parallel_do_simd:
+            directive_kind += "target teams distribute parallel do simd ";
             break;
         default:
             directive_kind = this->toString().substr(0, this->toString().size()-1);

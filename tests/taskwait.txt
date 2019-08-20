@@ -5,5 +5,14 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)
-PASS: #pragma omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , out : v, b) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9,int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , inout : x, c)
+#pragma omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n)
+PASS: #pragma omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n)
+
+#pragma omp taskwait depend(iterator(int t2=4:120:2, y2=1:220:3, int u2=2:57:9),in:m, n)
+PASS: #pragma omp taskwait depend (iterator ( int t2=4:120:2, y2=1:220:3,int u2=2:57:9 ) , in : m, n)
+
+#pragma omp taskwait depend(iterator(int t3=4:120:2, y3=1:220:3, int u3=2:57:9),inout:m, n) depend(iterator(int t4=5:4320:54, y4=65:30:6543, int u4=65:765:3),inout:q, w)
+PASS: #pragma omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , out : v, b)
+
+#pragma omp taskwait depend(iterator(int t3=4:120:2, y3=1:220:3, int u3=2:57:9),inout:m, n) depend(iterator(int t4=4:120:2, y4=1:220:3, int u4=2:57:9),out:m, n)
+PASS: #pragma omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3,int c=2:57:9 ) , out : v, b)
