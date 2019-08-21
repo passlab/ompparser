@@ -146,9 +146,9 @@ openmp_directive : parallel_directive
                  | single_directive
                  | workshare_directive
                  | cancel_directive
-                 | cancel_fortran_directive
+//                 | cancel_fortran_directive
                  | cancellation_point_directive
-                 | cancellation_point_fortran_directive
+//                 | cancellation_point_fortran_directive
                  | allocate_directive
                  | task_directive
                  | taskloop_directive
@@ -1900,21 +1900,21 @@ cancel_directive : CANCEL {
                  }
                  cancel_clause_optseq
                  ;
-cancel_fortran_directive : CANCEL {
-                              current_directive = new OpenMPDirective(OMPD_cancel);
-                         }
-                         cancel_clause_fortran_optseq
-                         ;
+//cancel_fortran_directive : CANCEL {
+//                              current_directive = new OpenMPDirective(OMPD_cancel);
+//                         }
+//                         cancel_clause_fortran_optseq
+//                         ;
 cancellation_point_directive : CANCELLATION POINT {
                                 current_directive = new OpenMPDirective(OMPD_cancellation_point);
                                 }
                              cancellation_point_clause_optseq
                              ;
-cancellation_point_fortran_directive : CANCELLATION POINT {
-                                         current_directive = new OpenMPDirective(OMPD_cancellation_point);
-                                     }
-                                     cancellation_point_clause_fortran_optseq
-                                     ;
+//cancellation_point_fortran_directive : CANCELLATION POINT {
+//                                         current_directive = new OpenMPDirective(OMPD_cancellation_point);
+//                                     }
+//                                     cancellation_point_clause_fortran_optseq
+//                                     ;
 teams_directive : TEAMS {
                         current_directive = new OpenMPDirective(OMPD_teams);
                 }
@@ -2090,14 +2090,14 @@ workshare_paired_clause_optseq : /*empty*/
 cancel_clause_optseq : /*empty*/
                      | cancel_clause_seq
                      ;
-cancel_clause_fortran_optseq : /*empty*/
-                             | cancel_clause_fortran_seq
-                             ;
+//cancel_clause_fortran_optseq : /*empty*/
+//                             | cancel_clause_fortran_seq
+//                             ;
 cancellation_point_clause_optseq : /*empty*/
                                  | cancellation_point_clause_seq
                                  ;
-cancellation_point_clause_fortran_optseq : /*empty*/
-                                         | cancellation_point_clause_fortran_seq
+//cancellation_point_clause_fortran_optseq : /*empty*/
+//                                         | cancellation_point_clause_fortran_seq
                                          ;
 allocate_clause_optseq : /*empty*/
                        | allocate_clause_seq
@@ -2239,14 +2239,14 @@ cancel_clause_seq : construct_type_clause
                   | construct_type_clause if_cancel_clause
                   | construct_type_clause "," if_cancel_clause
                   ;
-cancel_clause_fortran_seq : construct_type_clause_fortran
-                          | construct_type_clause_fortran if_cancel_clause
-                          | construct_type_clause_fortran "," if_cancel_clause
-                          ;
+//cancel_clause_fortran_seq : construct_type_clause_fortran
+//                          | construct_type_clause_fortran if_cancel_clause
+//                          | construct_type_clause_fortran "," if_cancel_clause
+//                          ;
 cancellation_point_clause_seq : construct_type_clause
                               ;
-cancellation_point_clause_fortran_seq : construct_type_clause_fortran
-                                      ;
+//cancellation_point_clause_fortran_seq : construct_type_clause_fortran
+//                                      ;
 allocate_clause_seq :  allocator_clause
                     ;
 declare_reduction_clause_seq : initializer_clause
@@ -2681,14 +2681,15 @@ single_paired_clause : copyprivate_clause
                      ;
 construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
                       | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections); }
-                      | FOR { current_clause = current_directive->addOpenMPClause(OMPC_for); }
+                      | FOR { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_for);} else {yyerror("cancel or cancellation direcitve does not support for clause in fortran"); YYABORT; } }
+                      | DO { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_do);} else {yyerror("cancel or cancellation direcitve does not support DO clause in c"); YYABORT; } }
                       | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
                       ;
-construct_type_clause_fortran : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
-                              | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections); }
-                              | DO { current_clause = current_directive->addOpenMPClause(OMPC_do); }
-                              | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
-                              ;
+//construct_type_clause_fortran : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
+//                              | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections); }
+//                              | DO { current_clause = current_directive->addOpenMPClause(OMPC_do); }
+//                              | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
+//                              ;
 if_parallel_clause : IF '(' if_parallel_parameter ')' { ; }
                    ;
 
