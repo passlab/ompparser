@@ -40,6 +40,7 @@ std::string fifthParameter;
 std::vector<const char*>* iterator_definition = new std::vector<const char*>();
 std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
 std::vector<std::vector<const char*>* > depend_iterators_definition_class;
+//std::vector<std::vector<const char*>* >* depend_iterators_definition_class;
 static const char* trait_score = "";
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
@@ -887,7 +888,7 @@ in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpen
 | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
 ;
 
-depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' {
+depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' { depend_iterators_definition_class.clear();
 }
                              ;
 
@@ -3423,9 +3424,10 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
         std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
         input = input_string.c_str();
     };
+    //depend_iterators_definition_class = new std::vector<std::vector<const char*>* >();
     start_lexer(input);
     int res = yyparse();
-    depend_iterators_definition_class.clear();
+    //depend_iterators_definition_class.clear();
     end_lexer();
     if (current_directive) {
         current_directive->setBaseLang(base_lang);
