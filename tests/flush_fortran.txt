@@ -5,8 +5,17 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare target to(x,y,z) link(b,n,m) device_type(nohost)
-PASS: #pragma omp declare target to (x, y, z) link (b, n, m) device_type (nohost)
+!$omp flush acq_rel(x,y,z)
+PASS: !$omp flush (x,y,z) acq_rel
 
-#pragma omp declare target (x,y,z)
-PASS: #pragma omp declare target (x,y,z) 
+!$omp flush release
+PASS: !$omp flush release
+
+!$omp flush release(x,y,z)
+PASS: !$omp flush (x,y,z) release
+
+!$omp flush acquire(x,y,z)
+PASS: !$omp flush (x,y,z) acquire
+
+!$omp flush acquire
+PASS: !$omp flush acquire

@@ -1,0 +1,22 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp teams distribute parallel do simd
+PASS: !$omp teams distribute parallel do simd 
+
+!$omp teams distribute parallel do simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
+PASS: !$omp teams distribute parallel do simd default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+ 
+!$omp teams distribute parallel do simd num_threads (3*5+4/(7+10)) lastprivate(conditional:a,b,c) linear(a,b,c:2) ordered(a) collapse(a) schedule(monotonic,simd:runtime,2) nowait shared (a, b, c[1:10]) copyin (a[foo(goo(x)):20],a,y) default (shared) if (parallel : b) proc_bind (master) dist_schedule(static) ordered(a) safelen(4) simdlen(4) aligned(*a,&b,c:2) nontemporal(a) if (simd : b)
+PASS: !$omp teams distribute parallel do simd if (parallel: b) if (simd: b) num_threads (3*5+4/(7+10)) default (shared) shared (a, b, c[1:10]) copyin (a[foo(goo(x)):20], a, y) proc_bind (master) lastprivate (conditional: a, b, c) collapse (a) ordered (a) nowait linear (a, b, c:2) schedule (monotonic,simd:runtime, 2) safelen (4) simdlen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static)
+
+
+!$omp teams distribute parallel do simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none) num_threads (3*5+4/(7+10)) lastprivate(conditional:a,b,c) linear(a,b,c:2) ordered(a) collapse(a) schedule(monotonic,simd:runtime,2) nowait shared (a, b, c[1:10]) copyin (a[foo(goo(x)):20],a,y) default (shared) if (parallel : b) proc_bind (master) dist_schedule(static) ordered(a) safelen(4) simdlen(4) aligned(*a,&b,c:2) nontemporal(a) if (simd : b)
+PASS: !$omp teams distribute parallel do simd if (parallel: b) if (simd: b) num_threads (3*5+4/(7+10)) default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) copyin (a[foo(goo(x)):20], a, y) reduction (tasktest : x11, y, z) proc_bind (master) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5) lastprivate (conditional: a, b, c) collapse (a) ordered (a) nowait linear (a, b, c:2) schedule (monotonic,simd:runtime, 2) safelen (4) simdlen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static)
+
+!$omp end teams distribute parallel do simd
+PASS: !$omp end teams distribute parallel do simd 

@@ -9,7 +9,4 @@
 PASS: #pragma omp target enter data if (target enter data: 3456) nowait depend (iterator ( int bba=4:120:2 ) , in : m, n) device (5)
 
 #pragma omp target enter data if(target enter data:3456) device(5) depend(iterator(int bba=4:120:2,double b = 2:600:7), inout:m, n) nowait
-PASS: #pragma omp target enter data if (target enter data: 3456) nowait depend (iterator ( int bba=4:120:2,int bba=4:120:2,double b=2:600:7 ) , inout : m, n) device (5)
-
-
-
+PASS: #pragma omp target enter data if (target enter data: 3456) nowait depend (iterator ( int bba=4:120:2,double b=2:600:7 ) , inout : m, n) device (5)

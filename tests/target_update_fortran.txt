@@ -1,0 +1,15 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+  //One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait
+PASS: !$omp target update if (target update: 3456) nowait depend (iterator ( int bba=4:120:2 ) , in : m, n) device (5)
+
+!$omp target update to(mapper(default):m,i,o) from(m,i,o)
+PASS: !$omp target update to (mapper(default) : m, i, o) from (m, i, o)
+
+!$omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)
+PASS: !$omp target update to (mapper(default) : m, i, o) from (mapper(default) : m, i, o)

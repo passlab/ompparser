@@ -1,0 +1,24 @@
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp target teams if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2), in:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))
+PASS: !$omp target teams if (target: 3456) private (x, n[1:5]) firstprivate (foo(x), y) allocate (omp_default_mem_alloc: m, n[1:5]) nowait in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2 ) , in : m, n) device (ancestor : 5) is_device_ptr (m, n, j) defaultmap (alloc: pointer) uses allocators (default(1234567),cons_mem(234) )
+
+!$omp target teams if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2,char huj = 2:677), inout:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))
+PASS: !$omp target teams if (target: 3456) private (x, n[1:5]) firstprivate (foo(x), y) allocate (omp_default_mem_alloc: m, n[1:5]) nowait in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2,char huj=2:677 ) , inout : m, n) device (ancestor : 5) is_device_ptr (m, n, j) defaultmap (alloc: pointer) uses allocators (default(1234567),cons_mem(234) )
+
+!$omp target teams num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
+PASS: !$omp target teams default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+
+!$omp target teams if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2,char huj = 2:677), inout:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234)) num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
+PASS: !$omp target teams if (target: 3456) default (none) private (x, n[1:5], a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (omp_default_mem_alloc: m, n[1:5]) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5) nowait in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2,char huj=2:677 ) , inout : m, n) device (ancestor : 5) is_device_ptr (m, n, j) defaultmap (alloc: pointer) uses allocators (default(1234567),cons_mem(234) )
+
+!$omp target teams
+PASS: !$omp target teams 
+
+!$omp end target teams
+PASS: !$omp end target teams 
