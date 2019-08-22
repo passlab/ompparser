@@ -1534,26 +1534,32 @@ std::string OpenMPDependClause::toString() {
 
     OpenMPDependClauseType type = this->getType();
     if(modifier!=OMPC_DEPEND_MODIFIER_unknown){
-    switch (modifier) {
-        case OMPC_DEPEND_MODIFIER_iterator:
-            clause_string += "iterator";
-            clause_string += " ( ";
-            for (int i = 0; i <depend_iterators_definition_class->size(); i++){  
-                 clause_string += depend_iterators_definition_class->at(i)->at(0);
-                 if(depend_iterators_definition_class->at(i)->at(0)!=""){clause_string +=" ";};
-                 //cout<<"the loop layer i "<<i<<endl;
-                 clause_string +=depend_iterators_definition_class->at(i)->at(1);
-                 clause_string +="=";
-                 clause_string +=depend_iterators_definition_class->at(i)->at(2);
-                 clause_string +=":";
-                 clause_string +=depend_iterators_definition_class->at(i)->at(3);
-                 if((string)depend_iterators_definition_class->at(i)->at(4)!=""){clause_string +=":";clause_string +=depend_iterators_definition_class->at(i)->at(4);}
-                 if((i<depend_iterators_definition_class->size()-1)&&depend_iterators_definition_class->at(i+1)->at(0)!=""){clause_string +=",";};
-            }
-            clause_string += " ) ";  
-        default:
+        switch (modifier) {
+            case OMPC_DEPEND_MODIFIER_iterator:
+                clause_string += "iterator";
+                clause_string += " ( ";
+                for (int i = 0; i <depend_iterators_definition_class->size(); i++){  
+                     clause_string += depend_iterators_definition_class->at(i)->at(0);
+                     if (depend_iterators_definition_class->at(i)->at(0)!=""){
+                         clause_string +=" ";
+                     };
+                     clause_string +=depend_iterators_definition_class->at(i)->at(1);
+                     clause_string +="=";
+                     clause_string +=depend_iterators_definition_class->at(i)->at(2);
+                     clause_string +=":";
+                     clause_string +=depend_iterators_definition_class->at(i)->at(3);
+                     if ((string)depend_iterators_definition_class->at(i)->at(4)!=""){
+                         clause_string +=":";clause_string +=depend_iterators_definition_class->at(i)->at(4);
+                     }
+                     if ((i<depend_iterators_definition_class->size()-1)&&depend_iterators_definition_class->at(i+1)->at(0)!=""){
+                         clause_string +=",";
+                     };
+                }
+                clause_string += " ) ";  
+            default:
             ;
-    }}
+        }
+    }
 
     if (clause_string.size() > 1) {
         clause_string += ", ";
