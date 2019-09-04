@@ -36,10 +36,7 @@ public class OMPClause extends OMPAttribute {
 
 }
 
-
-
-
-OMPAttribute * omp_parse(const char * filename, const line, const char * string, void * node);
+OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
 
 ```
 
