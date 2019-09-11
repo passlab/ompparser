@@ -18,25 +18,22 @@ ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. 
 ## omparser API
 
 ```
+enum OpenMPBaseLang {
+    Lang_C,
+    Lang_Cplusplus,
+    Lang_Fortran,
+    Lang_unknown
+};
 
-public class OMPAttribute {
- OMPAttribute [] children; /* this could be other C/C++ vector */
- OMPAttribute parent;
- const char * lang_str;
-   
-
+class OpenMPClause : public SourceLocation {
+ ...
+}
+ 
+class OpenMPDirective : public SourceLocation  {
+ ...
 }
 
-public class OMPDirective extends OMPAttribute {
-
-
-}
-
-public class OMPClause extends OMPAttribute {
-
-}
-
-OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
+extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char * expr));
 
 ```
 
