@@ -1,0 +1,22 @@
+# Select Ubuntu version
+dist: bionic
+
+# Install dependency
+addons:
+    apt:
+        packages:
+            flex
+            bison
+            cmake
+            cmake-data
+
+compiler:
+    - gcc
+
+# Build main and tests
+script:
+    - mkdir -p build
+    - cd build
+    - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON .. 
+    - make
+
