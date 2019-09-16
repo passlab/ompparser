@@ -276,10 +276,10 @@ threads                   { return THREADS; }
 ","             { return ','; }
 "\\"            { ; }
 
-{comment}       {; }
+{comment}       { ; }
 
 
-{newline}       { /* printf("found a new line\n"); */ /* return (NEWLINE); We ignore NEWLINE since we only care about the pragma string , We relax the syntax check by allowing it as part of line continuation */ }
+{newline}       { ; }
 
 <ALLOCATE_STATE>omp_default_mem_alloc/{blank}*:       { return DEFAULT_MEM_ALLOC; }
 <ALLOCATE_STATE>omp_large_cap_mem_alloc/{blank}*:     { return LARGE_CAP_MEM_ALLOC; }
@@ -765,7 +765,7 @@ threads                   { return THREADS; }
 <USES_ALLOCATORS_STATE>.                                       { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <ALLOC_EXPR_STATE>"("                        { return '('; }
-<ALLOC_EXPR_STATE>")"                        { yy_pop_state();std::cout << current_string << "\n"; openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
+<ALLOC_EXPR_STATE>")"                        { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
 <ALLOC_EXPR_STATE>.                          { current_string += yytext[0]; }
 
 
