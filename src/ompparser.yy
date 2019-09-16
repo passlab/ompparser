@@ -3143,8 +3143,8 @@ default_clause : DEFAULT '(' default_parameter ')' { }
 
 default_parameter : SHARED { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_shared); }
                   | NONE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_none); }
-                  | FIRSTPRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate);} else { yyerror("default clause does not support firstprivate in C"); YYABORT; } }
-                  | PRIVATE { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private);} else {yyerror("default clause does not support private in C"); YYABORT; } }
+                  | FIRSTPRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_firstprivate); }
+                  | PRIVATE { current_clause = current_directive->addOpenMPClause(OMPC_default, OMPC_DEFAULT_private); }
                   ;
 
 default_variant_clause : DEFAULT '(' default_variant_directive ')' { }
