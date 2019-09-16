@@ -4532,13 +4532,13 @@ std::string OpenMPProcBindClause::toString() {
 
 std::string OpenMPUsesAllocatorsClause::toString() {
     std::vector<usesAllocatorParameter*>* usesAllocatorsAllocatorSequence = this->getUsesAllocatorsAllocatorSequence();
-    std::string result = "uses allocators ";
+    std::string result = "uses_allocators ";
     std::string parameter_string;
     parameter_string += "(";
     for (int i = 0; i < usesAllocatorsAllocatorSequence->size(); i++) { 
         switch (usesAllocatorsAllocatorSequence->at(i)->getUsesAllocatorsAllocator()) {
             case OMPC_USESALLOCATORS_ALLOCATOR_default: {
-                parameter_string += "default";
+                parameter_string += "omp_default_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4550,7 +4550,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_large_cap: {
-                parameter_string += "large_cap";
+                parameter_string += "omp_large_cap_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4562,7 +4562,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_cons_mem: {
-                parameter_string += "cons_mem";
+                parameter_string += "omp_const_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4574,7 +4574,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_high_bw: {
-                parameter_string += "high_bw";
+                parameter_string += "omp_high_bw_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4586,7 +4586,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_low_lat: {
-                parameter_string += "low_lat";
+                parameter_string += "omp_low_lat_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4598,7 +4598,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_cgroup: {
-                parameter_string += "cgroup";
+                parameter_string += "omp_cgroup_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4610,7 +4610,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_pteam: {
-                parameter_string += "pteam";
+                parameter_string += "omp_pteam_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
@@ -4622,7 +4622,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
             }
             break;
             case OMPC_USESALLOCATORS_ALLOCATOR_thread: {
-                parameter_string += "thread";
+                parameter_string += "omp_thread_mem_alloc";
                 if (usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray() != "") {
                     parameter_string += "(";
                     parameter_string += usesAllocatorsAllocatorSequence->at(i)->getAllocatorTraitsArray();
