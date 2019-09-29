@@ -291,7 +291,7 @@ threads                   { return THREADS; }
 <ALLOCATE_STATE>omp_thread_mem_alloc/{blank}*:        { return THREAD_MEM_ALLOC; }
 <ALLOCATE_STATE>"("                                   { return '('; }
 <ALLOCATE_STATE>")"                                   { yy_pop_state(); return ')'; }
-<ALLOCATE_STATE>":"                                   { yy_push_state(EXPR_STATE); return ':'; }
+<ALLOCATE_STATE>":"                                   { return ':'; }
 <ALLOCATE_STATE>{blank}*                              { ; }
 <ALLOCATE_STATE>.                                     { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -307,7 +307,7 @@ threads                   { return THREADS; }
 <IF_STATE>update/{blank}*:                  { return UPDATE; }
 <IF_STATE>"("                               { return '('; }
 <IF_STATE>")"                               { yy_pop_state(); return ')'; }
-<IF_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
+<IF_STATE>":"                               { return ':'; }
 <IF_STATE>{blank}*                          { ; }
 <IF_STATE>.                                 { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -335,7 +335,7 @@ threads                   { return THREADS; }
 <REDUCTION_STATE>"("                        { return '('; }
 <REDUCTION_STATE>")"                        { yy_pop_state(); return ')'; }
 <REDUCTION_STATE>","                        { return ','; }
-<REDUCTION_STATE>":"                        { yy_push_state(EXPR_STATE); return ':'; }
+<REDUCTION_STATE>":"                        { return ':'; }
 <REDUCTION_STATE>"+"                        { return '+'; }
 <REDUCTION_STATE>"-"                        { return '-'; }
 <REDUCTION_STATE>"*"                        { return '*'; }
@@ -385,7 +385,7 @@ threads                   { return THREADS; }
 <LASTPRIVATE_STATE>conditional/{blank}*:    { return MODIFIER_CONDITIONAL;}
 <LASTPRIVATE_STATE>"("                      { return '('; }
 <LASTPRIVATE_STATE>")"                      { yy_pop_state(); return ')'; }
-<LASTPRIVATE_STATE>":"                      { yy_push_state(EXPR_STATE); return ':';}
+<LASTPRIVATE_STATE>":"                      { return ':';}
 <LASTPRIVATE_STATE>{blank}*                 { ; }
 <LASTPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -394,7 +394,7 @@ threads                   { return THREADS; }
 <LINEAR_STATE>val/{blank}*"("               { return MODOFIER_VAL; }
 <LINEAR_STATE>ref/{blank}*                  { return MODOFIER_REF; }
 <LINEAR_STATE>uval/{blank}*                 { return MODOFIER_UVAL; }
-<LINEAR_STATE>":"                           { yy_push_state(EXPR_STATE); return ':';}
+<LINEAR_STATE>":"                           { return ':';}
 <LINEAR_STATE>{blank}*                      { ; }
 <LINEAR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -439,7 +439,7 @@ threads                   { return THREADS; }
 <NONTEMPORAL_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ALIGNED_STATE>"("                          { return '('; }
-<ALIGNED_STATE>":"                          { yy_push_state(EXPR_STATE); return ':';}
+<ALIGNED_STATE>":"                          { return ':';}
 <ALIGNED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ALIGNED_STATE>{blank}*                     { ; }
 <ALIGNED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
@@ -568,14 +568,14 @@ threads                   { return THREADS; }
 <MATCH_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ISA_STATE>"("/score{blank}*\(              { return '('; }
-<ISA_STATE>"("                              { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<ISA_STATE>"("                              { parenthesis_global_count = 1; return '('; }
 <ISA_STATE>")"                              { yy_pop_state(); return ')'; }
 <ISA_STATE>{blank}*                         { ; }
 <ISA_STATE>score/{blank}*\(                 { yy_push_state(SCORE_STATE); return SCORE; }
 <ISA_STATE>.                                { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ARCH_STATE>"("/score{blank}*\(             { return '('; }
-<ARCH_STATE>"("                             { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<ARCH_STATE>"("                             { parenthesis_global_count = 1; return '('; }
 <ARCH_STATE>")"                             { yy_pop_state(); return ')'; }
 <ARCH_STATE>{blank}*                        { ; }
 <ARCH_STATE>score/{blank}*\(                { yy_push_state(SCORE_STATE); return SCORE; }
@@ -587,7 +587,7 @@ threads                   { return THREADS; }
 <SCORE_STATE>{blank}*                       { ; }
 
 <CONDITION_STATE>"("/score{blank}*\(        { return '('; }
-<CONDITION_STATE>"("                        { yy_push_state(EXPR_STATE); parenthesis_global_count = 1; return '('; }
+<CONDITION_STATE>"("                        { parenthesis_global_count = 1; return '('; }
 <CONDITION_STATE>")"                        { yy_pop_state(); return ')'; }
 <CONDITION_STATE>{blank}*                   { ; }
 <CONDITION_STATE>score/{blank}*\(           { yy_push_state(SCORE_STATE); return SCORE; }
@@ -618,7 +618,7 @@ threads                   { return THREADS; }
 <IN_REDUCTION_STATE>"("                     { return '('; }
 <IN_REDUCTION_STATE>")"                     { yy_pop_state(); return ')'; }
 <IN_REDUCTION_STATE>","                     { return ','; }
-<IN_REDUCTION_STATE>":"                     { yy_push_state(EXPR_STATE); return ':'; }
+<IN_REDUCTION_STATE>":"                     { return ':'; }
 <IN_REDUCTION_STATE>"+"                     { return '+'; }
 <IN_REDUCTION_STATE>"-"                     { return '-'; }
 <IN_REDUCTION_STATE>"*"                     { return '*'; }
@@ -668,7 +668,7 @@ threads                   { return THREADS; }
 <AFFINITY_STATE>"("                         { return '('; }
 <AFFINITY_STATE>")"                         { yy_pop_state(); return ')'; }
 <AFFINITY_STATE>","                         { return ','; }
-<AFFINITY_STATE>":"                         { yy_push_state(EXPR_STATE); return ':'; }
+<AFFINITY_STATE>":"                         { return ':'; }
 <AFFINITY_STATE>iterator/{blank}*"("        { current_string.clear(); yy_push_state(AFFINITY_ITERATOR_STATE);return MODIFIER_ITERATOR;}
 <AFFINITY_STATE>{blank}*                    { ; }
 <AFFINITY_STATE>.                           { yy_push_state(EXPR_STATE); unput(yytext[0]); }
@@ -689,7 +689,7 @@ threads                   { return THREADS; }
 <AFFINITY_ITERATOR_STATE>{blank}*           { ; }
 <AFFINITY_ITERATOR_STATE>.                  { yy_push_state(AFFINITY_EXPR_STATE); unput(yytext[0]); }
 
-<FINAL_STATE>"("                            { yy_push_state(EXPR_STATE); return '('; }
+<FINAL_STATE>"("                            { return '('; }
 <FINAL_STATE>")"                            { yy_pop_state(); return ')'; }
 <FINAL_STATE>{blank}*                       { ; }
 <FINAL_STATE>.                              { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
@@ -705,7 +705,7 @@ threads                   { return THREADS; }
 <DEVICE_STATE>device_num/{blank}*:          { return DEVICE_NUM; }
 <DEVICE_STATE>"("                           { return '('; }
 <DEVICE_STATE>")"                           { yy_pop_state(); return ')'; }
-<DEVICE_STATE>":"                           { yy_push_state(EXPR_STATE); return ':'; }
+<DEVICE_STATE>":"                           { return ':'; }
 <DEVICE_STATE>{blank}*                      { ; }
 <DEVICE_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
@@ -727,7 +727,7 @@ threads                   { return THREADS; }
 <TO_STATE>"("                               { return '('; }
 <TO_STATE>")"                               { yy_pop_state(); return ')'; }
 <TO_STATE>","                               { return ','; }
-<TO_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
+<TO_STATE>":"                               { return ':'; }
 <TO_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER;}
 <TO_STATE>{blank}*                          { ; }
 <TO_STATE>.                                 { yy_push_state(EXPR_STATE); unput(yytext[0]); }
@@ -740,7 +740,7 @@ threads                   { return THREADS; }
 <FROM_STATE>"("                             { return '('; }
 <FROM_STATE>")"                             { yy_pop_state(); return ')'; }
 <FROM_STATE>","                             { return ','; }
-<FROM_STATE>":"                             { yy_push_state(EXPR_STATE); return ':'; }
+<FROM_STATE>":"                             { return ':'; }
 <FROM_STATE>mapper/{blank}*"("              { current_string.clear(); yy_push_state(FROM_MAPPER_STATE);return FROM_MAPPER;}
 <FROM_STATE>{blank}*                        { ; }
 <FROM_STATE>.                               { yy_push_state(EXPR_STATE); unput(yytext[0]); }
@@ -783,7 +783,7 @@ threads                   { return THREADS; }
 <MAP_STATE>"("                               { return '('; }
 <MAP_STATE>")"                               { yy_pop_state(); return ')'; }
 <MAP_STATE>","                               { return ','; }
-<MAP_STATE>":"                               { yy_push_state(EXPR_STATE); return ':'; }
+<MAP_STATE>":"                               { return ':'; }
 <MAP_STATE>to/{blank}*:                      { return MAP_TYPE_TO; }
 <MAP_STATE>from/{blank}*:                    { return MAP_TYPE_FROM; }
 <MAP_STATE>tofrom/{blank}*:                  { return MAP_TYPE_TOFROM; }
@@ -800,7 +800,7 @@ threads                   { return THREADS; }
 <TASK_REDUCTION_STATE>"("                     { return '('; }
 <TASK_REDUCTION_STATE>")"                     { yy_pop_state(); return ')'; }
 <TASK_REDUCTION_STATE>","                     { return ','; }
-<TASK_REDUCTION_STATE>":"                     { yy_push_state(EXPR_STATE); return ':'; }
+<TASK_REDUCTION_STATE>":"                     { return ':'; }
 <TASK_REDUCTION_STATE>"+"                     { return '+'; }
 <TASK_REDUCTION_STATE>"-"                     { return '-'; }
 <TASK_REDUCTION_STATE>"*"                     { return '*'; }
