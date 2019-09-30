@@ -346,7 +346,7 @@ public:
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
 
-    static OpenMPLastprivateClause* addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
+    static OpenMPClause * addLastprivateClause(OpenMPDirective*, OpenMPLastprivateClauseModifier);
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -369,7 +369,7 @@ public:
 
     std::string getUserDefinedStep() { return user_defined_step; };
     
-    static OpenMPLinearClause* addLinearClause(OpenMPDirective *directive, OpenMPLinearClauseModifier modifier);
+    static OpenMPClause* addLinearClause(OpenMPDirective*, OpenMPLinearClauseModifier);
 
     std::string toString();
     //std::string expressionToString(bool);
@@ -519,6 +519,7 @@ public:
             OpenMPClause(OMPC_proc_bind), proc_bind_kind(_proc_bind_kind) { };
 
     OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bind_kind; };
+    static OpenMPClause * addProcBindClause(OpenMPDirective*, OpenMPProcBindClauseKind);
     std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
@@ -534,7 +535,7 @@ public:
             OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
 
     OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
-    
+    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseKind);
     std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
@@ -750,7 +751,7 @@ public:
 
     OpenMPDeviceTypeClauseKind getDeviceTypeClauseKind() {return device_type_kind; };
 
-    static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive);
+    static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive, OpenMPDeviceTypeClauseKind devicetypeKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
