@@ -33,43 +33,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
     OpenMPClause * new_clause = NULL;
 
     switch (kind) {
-        case OMPC_if: {
-        OpenMPIfClauseModifier modifier = (OpenMPIfClauseModifier) va_arg(args,int);
-            char * user_defined_modifier = NULL;
-            if (modifier == OMPC_IF_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPIfClause(modifier);
-                if (modifier == OMPC_IF_MODIFIER_user) {
-                    ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
-                };
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_modifier_expression;
-                    if (user_defined_modifier) {
-                        current_user_defined_modifier_expression = std::string(user_defined_modifier);
-                    };
-                    if (((OpenMPIfClause*)(*it))->getModifier() == modifier &&
-                        current_user_defined_modifier_expression.compare(((OpenMPIfClause*)(*it))->getUserDefinedModifier()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    };
-                };
-                new_clause = new OpenMPIfClause(modifier);
-                if (modifier == OMPC_IF_MODIFIER_user) {
-                    ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
-                }
-                current_clauses->push_back(new_clause);
-            }
-            break;
-        }
-        case OMPC_default : {
-            OpenMPDefaultClauseKind default_kind = (OpenMPDefaultClauseKind) va_arg(args, int);
-            new_clause = OpenMPDefaultClause::addDefaultClause(this, default_kind);
-            break;
-        }
         case OMPC_num_threads:
         case OMPC_private:
         case OMPC_firstprivate:
@@ -141,20 +104,20 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
+        case OMPC_if: {
+            OpenMPIfClauseModifier modifier = (OpenMPIfClauseModifier) va_arg(args,int);
+            char * user_defined_modifier = NULL;
+            if (modifier == OMPC_IF_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
+            new_clause = OpenMPIfClause::addIfClause(this, modifier, user_defined_modifier);
+            break;
+        }
+        case OMPC_default : {
+            OpenMPDefaultClauseKind default_kind = (OpenMPDefaultClauseKind) va_arg(args, int);
+            new_clause = OpenMPDefaultClause::addDefaultClause(this, default_kind);
+            break;
+        }
         case OMPC_match: {
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPMatchClause();
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                if (kind == OMPC_num_threads) {
-                    std::cerr << "Cannot have two num_threads clause for the directive " << kind << ", ignored\n";
-                } else {
-                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
-                    new_clause = current_clauses->at(0);
-                }
-            }
+            new_clause = OpenMPMatchClause::addMatchClause(this);
             break;
         }
 
@@ -163,34 +126,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             OpenMPReductionClauseIdentifier identifier = (OpenMPReductionClauseIdentifier) va_arg(args, int);
             char * user_defined_identifier = NULL;
             if (identifier == OMPC_REDUCTION_IDENTIFIER_user) user_defined_identifier = va_arg(args, char *);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPReductionClause(modifier, identifier);
-                if (identifier == OMPC_REDUCTION_IDENTIFIER_user && user_defined_identifier) {
-                    ((OpenMPReductionClause *) new_clause)->setUserDefinedIdentifier(user_defined_identifier);
-                };
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); it++) {
-                    std::string current_user_defined_identifier_expression;
-                    if (user_defined_identifier) {
-                        current_user_defined_identifier_expression = std::string(user_defined_identifier);
-                    };
-                    if (((OpenMPReductionClause*)(*it))->getModifier() == modifier &&
-                    ((OpenMPReductionClause*)(*it))->getIdentifier() == identifier &&
-                    current_user_defined_identifier_expression.compare(((OpenMPReductionClause*)(*it))->getUserDefinedIdentifier()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-
-                /* could fine the matching object for this clause */
-                new_clause = new OpenMPReductionClause(modifier, identifier);
-                if (identifier == OMPC_REDUCTION_IDENTIFIER_user)
-                    ((OpenMPReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPReductionClause::addReductionClause(this, modifier, identifier, user_defined_identifier);
             break;
         }
         case OMPC_proc_bind: {
@@ -220,44 +156,14 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             break;
         }
         case OMPC_aligned:{
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPAlignedClause();
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } 
+            new_clause = OpenMPAlignedClause::addAlignedClause(this);
             break;
         }
         case OMPC_dist_schedule: {
             OpenMPDistscheduleClauseKind dist_schedule_kind = (OpenMPDistscheduleClauseKind) va_arg(args,int);
             char * user_defined_kind = NULL;
             if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) user_defined_kind = va_arg(args, char*);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
-                if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
-                    ((OpenMPDistscheduleClause *) new_clause)->setUserDefinedKind(user_defined_kind);
-                }
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_kind_expression;
-                    if (user_defined_kind) {
-                        current_user_defined_kind_expression = std::string(user_defined_kind);
-                    };
-                    if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind &&
-                    current_user_defined_kind_expression.compare(((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    };
-                }
-                new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
-                if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
-                    ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
-                }
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPDistscheduleClause::addDistscheduleClause(this, dist_schedule_kind, user_defined_kind);
             break;
         }
         case OMPC_schedule: {
@@ -266,52 +172,13 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             OpenMPScheduleClauseKind schedulekind = (OpenMPScheduleClauseKind) va_arg(args, int);
             char * user_defined_kind = NULL;
             if (schedulekind == OMPC_SCHEDULE_KIND_user) user_defined_kind = va_arg(args, char *);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
-                if (schedulekind == OMPC_SCHEDULE_KIND_user)
-                    ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_kind_expression;
-                    if (user_defined_kind) {
-                        current_user_defined_kind_expression = std::string(user_defined_kind);
-                    };
-                    if (((OpenMPScheduleClause*)(*it))->getModifier1() == modifier1 && ((OpenMPScheduleClause*)(*it))->getModifier2() == modifier2 &&
-                        ((OpenMPScheduleClause*)(*it))->getKind() == schedulekind &&
-                        current_user_defined_kind_expression.compare(((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-                /* could fine the matching object for this clause */
-                new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
-                if (schedulekind == OMPC_SCHEDULE_KIND_user)
-                    ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPScheduleClause::addScheduleClause(this, modifier1, modifier2, schedulekind, user_defined_kind);
+
             break;
         }
         case OMPC_device : {
             OpenMPDeviceClauseModifier modifier = (OpenMPDeviceClauseModifier) va_arg(args, int);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPDeviceClause(modifier);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    if (((OpenMPDeviceClause*)(*it))->getModifier() == modifier) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-  /* could find the matching object for this clause */
-                new_clause = new OpenMPDeviceClause(modifier);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPDeviceClause::addDeviceClause(this, modifier);
             break;
 }
 
@@ -319,90 +186,22 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             OpenMPInitializerClausePriv priv = (OpenMPInitializerClausePriv) va_arg(args, int);
             char* user_defined_priv = NULL;
             if (priv == OMPC_INITIALIZER_PRIV_user) user_defined_priv = va_arg(args, char *);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPInitializerClause(priv);
-                if (priv == OMPC_INITIALIZER_PRIV_user)
-                    ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_priv_expression;
-                    if (user_defined_priv) {
-                        current_user_defined_priv_expression = std::string(user_defined_priv);
-                    };
-                    if (((OpenMPInitializerClause*)(*it))->getPriv() == priv && current_user_defined_priv_expression.compare(((OpenMPInitializerClause*)(*it))->getUserDefinedPriv()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-                /* could find the matching object for this clause */
-                new_clause = new OpenMPInitializerClause(priv);
-                if (priv == OMPC_INITIALIZER_PRIV_user)
-                    ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPInitializerClause::addInitializerClause(this, priv, user_defined_priv);
             break;
         }
         case OMPC_allocate : {
             OpenMPAllocateClauseAllocator allocator = (OpenMPAllocateClauseAllocator) va_arg(args, int);
             char* user_defined_allocator = NULL;
             if (allocator == OMPC_ALLOCATE_ALLOCATOR_user) user_defined_allocator = va_arg(args, char *);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPAllocateClause(allocator);
-                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_allocator_expression;
-                    if (user_defined_allocator) {
-                        current_user_defined_allocator_expression = std::string(user_defined_allocator);
-                    };
-                    if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-                /* could find the matching object for this clause */
-                new_clause = new OpenMPAllocateClause(allocator);
-                if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
-                    ((OpenMPAllocateClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPAllocateClause::addAllocateClause(this, allocator, user_defined_allocator);
             break;
         }
         case OMPC_allocator : {
             OpenMPAllocatorClauseAllocator allocator = (OpenMPAllocatorClauseAllocator) va_arg(args, int);
             char* user_defined_allocator = NULL;
             if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user) user_defined_allocator = va_arg(args, char *);
-            if (current_clauses->size() == 0) {
-                new_clause = new OpenMPAllocatorClause(allocator);
-                if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
-                    ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
-                current_clauses = new std::vector<OpenMPClause*>();
-                current_clauses->push_back(new_clause);
-                clauses[kind] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                    std::string current_user_defined_allocator_expression;
-                    if (user_defined_allocator) {
-                        current_user_defined_allocator_expression = std::string(user_defined_allocator);
-                    };
-                    if (((OpenMPAllocatorClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocatorClause*)(*it))->getUserDefinedAllocator()) == 0) {
-                        new_clause = (*it);
-                        goto end;
-                    }
-                }
-                /* could find the matching object for this clause */
-                new_clause = new OpenMPAllocatorClause(allocator);
-                if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
-                    ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
-                current_clauses->push_back(new_clause);
-            }
+            new_clause = OpenMPAllocatorClause::addAllocatorClause(this, allocator, user_defined_allocator);
+            
             break;
         }
 /*xinyao*/
@@ -3933,6 +3732,230 @@ OpenMPClause* OpenMPLinearClause::addLinearClause(OpenMPDirective *directive, Op
     return new_clause;
 }
 
+OpenMPClause* OpenMPReductionClause::addReductionClause(OpenMPDirective *directive, OpenMPReductionClauseModifier modifier, OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_reduction);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPReductionClause(modifier, identifier);
+        if (identifier == OMPC_REDUCTION_IDENTIFIER_user && user_defined_identifier) {
+            ((OpenMPReductionClause *) new_clause)->setUserDefinedIdentifier(user_defined_identifier);
+        };
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_reduction] = current_clauses;
+    } else {
+        for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); it++) {
+            std::string current_user_defined_identifier_expression;
+            if (user_defined_identifier) {
+                current_user_defined_identifier_expression = std::string(user_defined_identifier);
+            };
+            if (((OpenMPReductionClause*)(*it))->getModifier() == modifier &&
+            ((OpenMPReductionClause*)(*it))->getIdentifier() == identifier &&
+            current_user_defined_identifier_expression.compare(((OpenMPReductionClause*)(*it))->getUserDefinedIdentifier()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+        /* could fine the matching object for this clause */
+        new_clause = new OpenMPReductionClause(modifier, identifier);
+        if (identifier == OMPC_REDUCTION_IDENTIFIER_user)
+            ((OpenMPReductionClause*)new_clause)->setUserDefinedIdentifier(user_defined_identifier);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+
+}
+
+OpenMPClause* OpenMPAllocatorClause::addAllocatorClause(OpenMPDirective *directive, OpenMPAllocatorClauseAllocator allocator, char* user_defined_allocator) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_allocator);
+    OpenMPClause* new_clause = NULL;
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPAllocatorClause(allocator);
+        if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
+            ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_allocator] = current_clauses;
+    } else {
+        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_allocator_expression;
+            if (user_defined_allocator) {
+                current_user_defined_allocator_expression = std::string(user_defined_allocator);
+            };
+            if (((OpenMPAllocatorClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocatorClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+        /* could find the matching object for this clause */
+        new_clause = new OpenMPAllocatorClause(allocator);
+        if (allocator == OMPC_ALLOCATOR_ALLOCATOR_user)
+            ((OpenMPAllocatorClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPAllocateClause::addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator, char* user_defined_allocator) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_allocate);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPAllocateClause(allocator);
+        if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
+            ((OpenMPAllocateClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_allocate] = current_clauses;
+    } else {
+        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_allocator_expression;
+            if (user_defined_allocator) {
+                current_user_defined_allocator_expression = std::string(user_defined_allocator);
+            };
+            if (((OpenMPAllocateClause*)(*it))->getAllocator() == allocator && current_user_defined_allocator_expression.compare(((OpenMPAllocateClause*)(*it))->getUserDefinedAllocator()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+        /* could find the matching object for this clause */
+        new_clause = new OpenMPAllocateClause(allocator);
+        if (allocator == OMPC_ALLOCATE_ALLOCATOR_user)
+            ((OpenMPAllocateClause*)new_clause)->setUserDefinedAllocator(user_defined_allocator);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPInitializerClause::addInitializerClause(OpenMPDirective *directive, OpenMPInitializerClausePriv priv, char* user_defined_priv) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_initializer);
+    OpenMPClause* new_clause = NULL;
+
+     if (current_clauses->size() == 0) {
+        new_clause = new OpenMPInitializerClause(priv);
+        if (priv == OMPC_INITIALIZER_PRIV_user)
+            ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_initializer] = current_clauses;
+     } else {
+         for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_priv_expression;
+            if (user_defined_priv) {
+                current_user_defined_priv_expression = std::string(user_defined_priv);
+            };
+            if (((OpenMPInitializerClause*)(*it))->getPriv() == priv && current_user_defined_priv_expression.compare(((OpenMPInitializerClause*)(*it))->getUserDefinedPriv()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+        /* could find the matching object for this clause */
+        new_clause = new OpenMPInitializerClause(priv);
+        if (priv == OMPC_INITIALIZER_PRIV_user)
+            ((OpenMPInitializerClause*)new_clause)->setUserDefinedPriv(user_defined_priv);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPDeviceClause::addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_device);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPDeviceClause(modifier);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_device] = current_clauses;
+    } else {
+        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            if (((OpenMPDeviceClause*)(*it))->getModifier() == modifier) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+    /* could find the matching object for this clause */
+        new_clause = new OpenMPDeviceClause(modifier);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPScheduleClause::addScheduleClause(OpenMPDirective *directive, OpenMPScheduleClauseModifier modifier1, OpenMPScheduleClauseModifier modifier2, OpenMPScheduleClauseKind schedulekind, char * user_defined_kind) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_schedule);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
+        if (schedulekind == OMPC_SCHEDULE_KIND_user)
+            ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_schedule] = current_clauses;
+    } else {
+        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_kind_expression;
+            if (user_defined_kind) {
+                current_user_defined_kind_expression = std::string(user_defined_kind);
+            };
+            if (((OpenMPScheduleClause*)(*it))->getModifier1() == modifier1 && ((OpenMPScheduleClause*)(*it))->getModifier2() == modifier2 &&
+               ((OpenMPScheduleClause*)(*it))->getKind() == schedulekind &&
+                current_user_defined_kind_expression.compare(((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            }
+        }
+        /* could fine the matching object for this clause */
+        new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedulekind);
+        if (schedulekind == OMPC_SCHEDULE_KIND_user)
+            ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPDistscheduleClause::addDistscheduleClause(OpenMPDirective *directive, OpenMPDistscheduleClauseKind dist_schedule_kind, char * user_defined_kind) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_dist_schedule);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+        if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
+            ((OpenMPDistscheduleClause *) new_clause)->setUserDefinedKind(user_defined_kind);
+        }
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_dist_schedule] = current_clauses;
+    } else {
+        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_kind_expression;
+            if (user_defined_kind) {
+                current_user_defined_kind_expression = std::string(user_defined_kind);
+            };
+            if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind &&
+            current_user_defined_kind_expression.compare(((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            };
+        }
+        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
+        if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
+            ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
+        }
+        current_clauses->push_back(new_clause);
+    }
+    return new_clause;
+}
+        
 OpenMPClause* OpenMPLastprivateClause::addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -3940,21 +3963,56 @@ OpenMPClause* OpenMPLastprivateClause::addLastprivateClause(OpenMPDirective *dir
     OpenMPClause* new_clause = NULL;
 
     if (current_clauses->size() == 0) {
-            new_clause = new OpenMPLastprivateClause(modifier);
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_lastprivate] = current_clauses;
-            } else {
-                for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+        new_clause = new OpenMPLastprivateClause(modifier);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_lastprivate] = current_clauses;
+        } else {
+            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
 
-                    if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier) {
-                        new_clause = (*it);
-                        return new_clause;
-                    };
+                if (((OpenMPLastprivateClause*)(*it))->getModifier() == modifier) {
+                    new_clause = (*it);
+                    return new_clause;
                 };
-                new_clause = new OpenMPLastprivateClause(modifier);
-                current_clauses->push_back(new_clause);
-            }
+            };
+            new_clause = new OpenMPLastprivateClause(modifier);
+            current_clauses->push_back(new_clause);
+        }
+    return new_clause;
+}
+
+OpenMPClause* OpenMPIfClause::addIfClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier, char * user_defined_modifier) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_if);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPIfClause(modifier);
+        if (modifier == OMPC_IF_MODIFIER_user) {
+            ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
+        };
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_if] = current_clauses;
+    } else {
+        for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
+            std::string current_user_defined_modifier_expression;
+            if (user_defined_modifier) {
+                current_user_defined_modifier_expression = std::string(user_defined_modifier);
+            };
+            if (((OpenMPIfClause*)(*it))->getModifier() == modifier &&
+                current_user_defined_modifier_expression.compare(((OpenMPIfClause*)(*it))->getUserDefinedModifier()) == 0) {
+                new_clause = (*it);
+                return new_clause;
+            };
+        };
+        new_clause = new OpenMPIfClause(modifier);
+        if (modifier == OMPC_IF_MODIFIER_user) {
+            ((OpenMPIfClause*)new_clause)->setUserDefinedModifier(user_defined_modifier);
+        }
+        current_clauses->push_back(new_clause);
+    }
     return new_clause;
 }
 
@@ -3976,6 +4034,22 @@ OpenMPClause* OpenMPDefaultClause::addDefaultClause(OpenMPDirective *directive, 
     return new_clause;
 }
 
+OpenMPClause* OpenMPAlignedClause::addAlignedClause(OpenMPDirective *directive) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_aligned);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPAlignedClause();
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_aligned] = current_clauses;
+    } 
+
+    return new_clause;
+}
+
 OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -3991,6 +4065,23 @@ OpenMPClause* OpenMPWhenClause::addWhenClause(OpenMPDirective *directive) {
 
     return new_clause;
 }
+
+OpenMPClause* OpenMPMatchClause::addMatchClause(OpenMPDirective *directive) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_match);
+    OpenMPClause* new_clause = NULL;
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPMatchClause();
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_match] = current_clauses;
+    } else {
+        /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+        new_clause = current_clauses->at(0);
+        }
+    return new_clause;
+}
+
 OpenMPClause* OpenMPUsesAllocatorsClause::addUsesAllocatorsClause(OpenMPDirective *directive) {
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_uses_allocators);

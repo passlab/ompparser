@@ -162,7 +162,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    const char* input = "omp distribute parallel for simd if (a) if (parallel : b) default (firstprivate) if (simd : b)";
+    const char* input = "omp loop reduction(default,max:a,b,c)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

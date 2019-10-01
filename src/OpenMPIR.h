@@ -265,8 +265,8 @@ public:
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
-    static OpenMPReductionClause * addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
-                  OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+    static OpenMPClause * addReductionClause(OpenMPDirective *,  OpenMPReductionClauseModifier, 
+                  OpenMPReductionClauseIdentifier, char * );
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -286,8 +286,7 @@ public:
     void setUserDefinedPriv(char *_priv) { user_defined_priv = std::string(_priv); }
 
     std::string getUserDefinedPriv() { return user_defined_priv; };
-
-    static OpenMPInitializerClause * addInitializerClause(OpenMPDirective *directive, OpenMPInitializerClausePriv priv, char * user_defined_priv);
+    static OpenMPClause * addInitializerClause(OpenMPDirective *, OpenMPInitializerClausePriv, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -308,7 +307,7 @@ public:
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 
-    static OpenMPAllocateClause * addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
+    static OpenMPClause * addAllocateClause(OpenMPDirective *, OpenMPAllocateClauseAllocator, char*);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -328,7 +327,7 @@ public:
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 
-    static OpenMPAllocatorClause * addAllocatorClause(OpenMPDirective *directive, OpenMPAllocatorClauseAllocator allocator);
+    static OpenMPClause * addAllocatorClause(OpenMPDirective *, OpenMPAllocatorClauseAllocator, char*);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -391,6 +390,7 @@ public:
     std::string getUserDefinedAlignment() { return user_defined_alignment; };
 
     std::string toString();
+    static OpenMPClause* addAlignedClause(OpenMPDirective*);
     //std::string expressionToString(bool);
     void generateDOT(std::ofstream&, int, int, std::string);
 
@@ -412,6 +412,8 @@ public:
     void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
 
     std::string getUserDefinedKind() { return user_defined_kind; };
+
+    static OpenMPClause* addDistscheduleClause(OpenMPDirective *, OpenMPDistscheduleClauseKind, char *);
 
     std::string toString();
 
@@ -442,6 +444,8 @@ public:
     void setUserDefinedKind(char *schedulekind) { user_defined_kind = schedulekind; };
 
     std::string getUserDefinedKind() { return user_defined_kind; };
+
+    static OpenMPClause* addScheduleClause(OpenMPDirective *, OpenMPScheduleClauseModifier, OpenMPScheduleClauseModifier, OpenMPScheduleClauseKind, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -578,7 +582,7 @@ public:
 
     std::string getUserDefinedModifier() { return user_defined_modifier; };
     
-    static OpenMPIfClause* addifClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier);
+    static OpenMPClause* addIfClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier, char * user_defined_modifier);
 
     std::string toString();
 
@@ -681,7 +685,7 @@ public:
 
     OpenMPDeviceClauseModifier getModifier() { return modifier; };
     
-    static OpenMPDeviceClause * addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier);
+    static OpenMPClause * addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 
