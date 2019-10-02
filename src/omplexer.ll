@@ -133,7 +133,7 @@ parallel        { return PARALLEL; }
 metadirective   { return METADIRECTIVE; }
 task            { return TASK; }
 if              { yy_push_state(IF_STATE); return IF; }
-simdlen         { yy_push_state(SIMDLEN_STATE); return SIMDLEN;}
+simdlen         { yy_push_state(SIMDLEN_STATE); return SIMDLEN; }
 simd/{blank}*\( { yy_push_state(SIMD_STATE); return SIMD; }
 simd            { return SIMD; }
 num_threads     { return NUM_THREADS; }
@@ -209,12 +209,12 @@ arch            { yy_push_state(ARCH_STATE); return ARCH; }
 vendor          { yy_push_state(VENDOR_STATE); return VENDOR; }
 extension       { yy_push_state(EXTENSION_STATE); return EXTENSION; }
 
-final           { yy_push_state(FINAL_STATE); return FINAL;}
-untied          { return UNTIED;}
-mergeable       { return MERGEABLE;}
+final           { yy_push_state(FINAL_STATE); return FINAL; }
+untied          { return UNTIED; }
+mergeable       { return MERGEABLE; }
 in_reduction    { yy_push_state(IN_REDUCTION_STATE); return IN_REDUCTION; }
 depend          { yy_push_state(DEPEND_STATE); return DEPEND; }
-priority        { return PRIORITY;}
+priority        { return PRIORITY; }
 affinity        { yy_push_state(AFFINITY_STATE); return AFFINITY; }
 detach          { return DETACH; }
 
@@ -224,12 +224,12 @@ grainsize       { return GRAINSIZE; }
 num_tasks       { return NUM_TASKS; }
 nogroup         { return NOGROUP; }
 
-requires                  { return REQUIRES;} 
-reverse_offload           { return REVERSE_OFFLOAD;}
-unified_address           { return UNIFIED_ADDRESS;}
-unified_shared_memory     { return UNIFIED_SHARED_MEMORY;}
+requires                  { return REQUIRES; } 
+reverse_offload           { return REVERSE_OFFLOAD; }
+unified_address           { return UNIFIED_ADDRESS; }
+unified_shared_memory     { return UNIFIED_SHARED_MEMORY; }
 atomic_default_mem_order  { yy_push_state(ATOMIC_DEFAULT_MEM_ORDER_STATE); return ATOMIC_DEFAULT_MEM_ORDER; } 
-dynamic_allocators        { return DYNAMIC_ALLOCATORS;}
+dynamic_allocators        { return DYNAMIC_ALLOCATORS; }
 seq_cst                   { return SEQ_CST; }
 acq_rel                   { return ACQ_REL; }
 relaxed                   { return RELAXED; }
@@ -246,7 +246,7 @@ update                    { yy_push_state(UPDATE_STATE); return UPDATE; }
 
 to                        { yy_push_state(TO_STATE); return TO; }
 from                      { yy_push_state(FROM_STATE); return FROM; }
-uses_allocators           { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLOCATORS;}
+uses_allocators           { yy_push_state(USES_ALLOCATORS_STATE); return USES_ALLOCATORS; }
 link                      { return LINK; }
 device_type               { yy_push_state(DEVICE_TYPE_STATE); return DEVICE_TYPE; }
 map                       { yy_push_state(MAP_STATE); return MAP; }
@@ -394,21 +394,21 @@ threads                   { return THREADS; }
 <LINEAR_STATE>val/{blank}*"("               { return MODOFIER_VAL; }
 <LINEAR_STATE>ref/{blank}*                  { return MODOFIER_REF; }
 <LINEAR_STATE>uval/{blank}*                 { return MODOFIER_UVAL; }
-<LINEAR_STATE>":"                           { return ':';}
+<LINEAR_STATE>":"                           { return ':'; }
 <LINEAR_STATE>{blank}*                      { ; }
 <LINEAR_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 
-<SCHEDULE_STATE>monotonic                   { return MODIFIER_MONOTONIC;}
-<SCHEDULE_STATE>nomonotonic                 { return MODIFIER_NOMONOTONIC;}
-<SCHEDULE_STATE>simd                        { return MODIFIER_SIMD;}
-<SCHEDULE_STATE>static                      { return STATIC;}
-<SCHEDULE_STATE>dynamic                     { return DYNAMIC;}
-<SCHEDULE_STATE>guided                      { return GUIDED;}
-<SCHEDULE_STATE>auto                        { return AUTO;}
-<SCHEDULE_STATE>runtime                     { return RUNTIME;}
+<SCHEDULE_STATE>monotonic                   { return MODIFIER_MONOTONIC; }
+<SCHEDULE_STATE>nomonotonic                 { return MODIFIER_NOMONOTONIC; }
+<SCHEDULE_STATE>simd                        { return MODIFIER_SIMD; }
+<SCHEDULE_STATE>static                      { return STATIC; }
+<SCHEDULE_STATE>dynamic                     { return DYNAMIC; }
+<SCHEDULE_STATE>guided                      { return GUIDED; }
+<SCHEDULE_STATE>auto                        { return AUTO; }
+<SCHEDULE_STATE>runtime                     { return RUNTIME; }
 <SCHEDULE_STATE>","                         { return ','; }
-<SCHEDULE_STATE>":"                         { return ':';}
+<SCHEDULE_STATE>":"                         { return ':'; }
 <SCHEDULE_STATE>"("                         { return '('; }
 <SCHEDULE_STATE>")"                         { yy_pop_state(); return ')'; }
 <SCHEDULE_STATE>{blank}*                    { ; }
@@ -439,12 +439,12 @@ threads                   { return THREADS; }
 <NONTEMPORAL_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ALIGNED_STATE>"("                          { return '('; }
-<ALIGNED_STATE>":"                          { return ':';}
+<ALIGNED_STATE>":"                          { return ':'; }
 <ALIGNED_STATE>")"                          { yy_pop_state(); return ')'; }
 <ALIGNED_STATE>{blank}*                     { ; }
 <ALIGNED_STATE>.                            { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<DIST_SCHEDULE_STATE>static/{blank}*        {return STATIC;}
+<DIST_SCHEDULE_STATE>static/{blank}*        {return STATIC; }
 <DIST_SCHEDULE_STATE>"("                    { return '('; }
 <DIST_SCHEDULE_STATE>","                    { return ','; }
 <DIST_SCHEDULE_STATE>")"                    { yy_pop_state(); return ')'; }
@@ -472,15 +472,15 @@ threads                   { return THREADS; }
 <ALLOCATOR_STATE>")"                        { yy_pop_state(); return ')'; }
 <ALLOCATOR_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<INITIALIZER_STATE>omp_priv                 { return OMP_PRIV;}
-<INITIALIZER_STATE>"="                      { return '=';}
+<INITIALIZER_STATE>omp_priv                 { return OMP_PRIV; }
+<INITIALIZER_STATE>"="                      { return '='; }
 <INITIALIZER_STATE>{blank}*                 { ; }
 <INITIALIZER_STATE>"("                      { return '('; }
 <INITIALIZER_STATE>")"                      { yy_pop_state(); return ')'; }
 <INITIALIZER_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT;}
-<MAPPER_STATE>":"                           { yy_push_state(TYPE_STR_STATE); return ':';}
+<MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT; }
+<MAPPER_STATE>":"                           { yy_push_state(TYPE_STR_STATE); return ':'; }
 <MAPPER_STATE>{blank}*                      { ; }
 <MAPPER_STATE>"("                           { return '('; }
 <MAPPER_STATE>")"                           { yy_pop_state(); return ')'; }
@@ -637,7 +637,7 @@ threads                   { return THREADS; }
 <DEPEND_STATE>","                           { return ','; }
 <DEPEND_STATE>"="                           { return '='; }
 <DEPEND_STATE>":"                           { yy_push_state(EXPR_STATE); return ':'; }
-<DEPEND_STATE>iterator/{blank}*"("          { current_string.clear(); yy_push_state(DEPEND_ITERATOR_STATE);return MODIFIER_ITERATOR;}
+<DEPEND_STATE>iterator/{blank}*"("          { current_string.clear(); yy_push_state(DEPEND_ITERATOR_STATE);return MODIFIER_ITERATOR; }
 
 <DEPEND_STATE>in                            { return IN; }
 <DEPEND_STATE>out                           { return OUT; }
@@ -658,27 +658,27 @@ threads                   { return THREADS; }
 <DEPEND_ITERATOR_STATE>.                    { yy_push_state(DEPEND_EXPR_STATE); unput(yytext[0]); }
 
 <DEPEND_EXPR_STATE>"("{blank}*              { return '('; }
-<DEPEND_EXPR_STATE>{blank}*")"              { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
-<DEPEND_EXPR_STATE>","                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;} 
-<DEPEND_EXPR_STATE>{blank}                  { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING;}
-<DEPEND_EXPR_STATE>"="                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING;}   
-<DEPEND_EXPR_STATE>":"                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING;}
+<DEPEND_EXPR_STATE>{blank}*")"              { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING; }
+<DEPEND_EXPR_STATE>","                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING; } 
+<DEPEND_EXPR_STATE>{blank}                  { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING; }
+<DEPEND_EXPR_STATE>"="                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING; }   
+<DEPEND_EXPR_STATE>":"                      { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING; }
 <DEPEND_EXPR_STATE>.                        { current_string += yytext[0]; }
 
 <AFFINITY_STATE>"("                         { return '('; }
 <AFFINITY_STATE>")"                         { yy_pop_state(); return ')'; }
 <AFFINITY_STATE>","                         { return ','; }
 <AFFINITY_STATE>":"                         { return ':'; }
-<AFFINITY_STATE>iterator/{blank}*"("        { current_string.clear(); yy_push_state(AFFINITY_ITERATOR_STATE);return MODIFIER_ITERATOR;}
+<AFFINITY_STATE>iterator/{blank}*"("        { current_string.clear(); yy_push_state(AFFINITY_ITERATOR_STATE);return MODIFIER_ITERATOR; }
 <AFFINITY_STATE>{blank}*                    { ; }
 <AFFINITY_STATE>.                           { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <AFFINITY_EXPR_STATE>"("{blank}*            { return '('; }
-<AFFINITY_EXPR_STATE>{blank}*")"            { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
-<AFFINITY_EXPR_STATE>{blank}                { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING;}
-<AFFINITY_EXPR_STATE>","                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING;}
-<AFFINITY_EXPR_STATE>"="                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING;} 
-<AFFINITY_EXPR_STATE>":"                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING;}
+<AFFINITY_EXPR_STATE>{blank}*")"            { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING; }
+<AFFINITY_EXPR_STATE>{blank}                { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); return EXPR_STRING; }
+<AFFINITY_EXPR_STATE>","                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(','); return EXPR_STRING; }
+<AFFINITY_EXPR_STATE>"="                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput('='); return EXPR_STRING; } 
+<AFFINITY_EXPR_STATE>":"                    { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(':'); return EXPR_STRING; }
 <AFFINITY_EXPR_STATE>.                      { current_string += yytext[0]; }
 
 <AFFINITY_ITERATOR_STATE>"("                { return '('; }
@@ -721,14 +721,14 @@ threads                   { return THREADS; }
 <DEFAULTMAP_STATE>pointer/{blank}*          { return CATEGORY_POINTER; }
 <DEFAULTMAP_STATE>"("                       { return '('; }
 <DEFAULTMAP_STATE>")"                       { yy_pop_state(); return ')'; }
-<DEFAULTMAP_STATE>":"                       { return ':';}
+<DEFAULTMAP_STATE>":"                       { return ':'; }
 <DEFAULTMAP_STATE>{blank}*                  { ; }
 
 <TO_STATE>"("                               { return '('; }
 <TO_STATE>")"                               { yy_pop_state(); return ')'; }
 <TO_STATE>","                               { return ','; }
 <TO_STATE>":"                               { return ':'; }
-<TO_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER;}
+<TO_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(TO_MAPPER_STATE);return TO_MAPPER; }
 <TO_STATE>{blank}*                          { ; }
 <TO_STATE>.                                 { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -741,7 +741,7 @@ threads                   { return THREADS; }
 <FROM_STATE>")"                             { yy_pop_state(); return ')'; }
 <FROM_STATE>","                             { return ','; }
 <FROM_STATE>":"                             { return ':'; }
-<FROM_STATE>mapper/{blank}*"("              { current_string.clear(); yy_push_state(FROM_MAPPER_STATE);return FROM_MAPPER;}
+<FROM_STATE>mapper/{blank}*"("              { current_string.clear(); yy_push_state(FROM_MAPPER_STATE);return FROM_MAPPER; }
 <FROM_STATE>{blank}*                        { ; }
 <FROM_STATE>.                               { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
@@ -765,7 +765,7 @@ threads                   { return THREADS; }
 <USES_ALLOCATORS_STATE>.                                       { yy_push_state(EXPR_STATE); unput(yytext[0]); }
 
 <ALLOC_EXPR_STATE>"("                        { return '('; }
-<ALLOC_EXPR_STATE>")"                        { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING;}
+<ALLOC_EXPR_STATE>")"                        { yy_pop_state(); openmp_lval.stype = strdup(current_string.c_str()); current_string.clear(); unput(')'); return EXPR_STRING; }
 <ALLOC_EXPR_STATE>.                          { current_string += yytext[0]; }
 
 
@@ -779,7 +779,7 @@ threads                   { return THREADS; }
 
 <MAP_STATE>always/{blank}*,                  { return MAP_MODIFIER_ALWAYS; }
 <MAP_STATE>close/{blank}*,                   { return MAP_MODIFIER_CLOSE; }
-<MAP_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(MAP_MAPPER_STATE);return MAP_MODIFIER_MAPPER;}
+<MAP_STATE>mapper/{blank}*"("                { current_string.clear(); yy_push_state(MAP_MAPPER_STATE);return MAP_MODIFIER_MAPPER; }
 <MAP_STATE>"("                               { return '('; }
 <MAP_STATE>")"                               { yy_pop_state(); return ')'; }
 <MAP_STATE>","                               { return ','; }
