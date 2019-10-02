@@ -382,10 +382,10 @@ threads                   { return THREADS; }
 <COPYIN_STATE>{blank}*                      { ; }
 <COPYIN_STATE>.                             { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
-<LASTPRIVATE_STATE>conditional/{blank}*:    { return MODIFIER_CONDITIONAL;}
+<LASTPRIVATE_STATE>conditional/{blank}*:    { return MODIFIER_CONDITIONAL; }
 <LASTPRIVATE_STATE>"("                      { return '('; }
 <LASTPRIVATE_STATE>")"                      { yy_pop_state(); return ')'; }
-<LASTPRIVATE_STATE>":"                      { return ':';}
+<LASTPRIVATE_STATE>":"                      { return ':'; }
 <LASTPRIVATE_STATE>{blank}*                 { ; }
 <LASTPRIVATE_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
