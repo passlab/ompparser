@@ -1,6 +1,6 @@
 # ompparser: A Standalone and Unified OpenMP Parser
 
-ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. It can be used as an independent tool as well as an integral component of an OpenMP compiler. It has syntax and semantics checking functionalitity for OpenMP constructs for validating and verifying usage of existing constructs. The formal grammar included in ompparser, developed with Flex and Bison tools, can help interpretation ofthe OpenMP standard. The implementation supports the full and latest OpenMP 5.0 and is is released as open-source with BSD-license. 
+ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. It can be used as an independent tool as well as an integral component of an OpenMP compiler. It has syntax and semantics checking functionalitity for OpenMP constructs for validating and verifying usage of existing constructs. The formal grammar included in ompparser, developed with Flex and Bison tools, can help interpretation of the OpenMP standard. The implementation supports the full and latest OpenMP 5.0 and is released as open-source with BSD-license. 
 
 
 ## Build and usage
