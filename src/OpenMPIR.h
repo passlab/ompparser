@@ -93,8 +93,6 @@ protected:
      * for each instance of kind and full parameters
      */
     map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses;
-    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_after;
-    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_clauses;
     /**
      *
      * This method searches the clauses map to see whether one or more OpenMPClause objects of the specified kind
@@ -139,12 +137,9 @@ public:
     OpenMPDirectiveKind getKind() { return kind; };
 
     map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &clauses; };
-    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
-    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllAtomicClauses() { return &clauses_atomic_clauses; };
 
     std::vector<OpenMPClause *> *getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
-    std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
-    std::vector<OpenMPClause *> *getAtomicClauses(OpenMPClauseKind kind) { return clauses_atomic_clauses[kind]; };
+
     std::string toString();
 
     /* generate DOT representation of the directive */
@@ -155,6 +150,20 @@ public:
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
     void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
     OpenMPBaseLang getBaseLang() { return lang; };
+};
+
+
+//atomic directive
+class OpenMPAtomicDirective : public OpenMPDirective {
+protected:
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_after;
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_clauses;
+public:
+    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+    std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
+    std::vector<OpenMPClause *> *getAtomicClauses(OpenMPClauseKind kind) { return clauses_atomic_clauses[kind]; };
+   map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllAtomicClauses() { return &clauses_atomic_clauses; };
 };
 
 class OpenMPEndDirective : public OpenMPDirective {
@@ -909,13 +918,6 @@ public:
     OpenMPFlushDirective () : OpenMPDirective(OMPD_flush) {};
     void addFlushList (const char* _flush_list) { flush_list.push_back(std::string(_flush_list)); };
     std::vector<std::string>* getFlushList () { return &flush_list; };
-};
-
-//atomic directive
-class OpenMPAtomicDirective : public OpenMPDirective {
-protected:
-public:
-    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
 };
 
 // critical directive

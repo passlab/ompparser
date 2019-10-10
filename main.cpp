@@ -162,7 +162,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    const char* input = "omp atomic acq_rel acq_rel read hint(abc)";
+    const char* input = "omp parallel private (a, b) private (a, c)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 
