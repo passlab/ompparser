@@ -93,7 +93,7 @@ protected:
      * for each instance of kind and full parameters
      */
     map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses;
-
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_after;
     /**
      *
      * This method searches the clauses map to see whether one or more OpenMPClause objects of the specified kind
@@ -138,9 +138,10 @@ public:
     OpenMPDirectiveKind getKind() { return kind; };
 
     map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &clauses; };
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
 
     std::vector<OpenMPClause *> *getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
-
+    std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
     std::string toString();
 
     /* generate DOT representation of the directive */
@@ -201,7 +202,7 @@ public:
     std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
-//declear simd directive
+//declare simd directive
 class OpenMPDeclareSimdDirective : public OpenMPDirective {
 protected:
     std::string proc_name;
@@ -212,7 +213,7 @@ public:
     std::string getProcName() { return proc_name;}
 };
 
-//declear reduction directive
+//declare reduction directive
 class OpenMPDeclareReductionDirective : public OpenMPDirective {
 protected:
     std::vector<const char*> typename_list;
@@ -228,7 +229,7 @@ public:
     std::string getCombiner() {return combiner;}
 };
 
-//declear mapper directive
+//declare mapper directive
 class OpenMPDeclareMapperDirective : public OpenMPDirective {
 protected:
     std::string identifier;
@@ -588,7 +589,20 @@ public:
 
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+// hint Clause
+class OpenMPHintClause : public OpenMPClause {
+protected:
+    std::string hint_expression;        /* user defined value if it is used */
+public:
+    OpenMPHintClause() :
+            OpenMPClause(OMPC_hint) { };
 
+    static OpenMPClause* addHintClause(OpenMPDirective *directive, int before_or_after);
+
+ //   std::string toString();
+
+ //   void generateDOT(std::ofstream&, int, int, std::string);
+};
 //in_reduction clause
 class OpenMPInReductionClause : public OpenMPClause {
 

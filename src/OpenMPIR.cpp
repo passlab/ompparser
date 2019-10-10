@@ -83,7 +83,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_capture:
         case OMPC_seq_cst:
         case OMPC_relaxed:
-        case OMPC_hint:
         case OMPC_threads:
         case OMPC_simd:
         case OMPC_destroy:
@@ -104,7 +103,12 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             }
             break;
         }
-        case OMPC_if: {
+        case OMPC_hint : {
+            int before_or_after = va_arg(args, int);
+            new_clause = OpenMPHintClause::addHintClause(this, before_or_after);
+            break;
+        }
+        case OMPC_if : {
             OpenMPIfClauseModifier modifier = (OpenMPIfClauseModifier) va_arg(args,int);
             char * user_defined_modifier = NULL;
             if (modifier == OMPC_IF_MODIFIER_user)  user_defined_modifier = va_arg(args, char*);
@@ -530,6 +534,20 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
     if (clauses->size() != 0) {
         std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
         for (it = clauses->begin(); it != clauses->end(); it++) {
+            std::vector<OpenMPClause*>* current_clauses = it->second;
+            std::vector<OpenMPClause*>::iterator clauseIter;
+            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
+                result += (*clauseIter)->toString();
+            }
+        }
+        result = result.substr(0, result.size()-1);
+    }
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses_atomic_after = this->getAllClausesAtomicAfter();
+    if (clauses_atomic_after->size() != 0) {
+        result += " ";
+        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
+        for (it = clauses_atomic_after->begin(); it != clauses_atomic_after->end(); it++) {
             std::vector<OpenMPClause*>* current_clauses = it->second;
             std::vector<OpenMPClause*>::iterator clauseIter;
             for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
@@ -2650,6 +2668,7 @@ std::string OpenMPAllocateClause::toString() {
 
     return result;
 };
+
 std::string OpenMPAllocatorClause::toString() {
 
     std::string result = "allocator ";
@@ -4072,6 +4091,43 @@ OpenMPClause* OpenMPLastprivateClause::addLastprivateClause(OpenMPDirective *dir
             current_clauses->push_back(new_clause);
         }
     return new_clause;
+}
+
+OpenMPClause* OpenMPHintClause::addHintClause(OpenMPDirective *directive, int before_or_after) {
+
+    if(before_or_after == 0) {
+        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_hint);
+        OpenMPClause* new_clause = NULL;
+        if (current_clauses->size() == 0) {
+            new_clause = new OpenMPHintClause();
+            current_clauses = new std::vector<OpenMPClause*>();
+            current_clauses->push_back(new_clause);
+            (*all_clauses)[OMPC_hint] = current_clauses;
+        } else {
+            /* could be an error since hince clause may only appear once */
+            std::cerr << "Cannot have two hint clause for the directive " << directive->getKind() << ", ignored\n";
+           };
+        return new_clause;
+    }
+    if(before_or_after == 1) {
+        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClausesAtomicAfter();
+        if (all_clauses->count(OMPC_hint) == 0) {
+            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_hint, new std::vector<OpenMPClause*>));
+        };
+        std::vector<OpenMPClause*>* current_clauses = directive->getClausesAtomicAfter(OMPC_hint);
+        OpenMPClause* new_clause = NULL;
+        if (current_clauses->size() == 0) {
+            new_clause = new OpenMPHintClause();
+            current_clauses = new std::vector<OpenMPClause*>();
+            current_clauses->push_back(new_clause);
+            (*all_clauses)[OMPC_hint] = current_clauses;
+        } else {
+            /* could be an error since hince clause may only appear once */
+            std::cerr << "Cannot have two hint clause for the directive " << directive->getKind() << ", ignored\n";
+          }; 
+        return new_clause;
+    }
 }
 
 OpenMPClause* OpenMPIfClause::addIfClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier, char * user_defined_modifier) {

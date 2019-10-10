@@ -49,6 +49,7 @@ static const char* orig_str;
 void * (*exprParse)(const char*) = NULL;
 
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
+int atomic_before_or_after = 0;
 
 OpenMPBaseLang lang; //record language
 %}
@@ -631,36 +632,53 @@ atomic_directive : ATOMIC {
                   /*Do we need to care about the expression-stmt and the structure-stmt? Page235*/
 
 atomic_clause_optseq: /* empty */
-                    | atomic_clause_seq
+                    | atomic_clause_seq_before
                     | atomic_clause_class
-                    | atomic_clause_seq ',' atomic_clause_class
-                    | atomic_clause_seq atomic_clause_class
+                    | atomic_clause_seq_before ',' atomic_clause_class
+                    | atomic_clause_seq_before atomic_clause_class
                     ;
 atomic_clause_class : atomic_clause
-                    | atomic_clause atomic_clause_seq
-                    | atomic_clause ',' atomic_clause_seq
+                    | atomic_clause atomic_clause_seq_after
+                    | atomic_clause ',' atomic_clause_seq_after
 		    ;
-atomic_clause_seq : atomic_clause_seq_general
-                  | atomic_clause_seq atomic_clause_seq_general
-                  | atomic_clause_seq ',' atomic_clause_seq_general
-                  ;
-atomic_clause_seq_general : memory_order_clause
-                          | hint_clause
-                          ;
+atomic_clause_seq_before : atomic_clause_seq_general_before
+                         | atomic_clause_seq_before atomic_clause_seq_general_before
+                         | atomic_clause_seq_before ',' atomic_clause_seq_general_before
+                         ;
+atomic_clause_seq_after : atomic_clause_seq_general_after
+                        | atomic_clause_seq_after atomic_clause_seq_general_after
+                        | atomic_clause_seq_after ',' atomic_clause_seq_general_after
+                        ;
+atomic_clause_seq_general_before : memory_order_clause_before
+                                 | hint_clause
+                                 ;
+atomic_clause_seq_general_after : memory_order_clause_after
+                                | hint_clause_after
+                                ;
 atomic_clause : read_clause
               | write_clause
               | update_clause
               | capture_clause
               ;
-memory_order_clause : seq_cst_clause
-                    | acq_rel_clause
-                    | release_clause
-                    | acquire_clause
-                    | relaxed_clause
-                    ; 
-hint_clause : HINT{ current_clause = current_directive->addOpenMPClause(OMPC_hint);
-              } '(' expression ')'
+memory_order_clause_before : seq_cst_clause
+                           | acq_rel_clause
+                           | release_clause
+                           | acquire_clause
+                           | relaxed_clause
+                           ; 
+memory_order_clause_after : seq_cst_clause
+                           | acq_rel_clause
+                           | release_clause
+                           | acquire_clause
+                           | relaxed_clause
+                           ; 
+
+hint_clause : HINT{ atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_hint, atomic_before_or_after);
+                     } '(' expression ')'
             ;
+hint_clause_after : HINT{ atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_hint, atomic_before_or_after);
+                    } '(' expression ')'
+                  ;
 
 read_clause : READ { current_clause = current_directive->addOpenMPClause(OMPC_read);
                    } 
