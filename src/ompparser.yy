@@ -666,12 +666,12 @@ memory_order_clause_before : seq_cst_clause
                            | acquire_clause
                            | relaxed_clause
                            ; 
-memory_order_clause_after : seq_cst_clause
-                           | acq_rel_clause
-                           | release_clause
-                           | acquire_clause
-                           | relaxed_clause
-                           ; 
+memory_order_clause_after : seq_cst_clause_after
+                          | acq_rel_clause_after
+                          | release_clause_after
+                          | acquire_clause_after
+                          | relaxed_clause_after
+                          ; 
 
 hint_clause : HINT{ atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_hint, atomic_before_or_after);
                      } '(' expression ')'
@@ -689,20 +689,31 @@ write_clause : WRITE { current_clause = current_directive->addOpenMPClause(OMPC_
 update_clause : UPDATE { current_clause = current_directive->addOpenMPClause(OMPC_update);
                        } 
               ;
-capture_clause : CAPTURE { current_clause = current_directive->addOpenMPClause(OMPC_capture);
+capture_clause : CAPTURE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_capture);
                          } 
                ;
 
-seq_cst_clause : SEQ_CST {current_clause = current_directive->addOpenMPClause(OMPC_seq_cst); }
+seq_cst_clause : SEQ_CST { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_seq_cst, atomic_before_or_after); }
                ;
-acq_rel_clause : ACQ_REL {current_clause = current_directive->addOpenMPClause(OMPC_acq_rel); }
+acq_rel_clause : ACQ_REL { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_acq_rel, atomic_before_or_after); }
                ;
-release_clause : RELEASE {current_clause = current_directive->addOpenMPClause(OMPC_release); }
+release_clause : RELEASE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_release, atomic_before_or_after); }
                ;
-acquire_clause : ACQUIRE {current_clause = current_directive->addOpenMPClause(OMPC_acquire); }
+acquire_clause : ACQUIRE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_acquire, atomic_before_or_after); }
                ;
-relaxed_clause : RELAXED {current_clause = current_directive->addOpenMPClause(OMPC_relaxed); }
+relaxed_clause : RELAXED { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_relaxed, atomic_before_or_after); }
                ;
+
+seq_cst_clause_after : SEQ_CST { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_seq_cst, atomic_before_or_after); }
+                     ;
+acq_rel_clause_after : ACQ_REL { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_acq_rel, atomic_before_or_after); }
+                     ;
+release_clause_after : RELEASE { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_release, atomic_before_or_after); }
+                     ;
+acquire_clause_after : ACQUIRE { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_acquire, atomic_before_or_after); }
+                     ;
+relaxed_clause_after : RELAXED { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_relaxed, atomic_before_or_after); }
+                     ;
 
 taskwait_clause_optseq : /* empty */
                        | taskwait_clause_seq
