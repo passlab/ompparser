@@ -3302,11 +3302,11 @@ nontemporal_clause: NONTEMPORAL { current_clause = current_directive->addOpenMPC
                         }
                       ;
 
-collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(OMPC_collapse); } '(' var_list ')' {
+collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(OMPC_collapse); } '(' expression ')' {
                         }
                ;
 
-ordered_clause: ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); } '(' var_list ')'
+ordered_clause: ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); } '(' expression ')'
               | ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); }
               ;
 fortran_nowait_clause: NOWAIT { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("Sections does not support nowait clause in Fortran."); YYABORT;} }
