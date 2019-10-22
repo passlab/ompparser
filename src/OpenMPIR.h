@@ -93,7 +93,6 @@ protected:
      * for each instance of kind and full parameters
      */
     map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses;
-
     /**
      *
      * This method searches the clauses map to see whether one or more OpenMPClause objects of the specified kind
@@ -153,6 +152,20 @@ public:
     OpenMPBaseLang getBaseLang() { return lang; };
 };
 
+
+//atomic directive
+class OpenMPAtomicDirective : public OpenMPDirective {
+protected:
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_after;
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_clauses;
+public:
+    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+    std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
+    std::vector<OpenMPClause *> *getAtomicClauses(OpenMPClauseKind kind) { return clauses_atomic_clauses[kind]; };
+   map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllAtomicClauses() { return &clauses_atomic_clauses; };
+};
+
 class OpenMPEndDirective : public OpenMPDirective {
 protected:
     OpenMPDirective* paired_directive;
@@ -201,7 +214,7 @@ public:
     std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
-//declear simd directive
+//declare simd directive
 class OpenMPDeclareSimdDirective : public OpenMPDirective {
 protected:
     std::string proc_name;
@@ -212,7 +225,7 @@ public:
     std::string getProcName() { return proc_name;}
 };
 
-//declear reduction directive
+//declare reduction directive
 class OpenMPDeclareReductionDirective : public OpenMPDirective {
 protected:
     std::vector<const char*> typename_list;
@@ -228,7 +241,7 @@ public:
     std::string getCombiner() {return combiner;}
 };
 
-//declear mapper directive
+//declare mapper directive
 class OpenMPDeclareMapperDirective : public OpenMPDirective {
 protected:
     std::string identifier;
@@ -588,7 +601,89 @@ public:
 
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+// hint Clause
+class OpenMPHintClause : public OpenMPClause {
+public:
+    OpenMPHintClause() :
+            OpenMPClause(OMPC_hint) { };
 
+    static OpenMPClause* addHintClause(OpenMPDirective *directive, int before_or_after);
+};
+// acq_rel Clause
+class OpenMPAcqRelClause : public OpenMPClause {
+public:
+    OpenMPAcqRelClause() :
+            OpenMPClause(OMPC_acq_rel) { };
+
+    static OpenMPClause* addAcqRelClause(OpenMPDirective *directive, int before_or_after);
+};
+// seq_cst Clause
+class OpenMPSeqCstClause : public OpenMPClause {
+public:
+    OpenMPSeqCstClause() :
+            OpenMPClause(OMPC_seq_cst) { };
+
+    static OpenMPClause* addSeqCstClause(OpenMPDirective *directive, int before_or_after);
+};
+// release Clause
+class OpenMPReleaseClause : public OpenMPClause {
+public:
+    OpenMPReleaseClause() :
+            OpenMPClause(OMPC_release) { };
+
+    static OpenMPClause* addReleaseClause(OpenMPDirective *directive, int before_or_after);
+};
+// acquire Clause
+class OpenMPAcquireClause : public OpenMPClause {
+public:
+    OpenMPAcquireClause() :
+            OpenMPClause(OMPC_acquire) { };
+
+    static OpenMPClause* addAcquireClause(OpenMPDirective *directive, int before_or_after);
+};
+// relaxed Clause
+class OpenMPRelaxedClause : public OpenMPClause {
+public:
+    OpenMPRelaxedClause() :
+            OpenMPClause(OMPC_relaxed) { };
+
+    static OpenMPClause* addRelaxedClause(OpenMPDirective *directive, int before_or_after);
+};
+// read Clause
+class OpenMPReadClause : public OpenMPClause {
+public:
+    OpenMPReadClause() :
+            OpenMPClause(OMPC_read) { };
+
+    static OpenMPClause* addReadClause(OpenMPDirective *directive);
+};
+
+// capture Clause
+class OpenMPCaptureClause : public OpenMPClause {
+public:
+    OpenMPCaptureClause() :
+            OpenMPClause(OMPC_capture) { };
+
+    static OpenMPClause* addCaptureClause(OpenMPDirective *directive);
+};
+
+// update Clause
+class OpenMPUpdateClause : public OpenMPClause {
+public:
+    OpenMPUpdateClause() :
+            OpenMPClause(OMPC_update) { };
+
+    static OpenMPClause* addUpdateClause(OpenMPDirective *directive);
+};
+
+// write Clause
+class OpenMPWriteClause : public OpenMPClause {
+public:
+    OpenMPWriteClause() :
+            OpenMPClause(OMPC_write) { };
+
+    static OpenMPClause* addWriteClause(OpenMPDirective *directive);
+};
 //in_reduction clause
 class OpenMPInReductionClause : public OpenMPClause {
 
@@ -823,13 +918,6 @@ public:
     OpenMPFlushDirective () : OpenMPDirective(OMPD_flush) {};
     void addFlushList (const char* _flush_list) { flush_list.push_back(std::string(_flush_list)); };
     std::vector<std::string>* getFlushList () { return &flush_list; };
-};
-
-//atomic directive
-class OpenMPAtomicDirective : public OpenMPDirective {
-protected:
-public:
-    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
 };
 
 // critical directive
