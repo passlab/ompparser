@@ -125,6 +125,7 @@ int main( int argc, const char* argv[] ) {
                     input_pragma = current_line;
                     auto search_pragma = processed_data.find(input_pragma);
                     if (search_pragma != processed_data.end()) {
+                        output_pragma = processed_data[input_pragma];
                         break;
                     };
                     OpenMPDirective* openMPAST = parseOpenMP(current_line.c_str(), NULL);
