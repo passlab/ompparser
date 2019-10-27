@@ -31,15 +31,15 @@ static OpenMPDirective* current_directive = NULL;
 static OpenMPClause* current_clause = NULL;
 static OpenMPDirective* current_parent_directive = NULL;
 static OpenMPClause* current_parent_clause = NULL;
-static int firstParameter;
-static int secondParameter;
-static int thirdParameter;
-OpenMPUsesAllocatorsClauseAllocator usesAllocator;
-std::string fourthParameter;
-std::string fifthParameter;
-std::vector<const char*>* iterator_definition = new std::vector<const char*>();
-std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
-std::vector<std::vector<const char*>* > depend_iterators_definition_class;
+static int firstParameter = 0;
+static int secondParameter = 0;
+static int thirdParameter = 0;
+static OpenMPUsesAllocatorsClauseAllocator usesAllocator;
+static const char* firstStringParameter = NULL;
+static const char* secondStringParameter = NULL;
+static std::vector<const char*>* iterator_definition = new std::vector<const char*>();
+static std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
+static std::vector<std::vector<const char*>* >* depend_iterators_definition_class;
 //std::vector<std::vector<const char*>* >* depend_iterators_definition_class;
 static const char* trait_score = "";
 /* Treat the entire expression as a string for now */
@@ -917,34 +917,34 @@ in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpen
 | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
 ;
 
-depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' { depend_iterators_definition_class.clear();
+depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; } '(' depend_parameter ')' { depend_iterators_definition_class->clear();
 }
                              ;
 
 depend_parameter : dependence_type ':' var_list 
                  | depend_modifier ',' dependence_type ':' var_list
                  ;
-dependence_type : depend_enum_type
+dependence_type : depend_enum_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); }
                 ;
-depend_modifier : MODIFIER_ITERATOR { firstParameter = OMPC_DEPEND_MODIFIER_iterator;
+depend_modifier : MODIFIER_ITERATOR { depend_iterators_definition_class = new std::vector<std::vector<const char *> *>(); firstParameter = OMPC_DEPEND_MODIFIER_iterator;
                               } '('depend_iterators_definition ')'
                 ;
 depend_iterators_definition : depend_iterator_specifier
                             | depend_iterators_definition ',' depend_iterator_specifier
                             ;
 depend_iterator_specifier : EXPR_STRING EXPR_STRING { depend_iterator_definition->push_back($1); depend_iterator_definition->push_back($2); } '=' depend_range_specification
-                          | EXPR_STRING{depend_iterator_definition->push_back(""); depend_iterator_definition->push_back($1); } '='  depend_range_specification 
+                          | EXPR_STRING { depend_iterator_definition->push_back(""); depend_iterator_definition->push_back($1); } '=' depend_range_specification
                           ;
-depend_range_specification : EXPR_STRING { depend_iterator_definition->push_back($1); } ':' EXPR_STRING { depend_iterator_definition->push_back($4); } depend_range_step 
+depend_range_specification : EXPR_STRING { depend_iterator_definition->push_back($1); } ':' EXPR_STRING { depend_iterator_definition->push_back($4); } depend_range_step { depend_iterator_definition = new std::vector<const char*>(); }
                            ;
-depend_range_step : /*empty*/ {depend_iterator_definition->push_back(""); depend_iterators_definition_class.push_back(depend_iterator_definition); depend_iterator_definition=new std::vector<const char*>(); }
-                  | ':' EXPR_STRING { depend_iterator_definition->push_back($2);depend_iterators_definition_class.push_back(depend_iterator_definition); depend_iterator_definition=new std::vector<const char*>(); }
+depend_range_step : /*empty*/ { depend_iterator_definition->push_back(""); depend_iterators_definition_class->push_back(depend_iterator_definition); }
+                  | ':' EXPR_STRING { depend_iterator_definition->push_back($2);depend_iterators_definition_class->push_back(depend_iterator_definition); }
                   ;
-depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in, depend_iterators_definition_class); }
-                 | OUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_out, depend_iterators_definition_class); }
-                 | INOUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_inout, depend_iterators_definition_class); }
+depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in); }
+                 | OUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_out); }
+                 | INOUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_inout); }
                  | MUTEXINOUTSET { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_mutexinoutset); }
-                 | DEPOBJ { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_depobj, depend_iterators_definition_class); }
+                 | DEPOBJ { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_depobj); }
                  ;
 
 depend_depobj_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unknown; }'(' dependence_depobj_parameter ')' {
@@ -982,15 +982,16 @@ affinity_modifier : MODIFIER_ITERATOR { current_clause = current_directive->addO
                               }'('iterators_definition')'{}
                   ;
 iterators_definition : iterator_specifier
-                     | iterators_definition ',' iterator_specifier                       
+                     | iterators_definition ',' iterator_specifier
                      ;
 iterator_specifier : EXPR_STRING EXPR_STRING { iterator_definition->push_back($1); iterator_definition->push_back($2); } '=' range_specification
-                   | EXPR_STRING{iterator_definition->push_back(""); iterator_definition->push_back($1); }  '=' range_specification 
+                   | EXPR_STRING{iterator_definition->push_back(""); iterator_definition->push_back($1); }  '=' range_specification
                    ;
-range_specification : EXPR_STRING { iterator_definition->push_back($1); } ':' EXPR_STRING { iterator_definition->push_back($4); } range_step 
+range_specification : EXPR_STRING { iterator_definition->push_back($1); } ':' EXPR_STRING { iterator_definition->push_back($4); } range_step { iterator_definition = new std::vector<const char*>(); }
+
                     ;
-range_step : /*empty*/ {iterator_definition->push_back(""); ((OpenMPAffinityClause*)current_clause)->addIteratorsDefinitionClass(iterator_definition); iterator_definition = new std::vector<const char*>(); }
-           | ':' EXPR_STRING { iterator_definition->push_back($2); ((OpenMPAffinityClause*)current_clause)->addIteratorsDefinitionClass(iterator_definition); iterator_definition=new std::vector<const char*>(); }
+range_step : /*empty*/ { iterator_definition->push_back(""); ((OpenMPAffinityClause*)current_clause)->addIteratorsDefinitionClass(iterator_definition); }
+           | ':' EXPR_STRING { iterator_definition->push_back($2); ((OpenMPAffinityClause*)current_clause)->addIteratorsDefinitionClass(iterator_definition); }
            ;
 
 detach_clause: DETACH {
@@ -1079,15 +1080,15 @@ defaultmap_category : CATEGORY_SCALAR { current_clause = current_directive->addO
                     | CATEGORY_AGGREGATE { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_aggregate); }
                     | CATEGORY_POINTER { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap,firstParameter,OMPC_DEFAULTMAP_CATEGORY_pointer); }
                     ;
-uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); firstParameter = OMPC_USESALLOCATORS_ALLOCATOR_unknown; fourthParameter = ""; fifthParameter = ""; } '(' uses_allocators_parameter ')' ;
+uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); firstParameter = OMPC_USESALLOCATORS_ALLOCATOR_unknown; firstStringParameter = ""; secondStringParameter = ""; } '(' uses_allocators_parameter ')' ;
 uses_allocators_parameter : allocators_list
                           | allocators_list ',' uses_allocators_parameter
                           ;
 
-allocators_list : allocators_list_parameter_enum { fourthParameter = ""; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
-                | allocators_list_parameter_enum '(' EXPR_STRING ')' { fourthParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
-                | allocators_list_parameter_user { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user;fourthParameter = "";((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
-                | allocators_list_parameter_user '(' EXPR_STRING ')' { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user;fourthParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, fourthParameter, fifthParameter); }
+allocators_list : allocators_list_parameter_enum { firstStringParameter = NULL; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, firstStringParameter, secondStringParameter); }
+                | allocators_list_parameter_enum '(' EXPR_STRING ')' { firstStringParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, firstStringParameter, secondStringParameter); }
+                | allocators_list_parameter_user { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user; firstStringParameter = NULL; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, firstStringParameter, secondStringParameter); }
+                | allocators_list_parameter_user '(' EXPR_STRING ')' { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_user; firstStringParameter = $3; ((OpenMPUsesAllocatorsClause*)current_clause)->addUsesAllocatorsAllocatorSequence(usesAllocator, firstStringParameter, secondStringParameter); }
                 ;
 
 allocators_list_parameter_enum : DEFAULT_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_default; }
@@ -1099,7 +1100,7 @@ allocators_list_parameter_enum : DEFAULT_MEM_ALLOC { usesAllocator = OMPC_USESAL
                                | PTEAM_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_pteam;  }
                                | THREAD_MEM_ALLOC { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_thread; }
                                ;
-allocators_list_parameter_user : EXPR_STRING { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_unknown; fifthParameter = $1; }
+allocators_list_parameter_user : EXPR_STRING { usesAllocator = OMPC_USESALLOCATORS_ALLOCATOR_unknown; secondStringParameter = $1; }
                                ;
 to_clause: TO '(' to_parameter ')' ;
 to_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_to); current_clause->addLangExpr($1);  }
@@ -1132,8 +1133,8 @@ device_type_parameter : HOST { current_clause = current_directive->addOpenMPClau
 
 map_clause : MAP { firstParameter = OMPC_MAP_MODIFIER_unknown; secondParameter = OMPC_MAP_MODIFIER_unknown; thirdParameter = OMPC_MAP_MODIFIER_unknown; }'(' map_parameter')';
 
-map_parameter : EXPR_STRING { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); }
-              | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, fourthParameter); current_clause->addLangExpr($1); } var_list
+map_parameter : EXPR_STRING { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, firstStringParameter); current_clause->addLangExpr($1); }
+              | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_unknown, firstStringParameter); current_clause->addLangExpr($1); } var_list
               | map_modifier_type ':' var_list
               ;
 map_modifier_type : map_type
@@ -1163,14 +1164,14 @@ map_modifier3 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_al
               | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close || secondParameter==OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_close; }
               | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper || secondParameter==OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_mapper; }
               ;
-map_type : MAP_TYPE_TO { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to, fourthParameter); }
-         | MAP_TYPE_FROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_from, fourthParameter); }
-         | MAP_TYPE_TOFROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_tofrom, fourthParameter); }
-         | MAP_TYPE_ALLOC { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_alloc, fourthParameter); }
-         | MAP_TYPE_RELEASE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_release, fourthParameter); }
-         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, fourthParameter); }
+map_type : MAP_TYPE_TO { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to, firstStringParameter); }
+         | MAP_TYPE_FROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_from, firstStringParameter); }
+         | MAP_TYPE_TOFROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_tofrom, firstStringParameter); }
+         | MAP_TYPE_ALLOC { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_alloc, firstStringParameter); }
+         | MAP_TYPE_RELEASE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_release, firstStringParameter); }
+         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, secondStringParameter); }
          ;
-map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')' { fourthParameter = $3; }                       
+map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')' { firstStringParameter = $3; }
                     ;
 
 task_reduction_clause : TASK_REDUCTION '(' task_reduction_identifier ':' var_list ')' {

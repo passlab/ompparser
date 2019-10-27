@@ -261,8 +261,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
         case OMPC_depend : {
             OpenMPDependClauseModifier modifier = (OpenMPDependClauseModifier) va_arg(args, int);
             OpenMPDependClauseType type = (OpenMPDependClauseType) va_arg(args, int);
-            std::vector<std::vector<const char*>* > depend_iterators_definition_class =(std::vector<std::vector<const char*>* >) va_arg(args, std::vector<std::vector<const char*>* >);
-            new_clause = OpenMPDependClause::addDependClause(this, modifier, type, depend_iterators_definition_class); 
+            new_clause = OpenMPDependClause::addDependClause(this, modifier, type);
             break;
         }
         case OMPC_affinity : {
@@ -305,7 +304,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
             OpenMPMapClauseModifier modifier2 = (OpenMPMapClauseModifier)va_arg(args, int);
             OpenMPMapClauseModifier modifier3 = (OpenMPMapClauseModifier)va_arg(args, int);
             OpenMPMapClauseType type = (OpenMPMapClauseType)va_arg(args, int);
-            std::string mapper_identifier = (std::string)va_arg(args, std::string);
+            std::string mapper_identifier = (std::string)va_arg(args, char*);
             new_clause = OpenMPMapClause::addMapClause(this, modifier1, modifier2, modifier3, type, mapper_identifier);
             break;
         }
@@ -1289,24 +1288,24 @@ std::string OpenMPDependClause::toString() {
                 clause_string += "iterator";
                 clause_string += " ( ";
                 for (int i = 0; i < depend_iterators_definition_class->size(); i++) {  
-                     clause_string += depend_iterators_definition_class->at(i)->at(0);
-                     if (depend_iterators_definition_class->at(i)->at(0) != "") {
-                         clause_string += " ";
-                     };
-                     clause_string += depend_iterators_definition_class->at(i)->at(1);
-                     clause_string += "=";
-                     clause_string += depend_iterators_definition_class->at(i)->at(2);
-                     clause_string += ":";
-                     clause_string += depend_iterators_definition_class->at(i)->at(3);
-                     if ((string)depend_iterators_definition_class->at(i)->at(4) != "") {
-                         clause_string += ":";
-                         clause_string += depend_iterators_definition_class->at(i)->at(4);
-                     };
-                     if ((i < depend_iterators_definition_class->size()-1) && depend_iterators_definition_class->at(i+1)->at(0) != "") {
-                         clause_string += ",";
-                     };
+                    clause_string += depend_iterators_definition_class->at(i)->at(0);
+                    if (depend_iterators_definition_class->at(i)->at(0) != "") {
+                        clause_string += " ";
+                    };
+                    clause_string += depend_iterators_definition_class->at(i)->at(1);
+                    clause_string += "=";
+                    clause_string += depend_iterators_definition_class->at(i)->at(2);
+                    clause_string += ":";
+                    clause_string += depend_iterators_definition_class->at(i)->at(3);
+                    if ((string)depend_iterators_definition_class->at(i)->at(4) != "") {
+                        clause_string += ":";
+                        clause_string += depend_iterators_definition_class->at(i)->at(4);
+                    };
+                    clause_string += ", ";
                 };
-                clause_string += " ) ";  
+                clause_string = clause_string.substr(0, clause_string.size()-2);
+
+                clause_string += " )";
             }
             default:
             ;
@@ -3830,14 +3829,16 @@ OpenMPClause* OpenMPAffinityClause::addAffinityClause(OpenMPDirective *directive
     return new_clause;
 }
 
-OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type, std::vector<std::vector<const char*>* > depend_iterators_definition_class) {
+//OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type, std::vector<std::vector<const char*>* > depend_iterators_definition_class) {
+OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type) {
    
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_depend);
     OpenMPClause* new_clause = NULL;
 
     if (current_clauses->size() == 0) {
-        new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
+        //new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
+        new_clause = new OpenMPDependClause(modifier, type);
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_depend] = current_clauses;
@@ -3850,7 +3851,8 @@ OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, Op
             }
         }
         /* could fine the matching object for this clause */
-        new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
+        //new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
+        new_clause = new OpenMPDependClause(modifier, type);
         current_clauses->push_back(new_clause);
     }
     return new_clause;

@@ -718,13 +718,14 @@ protected:
 public:
     OpenMPDependClause( ) : OpenMPClause(OMPC_depend) { }
 
-    OpenMPDependClause(OpenMPDependClauseModifier _modifier, OpenMPDependClauseType _type, std::vector<std::vector<const char*>* > _depend_iterators_definition_class) : OpenMPClause(OMPC_depend),modifier(_modifier), type(_type),  depend_iterators_definition_class(_depend_iterators_definition_class) { };
+    OpenMPDependClause(OpenMPDependClauseModifier _modifier, OpenMPDependClauseType _type) : OpenMPClause(OMPC_depend),modifier(_modifier), type(_type) { };
     OpenMPDependClauseModifier getModifier() { return modifier; };
     OpenMPDependClauseType getType() { return type; };
-    void addDependenceVector(const char* _dependence_vector) { dependence_vector = _dependence_vector; };
+    void addDependenceVector(const char* _dependence_vector) { dependence_vector = std::string(_dependence_vector); };
     std::string getDependenceVector() { return dependence_vector; };
+    void setDependIteratorsDefinitionClass(std::vector<std::vector<const char*>* >* _depend_iterators_definition_class) { depend_iterators_definition_class = *_depend_iterators_definition_class; };
     std::vector<vector<const char*>* >* getDependIteratorsDefinitionClass() { return &depend_iterators_definition_class; };
-    static OpenMPClause * addDependClause(OpenMPDirective *, OpenMPDependClauseModifier, OpenMPDependClauseType, std::vector<std::vector<const char*>* >);
+    static OpenMPClause * addDependClause(OpenMPDirective *, OpenMPDependClauseModifier, OpenMPDependClauseType);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 
