@@ -13,6 +13,7 @@ addons:
 
 compiler:
     - gcc
+    - clang
 
 # Build main and tests
 script:
