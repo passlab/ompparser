@@ -20,8 +20,9 @@ void OpenMPClause::addLangExpr(const char *expression, int line, int col) {
  * expects a fixed set of parameters.
  * @return
  */
-OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
+OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
 
+    OpenMPClauseKind kind = (OpenMPClauseKind)k;
     // Check whether the given kind of clause exists first.
     // If not, create an empty vector.
     if (clauses.count(kind) == 0) {
@@ -29,7 +30,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(OpenMPClauseKind kind, ... ) {
     };
     std::vector<OpenMPClause*>* current_clauses = getClauses(kind);
     va_list args;
-    va_start(args, kind);
+    va_start(args, k);
     OpenMPClause * new_clause = NULL;
 
     switch (kind) {
