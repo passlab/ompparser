@@ -1520,17 +1520,20 @@ std::string OpenMPAffinityClause::toString() {
             clause_string += "iterator";
             clause_string += " ( ";
             for (int i = 0; i <iterators_definition_class->size(); i++){  
-                 clause_string += iterators_definition_class->at(i)->at(0);
-                 if (strcmp(iterators_definition_class->at(i)->at(0), "\0") != 0) { clause_string +=" "; };
-                 clause_string +=iterators_definition_class->at(i)->at(1);
-                 clause_string +="=";
-                 clause_string +=iterators_definition_class->at(i)->at(2);
-                 clause_string +=":";
-                 clause_string +=iterators_definition_class->at(i)->at(3);
-                 if((string)iterators_definition_class->at(i)->at(4)!=""){clause_string +=":";clause_string +=iterators_definition_class->at(i)->at(4);}
-                 if (( i < iterators_definition_class->size()-1) && strcmp(iterators_definition_class->at(i+1)->at(0), "\0") != 0) { clause_string += ","; };
-            }
-            clause_string += " ) ";
+                clause_string += iterators_definition_class->at(i)->at(0);
+                if (strcmp(iterators_definition_class->at(i)->at(0), "\0") != 0) { clause_string +=" "; };
+                clause_string +=iterators_definition_class->at(i)->at(1);
+                clause_string +="=";
+                clause_string +=iterators_definition_class->at(i)->at(2);
+                clause_string +=":";
+                clause_string +=iterators_definition_class->at(i)->at(3);
+                if ((string)iterators_definition_class->at(i)->at(4) != "") {
+                    clause_string +=":";clause_string +=iterators_definition_class->at(i)->at(4);
+                }
+                clause_string += ", ";
+            };
+            clause_string = clause_string.substr(0, clause_string.size()-2);
+            clause_string += " )";
             break;
         default:
             ;

@@ -6,7 +6,7 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 !$omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),out:v, b) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),inout:x, c)
-PASS: !$omp taskwait depend (iterator ( int bba=4:120:2,  b=1:220:3, int c=2:57:9 ), in : m, n) depend (iterator ( int bba=4:120:2,  b=1:220:3, int c=2:57:9 ), out : v, b) depend (iterator ( int bba=4:120:2,  b=1:220:3, int c=2:57:9 ), inout : x, c)
+PASS: !$omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), out : v, b) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), inout : x, c)
 
 !$omp taskwait depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n)
-PASS: !$omp taskwait depend (iterator ( int bba=4:120:2,  b=1:220:3, int c=2:57:9 ), in : m, n)
+PASS: !$omp taskwait depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n)
