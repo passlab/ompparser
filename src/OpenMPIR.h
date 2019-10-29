@@ -147,7 +147,7 @@ public:
     void generateDOT();
     std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "");
     // To call this method directly to add new clause, it can't be protected.
-    OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
+    OpenMPClause * addOpenMPClause(int, ...);
     void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
     OpenMPBaseLang getBaseLang() { return lang; };
 };
