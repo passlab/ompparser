@@ -329,6 +329,7 @@ enum OpenMPAllocateClauseAllocator {
     OPENMP_ALLOCATE_ALLOCATOR_KIND(thread)// omp_thread_mem_alloc
     OPENMP_ALLOCATE_ALLOCATOR_KIND(user)// user-defined allocator
     OPENMP_ALLOCATE_ALLOCATOR_KIND(unknown)
+    OPENMP_ALLOCATE_ALLOCATOR_KIND(unspecified)
 #undef OPENMP_ALLOCATE_ALLOCATOR_KIND
 };
 
@@ -355,6 +356,7 @@ enum OpenMPReductionClauseModifier {
     OPENMP_REDUCTION_MODIFIER(task)
     OPENMP_REDUCTION_MODIFIER(default)
     OPENMP_REDUCTION_MODIFIER(unknown)
+    OPENMP_REDUCTION_MODIFIER(unspecified)
 #undef OPENMP_REDUCTION_MODIFIER
 };
 
@@ -382,11 +384,9 @@ enum OpenMPReductionClauseIdentifier {
 /// modifiers for 'lastprivate' clause.
 enum OpenMPLastprivateClauseModifier {
 #define OPENMP_LASTPRIVATE_MODIFIER(Name) OMPC_LASTPRIVATE_MODIFIER_##Name,
-
     OPENMP_LASTPRIVATE_MODIFIER(conditional)
-    OPENMP_LASTPRIVATE_MODIFIER(user)
 
-    OPENMP_LASTPRIVATE_MODIFIER(unknown)
+    OPENMP_LASTPRIVATE_MODIFIER(unspecified)
 #undef OPENMP_LASTPRIVATE_MODIFIER
 };
 
@@ -404,12 +404,12 @@ enum OpenMPLinearClauseStep {
 /// modifiers for 'linear' clause.
 enum OpenMPLinearClauseModifier {
 #define OPENMP_LINEAR_MODIFIER(Name) OMPC_LINEAR_MODIFIER_##Name,
-    OPENMP_LINEAR_MODIFIER(unknown)
 
     OPENMP_LINEAR_MODIFIER(val)
     OPENMP_LINEAR_MODIFIER(ref)
     OPENMP_LINEAR_MODIFIER(uval)
     OPENMP_LINEAR_MODIFIER(user)
+    OPENMP_LINEAR_MODIFIER(unspecified)
 
 
 #undef OPENMP_LINEAR_MODIFIER
@@ -438,7 +438,7 @@ enum OpenMPScheduleClauseKind {
     OPENMP_SCHEDULE_KIND(runtime)
     OPENMP_SCHEDULE_KIND(user)
 
-    OPENMP_SCHEDULE_KIND(unknown)
+    OPENMP_SCHEDULE_KIND(unspecified)
 #undef OPENMP_SCHEDULE_KIND
 };
 
@@ -500,6 +500,7 @@ enum OpenMPUsesAllocatorsClauseAllocator {
     OPENMP_USESALLOCATORS_ALLOCATOR_KIND(thread)// omp_thread_mem_alloc
     OPENMP_USESALLOCATORS_ALLOCATOR_KIND(user)// user-defined allocator
     OPENMP_USESALLOCATORS_ALLOCATOR_KIND(unknown)
+    OPENMP_USESALLOCATORS_ALLOCATOR_KIND(unspecified)
 #undef OPENMP_USESALLOCATORS_ALLOCATOR_KIND
 };
 
@@ -508,7 +509,8 @@ enum OpenMPDeviceClauseModifier {
 #define OPENMP_DEVICE_MODIFIER(Name) OMPC_DEVICE_MODIFIER_##Name,
     OPENMP_DEVICE_MODIFIER(ancestor)
     OPENMP_DEVICE_MODIFIER(device_num)
-    OPENMP_DEVICE_MODIFIER(unknown)
+
+    OPENMP_DEVICE_MODIFIER(unspecified)
 #undef OPENMP_DEVICE_MODIFIER
 };
 
@@ -534,8 +536,9 @@ enum OpenMPInReductionClauseIdentifier {
 
 enum OpenMPDependClauseModifier {
 #define OPENMP_DEPEND_MODIFIER(Name) OMPC_DEPEND_MODIFIER_##Name,
-    OPENMP_DEPEND_MODIFIER(unknown)
     OPENMP_DEPEND_MODIFIER(iterator)
+    OPENMP_DEPEND_MODIFIER(unknown)
+    OPENMP_DEPEND_MODIFIER(unspecified)
 #undef OPENMP_DEPEND_MODIFIER
 };
 
@@ -555,21 +558,21 @@ enum OpenMPDependClauseType {
 enum OpenMPAffinityClauseModifier {
 #define OPENMP_AFFINITY_MODIFIER(Name) OMPC_AFFINITY_MODIFIER_##Name,
     OPENMP_AFFINITY_MODIFIER(iterator)
-    OPENMP_AFFINITY_MODIFIER(unknown)
+    OPENMP_AFFINITY_MODIFIER(unspecified)
 #undef OPENMP_AFFINITY_MODIFIER
 };
 
 enum OpenMPToClauseKind {
 #define OPENMP_TO_KIND(Name) OMPC_TO_##Name,
     OPENMP_TO_KIND(mapper)
-    OPENMP_TO_KIND(unknown)
+    OPENMP_TO_KIND(unspecified)
 #undef OPENMP_TO_KIND
 };
 
 enum OpenMPFromClauseKind {
 #define OPENMP_FROM_KIND(Name) OMPC_FROM_##Name,
     OPENMP_FROM_KIND(mapper)
-    OPENMP_FROM_KIND(unknown)
+    OPENMP_FROM_KIND(unspecified)
 #undef OPENMP_FROM_KIND
 };
 
@@ -584,6 +587,7 @@ enum OpenMPDefaultmapClauseBehavior {
     OPENMP_DEFAULTMAP_BEHAVIOR(none)
     OPENMP_DEFAULTMAP_BEHAVIOR(default)
     OPENMP_DEFAULTMAP_BEHAVIOR(unknown)
+    OPENMP_DEFAULTMAP_BEHAVIOR(unspecified)
 #undef OPENMP_DEFAULTMAP_BEHAVIOR
 };
 
@@ -608,10 +612,10 @@ enum OpenMPDeviceTypeClauseKind {
 /// modifiers for 'map' clause.
 enum OpenMPMapClauseModifier {
 #define OPENMP_MAP_MODIFIER(Name) OMPC_MAP_MODIFIER_##Name,
-    OPENMP_MAP_MODIFIER(unknown)
     OPENMP_MAP_MODIFIER(always)
     OPENMP_MAP_MODIFIER(close)
     OPENMP_MAP_MODIFIER(mapper)
+    OPENMP_MAP_MODIFIER(unspecified)
 #undef OPENMP_MAP_MODIFIER
 };
 enum OpenMPMapClauseType {
@@ -623,6 +627,7 @@ enum OpenMPMapClauseType {
     OPENMP_MAP_TYPE(release)
     OPENMP_MAP_TYPE(delete)
     OPENMP_MAP_TYPE(unknown)
+    OPENMP_MAP_TYPE(unspecified)
 #undef OPENMP_MAP_TYPE
 };
 enum OpenMPTaskReductionClauseIdentifier {

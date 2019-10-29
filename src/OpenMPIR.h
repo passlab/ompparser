@@ -93,7 +93,6 @@ protected:
      * for each instance of kind and full parameters
      */
     map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses;
-
     /**
      *
      * This method searches the clauses map to see whether one or more OpenMPClause objects of the specified kind
@@ -148,9 +147,23 @@ public:
     void generateDOT();
     std::string generatePragmaString(std::string _prefix = "#pragma omp ", std::string _beginning_symbol = "", std::string _ending_symbol = "");
     // To call this method directly to add new clause, it can't be protected.
-    OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, ...);
+    OpenMPClause * addOpenMPClause(int, ...);
     void setBaseLang(OpenMPBaseLang _lang) { lang = _lang; };
     OpenMPBaseLang getBaseLang() { return lang; };
+};
+
+
+//atomic directive
+class OpenMPAtomicDirective : public OpenMPDirective {
+protected:
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_after;
+    map<OpenMPClauseKind, vector<OpenMPClause *> *> clauses_atomic_clauses;
+public:
+    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
+    std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
+    std::vector<OpenMPClause *> *getAtomicClauses(OpenMPClauseKind kind) { return clauses_atomic_clauses[kind]; };
+   map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllAtomicClauses() { return &clauses_atomic_clauses; };
 };
 
 class OpenMPEndDirective : public OpenMPDirective {
@@ -201,7 +214,7 @@ public:
     std::vector<const char*>* getThreadprivateList () { return &threadprivate_list; };
 };
 
-//declear simd directive
+//declare simd directive
 class OpenMPDeclareSimdDirective : public OpenMPDirective {
 protected:
     std::string proc_name;
@@ -212,7 +225,7 @@ public:
     std::string getProcName() { return proc_name;}
 };
 
-//declear reduction directive
+//declare reduction directive
 class OpenMPDeclareReductionDirective : public OpenMPDirective {
 protected:
     std::vector<const char*> typename_list;
@@ -228,7 +241,7 @@ public:
     std::string getCombiner() {return combiner;}
 };
 
-//declear mapper directive
+//declare mapper directive
 class OpenMPDeclareMapperDirective : public OpenMPDirective {
 protected:
     std::string identifier;
@@ -265,8 +278,8 @@ public:
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
-    static OpenMPReductionClause * addReductionClause(OpenMPDirective *directive,  OpenMPReductionClauseModifier modifier, 
-                  OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+    static OpenMPClause * addReductionClause(OpenMPDirective *,  OpenMPReductionClauseModifier, 
+                  OpenMPReductionClauseIdentifier, char * );
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -286,8 +299,7 @@ public:
     void setUserDefinedPriv(char *_priv) { user_defined_priv = std::string(_priv); }
 
     std::string getUserDefinedPriv() { return user_defined_priv; };
-
-    static OpenMPInitializerClause * addInitializerClause(OpenMPDirective *directive, OpenMPInitializerClausePriv priv, char * user_defined_priv);
+    static OpenMPClause * addInitializerClause(OpenMPDirective *, OpenMPInitializerClausePriv, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -308,7 +320,7 @@ public:
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 
-    static OpenMPAllocateClause * addAllocateClause(OpenMPDirective *directive, OpenMPAllocateClauseAllocator allocator);
+    static OpenMPClause * addAllocateClause(OpenMPDirective *, OpenMPAllocateClauseAllocator, char*);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -328,7 +340,7 @@ public:
 
     std::string getUserDefinedAllocator() { return user_defined_allocator; };
 
-    static OpenMPAllocatorClause * addAllocatorClause(OpenMPDirective *directive, OpenMPAllocatorClauseAllocator allocator);
+    static OpenMPClause * addAllocatorClause(OpenMPDirective *, OpenMPAllocatorClauseAllocator, char*);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -346,7 +358,7 @@ public:
 
     OpenMPLastprivateClauseModifier getModifier() { return modifier; };
 
-    static OpenMPLastprivateClause* addLastprivateClause(OpenMPDirective *directive, OpenMPLastprivateClauseModifier modifier);
+    static OpenMPClause * addLastprivateClause(OpenMPDirective*, OpenMPLastprivateClauseModifier);
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
@@ -357,7 +369,7 @@ class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
 
-    std::string user_defined_step;
+    std::string user_defined_step = "";
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
@@ -369,7 +381,9 @@ public:
 
     std::string getUserDefinedStep() { return user_defined_step; };
     
-    static OpenMPLinearClause* addLinearClause(OpenMPDirective *directive, OpenMPLinearClauseModifier modifier);
+    static OpenMPClause* addLinearClause(OpenMPDirective*, OpenMPLinearClauseModifier);
+
+    void mergeLinear(OpenMPDirective*, OpenMPClause*);
 
     std::string toString();
     //std::string expressionToString(bool);
@@ -391,6 +405,7 @@ public:
     std::string getUserDefinedAlignment() { return user_defined_alignment; };
 
     std::string toString();
+    static OpenMPClause* addAlignedClause(OpenMPDirective*);
     //std::string expressionToString(bool);
     void generateDOT(std::ofstream&, int, int, std::string);
 
@@ -412,6 +427,8 @@ public:
     void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
 
     std::string getUserDefinedKind() { return user_defined_kind; };
+
+    static OpenMPClause* addDistscheduleClause(OpenMPDirective *, OpenMPDistscheduleClauseKind, char *);
 
     std::string toString();
 
@@ -442,6 +459,8 @@ public:
     void setUserDefinedKind(char *schedulekind) { user_defined_kind = schedulekind; };
 
     std::string getUserDefinedKind() { return user_defined_kind; };
+
+    static OpenMPClause* addScheduleClause(OpenMPDirective *, OpenMPScheduleClauseModifier, OpenMPScheduleClauseModifier, OpenMPScheduleClauseKind, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -519,6 +538,7 @@ public:
             OpenMPClause(OMPC_proc_bind), proc_bind_kind(_proc_bind_kind) { };
 
     OpenMPProcBindClauseKind getProcBindClauseKind() { return proc_bind_kind; };
+    static OpenMPClause * addProcBindClause(OpenMPDirective*, OpenMPProcBindClauseKind);
     std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
@@ -534,7 +554,7 @@ public:
             OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
 
     OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
-    
+    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseKind);
     std::string toString();
     //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
@@ -577,13 +597,95 @@ public:
 
     std::string getUserDefinedModifier() { return user_defined_modifier; };
     
-    static OpenMPIfClause* addifClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier);
+    static OpenMPClause* addIfClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier, char * user_defined_modifier);
 
     std::string toString();
 
     void generateDOT(std::ofstream&, int, int, std::string);
 };
+// hint Clause
+class OpenMPHintClause : public OpenMPClause {
+public:
+    OpenMPHintClause() :
+            OpenMPClause(OMPC_hint) { };
 
+    static OpenMPClause* addHintClause(OpenMPDirective *directive, int before_or_after);
+};
+// acq_rel Clause
+class OpenMPAcqRelClause : public OpenMPClause {
+public:
+    OpenMPAcqRelClause() :
+            OpenMPClause(OMPC_acq_rel) { };
+
+    static OpenMPClause* addAcqRelClause(OpenMPDirective *directive, int before_or_after);
+};
+// seq_cst Clause
+class OpenMPSeqCstClause : public OpenMPClause {
+public:
+    OpenMPSeqCstClause() :
+            OpenMPClause(OMPC_seq_cst) { };
+
+    static OpenMPClause* addSeqCstClause(OpenMPDirective *directive, int before_or_after);
+};
+// release Clause
+class OpenMPReleaseClause : public OpenMPClause {
+public:
+    OpenMPReleaseClause() :
+            OpenMPClause(OMPC_release) { };
+
+    static OpenMPClause* addReleaseClause(OpenMPDirective *directive, int before_or_after);
+};
+// acquire Clause
+class OpenMPAcquireClause : public OpenMPClause {
+public:
+    OpenMPAcquireClause() :
+            OpenMPClause(OMPC_acquire) { };
+
+    static OpenMPClause* addAcquireClause(OpenMPDirective *directive, int before_or_after);
+};
+// relaxed Clause
+class OpenMPRelaxedClause : public OpenMPClause {
+public:
+    OpenMPRelaxedClause() :
+            OpenMPClause(OMPC_relaxed) { };
+
+    static OpenMPClause* addRelaxedClause(OpenMPDirective *directive, int before_or_after);
+};
+// read Clause
+class OpenMPReadClause : public OpenMPClause {
+public:
+    OpenMPReadClause() :
+            OpenMPClause(OMPC_read) { };
+
+    static OpenMPClause* addReadClause(OpenMPDirective *directive);
+};
+
+// capture Clause
+class OpenMPCaptureClause : public OpenMPClause {
+public:
+    OpenMPCaptureClause() :
+            OpenMPClause(OMPC_capture) { };
+
+    static OpenMPClause* addCaptureClause(OpenMPDirective *directive);
+};
+
+// update Clause
+class OpenMPUpdateClause : public OpenMPClause {
+public:
+    OpenMPUpdateClause() :
+            OpenMPClause(OMPC_update) { };
+
+    static OpenMPClause* addUpdateClause(OpenMPDirective *directive);
+};
+
+// write Clause
+class OpenMPWriteClause : public OpenMPClause {
+public:
+    OpenMPWriteClause() :
+            OpenMPClause(OMPC_write) { };
+
+    static OpenMPClause* addWriteClause(OpenMPDirective *directive);
+};
 //in_reduction clause
 class OpenMPInReductionClause : public OpenMPClause {
 
@@ -602,7 +704,7 @@ public:
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
-    static OpenMPInReductionClause * addInReductionClause(OpenMPDirective *directive, OpenMPInReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+    static OpenMPClause * addInReductionClause(OpenMPDirective *, OpenMPInReductionClauseIdentifier, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -618,13 +720,14 @@ protected:
 public:
     OpenMPDependClause( ) : OpenMPClause(OMPC_depend) { }
 
-    OpenMPDependClause(OpenMPDependClauseModifier _modifier, OpenMPDependClauseType _type, std::vector<std::vector<const char*>* > _depend_iterators_definition_class) : OpenMPClause(OMPC_depend),modifier(_modifier), type(_type),  depend_iterators_definition_class(_depend_iterators_definition_class) { };
+    OpenMPDependClause(OpenMPDependClauseModifier _modifier, OpenMPDependClauseType _type) : OpenMPClause(OMPC_depend),modifier(_modifier), type(_type) { };
     OpenMPDependClauseModifier getModifier() { return modifier; };
     OpenMPDependClauseType getType() { return type; };
-    void addDependenceVector(const char* _dependence_vector) { dependence_vector = _dependence_vector; };
+    void addDependenceVector(const char* _dependence_vector) { dependence_vector = std::string(_dependence_vector); };
     std::string getDependenceVector() { return dependence_vector; };
+    void setDependIteratorsDefinitionClass(std::vector<std::vector<const char*>* >* _depend_iterators_definition_class) { depend_iterators_definition_class = *_depend_iterators_definition_class; };
     std::vector<vector<const char*>* >* getDependIteratorsDefinitionClass() { return &depend_iterators_definition_class; };
-    static OpenMPDependClause * addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type, std::vector<std::vector<const char*>* > _depend_iterators_definition_class);
+    static OpenMPClause * addDependClause(OpenMPDirective *, OpenMPDependClauseModifier, OpenMPDependClauseType);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 
@@ -644,7 +747,7 @@ public:
     void addIteratorsDefinitionClass (std::vector<const char*>* _iterator_definition) { iterators_definition_class.push_back(_iterator_definition);};
     std::vector<vector<const char*>* >* getIteratorsDefinitionClass  () { return &iterators_definition_class; };
     OpenMPAffinityClauseModifier getModifier() { return modifier; };
-    static OpenMPAffinityClause * addAffinityClause(OpenMPDirective *directive, OpenMPAffinityClauseModifier modifier);
+    static OpenMPClause * addAffinityClause(OpenMPDirective *, OpenMPAffinityClauseModifier);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -680,7 +783,7 @@ public:
 
     OpenMPDeviceClauseModifier getModifier() { return modifier; };
     
-    static OpenMPDeviceClause * addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier);
+    static OpenMPClause * addDeviceClause(OpenMPDirective *directive, OpenMPDeviceClauseModifier modifier);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 
@@ -698,9 +801,9 @@ public:
     OpenMPToClause(OpenMPToClauseKind _to_kind): OpenMPClause(OMPC_to),
                                          to_kind(_to_kind){ };
     OpenMPToClauseKind getKind() { return to_kind; };
-    static OpenMPToClause * addToClause(OpenMPDirective *directive, OpenMPToClauseKind to_kind);
     void setMapperIdentifier(const char* _identifier) { mapper_identifier = std::string(_identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
+    static OpenMPClause * addToClause(OpenMPDirective *, OpenMPToClauseKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -717,9 +820,9 @@ public:
                                          from_kind(_from_kind){ };
     OpenMPFromClauseKind getKind() { return from_kind; };
 
-    static OpenMPFromClause * addFromClause(OpenMPDirective *directive, OpenMPFromClauseKind from_kind);
     void setMapperIdentifier(const char* _identifier) { mapper_identifier = std::string(_identifier); };
     std::string getMapperIdentifier() { return mapper_identifier; };
+    static OpenMPClause * addFromClause(OpenMPDirective *, OpenMPFromClauseKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -736,7 +839,7 @@ public:
     OpenMPDefaultmapClauseBehavior getBehavior() { return behavior; };
     OpenMPDefaultmapClauseCategory  getCategory () { return category ; };
 
-    static OpenMPDefaultmapClause * addDefaultmapClause(OpenMPDirective *directive, OpenMPDefaultmapClauseBehavior behavior,OpenMPDefaultmapClauseCategory category);
+    static OpenMPClause * addDefaultmapClause(OpenMPDirective *, OpenMPDefaultmapClauseBehavior, OpenMPDefaultmapClauseCategory);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -750,7 +853,7 @@ public:
 
     OpenMPDeviceTypeClauseKind getDeviceTypeClauseKind() {return device_type_kind; };
 
-    static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive);
+    static OpenMPClause * addDeviceTypeClause(OpenMPDirective* directive, OpenMPDeviceTypeClauseKind devicetypeKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -771,7 +874,7 @@ public:
 
     std::string getUserDefinedIdentifier() { return user_defined_identifier; };
 
-    static OpenMPTaskReductionClause * addTaskReductionClause(OpenMPDirective *directive, OpenMPTaskReductionClauseIdentifier identifier, char * user_defined_identifier=NULL);
+    static OpenMPClause * addTaskReductionClause(OpenMPDirective *, OpenMPTaskReductionClauseIdentifier, char *);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -795,6 +898,7 @@ public:
     OpenMPMapClauseModifier getModifier3() { return modifier3; };
     OpenMPMapClauseType getType() { return type; };
     std::string getMapperIdentifier() {return mapper_identifier;};
+    static OpenMPClause * addMapClause(OpenMPDirective *, OpenMPMapClauseModifier, OpenMPMapClauseModifier, OpenMPMapClauseModifier, OpenMPMapClauseType, std::string);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -819,13 +923,6 @@ public:
     std::vector<std::string>* getFlushList () { return &flush_list; };
 };
 
-//atomic directive
-class OpenMPAtomicDirective : public OpenMPDirective {
-protected:
-public:
-    OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
-};
-
 // critical directive
 class OpenMPCriticalDirective : public OpenMPDirective {
 
@@ -847,7 +944,7 @@ public:
     OpenMPDepobjUpdateClause(OpenMPDepobjUpdateClauseDependeceType _type) : OpenMPClause(OMPC_depobj_update),type(_type){};
 
     OpenMPDepobjUpdateClauseDependeceType getType() { return type; };
-    static OpenMPDepobjUpdateClause * addDepobjUpdateClause(OpenMPDirective *directive, OpenMPDepobjUpdateClauseDependeceType type);
+    static OpenMPClause * addDepobjUpdateClause(OpenMPDirective *, OpenMPDepobjUpdateClauseDependeceType);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
