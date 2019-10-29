@@ -3703,18 +3703,47 @@ OpenMPClause* OpenMPLinearClause::addLinearClause(OpenMPDirective *directive, Op
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_linear] = current_clauses;
-        } else {
-            for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-                if (((OpenMPLinearClause*)(*it))->getModifier() == modifier) {
-                    new_clause = (*it);
-                    return new_clause;
-                };
-            };
+        } else { 
+          //std::cerr << "Cannot have two bind clause for the directive " << directive->getKind() << ", ignored\n";           
             new_clause = new OpenMPLinearClause(modifier);
-            current_clauses->push_back(new_clause);
-        }
-
+           current_clauses->push_back(new_clause);
+        };
+    (*all_clauses)[OMPC_linear] = current_clauses;
     return new_clause;
+}
+
+void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* current_clause) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_linear);
+    OpenMPClause* new_clause = NULL;
+
+   current_clauses = directive->getClauses(OMPC_linear);
+
+    for ( std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
+
+        OpenMPClause* it2 = current_clauses->back();
+          
+        if ( ((OpenMPLinearClause*)(*it))->getModifier() == ((OpenMPLinearClause*)(it2))->getModifier() && ((OpenMPLinearClause*)(*it))->getUserDefinedStep() == ((OpenMPLinearClause*)(it2))->getUserDefinedStep()) {
+            std::vector<const char *>* expressions1 = ((OpenMPLinearClause*)(*it))->getExpressions();
+            std::vector<const char *>* expressions2 = current_clause->getExpressions();
+
+            for ( std::vector<const char *>::iterator it3 = expressions2->begin(); it3 != expressions2->end(); it3++) {
+                bool not_normalize = false;
+                for ( std::vector<const char *>::iterator it4 = expressions1->begin(); it4 != expressions1->end(); it4++) {
+                    if ( strcmp(*it3, *it4) == 0){
+                        not_normalize = true;
+                        break;
+                    }
+                }
+                if ( !not_normalize) {
+                    expressions1->push_back(*it3);
+                }
+            }
+            current_clauses->pop_back();
+            break;
+        }
+    }
 }
 
 OpenMPClause* OpenMPReductionClause::addReductionClause(OpenMPDirective *directive, OpenMPReductionClauseModifier modifier, OpenMPReductionClauseIdentifier identifier, char * user_defined_identifier) {

@@ -369,7 +369,7 @@ class OpenMPLinearClause : public OpenMPClause {
 protected:
     OpenMPLinearClauseModifier modifier; // linear modifier
 
-    std::string user_defined_step;
+    std::string user_defined_step = "";
 
 public:
     OpenMPLinearClause(OpenMPLinearClauseModifier _modifier) :
@@ -382,6 +382,8 @@ public:
     std::string getUserDefinedStep() { return user_defined_step; };
     
     static OpenMPClause* addLinearClause(OpenMPDirective*, OpenMPLinearClauseModifier);
+
+    void mergeLinear(OpenMPDirective *, OpenMPClause* );
 
     std::string toString();
     //std::string expressionToString(bool);

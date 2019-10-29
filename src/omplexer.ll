@@ -391,7 +391,7 @@ threads                   { return THREADS; }
 
 <LINEAR_STATE>"("                           { return '('; }
 <LINEAR_STATE>")"                           { yy_pop_state(); return ')'; }
-<LINEAR_STATE>val/{blank}*"("               { return MODOFIER_VAL; }
+<LINEAR_STATE>val/{blank}*"("               { return MODOFIER_VAL; printf("yyui"); }
 <LINEAR_STATE>ref/{blank}*                  { return MODOFIER_REF; }
 <LINEAR_STATE>uval/{blank}*                 { return MODOFIER_UVAL; }
 <LINEAR_STATE>":"                           { return ':'; }
