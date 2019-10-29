@@ -3722,26 +3722,24 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_linear);
     OpenMPClause* new_clause = NULL;
 
-   current_clauses = directive->getClauses(OMPC_linear);
+    current_clauses = directive->getClauses(OMPC_linear);
 
-    for ( std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
-
-        OpenMPClause* it2 = current_clauses->back();
+    for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
           
-        if ( ((OpenMPLinearClause*)(*it))->getModifier() == ((OpenMPLinearClause*)(it2))->getModifier() && ((OpenMPLinearClause*)(*it))->getUserDefinedStep() == ((OpenMPLinearClause*)(it2))->getUserDefinedStep()) {
-            std::vector<const char *>* expressions1 = ((OpenMPLinearClause*)(*it))->getExpressions();
-            std::vector<const char *>* expressions2 = current_clause->getExpressions();
+        if (((OpenMPLinearClause*)(*it))->getModifier() == ((OpenMPLinearClause*)current_clause)->getModifier() && ((OpenMPLinearClause*)(*it))->getUserDefinedStep() == ((OpenMPLinearClause*)current_clause)->getUserDefinedStep()) {
+            std::vector<const char *>* expressions_previous_clause = ((OpenMPLinearClause*)(*it))->getExpressions();
+            std::vector<const char *>* expressions_current_clause = current_clause->getExpressions();
 
-            for ( std::vector<const char *>::iterator it3 = expressions2->begin(); it3 != expressions2->end(); it3++) {
+            for (std::vector<const char *>::iterator it_expr_current = expressions_current_clause->begin(); it_expr_current != expressions_current_clause->end(); it_expr_current++) {
                 bool not_normalize = false;
-                for ( std::vector<const char *>::iterator it4 = expressions1->begin(); it4 != expressions1->end(); it4++) {
-                    if ( strcmp(*it3, *it4) == 0){
+                for (std::vector<const char *>::iterator it_expr_previous = expressions_previous_clause->begin(); it_expr_previous != expressions_previous_clause->end(); it_expr_previous++) {
+                    if (strcmp(*it_expr_current, *it_expr_previous) == 0){
                         not_normalize = true;
                         break;
                     }
                 }
-                if ( !not_normalize) {
-                    expressions1->push_back(*it3);
+                if (!not_normalize) {
+                    expressions_previous_clause->push_back(*it_expr_current);
                 }
             }
             current_clauses->pop_back();
