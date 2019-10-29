@@ -3707,7 +3707,8 @@ OpenMPClause* OpenMPLinearClause::addLinearClause(OpenMPDirective *directive, Op
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_linear] = current_clauses;
-        } else { 
+        } 
+        else { 
           //std::cerr << "Cannot have two bind clause for the directive " << directive->getKind() << ", ignored\n";           
             new_clause = new OpenMPLinearClause(modifier);
            current_clauses->push_back(new_clause);

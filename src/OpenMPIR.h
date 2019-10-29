@@ -383,7 +383,7 @@ public:
     
     static OpenMPClause* addLinearClause(OpenMPDirective*, OpenMPLinearClauseModifier);
 
-    void mergeLinear(OpenMPDirective *, OpenMPClause* );
+    void mergeLinear(OpenMPDirective*, OpenMPClause*);
 
     std::string toString();
     //std::string expressionToString(bool);
