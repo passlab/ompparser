@@ -730,6 +730,7 @@ public:
     static OpenMPClause * addDependClause(OpenMPDirective *, OpenMPDependClauseModifier, OpenMPDependClauseType);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
+    void mergeDepend(OpenMPDirective*, OpenMPClause*);
 
 };
 

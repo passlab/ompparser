@@ -922,7 +922,7 @@ depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_uns
                              ;
 
 depend_parameter : dependence_type ':' var_list 
-                 | depend_modifier ',' dependence_type ':' var_list
+                 | depend_modifier ',' dependence_type ':' var_list { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
                  ;
 dependence_type : depend_enum_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); }
                 ;
