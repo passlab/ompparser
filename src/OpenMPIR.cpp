@@ -3898,7 +3898,7 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                             bool merge = true;
                             break;
                         }
-                        if (it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == 0) {
+                        if (it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == false) {
                             normalize = false;
                         }
                     }
@@ -3908,13 +3908,13 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                     std::vector<const char *>* expressions_previous = ((OpenMPDependClause*)(*it))->getExpressions();
                     std::vector<const char *>* expressions_current = current_clause->getExpressions();
                     for (std::vector<const char *>::iterator it_expr_current = expressions_current->begin(); it_expr_current != expressions_current->end(); it_expr_current++) {
-                        bool para_merge = 1;
+                        bool para_merge = true;
                         for (std::vector<const char *>::iterator it_expr_previous = expressions_previous->begin(); it_expr_previous != expressions_previous->end(); it_expr_previous++) {
                             if (strcmp(*it_expr_current, *it_expr_previous) == 0 ){ 
                                 para_merge = false;
                             }
                         }
-                        if (para_merge == 1) expressions_previous->push_back(*it_expr_current);
+                        if (para_merge == true) expressions_previous->push_back(*it_expr_current);
                     }
                     current_clauses->pop_back();
                     break;
