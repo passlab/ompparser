@@ -3883,26 +3883,26 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_depend);
     OpenMPClause* new_clause = NULL;
     
-    if (current_clauses->size() == 1) return;
+    if (current_clauses->size() == true) return;
 
     for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
         if (((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
             bool normalize = true;
             std::vector<vector<const char*>* >* depend_iterators_definition_previous = ((OpenMPDependClause*)(*it))->getDependIteratorsDefinitionClass();
             std::vector<vector<const char*>* >* depend_iterators_definition_current = ((OpenMPDependClause*)current_clause)->getDependIteratorsDefinitionClass();
-            if(depend_iterators_definition_previous->size() == depend_iterators_definition_current->size()){
+            if (depend_iterators_definition_previous->size() == depend_iterators_definition_current->size()){
                 for (std::vector<vector<const char*>* >::iterator it_expr_current_outer = depend_iterators_definition_current->begin(); it_expr_current_outer != depend_iterators_definition_current->end(); it_expr_current_outer++) {
                     for (std::vector<vector<const char*>* >::iterator it_expr_previous_outer = depend_iterators_definition_previous->begin(); it_expr_previous_outer != depend_iterators_definition_previous->end(); it_expr_previous_outer++) {
-                        bool merge = 0;
+                        bool merge = false;
                         if (strcmp((*it_expr_current_outer)->at(0), (*it_expr_previous_outer)->at(0)) == 0 && strcmp((*it_expr_current_outer)->at(1), (*it_expr_previous_outer)->at(1)) == 0 && strcmp((*it_expr_current_outer)->at(2), (*it_expr_previous_outer)->at(2)) == 0 && strcmp((*it_expr_current_outer)->at(3), (*it_expr_previous_outer)->at(3)) == 0 && strcmp((*it_expr_current_outer)->at(4), (*it_expr_previous_outer)->at(4)) == 0){
-                            bool merge = 1;
+                            bool merge = true;
                             break;
                         }
-                        if(it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == 0) {
+                        if (it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == 0) {
                             normalize = false;
                         }
                     }
-                    if(normalize == false) break;
+                    if (normalize == false) break;
                 }
                 if (normalize == true) {
                     std::vector<const char *>* expressions_previous = ((OpenMPDependClause*)(*it))->getExpressions();
@@ -3910,11 +3910,11 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                     for (std::vector<const char *>::iterator it_expr_current = expressions_current->begin(); it_expr_current != expressions_current->end(); it_expr_current++) {
                         bool para_merge = 1;
                         for (std::vector<const char *>::iterator it_expr_previous = expressions_previous->begin(); it_expr_previous != expressions_previous->end(); it_expr_previous++) {
-                            if(strcmp(*it_expr_current, *it_expr_previous) == 0 ){ 
-                                para_merge = 0;
+                            if (strcmp(*it_expr_current, *it_expr_previous) == 0 ){ 
+                                para_merge = false;
                             }
                         }
-                        if(para_merge == 1) expressions_previous->push_back(*it_expr_current);
+                        if (para_merge == 1) expressions_previous->push_back(*it_expr_current);
                     }
                     current_clauses->pop_back();
                     break;
