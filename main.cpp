@@ -4,7 +4,7 @@
 #include <iostream>
 #include <regex>
 
-extern OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*) , OpenMPBaseLang language);
+extern OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
 extern void setLang(OpenMPBaseLang);
 void output(OpenMPDirective*);
 std::string test(OpenMPDirective*);
