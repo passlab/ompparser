@@ -122,7 +122,6 @@ protected:
      * @return
      */
     OpenMPClause * addOpenMPClause(OpenMPClauseKind kind, int * parameters);
-
     /**
      * normalize all the clause of a specific kind
      * @param kind
