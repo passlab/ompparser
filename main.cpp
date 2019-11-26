@@ -162,7 +162,7 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    //setLang(Lang_C);
+    // setLang(Lang_C);
     const char* input = "omp for linear(uval(a,b,c):2)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);

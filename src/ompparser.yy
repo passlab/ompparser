@@ -1160,13 +1160,13 @@ map_modifier1 : MAP_MODIFIER_ALWAYS { firstParameter = OMPC_MAP_MODIFIER_always;
               | MAP_MODIFIER_CLOSE  { firstParameter = OMPC_MAP_MODIFIER_close; }
               | map_modifier_mapper { firstParameter = OMPC_MAP_MODIFIER_mapper; }
               ;
-map_modifier2 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else secondParameter = OMPC_MAP_MODIFIER_always; }
-              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT;} else secondParameter = OMPC_MAP_MODIFIER_close; }
-              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else secondParameter = OMPC_MAP_MODIFIER_mapper; }
+map_modifier2 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else { secondParameter = OMPC_MAP_MODIFIER_always; }}
+              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT;} else { secondParameter = OMPC_MAP_MODIFIER_close; }}
+              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else { secondParameter = OMPC_MAP_MODIFIER_mapper; }}
               ;
-map_modifier3 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always || secondParameter==OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_always; }
-              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close || secondParameter==OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_close; }
-              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper || secondParameter==OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_mapper; }
+map_modifier3 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always || secondParameter==OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_always; }}
+              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close || secondParameter==OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_close; }}
+              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper || secondParameter==OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_mapper; }}
               ;
 map_type : MAP_TYPE_TO { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to, firstStringParameter); }
          | MAP_TYPE_FROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_from, firstStringParameter); }
@@ -2113,8 +2113,8 @@ parallel_sections_directive : PARALLEL SECTIONS {
                             parallel_sections_clause_optseq
                             ;
 parallel_workshare_directive : PARALLEL WORKSHARE {
-                               if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran)
-                                   {current_directive = new OpenMPDirective(OMPD_parallel_workshare);} else{
+                               if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) { 
+                                   current_directive = new OpenMPDirective(OMPD_parallel_workshare); } else {
                                        yyerror("parallel workshare is only supported in fortran");
                                        YYABORT;
                                }
@@ -2182,11 +2182,10 @@ single_paired_directive : SINGLE {
                         ;
 workshare_directive : WORKSHARE {
                          if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {
-                                current_directive = new OpenMPDirective(OMPD_workshare);}
-                         else{
-                                   yyerror("workshare is only supported in fortran");
-                                   YYABORT;
-                               }
+                             current_directive = new OpenMPDirective(OMPD_workshare); } else {
+                                 yyerror("workshare is only supported in fortran");
+                                 YYABORT;
+                             }
                     }
                     ;
 workshare_paired_directive : WORKSHARE {
@@ -3432,11 +3431,11 @@ int yywrap()
 OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
     printf("Start parsing...\n");
     OpenMPBaseLang base_lang = Lang_C;
-        current_directive = NULL;
-        std::string input_string;
-        const char *input = _input;
-        std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
-        input_string = std::string(input, 5);
+    current_directive = NULL;
+    std::string input_string;
+    const char *input = _input;
+    std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
+    input_string = std::string(input, 5);
     if (user_set_lang == Lang_unknown){
         auto_lang = Lang_C;
         exprParse = _exprParse;
@@ -3448,17 +3447,17 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
             input = input_string.c_str();
         };
     } else {
-        OpenMPBaseLang base_lang = user_set_lang;
+        base_lang = user_set_lang;
         exprParse = _exprParse;
         if (std::regex_match(input_string, fortran_regex)) {
             if (user_set_lang != Lang_Fortran){
                 yyerror("You specify the language is C/C++, but you are processing Fortran");
-                return 0;
+                return NULL;
             }
         } else {
             if (user_set_lang == Lang_Fortran){
                 yyerror("You specify the language Fortran, but you are processing C/C++");
-                return 0;
+                return NULL;
             }
         };
     }
