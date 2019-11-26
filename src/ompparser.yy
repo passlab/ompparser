@@ -3432,15 +3432,14 @@ int yywrap()
 OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
     printf("Start parsing...\n");
     OpenMPBaseLang base_lang = Lang_C;
-    if (user_set_lang == Lang_unknown){
-        auto_lang = Lang_C;
-        exprParse = _exprParse;
         current_directive = NULL;
         std::string input_string;
         const char *input = _input;
-        // Since we can't guarantee the input has been preprocessed, it should be checked here.
         std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
         input_string = std::string(input, 5);
+    if (user_set_lang == Lang_unknown){
+        auto_lang = Lang_C;
+        exprParse = _exprParse;
         if (std::regex_match(input_string, fortran_regex)) {
             base_lang = Lang_Fortran;
             auto_lang = Lang_Fortran;
@@ -3448,44 +3447,26 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
             std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
             input = input_string.c_str();
         };
-        //depend_iterators_definition_class = new std::vector<std::vector<const char*>* >();
-        start_lexer(input);
-        int res = yyparse();
-
-        end_lexer();
-        if (current_directive) {
-            current_directive->setBaseLang(base_lang);
-        };
-        return current_directive;
     } else {
         OpenMPBaseLang base_lang = user_set_lang;
         exprParse = _exprParse;
-        current_directive = NULL;
-        std::string input_string;
-        const char *input = _input;
-
-        std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
-        input_string = std::string(input, 5);
         if (std::regex_match(input_string, fortran_regex)) {
             if (user_set_lang != Lang_Fortran){
                 yyerror("You specify the language is C/C++, but you are processing Fortran");
                 return 0;
             }
-        };
-
-        if (!std::regex_match(input_string, fortran_regex)) {
+        } else {
             if (user_set_lang == Lang_Fortran){
                 yyerror("You specify the language Fortran, but you are processing C/C++");
                 return 0;
             }
         };
-
-        start_lexer(input);
-        int res = yyparse();
-        end_lexer();
-        if (current_directive) {
-            current_directive->setBaseLang(base_lang);
-        };
-        return current_directive;
     }
+    start_lexer(input);
+    int res = yyparse();
+    end_lexer();
+    if (current_directive) {
+        current_directive->setBaseLang(base_lang);
+    };
+    return current_directive;
 }
