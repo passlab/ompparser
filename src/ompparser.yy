@@ -2115,7 +2115,7 @@ parallel_sections_directive : PARALLEL SECTIONS {
 parallel_workshare_directive : PARALLEL WORKSHARE {
                                if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) { 
                                    current_directive = new OpenMPDirective(OMPD_parallel_workshare); } else {
-                                       yyerror("parallel workshare is only supported in fortran");
+                                       yyerror("parallel workshare is only supported in Fortran");
                                        YYABORT;
                                }
                              }
@@ -2183,7 +2183,7 @@ single_paired_directive : SINGLE {
 workshare_directive : WORKSHARE {
                          if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {
                              current_directive = new OpenMPDirective(OMPD_workshare); } else {
-                                 yyerror("workshare is only supported in fortran");
+                                 yyerror("workshare is only supported in Fortran");
                                  YYABORT;
                              }
                     }
