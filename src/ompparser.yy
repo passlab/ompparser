@@ -3451,12 +3451,12 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
         exprParse = _exprParse;
         if (std::regex_match(input_string, fortran_regex)) {
             if (user_set_lang != Lang_Fortran){
-                yyerror("You specify the language is C/C++, but you are processing Fortran");
+                yyerror("The language is set to C/C++, but the input is Fortran.");
                 return NULL;
             }
         } else {
             if (user_set_lang == Lang_Fortran){
-                yyerror("You specify the language Fortran, but you are processing C/C++");
+                yyerror("The language is set to Fortran, but the input is C/C++.");
                 return NULL;
             }
         };
