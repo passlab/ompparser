@@ -58,4 +58,9 @@ The work has been performed with support from Department of Energy Lawrence Live
 ## Contact
 Please contact Yonghong Yan (@yanyh15) from github or gmail. 
 
+## Release
+
+ompparser is released under a BSD license. For more details see the file LICENSE.
+
+LLNL-CODE-798101
 
