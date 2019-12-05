@@ -53,7 +53,7 @@ extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char 
 Submit contribution as github pull request to this repository. We require all new contributions must be made with the similar license. 
 
 ## Getting Involved and Technical Support
-Submit feature request, bugs and questions from the repository's "[Issue](https://github.com/passlab/ompparser/issues)" tab. 
+Submit feature request, bugs and questions from the repository's "[Issues](https://github.com/passlab/ompparser/issues)" tab. 
 
 ## Acknowledgement
 The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please use following paper:
