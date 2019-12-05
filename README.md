@@ -56,9 +56,7 @@ Submit contribution as github pull request to this repository. We require all ne
 Submit feature request, bugs and questions from the repository's "Issue" tab. 
 
 ## Acknowledgement
-The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please refer to following paper:
-
-## How to cite ompparser in a publication
+The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please use following paper:
 
 [Anjia Wang, Yaying Shi, Xinyao Yi, Yonghong Yan, Chunhua Liao and Bronis R. de Supinski, ompparser: A Standalone and Unified OpenMP Parser, the 15th International Workshop on OpenMP (IWOMP), 11th - 13th September, in Auckland, New Zealand](https://link.springer.com/chapter/10.1007%2F978-3-030-28596-8_10). [The presentation of the paper](http://parallel.auckland.ac.nz/iwomp2019/slides_ompparser.pdf), which is from IWOMP'19 website. 
 
@@ -69,7 +67,7 @@ Anjia Wang, Yaying Shi, Xinyao Yi, Yonghong Yan, Chunhua Liao and Bronis R. de S
 ## Contact
 Please contact Yonghong Yan (@yanyh15) from github or gmail. 
 
-## Release
+## License
 
 ompparser is released under a BSD license. For more details see the file LICENSE.
 
