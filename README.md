@@ -2,7 +2,7 @@
 
 ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. It can be used as an independent tool as well as an integral component of an OpenMP compiler. It has syntax and semantics checking functionalitity for OpenMP constructs for validating and verifying usage of existing constructs. The formal grammar included in ompparser, developed with Flex and Bison tools, can help interpretation of the OpenMP standard. The implementation supports the full and latest OpenMP 5.0 and is released as open-source with BSD-license. 
 
-## Build and usage
+## Build and Usage
 1. clone the repo, create build folder and use cmake to create Makefile
 
        git clone https://github.com/passlab/ompparser.git
@@ -50,9 +50,12 @@ extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char 
 1. Being integrated with ROSE compiler (ongoing work)
 
 ## Contribution
-Submit your feature request or contribution as github pull request to this repository. We require all new contributions must be made with the similar license. 
+Submit contribution as github pull request to this repository. We require all new contributions must be made with the similar license. 
 
-## Acknowledge and Support
+## Getting Involved and Technical Support
+Submit feature request, bugs and questions from the repository's "Issue" tab. 
+
+## Acknowledgement
 The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please refer to following paper:
 
 ## How to cite ompparser in a publication
