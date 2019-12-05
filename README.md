@@ -50,7 +50,7 @@ extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char 
 1. Being integrated with ROSE compiler (ongoing work)
 
 ## Contribution
-Submit your feature request or contribution as github pull request to this repository. We requires all new contributions must be made with the similar license. 
+Submit your feature request or contribution as github pull request to this repository. We require all new contributions must be made with the similar license. 
 
 ## Acknowledge and Support
 The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please refer to following paper:
