@@ -46,6 +46,7 @@ class SourceLocation {
 class OpenMPClause : public SourceLocation {
 protected:
     OpenMPClauseKind kind;
+    int index = -1;
 
     /* consider this is a struct of array, i.e.
      * the expression/localtionLine/locationColumn are the same index are one record for an expression and its location
@@ -59,6 +60,8 @@ public:
     OpenMPClause(OpenMPClauseKind k, int _line = 0, int _col = 0) : SourceLocation(_line, _col), kind(k) {};
 
     OpenMPClauseKind getKind() { return kind; };
+    int getIndex() { return index; };
+    void setIndex(int _index) { index = _index; };
 
     // a list of expressions or variables that are language-specific for the clause, ompparser does not parse them,
     // instead, it only stores them as strings
@@ -82,6 +85,8 @@ class OpenMPDirective : public SourceLocation  {
 protected:
     OpenMPDirectiveKind kind;
     OpenMPBaseLang lang;
+
+    std::vector<OpenMPClause *>* ordered_clauses = new std::vector<OpenMPClause *>();
 
     /* the map to store clauses of the directive, for each clause, we store a vector of OpenMPClause objects
      * since there could be multiple clause objects for those clauses that take parameters, e.g. reduction clause
@@ -137,7 +142,8 @@ public:
 
     map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &clauses; };
 
-    std::vector<OpenMPClause *> *getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
+    std::vector<OpenMPClause *> * getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
+    std::vector<OpenMPClause *> * getOrderedClauses() { return ordered_clauses; };
 
     std::string toString();
 

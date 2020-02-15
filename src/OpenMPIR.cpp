@@ -319,6 +319,10 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
     };
 end:
     va_end(args);
+    if (new_clause->getIndex() == -1) {
+        this->getOrderedClauses()->push_back(new_clause);
+        new_clause->setIndex(this->getOrderedClauses()->size());
+    };
     return new_clause;
 }
 
@@ -3741,6 +3745,7 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
                 }
             }
             current_clauses->pop_back();
+            directive->getOrderedClauses()->pop_back();
             break;
         }
     }
@@ -3917,6 +3922,7 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                         if (para_merge == true) expressions_previous->push_back(*it_expr_current);
                     }
                     current_clauses->pop_back();
+                    directive->getOrderedClauses()->pop_back();
                     break;
                 }
             }
