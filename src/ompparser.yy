@@ -35,8 +35,8 @@ static int firstParameter = 0;
 static int secondParameter = 0;
 static int thirdParameter = 0;
 static OpenMPUsesAllocatorsClauseAllocator usesAllocator;
-static const char* firstStringParameter = NULL;
-static const char* secondStringParameter = NULL;
+static const char* firstStringParameter = "";
+static const char* secondStringParameter = "";
 static std::vector<const char*>* iterator_definition = new std::vector<const char*>();
 static std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
 static std::vector<std::vector<const char*>* >* depend_iterators_definition_class;
@@ -1173,7 +1173,7 @@ map_type : MAP_TYPE_TO { current_clause = current_directive->addOpenMPClause(OMP
          | MAP_TYPE_TOFROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_tofrom, firstStringParameter); }
          | MAP_TYPE_ALLOC { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_alloc, firstStringParameter); }
          | MAP_TYPE_RELEASE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_release, firstStringParameter); }
-         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, secondStringParameter); }
+         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, firstStringParameter); }
          ;
 map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')' { firstStringParameter = $3; }
                     ;
