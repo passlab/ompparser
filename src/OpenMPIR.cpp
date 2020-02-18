@@ -319,7 +319,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
     };
 end:
     va_end(args);
-    if (new_clause->getIndex() == -1) {
+    if (new_clause != NULL && new_clause->getIndex() == -1) {
         this->getOrderedClauses()->push_back(new_clause);
         new_clause->setIndex(this->getOrderedClauses()->size());
     };
