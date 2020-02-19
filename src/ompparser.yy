@@ -3406,16 +3406,16 @@ reduction_enum_identifier : '+'{ current_clause = current_directive->addOpenMPCl
                           | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
                           ;
 
-reduction_default_only_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_teams_parameter ':' var_list ')' {
+reduction_default_only_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_default_only_parameter ':' var_list ')' {
                               }
                               ;
 
-reduction_teams_parameter : reduction_identifier {}
-                          | reduction_teams_modifier ',' reduction_identifier
-                          ;
+reduction_default_only_parameter : reduction_identifier {}
+                                 | reduction_default_only_modifier ',' reduction_identifier
+                                 ;
 
-reduction_teams_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
-                         ;
+reduction_default_only_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
+                                ;
 
 %%
 
