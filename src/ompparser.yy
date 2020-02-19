@@ -796,7 +796,7 @@ taskloop_clause : if_taskloop_clause
                 | private_clause
                 | firstprivate_clause
                 | lastprivate_clause
-                | loop_reduction_clause
+                | reduction_default_only_clause
                 | in_reduction_clause
                 | default_clause
                 | grainsize_clause
@@ -1239,7 +1239,7 @@ teams_distribute_clause : num_teams_clause
                         | private_clause
                         | firstprivate_clause
                         | shared_clause
-                        | reduction_clause
+                        | reduction_default_only_clause
                         | allocate_clause              
                         | lastprivate_clause
                         | collapse_clause
@@ -1434,7 +1434,7 @@ teams_loop_clause : num_teams_clause
                   | private_clause
                   | firstprivate_clause
                   | shared_clause
-                  | reduction_clause
+                  | reduction_default_only_clause
                   | allocate_clause
                   | bind_clause
                   | collapse_clause
@@ -1727,7 +1727,7 @@ target_teams_clause : if_target_clause
                     | thread_limit_clause
                     | default_clause
                     | shared_clause
-                    | reduction_clause
+                    | reduction_default_only_clause
                     ;
 target_teams_distribute_directive : TARGET TEAMS DISTRIBUTE{
                         current_directive = new OpenMPDirective(OMPD_target_teams_distribute);
@@ -1757,7 +1757,7 @@ target_teams_distribute_clause : if_target_clause
                                | thread_limit_clause
                                | default_clause                   
                                | shared_clause
-                               | reduction_clause
+                               | reduction_default_only_clause
                                | lastprivate_clause
                                | collapse_clause
                                | dist_schedule_clause
@@ -1829,7 +1829,7 @@ target_teams_loop_clause : if_target_clause
                          | thread_limit_clause
                          | default_clause
                          | shared_clause
-                         | reduction_clause                                 
+                         | reduction_default_only_clause                                 
                          | bind_clause
                          | collapse_clause
                          | order_clause
@@ -2568,7 +2568,7 @@ teams_clause : num_teams_clause
              | private_clause
              | firstprivate_clause
              | shared_clause
-             | reduction_clause
+             | reduction_default_only_clause
              | allocate_clause
              ;
 
@@ -2956,7 +2956,7 @@ loop_clause : bind_clause
             | order_clause
             | private_clause
             | lastprivate_clause
-            | loop_reduction_clause
+            | reduction_default_only_clause
             ;
 scan_clause : inclusive_clause
             | exclusive_clause
@@ -3376,14 +3376,7 @@ shared_clause : SHARED {
                 current_clause = current_directive->addOpenMPClause(OMPC_shared);
                     } '(' var_list ')'
               ;
-loop_reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' loop_reduction_parameter ':' var_list ')' {
-                      }
-                      ;
-loop_reduction_parameter : reduction_identifier {}
-                         | loop_reduction_modifier ',' reduction_identifier
-                         ;
-loop_reduction_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
-                        ;
+
 reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_parameter ':' var_list ')' {
                  }
                  ;
@@ -3412,6 +3405,17 @@ reduction_enum_identifier : '+'{ current_clause = current_directive->addOpenMPCl
                           | MAX{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_max); }
                           | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
                           ;
+
+reduction_default_only_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_teams_parameter ':' var_list ')' {
+                              }
+                              ;
+
+reduction_teams_parameter : reduction_identifier {}
+                          | reduction_teams_modifier ',' reduction_identifier
+                          ;
+
+reduction_teams_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
+                         ;
 
 %%
 
