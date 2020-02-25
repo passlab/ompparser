@@ -319,9 +319,9 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
     };
 end:
     va_end(args);
-    if (new_clause != NULL && new_clause->getIndex() == -1) {
-        this->getOrderedClauses()->push_back(new_clause);
-        new_clause->setIndex(this->getOrderedClauses()->size());
+    if (new_clause != NULL && new_clause->getClausePosition() == -1) {
+        this->getClausesInOriginalOrder()->push_back(new_clause);
+        new_clause->setClausePosition(this->getClausesInOriginalOrder()->size()-1);
     };
     return new_clause;
 }
@@ -566,15 +566,11 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             ;
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
     if (clauses->size() != 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clauseIter;
-            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                result += (*clauseIter)->toString();
-            }
+        std::vector<OpenMPClause*>::iterator iter;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            result += (*iter)->toString();
         }
         result = result.substr(0, result.size()-1);
     }
@@ -3745,7 +3741,7 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
                 }
             }
             current_clauses->pop_back();
-            directive->getOrderedClauses()->pop_back();
+            directive->getClausesInOriginalOrder()->pop_back();
             break;
         }
     }
@@ -3922,7 +3918,7 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                         if (para_merge == true) expressions_previous->push_back(*it_expr_current);
                     }
                     current_clauses->pop_back();
-                    directive->getOrderedClauses()->pop_back();
+                    directive->getClausesInOriginalOrder()->pop_back();
                     break;
                 }
             }

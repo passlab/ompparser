@@ -46,7 +46,8 @@ class SourceLocation {
 class OpenMPClause : public SourceLocation {
 protected:
     OpenMPClauseKind kind;
-    int index = -1;
+    // the clause position in the vector of clauses in original order
+    int clause_position = -1;
 
     /* consider this is a struct of array, i.e.
      * the expression/localtionLine/locationColumn are the same index are one record for an expression and its location
@@ -60,8 +61,8 @@ public:
     OpenMPClause(OpenMPClauseKind k, int _line = 0, int _col = 0) : SourceLocation(_line, _col), kind(k) {};
 
     OpenMPClauseKind getKind() { return kind; };
-    int getIndex() { return index; };
-    void setIndex(int _index) { index = _index; };
+    int getClausePosition() { return clause_position; };
+    void setClausePosition(int _clause_position) { clause_position = _clause_position; };
 
     // a list of expressions or variables that are language-specific for the clause, ompparser does not parse them,
     // instead, it only stores them as strings
@@ -86,7 +87,15 @@ protected:
     OpenMPDirectiveKind kind;
     OpenMPBaseLang lang;
 
-    std::vector<OpenMPClause *>* ordered_clauses = new std::vector<OpenMPClause *>();
+    /* The vector is used to store the pointers of clauses in original order.
+     * While unparsing, the generated pragma keeps the clauses in the same order as the input.
+     * For example, #pragma omp parallel shared(a) private(b) is the input.
+     * The unparsing won't switch the order of share and private clause. Share clause is always the first.
+     *
+     * For the clauses that could be normalized, we always merge the second one to the first one.
+     * Then the second one will be eliminated and not stored anywhere.
+     */
+    std::vector<OpenMPClause *>* clauses_in_original_order = new std::vector<OpenMPClause *>();
 
     /* the map to store clauses of the directive, for each clause, we store a vector of OpenMPClause objects
      * since there could be multiple clause objects for those clauses that take parameters, e.g. reduction clause
@@ -143,7 +152,7 @@ public:
     map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClauses() { return &clauses; };
 
     std::vector<OpenMPClause *> * getClauses(OpenMPClauseKind kind) { return clauses[kind]; };
-    std::vector<OpenMPClause *> * getOrderedClauses() { return ordered_clauses; };
+    std::vector<OpenMPClause *> * getClausesInOriginalOrder() { return clauses_in_original_order; };
 
     std::string toString();
 
@@ -167,7 +176,7 @@ public:
     OpenMPAtomicDirective () : OpenMPDirective(OMPD_atomic) {};
     std::vector<OpenMPClause *> *getClausesAtomicAfter(OpenMPClauseKind kind) { return clauses_atomic_after[kind]; };
     std::vector<OpenMPClause *> *getAtomicClauses(OpenMPClauseKind kind) { return clauses_atomic_clauses[kind]; };
-   map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
+    map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllClausesAtomicAfter() { return &clauses_atomic_after; };
     map<OpenMPClauseKind, std::vector<OpenMPClause *> *> *getAllAtomicClauses() { return &clauses_atomic_clauses; };
 };
 
