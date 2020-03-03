@@ -433,6 +433,7 @@ enum OpenMPScheduleClauseModifier {
     OPENMP_SCHEDULE_MODIFIER(simd)
     OPENMP_SCHEDULE_MODIFIER(user)
 
+    OPENMP_SCHEDULE_MODIFIER(unspecified)
     OPENMP_SCHEDULE_MODIFIER(unknown)
 #undef OPENMP_SCHEDULE_MODIFIER
 };
