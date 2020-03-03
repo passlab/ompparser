@@ -43,7 +43,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_copyin:
         case OMPC_collapse:
         case OMPC_ordered:
-        case OMPC_order:
         case OMPC_nowait:
         case OMPC_safelen:
         case OMPC_simdlen:
@@ -151,6 +150,11 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_default : {
             OpenMPDefaultClauseKind default_kind = (OpenMPDefaultClauseKind) va_arg(args, int);
             new_clause = OpenMPDefaultClause::addDefaultClause(this, default_kind);
+            break;
+        }
+        case OMPC_order : {
+            OpenMPOrderClauseKind order_kind = (OpenMPOrderClauseKind) va_arg(args, int);
+            new_clause = OpenMPOrderClause::addOrderClause(this, order_kind);
             break;
         }
         case OMPC_match: {
@@ -2599,9 +2603,10 @@ std::string OpenMPScheduleClause::toString() {
         default:
             ;
     }
-    if (this->expressionToString() != ""){
-    clause_string += ", ";
-    clause_string += this->expressionToString();}
+    if (this->getChunkSize() != ""){
+        clause_string += ", ";
+        clause_string += this->getChunkSize();
+    }
     clause_string += ") ";
     if (clause_string.size() > 3) {
         result += clause_string;
@@ -4565,6 +4570,24 @@ OpenMPClause* OpenMPDefaultClause::addDefaultClause(OpenMPDirective *directive, 
     return new_clause;
 }
 
+OpenMPClause* OpenMPOrderClause::addOrderClause(OpenMPDirective *directive, OpenMPOrderClauseKind order_kind) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_order);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPOrderClause(order_kind);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_order] = current_clauses;
+    } else { /* could be an error since if clause may only appear once */
+        std::cerr << "Cannot have two order clause for the directive " << directive->getKind() << ", ignored\n";
+    };
+
+    return new_clause;
+}
+
 OpenMPClause* OpenMPAlignedClause::addAlignedClause(OpenMPDirective *directive) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -5132,6 +5155,48 @@ std::string OpenMPDefaultClause::toString() {
             break;
         default:
             std::cout << "The parameter of default clause is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        result += parameter_string + ") ";
+    }
+    else {
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
+void OpenMPOrderClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string parameter_string;
+    OpenMPDirective* variant_directive = NULL;
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+    std::string clause_string;
+    std::vector<OpenMPDirective*>* parameter_directives;
+    parent_node = parent_node.substr(0, parent_node.size()-1);
+    OpenMPClauseKind clause_kind = this->getKind();
+
+    clause_string = "order";
+
+    clause_string = parent_node + "_" + clause_string + "_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + " -- " + clause_string + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+};
+
+std::string OpenMPOrderClause::toString() {
+
+    std::string result = "order (";
+    std::string parameter_string;
+    OpenMPOrderClauseKind order_kind = this->getOrderClauseKind();
+    switch (order_kind) {
+        case OMPC_ORDER_concurrent:
+            parameter_string = "concurrent";
+            break;
+        default:
+            std::cout << "The parameter of order clause is not supported.\n";
     };
 
     if (parameter_string.size() > 0) {

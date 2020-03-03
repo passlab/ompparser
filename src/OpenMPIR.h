@@ -458,6 +458,7 @@ protected:
     OpenMPScheduleClauseModifier modifier2;     // modifier2
     OpenMPScheduleClauseKind schedulekind; // identifier
     std::string user_defined_kind;                // user defined identifier if it is used
+    std::string chunk_size;
 
 public:
     OpenMPScheduleClause( ) : OpenMPClause(OMPC_schedule) { }
@@ -475,6 +476,10 @@ public:
     std::string getUserDefinedKind() { return user_defined_kind; };
 
     static OpenMPClause* addScheduleClause(OpenMPDirective *, OpenMPScheduleClauseModifier, OpenMPScheduleClauseModifier, OpenMPScheduleClauseKind, char *);
+
+    void setChunkSize(const char *_step) { chunk_size = _step; };
+
+    std::string getChunkSize() { return chunk_size; };
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
@@ -589,6 +594,22 @@ public:
     void setVariantDirective(OpenMPDirective* _variant_directive) { variant_directive = _variant_directive; };
 
     static OpenMPClause * addDefaultClause(OpenMPDirective*, OpenMPDefaultClauseKind);
+    std::string toString();
+    void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// Order Clause
+class OpenMPOrderClause : public OpenMPClause {
+
+protected:
+    OpenMPOrderClauseKind order_kind = OMPC_ORDER_unspecified;
+
+public:
+    OpenMPOrderClause(OpenMPOrderClauseKind _order_kind) : OpenMPClause(OMPC_order), order_kind(_order_kind) { };
+
+    OpenMPOrderClauseKind getOrderClauseKind() {return order_kind; };
+
+    static OpenMPClause * addOrderClause(OpenMPDirective*, OpenMPOrderClauseKind);
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
 };
