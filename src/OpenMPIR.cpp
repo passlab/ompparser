@@ -2940,6 +2940,7 @@ void OpenMPDirective::generateDOT() {
 
     output << current_line.c_str();
     output << "\t" << directive_kind.c_str() << "\n";
+    std::string node_id = "";
     switch (kind) {
         case OMPD_allocate: {
             std::string indent = std::string(1, '\t');
@@ -3057,22 +3058,18 @@ void OpenMPDirective::generateDOT() {
            break;
         }
         default: {
-            ;
+            node_id = directive_kind.substr(0, directive_kind.size() - 1);
         }
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
-    if (clauses != NULL) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            int clause_index = 0;
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clause_iter;
-            for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
-                (*clause_iter)->generateDOT(output, 1, clause_index, directive_kind);
-                clause_index += 1;
-            }
-        }
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
+    if (clauses->size() != 0) {
+        std::vector<OpenMPClause*>::iterator iter;
+        int clause_index = 0;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            (*iter)->generateDOT(output, 1, clause_index, node_id);
+            clause_index += 1;
+        };
     };
 
     output << "}\n";
@@ -3324,19 +3321,16 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
         }
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
-    if (clauses != NULL) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            int clause_index = 0;
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clause_iter;
-            for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
-                (*clause_iter)->generateDOT(dot_file, depth+1, clause_index, directive_id);
-                clause_index += 1;
-            }
-        }
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
+    if (clauses->size() != 0) {
+        std::vector<OpenMPClause*>::iterator iter;
+        int clause_index = 0;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            (*iter)->generateDOT(dot_file, depth+1, clause_index, directive_id);
+            clause_index += 1;
+        };
     };
+
 };
 
 void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
