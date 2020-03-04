@@ -3343,7 +3343,7 @@ dist_schedule_clause : DIST_SCHEDULE '(' dist_schedule_parameter ')' {}
 dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); }
                         | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); } ',' var_list
                         ;
-schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_KIND_unspecified; secondParameter = OMPC_SCHEDULE_KIND_unspecified; }'(' schedule_parameter ')' {
+schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_MODIFIER_unspecified; secondParameter = OMPC_SCHEDULE_MODIFIER_unspecified; }'(' schedule_parameter ')' {
                 }
                 ;
 
