@@ -68,6 +68,7 @@
 %x SHARED_STATE
 %x COPYIN_STATE
 %x COPYPRIVATE_STATE
+%x ORDER_STATE
 	
 
 %{
@@ -169,7 +170,7 @@ collapse        { yy_push_state(COLLAPSE_STATE); return COLLAPSE; }
 ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED; }
 ordered         { return ORDERED; }
 nowait          { return NOWAIT; }
-order           { return ORDER; }
+order           { yy_push_state(ORDER_STATE); return ORDER; }
 safelen         { yy_push_state(SAFELEN_STATE); return SAFELEN; }
 nontemporal     { yy_push_state(NONTEMPORAL_STATE); return NONTEMPORAL; }
 aligned         { yy_push_state(ALIGNED_STATE); return ALIGNED; }
@@ -337,6 +338,12 @@ threads                   { return THREADS; }
 <DEFAULT_STATE>{blank}*                     { ; }
 <DEFAULT_STATE>.                            { yy_push_state(INITIAL); unput(yytext[0]); } /* So far, only for default in metadirective meaning that a new directive is coming up. */
 
+<ORDER_STATE>concurrent                     { return CONCURRENT; }
+<ORDER_STATE>"("                            { return '('; }
+<ORDER_STATE>")"                            { yy_pop_state(); return ')'; }
+<ORDER_STATE>{blank}*                       { ; }
+<ORDER_STATE>.                              { yy_push_state(INITIAL); }
+
 <REDUCTION_STATE>inscan/{blank}*,           { return MODIFIER_INSCAN; }
 <REDUCTION_STATE>task/{blank}*,             { return MODIFIER_TASK; }
 <REDUCTION_STATE>default/{blank}*,          { return MODIFIER_DEFAULT; }
@@ -408,7 +415,7 @@ threads                   { return THREADS; }
 
 
 <SCHEDULE_STATE>monotonic                   { return MODIFIER_MONOTONIC; }
-<SCHEDULE_STATE>nomonotonic                 { return MODIFIER_NOMONOTONIC; }
+<SCHEDULE_STATE>nonmonotonic                { return MODIFIER_NONMONOTONIC; }
 <SCHEDULE_STATE>simd                        { return MODIFIER_SIMD; }
 <SCHEDULE_STATE>static                      { return STATIC; }
 <SCHEDULE_STATE>dynamic                     { return DYNAMIC; }

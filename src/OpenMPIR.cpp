@@ -51,7 +51,6 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_copyin:
         case OMPC_collapse:
         case OMPC_ordered:
-        case OMPC_order:
         case OMPC_nowait:
         case OMPC_safelen:
         case OMPC_simdlen:
@@ -159,6 +158,11 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_default : {
             OpenMPDefaultClauseKind default_kind = (OpenMPDefaultClauseKind) va_arg(args, int);
             new_clause = OpenMPDefaultClause::addDefaultClause(this, default_kind);
+            break;
+        }
+        case OMPC_order : {
+            OpenMPOrderClauseKind order_kind = (OpenMPOrderClauseKind) va_arg(args, int);
+            new_clause = OpenMPOrderClause::addOrderClause(this, order_kind);
             break;
         }
         case OMPC_match: {
@@ -327,6 +331,10 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
     };
 end:
     va_end(args);
+    if (new_clause != NULL && new_clause->getClausePosition() == -1) {
+        this->getClausesInOriginalOrder()->push_back(new_clause);
+        new_clause->setClausePosition(this->getClausesInOriginalOrder()->size()-1);
+    };
     return new_clause;
 }
 
@@ -570,15 +578,11 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             ;
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
     if (clauses->size() != 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clauseIter;
-            for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                result += (*clauseIter)->toString();
-            }
+        std::vector<OpenMPClause*>::iterator iter;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            result += (*iter)->toString();
         }
         result = result.substr(0, result.size()-1);
     }
@@ -2607,9 +2611,10 @@ std::string OpenMPScheduleClause::toString() {
         default:
             ;
     }
-    if (this->expressionToString() != ""){
-    clause_string += ", ";
-    clause_string += this->expressionToString();}
+    if (this->getChunkSize() != ""){
+        clause_string += ", ";
+        clause_string += this->getChunkSize();
+    }
     clause_string += ") ";
     if (clause_string.size() > 3) {
         result += clause_string;
@@ -2943,6 +2948,7 @@ void OpenMPDirective::generateDOT() {
 
     output << current_line.c_str();
     output << "\t" << directive_kind.c_str() << "\n";
+    std::string node_id = "";
     switch (kind) {
         case OMPD_allocate: {
             std::string indent = std::string(1, '\t');
@@ -3060,22 +3066,18 @@ void OpenMPDirective::generateDOT() {
            break;
         }
         default: {
-            ;
+            node_id = directive_kind.substr(0, directive_kind.size() - 1);
         }
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
-    if (clauses != NULL) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            int clause_index = 0;
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clause_iter;
-            for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
-                (*clause_iter)->generateDOT(output, 1, clause_index, directive_kind);
-                clause_index += 1;
-            }
-        }
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
+    if (clauses->size() != 0) {
+        std::vector<OpenMPClause*>::iterator iter;
+        int clause_index = 0;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            (*iter)->generateDOT(output, 1, clause_index, node_id);
+            clause_index += 1;
+        };
     };
 
     output << "}\n";
@@ -3327,19 +3329,16 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
         }
     };
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses = this->getAllClauses();
-    if (clauses != NULL) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-        for (it = clauses->begin(); it != clauses->end(); it++) {
-            int clause_index = 0;
-            std::vector<OpenMPClause*>* current_clauses = it->second;
-            std::vector<OpenMPClause*>::iterator clause_iter;
-            for (clause_iter = current_clauses->begin(); clause_iter != current_clauses->end(); clause_iter++) {
-                (*clause_iter)->generateDOT(dot_file, depth+1, clause_index, directive_id);
-                clause_index += 1;
-            }
-        }
+    std::vector<OpenMPClause*>* clauses = this->getClausesInOriginalOrder();
+    if (clauses->size() != 0) {
+        std::vector<OpenMPClause*>::iterator iter;
+        int clause_index = 0;
+        for (iter = clauses->begin(); iter != clauses->end(); iter++) {
+            (*iter)->generateDOT(dot_file, depth+1, clause_index, directive_id);
+            clause_index += 1;
+        };
     };
+
 };
 
 void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
@@ -3716,10 +3715,9 @@ OpenMPClause* OpenMPLinearClause::addLinearClause(OpenMPDirective *directive, Op
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_linear] = current_clauses;
         } 
-        else { 
-          //std::cerr << "Cannot have two bind clause for the directive " << directive->getKind() << ", ignored\n";           
+        else {            
             new_clause = new OpenMPLinearClause(modifier);
-           current_clauses->push_back(new_clause);
+            current_clauses->push_back(new_clause);
         };
     (*all_clauses)[OMPC_linear] = current_clauses;
     return new_clause;
@@ -3730,8 +3728,6 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_linear);
     OpenMPClause* new_clause = NULL;
-
-    current_clauses = directive->getClauses(OMPC_linear);
 
     for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
           
@@ -3752,6 +3748,7 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
                 }
             }
             current_clauses->pop_back();
+            directive->getClausesInOriginalOrder()->pop_back();
             break;
         }
     }
@@ -3869,7 +3866,6 @@ OpenMPClause* OpenMPAffinityClause::addAffinityClause(OpenMPDirective *directive
     return new_clause;
 }
 
-//OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type, std::vector<std::vector<const char*>* > depend_iterators_definition_class) {
 OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, OpenMPDependClauseModifier modifier, OpenMPDependClauseType type) {
    
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -3883,21 +3879,59 @@ OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, Op
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_depend] = current_clauses;
     } else {
-        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-            if (((OpenMPDependClause*)(*it))->getModifier() == modifier &&
-                ((OpenMPDependClause*)(*it))->getType() == type) {
-                new_clause = (*it);
-                return new_clause;
-            }
-        }
-        /* could fine the matching object for this clause */
-        //new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
         new_clause = new OpenMPDependClause(modifier, type);
         current_clauses->push_back(new_clause);
     }
+    (*all_clauses)[OMPC_depend] = current_clauses;
     return new_clause;
 }
 
+void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* current_clause) {
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_depend);
+    OpenMPClause* new_clause = NULL;
+    
+    if (current_clauses->size() == true) return;
+
+    for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
+        if (((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
+            bool normalize = true;
+            std::vector<vector<const char*>* >* depend_iterators_definition_previous = ((OpenMPDependClause*)(*it))->getDependIteratorsDefinitionClass();
+            std::vector<vector<const char*>* >* depend_iterators_definition_current = ((OpenMPDependClause*)current_clause)->getDependIteratorsDefinitionClass();
+            if (depend_iterators_definition_previous->size() == depend_iterators_definition_current->size()){
+                for (std::vector<vector<const char*>* >::iterator it_expr_current_outer = depend_iterators_definition_current->begin(); it_expr_current_outer != depend_iterators_definition_current->end(); it_expr_current_outer++) {
+                    for (std::vector<vector<const char*>* >::iterator it_expr_previous_outer = depend_iterators_definition_previous->begin(); it_expr_previous_outer != depend_iterators_definition_previous->end(); it_expr_previous_outer++) {
+                        bool merge = false;
+                        if (strcmp((*it_expr_current_outer)->at(0), (*it_expr_previous_outer)->at(0)) == 0 && strcmp((*it_expr_current_outer)->at(1), (*it_expr_previous_outer)->at(1)) == 0 && strcmp((*it_expr_current_outer)->at(2), (*it_expr_previous_outer)->at(2)) == 0 && strcmp((*it_expr_current_outer)->at(3), (*it_expr_previous_outer)->at(3)) == 0 && strcmp((*it_expr_current_outer)->at(4), (*it_expr_previous_outer)->at(4)) == 0){
+                            bool merge = true;
+                            break;
+                        }
+                        if (it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == false) {
+                            normalize = false;
+                        }
+                    }
+                    if (normalize == false) break;
+                }
+                if (normalize == true) {
+                    std::vector<const char *>* expressions_previous = ((OpenMPDependClause*)(*it))->getExpressions();
+                    std::vector<const char *>* expressions_current = current_clause->getExpressions();
+                    for (std::vector<const char *>::iterator it_expr_current = expressions_current->begin(); it_expr_current != expressions_current->end(); it_expr_current++) {
+                        bool para_merge = true;
+                        for (std::vector<const char *>::iterator it_expr_previous = expressions_previous->begin(); it_expr_previous != expressions_previous->end(); it_expr_previous++) {
+                            if (strcmp(*it_expr_current, *it_expr_previous) == 0 ){ 
+                                para_merge = false;
+                            }
+                        }
+                        if (para_merge == true) expressions_previous->push_back(*it_expr_current);
+                    }
+                    current_clauses->pop_back();
+                    directive->getClausesInOriginalOrder()->pop_back();
+                    break;
+                }
+            }
+        }
+    }
+}
 OpenMPClause* OpenMPDepobjUpdateClause::addDepobjUpdateClause(OpenMPDirective *directive, OpenMPDepobjUpdateClauseDependeceType type) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -4538,6 +4572,24 @@ OpenMPClause* OpenMPDefaultClause::addDefaultClause(OpenMPDirective *directive, 
     return new_clause;
 }
 
+OpenMPClause* OpenMPOrderClause::addOrderClause(OpenMPDirective *directive, OpenMPOrderClauseKind order_kind) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_order);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPOrderClause(order_kind);
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_order] = current_clauses;
+    } else { /* could be an error since if clause may only appear once */
+        std::cerr << "Cannot have two order clause for the directive " << directive->getKind() << ", ignored\n";
+    };
+
+    return new_clause;
+}
+
 OpenMPClause* OpenMPAlignedClause::addAlignedClause(OpenMPDirective *directive) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -5105,6 +5157,48 @@ std::string OpenMPDefaultClause::toString() {
             break;
         default:
             std::cout << "The parameter of default clause is not supported.\n";
+    };
+
+    if (parameter_string.size() > 0) {
+        result += parameter_string + ") ";
+    }
+    else {
+        result = result.substr(0, result.size()-2);
+    }
+
+    return result;
+}
+
+void OpenMPOrderClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+
+    std::string parameter_string;
+    OpenMPDirective* variant_directive = NULL;
+    std::string current_line;
+    std::string indent = std::string(depth, '\t');
+    std::string clause_string;
+    std::vector<OpenMPDirective*>* parameter_directives;
+    parent_node = parent_node.substr(0, parent_node.size()-1);
+    OpenMPClauseKind clause_kind = this->getKind();
+
+    clause_string = "order";
+
+    clause_string = parent_node + "_" + clause_string + "_" + std::to_string(depth) + "_" + std::to_string(index);
+    current_line = indent + parent_node + " -- " + clause_string + "\n";
+    dot_file << current_line.c_str();
+    indent += "\t";
+};
+
+std::string OpenMPOrderClause::toString() {
+
+    std::string result = "order (";
+    std::string parameter_string;
+    OpenMPOrderClauseKind order_kind = this->getOrderClauseKind();
+    switch (order_kind) {
+        case OMPC_ORDER_concurrent:
+            parameter_string = "concurrent";
+            break;
+        default:
+            std::cout << "The parameter of order clause is not supported.\n";
     };
 
     if (parameter_string.size() > 0) {

@@ -43,8 +43,8 @@ static int firstParameter = 0;
 static int secondParameter = 0;
 static int thirdParameter = 0;
 static OpenMPUsesAllocatorsClauseAllocator usesAllocator;
-static const char* firstStringParameter = NULL;
-static const char* secondStringParameter = NULL;
+static const char* firstStringParameter = "";
+static const char* secondStringParameter = "";
 static std::vector<const char*>* iterator_definition = new std::vector<const char*>();
 static std::vector<const char*>* depend_iterator_definition = new std::vector<const char*>();
 static std::vector<std::vector<const char*>* >* depend_iterators_definition_class;
@@ -59,7 +59,11 @@ void * (*exprParse)(const char*) = NULL;
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
 int atomic_before_or_after = 0;
 
-OpenMPBaseLang lang; //record language
+/* used for language setting and detecting*/
+OpenMPBaseLang user_set_lang = Lang_unknown;
+OpenMPBaseLang auto_lang;
+void setLang(OpenMPBaseLang _lang) { user_set_lang = _lang; };
+
 %}
 
 %locations
@@ -78,7 +82,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 %token  OMP PARALLEL FOR DO DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE MAPPER
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
-        LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NOMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
+        LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NONMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT WORKSHARE/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
@@ -94,6 +98,7 @@ corresponding C type is union name defaults to YYSTYPE.
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
  LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL SOURCE SINK DESTROY THREADS
+        CONCURRENT
 %token <itype> ICONSTANT
 %token <stype> EXPRESSION ID_EXPRESSION EXPR_STRING VAR_STRING TASK_REDUCTION
 /* associativity and precedence */
@@ -800,7 +805,7 @@ taskloop_clause : if_taskloop_clause
                 | private_clause
                 | firstprivate_clause
                 | lastprivate_clause
-                | loop_reduction_clause
+                | reduction_default_only_clause
                 | in_reduction_clause
                 | default_clause
                 | grainsize_clause
@@ -930,7 +935,7 @@ depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_uns
                              ;
 
 depend_parameter : dependence_type ':' var_list 
-                 | depend_modifier ',' dependence_type ':' var_list
+                 | depend_modifier ',' dependence_type ':' var_list { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
                  ;
 dependence_type : depend_enum_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); }
                 ;
@@ -1164,20 +1169,20 @@ map_modifier1 : MAP_MODIFIER_ALWAYS { firstParameter = OMPC_MAP_MODIFIER_always;
               | MAP_MODIFIER_CLOSE  { firstParameter = OMPC_MAP_MODIFIER_close; }
               | map_modifier_mapper { firstParameter = OMPC_MAP_MODIFIER_mapper; }
               ;
-map_modifier2 : MAP_MODIFIER_ALWAYS { if(firstParameter == OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else secondParameter = OMPC_MAP_MODIFIER_always; }
-              | MAP_MODIFIER_CLOSE  { if(firstParameter == OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT;} else secondParameter = OMPC_MAP_MODIFIER_close; }
-              | map_modifier_mapper { if(firstParameter == OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else secondParameter = OMPC_MAP_MODIFIER_mapper; }
+map_modifier2 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else { secondParameter = OMPC_MAP_MODIFIER_always; }}
+              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT;} else { secondParameter = OMPC_MAP_MODIFIER_close; }}
+              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else { secondParameter = OMPC_MAP_MODIFIER_mapper; }}
               ;
-map_modifier3 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always || secondParameter==OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_always; }
-              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close || secondParameter==OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_close; }
-              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper || secondParameter==OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else thirdParameter = OMPC_MAP_MODIFIER_mapper; }
+map_modifier3 : MAP_MODIFIER_ALWAYS { if (firstParameter == OMPC_MAP_MODIFIER_always || secondParameter==OMPC_MAP_MODIFIER_always) { yyerror("ALWAYS modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_always; }}
+              | MAP_MODIFIER_CLOSE  { if (firstParameter == OMPC_MAP_MODIFIER_close || secondParameter==OMPC_MAP_MODIFIER_close) { yyerror("CLOSE modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_close; }}
+              | map_modifier_mapper { if (firstParameter == OMPC_MAP_MODIFIER_mapper || secondParameter==OMPC_MAP_MODIFIER_mapper) { yyerror("MAPPER modifier can appear in the map clause only once\n"); YYABORT; } else { thirdParameter = OMPC_MAP_MODIFIER_mapper; }}
               ;
 map_type : MAP_TYPE_TO { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter,thirdParameter, OMPC_MAP_TYPE_to, firstStringParameter); }
          | MAP_TYPE_FROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_from, firstStringParameter); }
          | MAP_TYPE_TOFROM { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_tofrom, firstStringParameter); }
          | MAP_TYPE_ALLOC { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_alloc, firstStringParameter); }
          | MAP_TYPE_RELEASE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_release, firstStringParameter); }
-         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, secondStringParameter); }
+         | MAP_TYPE_DELETE { current_clause = current_directive->addOpenMPClause(OMPC_map, firstParameter, secondParameter, thirdParameter, OMPC_MAP_TYPE_delete, firstStringParameter); }
          ;
 map_modifier_mapper : MAP_MODIFIER_MAPPER '('EXPR_STRING')' { firstStringParameter = $3; }
                     ;
@@ -1243,7 +1248,7 @@ teams_distribute_clause : num_teams_clause
                         | private_clause
                         | firstprivate_clause
                         | shared_clause
-                        | reduction_clause
+                        | reduction_default_only_clause
                         | allocate_clause              
                         | lastprivate_clause
                         | collapse_clause
@@ -1438,7 +1443,7 @@ teams_loop_clause : num_teams_clause
                   | private_clause
                   | firstprivate_clause
                   | shared_clause
-                  | reduction_clause
+                  | reduction_default_only_clause
                   | allocate_clause
                   | bind_clause
                   | collapse_clause
@@ -1731,7 +1736,7 @@ target_teams_clause : if_target_clause
                     | thread_limit_clause
                     | default_clause
                     | shared_clause
-                    | reduction_clause
+                    | reduction_default_only_clause
                     ;
 target_teams_distribute_directive : TARGET TEAMS DISTRIBUTE{
                         current_directive = new OpenMPDirective(OMPD_target_teams_distribute);
@@ -1761,7 +1766,7 @@ target_teams_distribute_clause : if_target_clause
                                | thread_limit_clause
                                | default_clause                   
                                | shared_clause
-                               | reduction_clause
+                               | reduction_default_only_clause
                                | lastprivate_clause
                                | collapse_clause
                                | dist_schedule_clause
@@ -1833,7 +1838,7 @@ target_teams_loop_clause : if_target_clause
                          | thread_limit_clause
                          | default_clause
                          | shared_clause
-                         | reduction_clause                                 
+                         | reduction_default_only_clause                                 
                          | bind_clause
                          | collapse_clause
                          | order_clause
@@ -2117,10 +2122,10 @@ parallel_sections_directive : PARALLEL SECTIONS {
                             parallel_sections_clause_optseq
                             ;
 parallel_workshare_directive : PARALLEL WORKSHARE {
-                               if(lang == Lang_Fortran)
-                               {current_directive = new OpenMPDirective(OMPD_parallel_workshare);} else{
-                                   yyerror("parallel workshare is only supported in fortran");
-                                   YYABORT;
+                               if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) { 
+                                   current_directive = new OpenMPDirective(OMPD_parallel_workshare); } else {
+                                       yyerror("parallel workshare is only supported in Fortran");
+                                       YYABORT;
                                }
                              }
                              parallel_workshare_clause_optseq
@@ -2185,12 +2190,11 @@ single_paired_directive : SINGLE {
                         single_paired_clause_optseq
                         ;
 workshare_directive : WORKSHARE {
-                         if(lang == Lang_Fortran) {
-                                current_directive = new OpenMPDirective(OMPD_workshare);}
-                         else{
-                                   yyerror("workshare is only supported in fortran");
-                                   YYABORT;
-                               }
+                         if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {
+                             current_directive = new OpenMPDirective(OMPD_workshare); } else {
+                                 yyerror("workshare is only supported in Fortran");
+                                 YYABORT;
+                             }
                     }
                     ;
 workshare_paired_directive : WORKSHARE {
@@ -2573,7 +2577,7 @@ teams_clause : num_teams_clause
              | private_clause
              | firstprivate_clause
              | shared_clause
-             | reduction_clause
+             | reduction_default_only_clause
              | allocate_clause
              ;
 
@@ -2593,7 +2597,7 @@ for_clause : private_clause
 do_clause : private_clause
           | firstprivate_clause
           | lastprivate_clause
-          | linear_clause_fortran
+          | linear_clause
           | reduction_clause
           | schedule_clause
           | collapse_clause
@@ -2635,7 +2639,7 @@ for_simd_clause : if_simd_clause
 do_simd_clause : if_simd_clause
                | safelen_clause
                | simdlen_clause
-               | linear_clause_fortran
+               | linear_clause
                | aligned_clause
                | private_clause 
                | firstprivate_clause 
@@ -2730,7 +2734,7 @@ distribute_parallel_do_clause : if_parallel_clause
                               | proc_bind_clause
                               | allocate_clause
                               | lastprivate_clause 
-                              | linear_clause_fortran
+                              | linear_clause
                               | schedule_clause
                               | collapse_clause
                               | ordered_clause
@@ -2771,7 +2775,7 @@ distribute_parallel_do_simd_clause : if_parallel_simd_clause
                                    | proc_bind_clause
                                    | allocate_clause
                                    | lastprivate_clause 
-                                   | linear_clause_fortran
+                                   | linear_clause
                                    | schedule_clause
                                    | collapse_clause
                                    | ordered_clause
@@ -2811,7 +2815,7 @@ parallel_do_clause : if_parallel_clause
                    | proc_bind_clause
                    | allocate_clause
                    | lastprivate_clause 
-                   | linear_clause_fortran
+                   | linear_clause
                    | schedule_clause
                    | collapse_clause
                    | ordered_clause
@@ -2961,7 +2965,7 @@ loop_clause : bind_clause
             | order_clause
             | private_clause
             | lastprivate_clause
-            | loop_reduction_clause
+            | reduction_default_only_clause
             ;
 scan_clause : inclusive_clause
             | exclusive_clause
@@ -2984,8 +2988,8 @@ single_paired_clause : copyprivate_clause
                      ;
 construct_type_clause : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
                       | SECTIONS { current_clause = current_directive->addOpenMPClause(OMPC_sections); }
-                      | FOR { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_for);} else {yyerror("cancel or cancellation direcitve does not support for clause in fortran"); YYABORT; } }
-                      | DO { if(lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_do);} else {yyerror("cancel or cancellation direcitve does not support DO clause in c"); YYABORT; } }
+                      | FOR { if (user_set_lang != Lang_Fortran || auto_lang != Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_for);} else {yyerror("cancel or cancellation direcitve does not support for clause in Fortran"); YYABORT; } }
+                      | DO { if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_do);} else {yyerror("cancel or cancellation direcitve does not support DO clause in C"); YYABORT; } }
                       | TASKGROUP { current_clause = current_directive->addOpenMPClause(OMPC_taskgroup); }
                       ;
 //construct_type_clause_fortran : PARALLEL { current_clause = current_directive->addOpenMPClause(OMPC_parallel); }
@@ -3247,7 +3251,7 @@ copyprivate_clause : COPYPRIVATE {
                    }
                    ;
 fortran_copyprivate_clause : COPYPRIVATE {
-                                 if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_copyprivate);} else {yyerror("Single does not support copyprivate_clause in Fortran."); YYABORT;}
+                                 if (user_set_lang == Lang_C || auto_lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_copyprivate);} else {yyerror("Single does not support copyprivate_clause in Fortran."); YYABORT;}
                                } '(' var_list ')' {
                            }
                            ;
@@ -3265,24 +3269,14 @@ linear_clause : LINEAR '(' linear_parameter ')'
               | LINEAR '(' linear_parameter ':' EXPR_STRING { ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5); ((OpenMPLinearClause*)current_clause)->mergeLinear(current_directive, current_clause); } ')' 
               ;
 
-linear_clause_fortran : LINEAR '(' linear_parameter_fortran ')'
-                      | LINEAR '(' linear_parameter_fortran ':' EXPR_STRING { ((OpenMPLinearClause*)current_clause)->setUserDefinedStep($5); } ')' 
-                      ;
 linear_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_unspecified); current_clause->addLangExpr($1); }
-                 | EXPR_STRING ',' {current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_unspecified); current_clause->addLangExpr($1); } var_list
+                 | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_unspecified); current_clause->addLangExpr($1); } var_list
                  | linear_modifier '(' var_list ')'
                  ;
-linear_parameter_fortran : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_unspecified); current_clause->addLangExpr($1); }
-                         | EXPR_STRING ',' {current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_unspecified); current_clause->addLangExpr($1); } var_list
-                         | linear_modifier_fortran '(' var_list ')'
-                         ;
 linear_modifier : MODOFIER_VAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
+                | MODOFIER_REF { if (user_set_lang == Lang_unknown && auto_lang == Lang_C){ auto_lang = Lang_Cplusplus; } if (user_set_lang == Lang_C) {yyerror("REF modifier is not supportted in C."); YYABORT; } else { current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_ref); } }
+                | MODOFIER_UVAL { if (user_set_lang == Lang_unknown && auto_lang == Lang_C){ auto_lang = Lang_Cplusplus; } if (user_set_lang == Lang_C) {yyerror("UVAL modifier is not supportted in C."); YYABORT;} else { current_clause = current_directive->addOpenMPClause(OMPC_linear, OMPC_LINEAR_MODIFIER_uval); } }
                 ;
-
-linear_modifier_fortran : MODOFIER_VAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_val); }
-                        | MODOFIER_REF { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_ref); }
-                        | MODOFIER_UVAL { current_clause = current_directive->addOpenMPClause(OMPC_linear,OMPC_LINEAR_MODIFIER_uval); }
-                        ;
 
 aligned_clause : ALIGNED '(' aligned_parameter ')'
                | ALIGNED '(' aligned_parameter ':' EXPR_STRING { ((OpenMPAlignedClause*)current_clause)->setUserDefinedAlignment($5);} ')'
@@ -3318,13 +3312,15 @@ collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(
 ordered_clause: ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); } '(' expression ')'
               | ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); }
               ;
-fortran_nowait_clause: NOWAIT { if(lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("Sections does not support nowait clause in Fortran."); YYABORT;} }
+fortran_nowait_clause: NOWAIT { if (user_set_lang == Lang_C || auto_lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("Sections does not support nowait clause in Fortran."); YYABORT;} }
                      ;
 nowait_clause: NOWAIT { current_clause = current_directive->addOpenMPClause(OMPC_nowait); }
              ;
-
-order_clause: ORDER { current_clause = current_directive->addOpenMPClause(OMPC_order); } '(' var_list ')'
+order_clause: ORDER '(' order_parameter ')' { }
             ;
+
+order_parameter : CONCURRENT { current_clause = current_directive->addOpenMPClause(OMPC_order, OMPC_ORDER_concurrent); }
+                ;
 
 uniform_clause: UNIFORM { current_clause = current_directive->addOpenMPClause(OMPC_uniform); } '(' var_list ')'
               ;
@@ -3355,7 +3351,7 @@ dist_schedule_clause : DIST_SCHEDULE '(' dist_schedule_parameter ')' {}
 dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); }
                         | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); } ',' var_list
                         ;
-schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_KIND_unspecified; secondParameter = OMPC_SCHEDULE_KIND_unspecified; }'(' schedule_parameter ')' {
+schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_MODIFIER_unspecified; secondParameter = OMPC_SCHEDULE_MODIFIER_unspecified; }'(' schedule_parameter ')' {
                 }
                 ;
 
@@ -3365,40 +3361,33 @@ schedule_parameter : schedule_kind {}
 
 
 schedule_kind : schedule_enum_kind { }
-              | schedule_enum_kind ',' var_list {}
+              | schedule_enum_kind ','  EXPR_STRING { ((OpenMPScheduleClause*)current_clause)->setChunkSize($3); }
               ;
 
 schedule_modifier : schedule_enum_modifier ',' schedule_modifier2
                   | schedule_enum_modifier
                   ;
 
-schedule_modifier2 : MODIFIER_MONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd) {secondParameter = OMPC_SCHEDULE_MODIFIER_monotonic;} else{yyerror("Two modifiers are incorrect"); YYABORT; } }
-                   | MODIFIER_NOMONOTONIC { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){secondParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}else{yyerror("Two modifiers are incorrect"); YYABORT; } }
-                   | MODIFIER_SIMD { if(firstParameter == OMPC_SCHEDULE_MODIFIER_simd){yyerror("Two modifiers are incorrect"); YYABORT; } else{secondParameter = OMPC_SCHEDULE_MODIFIER_simd;} }
+schedule_modifier2 : MODIFIER_MONOTONIC { if (firstParameter == OMPC_SCHEDULE_MODIFIER_simd) {secondParameter = OMPC_SCHEDULE_MODIFIER_monotonic;} else{yyerror("Two modifiers are incorrect"); YYABORT; } }
+                   | MODIFIER_NONMONOTONIC { if (firstParameter == OMPC_SCHEDULE_MODIFIER_simd){secondParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic;}else{yyerror("Two modifiers are incorrect"); YYABORT; } }
+                   | MODIFIER_SIMD { if (firstParameter == OMPC_SCHEDULE_MODIFIER_simd){yyerror("Two modifiers are incorrect"); YYABORT; } else{secondParameter = OMPC_SCHEDULE_MODIFIER_simd;} }
                    ;
 schedule_enum_modifier : MODIFIER_MONOTONIC { firstParameter = OMPC_SCHEDULE_MODIFIER_monotonic; }
-                       | MODIFIER_NOMONOTONIC { firstParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic; }
+                       | MODIFIER_NONMONOTONIC { firstParameter = OMPC_SCHEDULE_MODIFIER_nonmonotonic; }
                        | MODIFIER_SIMD { firstParameter = OMPC_SCHEDULE_MODIFIER_simd; }
                        ;
 
-schedule_enum_kind : STATIC { if(current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_static); }
-                   | DYNAMIC { if(current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_dynamic); }
-                   | GUIDED { if(current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_guided); }
-                   | AUTO { if(current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_auto); }
-                   | RUNTIME { if(current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_runtime); }
+schedule_enum_kind : STATIC { if (current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_static); }
+                   | DYNAMIC { if (current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_dynamic); }
+                   | GUIDED { if (current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_guided); }
+                   | AUTO { if (current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_auto); }
+                   | RUNTIME { if (current_directive!= NULL)current_clause = current_directive->addOpenMPClause(OMPC_schedule, firstParameter, secondParameter, OMPC_SCHEDULE_KIND_runtime); }
                    ;  
 shared_clause : SHARED {
                 current_clause = current_directive->addOpenMPClause(OMPC_shared);
                     } '(' var_list ')'
               ;
-loop_reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' loop_reduction_parameter ':' var_list ')' {
-                      }
-                      ;
-loop_reduction_parameter : reduction_identifier {}
-                         | loop_reduction_modifier ',' reduction_identifier
-                         ;
-loop_reduction_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
-                        ;
+
 reduction_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_parameter ':' var_list ')' {
                  }
                  ;
@@ -3428,6 +3417,17 @@ reduction_enum_identifier : '+'{ current_clause = current_directive->addOpenMPCl
                           | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_reduction, firstParameter, OMPC_REDUCTION_IDENTIFIER_min); }
                           ;
 
+reduction_default_only_clause : REDUCTION { firstParameter = OMPC_REDUCTION_MODIFIER_unspecified; } '(' reduction_default_only_parameter ':' var_list ')' {
+                              }
+                              ;
+
+reduction_default_only_parameter : reduction_identifier {}
+                                 | reduction_default_only_modifier ',' reduction_identifier
+                                 ;
+
+reduction_default_only_modifier : MODIFIER_DEFAULT { firstParameter = OMPC_REDUCTION_MODIFIER_default; }
+                                ;
+
 %%
 
 int yyerror(const char *s) {
@@ -3446,25 +3446,38 @@ int yywrap()
 OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
     printf("Start parsing...\n");
     OpenMPBaseLang base_lang = Lang_C;
-    lang = Lang_C;
-    exprParse = _exprParse;
     current_directive = NULL;
     std::string input_string;
     const char *input = _input;
-    // Since we can't guarantee the input has been preprocessed, it should be checked here.
     std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
     input_string = std::string(input, 5);
-    if (std::regex_match(input_string, fortran_regex)) {
-        base_lang = Lang_Fortran;
-        lang = Lang_Fortran;
-        input_string = std::string(input);
-        std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
-        input = input_string.c_str();
-    };
-    //depend_iterators_definition_class = new std::vector<std::vector<const char*>* >();
+    if (user_set_lang == Lang_unknown){
+        auto_lang = Lang_C;
+        exprParse = _exprParse;
+        if (std::regex_match(input_string, fortran_regex)) {
+            base_lang = Lang_Fortran;
+            auto_lang = Lang_Fortran;
+            input_string = std::string(input);
+            std::transform(input_string.begin(), input_string.end(), input_string.begin(), ::tolower);
+            input = input_string.c_str();
+        };
+    } else {
+        base_lang = user_set_lang;
+        exprParse = _exprParse;
+        if (std::regex_match(input_string, fortran_regex)) {
+            if (user_set_lang != Lang_Fortran){
+                yyerror("The language is set to C/C++, but the input is Fortran.");
+                return NULL;
+            }
+        } else {
+            if (user_set_lang == Lang_Fortran){
+                yyerror("The language is set to Fortran, but the input is C/C++.");
+                return NULL;
+            }
+        };
+    }
     start_lexer(input);
     int res = yyparse();
-    //depend_iterators_definition_class.clear();
     end_lexer();
     if (current_directive) {
         current_directive->setBaseLang(base_lang);

@@ -313,6 +313,16 @@ enum OpenMPDefaultClauseKind {
 #undef OPENMP_DEFAULT_KIND
 };
 
+/// OpenMP attributes for 'order' clause.
+enum OpenMPOrderClauseKind {
+#define OPENMP_ORDER_KIND(Name) OMPC_ORDER_##Name,
+    /* private and firstprivate are only for fortran */
+    OPENMP_ORDER_KIND(concurrent)
+
+    OPENMP_ORDER_KIND(unspecified)
+#undef OPENMP_ORDER_KIND
+};
+
 /// OpenMP attributes for 'proc_bind' clause.
 enum OpenMPProcBindClauseKind {
 #define OPENMP_PROC_BIND_KIND(Name) OMPC_PROC_BIND_##Name,
@@ -431,6 +441,7 @@ enum OpenMPScheduleClauseModifier {
     OPENMP_SCHEDULE_MODIFIER(simd)
     OPENMP_SCHEDULE_MODIFIER(user)
 
+    OPENMP_SCHEDULE_MODIFIER(unspecified)
     OPENMP_SCHEDULE_MODIFIER(unknown)
 #undef OPENMP_SCHEDULE_MODIFIER
 };

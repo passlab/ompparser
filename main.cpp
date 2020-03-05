@@ -13,7 +13,7 @@
 #include <regex>
 
 extern OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
-
+extern void setLang(OpenMPBaseLang);
 void output(OpenMPDirective*);
 std::string test(OpenMPDirective*);
 int openFile(std::ifstream&, const char*);
@@ -170,7 +170,8 @@ int main( int argc, const char* argv[] ) {
 
 
     // example of calling ompparser without test file or producing DOT file.
-    const char* input = "omp target parallel for if(target:3456) if ( b)";
+    // setLang(Lang_C);
+    const char* input = "omp for schedule (monotonic,simd:runtime, 2)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 
