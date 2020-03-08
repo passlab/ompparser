@@ -1872,8 +1872,8 @@ std::string OpenMPBindClause::toString() {
 
     std::string result = "bind (";
     std::string parameter_string;
-    OpenMPBindClauseKind bind_kind = this->getBindClauseKind();
-    switch (bind_kind) {
+    OpenMPBindClauseBinding bind_binding = this->getBindClauseBinding();
+    switch (bind_binding) {
         case OMPC_BIND_teams:
             parameter_string = "teams";
             break;

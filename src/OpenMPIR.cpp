@@ -180,8 +180,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
             break;
         }
         case OMPC_bind: {
-            OpenMPBindClauseKind bind_kind = (OpenMPBindClauseKind) va_arg(args, int);
-            new_clause = OpenMPBindClause::addBindClause(this, bind_kind);
+            OpenMPBindClauseBinding bind_binding = (OpenMPBindClauseBinding) va_arg(args, int);
+            new_clause = OpenMPBindClause::addBindClause(this, bind_binding);
             break;
         }
 
@@ -443,14 +443,14 @@ OpenMPClause* OpenMPProcBindClause::addProcBindClause(OpenMPDirective *directive
     return new_clause;
 };
 
-OpenMPClause* OpenMPBindClause::addBindClause(OpenMPDirective *directive, OpenMPBindClauseKind bind_kind) {
+OpenMPClause* OpenMPBindClause::addBindClause(OpenMPDirective *directive, OpenMPBindClauseBinding bind_binding) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_bind);
     OpenMPClause* new_clause = NULL;
 
     if (current_clauses->size() == 0) {
-        new_clause = new OpenMPBindClause(bind_kind);
+        new_clause = new OpenMPBindClause(bind_binding);
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_bind] = current_clauses;

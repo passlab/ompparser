@@ -465,15 +465,16 @@ enum OpenMPDistscheduleClauseKind {
 };
 
 /// OpenMP attributes for 'bind' clause.
-enum OpenMPBindClauseKind {
-#define OPENMP_BIND_KIND(Name) OMPC_BIND_##Name,
-    OPENMP_BIND_KIND(teams)
-    OPENMP_BIND_KIND(parallel)
-    OPENMP_BIND_KIND(thread)
-    OPENMP_BIND_KIND(user)
+enum OpenMPBindClauseBinding {
+#define OPENMP_BIND_BINDING(Name) OMPC_BIND_##Name,
+    OPENMP_BIND_BINDING(teams)
+    OPENMP_BIND_BINDING(parallel)
+    OPENMP_BIND_BINDING(thread)
+    OPENMP_BIND_BINDING(user)
 
-    OPENMP_BIND_KIND(unknown)
-#undef OPENMP_BIND_KIND
+    OPENMP_BIND_BINDING(unknown)
+    OPENMP_BIND_BINDING(unspecified)
+#undef OPENMP_BIND_BINDING
 };
 
 /// omp_priv for 'initializer' clause.
