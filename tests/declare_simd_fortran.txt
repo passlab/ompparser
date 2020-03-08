@@ -24,7 +24,7 @@ PASS: !$omp declare simd inbranch
 PASS: !$omp declare simd notinbranch
 
 !$omp declare simd uniform(i) linear(k) notinbranch
-PASS: !$omp declare simd linear (k) uniform (i) notinbranch
+PASS: !$omp declare simd uniform (i) linear (k) notinbranch
 
 !$omp declare simd (id) simdlen(4)
 PASS: !$omp declare simd (id) simdlen (4)
@@ -45,7 +45,7 @@ PASS: !$omp declare simd (d) inbranch
 PASS: !$omp declare simd (#ljlkfds) notinbranch
 
 !$omp declare simd (tol) uniform(i) linear(k) notinbranch
-PASS: !$omp declare simd (tol) linear (k) uniform (i) notinbranch
+PASS: !$omp declare simd (tol) uniform (i) linear (k) notinbranch
 
 // invalid test without paired validation.
 

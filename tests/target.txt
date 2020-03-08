@@ -6,10 +6,10 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp target if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2), in:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))
-PASS: #pragma omp target if (target: 3456) private (x, n[1:5]) firstprivate (foo(x), y) allocate (omp_default_mem_alloc: m, n[1:5]) nowait in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2 ), in : m, n) device (ancestor : 5) is_device_ptr (m, n, j) defaultmap (alloc: pointer) uses_allocators (omp_default_mem_alloc(1234567),omp_const_mem_alloc(234) )
+PASS: #pragma omp target if (target: 3456) device (ancestor : 5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr (m, n, j) defaultmap (alloc: pointer) nowait depend (iterator ( int bba=4:120:2 ), in : m, n) allocate (omp_default_mem_alloc: m, n[1:5]) uses_allocators (omp_default_mem_alloc(1234567),omp_const_mem_alloc(234) )
 
 #pragma omp target if(target:3456) device(ancestor:5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr(m,n,j) defaultmap(alloc:pointer) nowait depend(iterator(int bba=4:120:2,char huj = 2:677), inout:m, n) allocate (omp_default_mem_alloc : m, n[1:5]) uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))
-PASS: #pragma omp target if (target: 3456) private (x, n[1:5]) firstprivate (foo(x), y) allocate (omp_default_mem_alloc: m, n[1:5]) nowait in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2, char huj=2:677 ), inout : m, n) device (ancestor : 5) is_device_ptr (m, n, j) defaultmap (alloc: pointer) uses_allocators (omp_default_mem_alloc(1234567),omp_const_mem_alloc(234) )
+PASS: #pragma omp target if (target: 3456) device (ancestor : 5) private (x, n[1:5]) firstprivate (foo(x), y) in_reduction (test_identifier : x11, y, z) is_device_ptr (m, n, j) defaultmap (alloc: pointer) nowait depend (iterator ( int bba=4:120:2, char huj=2:677 ), inout : m, n) allocate (omp_default_mem_alloc: m, n[1:5]) uses_allocators (omp_default_mem_alloc(1234567),omp_const_mem_alloc(234) )
 
 #pragma omp target if(target:3456)
 PASS: #pragma omp target if (target: 3456)

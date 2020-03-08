@@ -9,13 +9,13 @@
 PASS: !$omp teams distribute simd 
 
 !$omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
-PASS: !$omp teams distribute simd default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+PASS: !$omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
 
 !$omp teams distribute simd dist_schedule(static,2) lastprivate(conditional:a,b,c) if(simd:a) safelen(4) linear(a,b,c:2) aligned(*a,&b,c:2) nontemporal(a) order(concurrent)
-PASS: !$omp teams distribute simd if (simd: a) lastprivate (conditional: a, b, c) order (concurrent) linear (a, b, c:2) safelen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static, 2)
+PASS: !$omp teams distribute simd dist_schedule (static, 2) lastprivate (conditional: a, b, c) if (simd: a) safelen (4) linear (a, b, c:2) aligned (*a, &b, c:2) nontemporal (a) order (concurrent)
 
 !$omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none) dist_schedule(static,2) lastprivate(conditional:a,b,c) if(simd:a) safelen(4) linear(a,b,c:2) aligned(*a,&b,c:2) nontemporal(a) order(concurrent)
-PASS: !$omp teams distribute simd if (simd: a) default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5) lastprivate (conditional: a, b, c) order (concurrent) linear (a, b, c:2) safelen (4) aligned (*a, &b, c:2) nontemporal (a) dist_schedule (static, 2)
+PASS: !$omp teams distribute simd num_teams (4) thread_limit (4+5) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) reduction (tasktest : x11, y, z) default (none) dist_schedule (static, 2) lastprivate (conditional: a, b, c) if (simd: a) safelen (4) linear (a, b, c:2) aligned (*a, &b, c:2) nontemporal (a) order (concurrent)
 
 !$omp end teams distribute simd
 PASS: !$omp end teams distribute simd 

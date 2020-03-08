@@ -33,7 +33,7 @@ PASS: !$omp parallel master taskloop simd if (a) if (parallel: b) if (taskloop: 
 PASS: !$omp parallel master taskloop simd proc_bind (master)
 
 !$omp parallel master taskloop simd proc_bind (close) default (private)
-PASS: !$omp parallel master taskloop simd default (private) proc_bind (close)
+PASS: !$omp parallel master taskloop simd proc_bind (close) default (private)
 
 !$omp parallel master taskloop simd proc_bind (spread)
 PASS: !$omp parallel master taskloop simd proc_bind (spread)

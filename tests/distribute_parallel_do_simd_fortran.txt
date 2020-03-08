@@ -42,13 +42,13 @@ PASS: !$omp distribute parallel do simd default (shared)
 PASS: !$omp distribute parallel do simd default (none)
 
 !$omp distribute parallel do simd if (a) if (parallel : b) default (firstprivate) if (simd : b)
-PASS: !$omp distribute parallel do simd if (a) if (parallel: b) if (simd: b) default (firstprivate)
+PASS: !$omp distribute parallel do simd if (a) if (parallel: b) default (firstprivate) if (simd: b)
 
 !$omp distribute parallel do simd proc_bind (master)
 PASS: !$omp distribute parallel do simd proc_bind (master)
 
 !$omp distribute parallel do simd proc_bind (close) default (private)
-PASS: !$omp distribute parallel do simd default (private) proc_bind (close)
+PASS: !$omp distribute parallel do simd proc_bind (close) default (private)
 
 !$omp distribute parallel do simd proc_bind (spread)
 PASS: !$omp distribute parallel do simd proc_bind (spread)

@@ -36,7 +36,7 @@ PASS: #pragma omp parallel sections if (a) if (parallel: b) default (shared)
 PASS: #pragma omp parallel sections proc_bind (master)
 
 #pragma omp parallel sections proc_bind (close) default (none)
-PASS: #pragma omp parallel sections default (none) proc_bind (close)
+PASS: #pragma omp parallel sections proc_bind (close) default (none)
 
 #pragma omp parallel sections proc_bind (spread)
 PASS: #pragma omp parallel sections proc_bind (spread)

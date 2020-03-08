@@ -566,16 +566,15 @@ public:
 class OpenMPBindClause : public OpenMPClause {
 
 protected:
-    OpenMPBindClauseKind bind_kind;
+    OpenMPBindClauseBinding bind_binding;
 
 public:
-    OpenMPBindClause(OpenMPBindClauseKind _bind_kind) :
-            OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
+    OpenMPBindClause(OpenMPBindClauseBinding _bind_binding) :
+            OpenMPClause(OMPC_bind), bind_binding(_bind_binding) { };
 
-    OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
-    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseKind);
+    OpenMPBindClauseBinding getBindClauseBinding() { return bind_binding; };
+    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseBinding);
     std::string toString();
-    //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 
 // Default Clause

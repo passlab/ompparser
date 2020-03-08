@@ -6,4 +6,4 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp taskloop if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])
-PASS: #pragma omp taskloop if (taskloop: 3456) default (shared) private (x, n[1:5]) firstprivate (foo(x), y) shared (x, y, z) reduction (default, + : a, foo(x)) allocate (user_defined_test: m, n[1:5]) lastprivate (rt, e, tre) collapse (34) final (890) untied mergeable in_reduction (abc : x, y, z) priority (4) grainsize (8) num_tasks (45) nogroup
+PASS: #pragma omp taskloop if (taskloop: 3456) shared (x, y, z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate (rt, e, tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default (shared) grainsize (8) num_tasks (45) collapse (34) final (890) priority (4) untied mergeable nogroup allocate (user_defined_test: m, n[1:5])

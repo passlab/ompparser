@@ -42,13 +42,13 @@ PASS: #pragma omp parallel for simd default (shared)
 PASS: #pragma omp parallel for simd default (none)
 
 #pragma omp parallel for simd if (a) if (parallel : b) default (shared) if (simd : b)
-PASS: #pragma omp parallel for simd if (a) if (parallel: b) if (simd: b) default (shared)
+PASS: #pragma omp parallel for simd if (a) if (parallel: b) default (shared) if (simd: b)
 
 #pragma omp parallel for simd proc_bind (master)
 PASS: #pragma omp parallel for simd proc_bind (master)
 
 #pragma omp parallel for simd proc_bind (close) default (none)
-PASS: #pragma omp parallel for simd default (none) proc_bind (close)
+PASS: #pragma omp parallel for simd proc_bind (close) default (none)
 
 #pragma omp parallel for simd proc_bind (spread)
 PASS: #pragma omp parallel for simd proc_bind (spread)
