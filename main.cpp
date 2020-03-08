@@ -163,7 +163,7 @@ int main( int argc, const char* argv[] ) {
 
     // example of calling ompparser without test file or producing DOT file.
     // setLang(Lang_C);
-    const char* input = "omp loop bind(parallel)";
+    const char* input = "omp taskloop simd collapse(a) order(concurrent)  safelen(sd) simdlen(4) nontemporal(non, temporal) lastprivate(conditional:i, last, private) linear(val(s,f,e):2) linear(s,f,e)  aligned(s,f,e) if(taskloop:3456) shared(x,y,z) private (x, n[1:5]) firstprivate (foo(x), y) lastprivate(rt,e,tre) reduction (default, + : a, foo(x)) in_reduction (abc : x, y, z) default(shared) grainsize(8) num_tasks(45) collapse(34) final(890) priority(4) untied mergeable nogroup allocate (user_defined_test : m, n[1:5])";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

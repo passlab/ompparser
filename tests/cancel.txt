@@ -6,16 +6,16 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp cancel parallel if(cancel: a)
-PASS: #pragma omp cancel if (cancel: a) parallel
+PASS: #pragma omp cancel parallel if (cancel: a)
 
 #pragma omp cancel sections if(cancel: a)
-PASS: #pragma omp cancel if (cancel: a) sections
+PASS: #pragma omp cancel sections if (cancel: a)
 
 #pragma omp cancel for if(a)
-PASS: #pragma omp cancel if (a) for
+PASS: #pragma omp cancel for if (a)
 
 #pragma omp cancel taskgroup if(a)
-PASS: #pragma omp cancel if (a) taskgroup
+PASS: #pragma omp cancel taskgroup if (a)
 
 // invalid test without paired validation.
 

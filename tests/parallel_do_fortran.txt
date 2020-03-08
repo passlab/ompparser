@@ -54,7 +54,7 @@ PASS: !$omp parallel do if (a) if (parallel: b) default (firstprivate)
 PASS: !$omp parallel do proc_bind (master)
 
 !$omp parallel do proc_bind (close) default (private)
-PASS: !$omp parallel do default (private) proc_bind (close)
+PASS: !$omp parallel do proc_bind (close) default (private)
 
 !$omp parallel do proc_bind (spread)
 PASS: !$omp parallel do proc_bind (spread)

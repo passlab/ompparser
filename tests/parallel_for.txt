@@ -57,7 +57,7 @@ PASS: #pragma omp parallel for if (a) if (parallel: b) default (firstprivate)
 PASS: #pragma omp parallel for proc_bind (master)
 
 #pragma omp parallel for proc_bind (close) default (private)
-PASS: #pragma omp parallel for default (private) proc_bind (close)
+PASS: #pragma omp parallel for proc_bind (close) default (private)
 
 #pragma omp parallel for proc_bind (spread)
 PASS: #pragma omp parallel for proc_bind (spread)

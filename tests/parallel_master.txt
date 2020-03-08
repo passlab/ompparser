@@ -36,7 +36,7 @@ PASS: #pragma omp parallel master if (a) if (parallel: b) default (shared)
 PASS: #pragma omp parallel master proc_bind (master)
 
 #pragma omp parallel master proc_bind (close) default (none)
-PASS: #pragma omp parallel master default (none) proc_bind (close)
+PASS: #pragma omp parallel master proc_bind (close) default (none)
 
 #pragma omp parallel master proc_bind (spread)
 PASS: #pragma omp parallel master proc_bind (spread)

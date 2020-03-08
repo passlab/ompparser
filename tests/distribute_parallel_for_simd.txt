@@ -45,13 +45,13 @@ PASS: #pragma omp distribute parallel for simd default (shared)
 PASS: #pragma omp distribute parallel for simd default (none)
 
 #pragma omp distribute parallel for simd if (a) if (parallel : b) default (firstprivate) if (simd : b)
-PASS: #pragma omp distribute parallel for simd if (a) if (parallel: b) if (simd: b) default (firstprivate)
+PASS: #pragma omp distribute parallel for simd if (a) if (parallel: b) default (firstprivate) if (simd: b)
 
 #pragma omp distribute parallel for simd proc_bind (master)
 PASS: #pragma omp distribute parallel for simd proc_bind (master)
 
 #pragma omp distribute parallel for simd proc_bind (close) default (private)
-PASS: #pragma omp distribute parallel for simd default (private) proc_bind (close)
+PASS: #pragma omp distribute parallel for simd proc_bind (close) default (private)
 
 #pragma omp distribute parallel for simd proc_bind (spread)
 PASS: #pragma omp distribute parallel for simd proc_bind (spread)
