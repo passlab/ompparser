@@ -1242,7 +1242,7 @@ teams_distribute_clause : num_teams_clause
                         | shared_clause
                         | reduction_default_only_clause
                         | allocate_clause              
-                        | lastprivate_clause
+                        | lastprivate_distribute_clause
                         | collapse_clause
                         | dist_schedule_clause
                         ;
@@ -1759,7 +1759,7 @@ target_teams_distribute_clause : if_target_clause
                                | default_clause                   
                                | shared_clause
                                | reduction_default_only_clause
-                               | lastprivate_clause
+                               | lastprivate_distribute_clause
                                | collapse_clause
                                | dist_schedule_clause
                                ;
@@ -2676,7 +2676,7 @@ declare_simd_clause : simdlen_clause
  
 distribute_clause : private_clause
                   | firstprivate_clause 
-                  | lastprivate_clause
+                  | lastprivate_distribute_clause
                   | collapse_clause
                   | dist_schedule_clause
                   | allocate_clause
@@ -3253,6 +3253,11 @@ lastprivate_parameter : EXPR_STRING { current_clause = current_directive->addOpe
                       | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_lastprivate, OMPC_LASTPRIVATE_MODIFIER_unspecified); current_clause->addLangExpr($1); } var_list
                       | lastprivate_modifier ':'{;} var_list
                       ;
+
+lastprivate_distribute_clause : LASTPRIVATE {
+                         current_clause = current_directive->addOpenMPClause(OMPC_lastprivate);
+                        } '(' var_list ')' {
+                    }
 
 lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional); }
                      ;

@@ -11,8 +11,8 @@ PASS: !$omp distribute private (a, b, c)
 !$omp distribute firstprivate(a,b,c)
 PASS: !$omp distribute firstprivate (a, b, c)
 
-!$omp distribute lastprivate(conditional:a,b,c)
-PASS: !$omp distribute lastprivate (conditional: a, b, c)
+!$omp distribute lastprivate(a,b,c)
+PASS: !$omp distribute lastprivate (a, b, c)
 
 !$omp distribute collapse(a)
 PASS: !$omp distribute collapse (a)
