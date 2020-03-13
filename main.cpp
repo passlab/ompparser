@@ -163,7 +163,7 @@ int main( int argc, const char* argv[] ) {
 
     // example of calling ompparser without test file or producing DOT file.
     // setLang(Lang_C);
-    const char* input = "omp teams distribute lastprivate(a,b,c)";
+    const char* input = "omp distribute dist_schedule(static,a)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 

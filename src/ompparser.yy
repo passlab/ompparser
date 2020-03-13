@@ -3345,8 +3345,8 @@ allocator1_parameter : DEFAULT_MEM_ALLOC { current_clause = current_directive->a
 
 dist_schedule_clause : DIST_SCHEDULE '(' dist_schedule_parameter ')' {}
                      ;
-dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); }
-                        | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); } ',' var_list
+dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DIST_SCHEDULE_KIND_static); }
+                        | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DIST_SCHEDULE_KIND_static); } ',' EXPR_STRING { ((OpenMPDistScheduleClause*)current_clause)->setChunkSize($4); }
                         ;
 schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_MODIFIER_unspecified; secondParameter = OMPC_SCHEDULE_MODIFIER_unspecified; }'(' schedule_parameter ')' {
                 }

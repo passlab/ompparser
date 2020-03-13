@@ -425,24 +425,24 @@ public:
 
 };
 // dist_schedule Clause
-class OpenMPDistscheduleClause : public OpenMPClause {
+class OpenMPDistScheduleClause : public OpenMPClause {
 
 protected:
-    OpenMPDistscheduleClauseKind dist_schedule_kind;     // kind
-    std::string user_defined_kind;                // user defined identifier if it is used
+    OpenMPDistScheduleClauseKind dist_schedule_kind;     // kind
+    std::string chunk_size; 
 
 public:
-    OpenMPDistscheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
+    OpenMPDistScheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
 
-    OpenMPDistscheduleClause(OpenMPDistscheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind), user_defined_kind ("") { };
+    OpenMPDistScheduleClause(OpenMPDistScheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind){ };
 
-    OpenMPDistscheduleClauseKind getKind() { return dist_schedule_kind; };
+    OpenMPDistScheduleClauseKind getKind() { return dist_schedule_kind; };
 
-    void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
+    void setChunkSize(const char *_chunk_size) { chunk_size = _chunk_size; };
 
-    std::string getUserDefinedKind() { return user_defined_kind; };
+    std::string getChunkSize() { return chunk_size; };
 
-    static OpenMPClause* addDistscheduleClause(OpenMPDirective *, OpenMPDistscheduleClauseKind, char *);
+    static OpenMPClause* addDistScheduleClause(OpenMPDirective *, OpenMPDistScheduleClauseKind);
 
     std::string toString();
 
