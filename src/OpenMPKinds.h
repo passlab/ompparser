@@ -142,7 +142,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(inbranch, OMPInbranchClause)
     OPENMP_CLAUSE(notinbranch, OMPNotinbranchClause)
 
-    OPENMP_CLAUSE(dist_schedule, OMPDistscheduleClause)
+    OPENMP_CLAUSE(dist_schedule, OMPDistScheduleClause)
 
     OPENMP_CLAUSE(bind, OMPBindClause)
 
@@ -454,14 +454,14 @@ enum OpenMPScheduleClauseKind {
 };
 
 /// OpenMP attributes for 'dist_schedule' clause.
-enum OpenMPDistscheduleClauseKind {
-#define OPENMP_DISTSCHEDULE_KIND(Name) OMPC_DISTSCHEDULE_KIND_##Name,
+enum OpenMPDistScheduleClauseKind {
+#define OPENMP_DIST_SCHEDULE_KIND(Name) OMPC_DIST_SCHEDULE_KIND_##Name,
 
-    OPENMP_DISTSCHEDULE_KIND(static)
-    OPENMP_DISTSCHEDULE_KIND(user)
+    OPENMP_DIST_SCHEDULE_KIND(static)
+    OPENMP_DIST_SCHEDULE_KIND(user)
 
-    OPENMP_DISTSCHEDULE_KIND(unknown)
-#undef OPENMP_DISTSCHEDULE_KIND
+    OPENMP_DIST_SCHEDULE_KIND(unknown)
+#undef OPENMP_DIST_SCHEDULE_KIND
 };
 
 /// OpenMP attributes for 'bind' clause.

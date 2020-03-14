@@ -2177,7 +2177,7 @@ void OpenMPScheduleClause::generateDOT(std::ofstream& dot_file, int depth, int i
 
 };
 
-void OpenMPDistscheduleClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
+void OpenMPDistScheduleClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string current_line;
     std::string indent = std::string(depth, '\t');
@@ -2186,10 +2186,10 @@ void OpenMPDistscheduleClause::generateDOT(std::ofstream& dot_file, int depth, i
     current_line = indent + parent_node + "-- " + clause_kind + "\n";
     dot_file << current_line.c_str();
     indent += "\t";
-    OpenMPDistscheduleClauseKind kind = this->getKind();
+    OpenMPDistScheduleClauseKind kind = this->getKind();
     std::string parameter_string;
     switch (kind) {
-        case OMPC_DISTSCHEDULE_KIND_static:
+        case OMPC_DIST_SCHEDULE_KIND_static:
             parameter_string = "static";
             break;
         default:
@@ -2203,22 +2203,15 @@ void OpenMPDistscheduleClause::generateDOT(std::ofstream& dot_file, int depth, i
         dot_file << current_line.c_str();
     };
 
-
-    std::vector<const char*>* expr = this->getExpressions();
-    if (expr != NULL) {
-        std::vector<const char*>::iterator it;
-        int expr_index = 0;
-        std::string expr_name;
-        for (it = expr->begin(); it != expr->end(); it++) {
-            expr_name = clause_kind + "_expr" + std::to_string(expr_index);
-            expr_index += 1;
-            current_line = indent + clause_kind + " -- " + expr_name + "\n";
-            dot_file << current_line.c_str();
-            current_line = indent + "\t" + expr_name + " [label = \"" + expr_name + "\\n " + std::string(*it) + "\"]\n";
-            dot_file << current_line.c_str();
-        };
-    };
-
+    std:string chunk_size = this->getChunkSize();
+    if (chunk_size != "") {
+        parameter_string = chunk_size;
+        std::string chunk_size_name = clause_kind + "_chunk_size";
+        current_line = indent + clause_kind + " -- " + chunk_size_name + "\n";
+        dot_file << current_line.c_str();
+        current_line = indent + "\t" + chunk_size_name + " [label = \"" + chunk_size_name + "\\n " + parameter_string + "\"]\n";
+        dot_file << current_line.c_str();
+    }; 
 };
 
 void OpenMPIfClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {

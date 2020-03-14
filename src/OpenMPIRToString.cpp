@@ -1365,21 +1365,21 @@ std::string OpenMPAlignedClause::toString() {
     return result;
 };
 
-std::string OpenMPDistscheduleClause::toString() {
+std::string OpenMPDistScheduleClause::toString() {
 
     std::string result = "dist_schedule ";
     std::string clause_string = "(";
-    OpenMPDistscheduleClauseKind kind = this->getKind();
+    OpenMPDistScheduleClauseKind kind = this->getKind();
     switch (kind) {
-        case OMPC_DISTSCHEDULE_KIND_static:
+        case OMPC_DIST_SCHEDULE_KIND_static:
             clause_string += "static";
             break;
         default:
             ;
     }
-    if (this->expressionToString() != "") {
+    if (this->getChunkSize() != "") {
         clause_string += ", ";
-    clause_string += this->expressionToString();}
+    clause_string += this->getChunkSize();}
     clause_string += ") ";
     result += clause_string;
     return result;

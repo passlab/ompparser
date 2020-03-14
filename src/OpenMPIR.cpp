@@ -201,10 +201,8 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
             break;
         }
         case OMPC_dist_schedule: {
-            OpenMPDistscheduleClauseKind dist_schedule_kind = (OpenMPDistscheduleClauseKind) va_arg(args,int);
-            char * user_defined_kind = NULL;
-            if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) user_defined_kind = va_arg(args, char*);
-            new_clause = OpenMPDistscheduleClause::addDistscheduleClause(this, dist_schedule_kind, user_defined_kind);
+            OpenMPDistScheduleClauseKind dist_schedule_kind = (OpenMPDistScheduleClauseKind) va_arg(args,int);
+            new_clause = OpenMPDistScheduleClause::addDistScheduleClause(this, dist_schedule_kind);
             break;
         }
         case OMPC_schedule: {
@@ -896,57 +894,23 @@ OpenMPClause* OpenMPScheduleClause::addScheduleClause(OpenMPDirective *directive
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_schedule] = current_clauses;
     } else {
-        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-            std::string current_user_defined_kind_expression;
-            if (user_defined_kind) {
-                current_user_defined_kind_expression = std::string(user_defined_kind);
-            };
-            if (((OpenMPScheduleClause*)(*it))->getModifier1() == modifier1 && ((OpenMPScheduleClause*)(*it))->getModifier2() == modifier2 &&
-               ((OpenMPScheduleClause*)(*it))->getKind() == schedule_kind &&
-                current_user_defined_kind_expression.compare(((OpenMPScheduleClause*)(*it))->getUserDefinedKind()) == 0) {
-                new_clause = (*it);
-                return new_clause;
-            }
-        }
-        /* could fine the matching object for this clause */
-        new_clause = new OpenMPScheduleClause(modifier1,modifier2, schedule_kind);
-        if (schedule_kind == OMPC_SCHEDULE_KIND_user)
-            ((OpenMPScheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
-        current_clauses->push_back(new_clause);
+        std::cerr << "Cannot have two schedule clause for the directive " << directive->getKind() << ", ignored\n";
     }
     return new_clause;
 };
 
-OpenMPClause* OpenMPDistscheduleClause::addDistscheduleClause(OpenMPDirective *directive, OpenMPDistscheduleClauseKind dist_schedule_kind, char * user_defined_kind) {
+OpenMPClause* OpenMPDistScheduleClause::addDistScheduleClause(OpenMPDirective *directive, OpenMPDistScheduleClauseKind dist_schedule_kind) {
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_dist_schedule);
     OpenMPClause* new_clause = NULL;
 
     if (current_clauses->size() == 0) {
-        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
-        if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
-            ((OpenMPDistscheduleClause *) new_clause)->setUserDefinedKind(user_defined_kind);
-        }
+        new_clause = new OpenMPDistScheduleClause(dist_schedule_kind);
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_dist_schedule] = current_clauses;
     } else {
-        for(std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end(); ++it) {
-            std::string current_user_defined_kind_expression;
-            if (user_defined_kind) {
-                current_user_defined_kind_expression = std::string(user_defined_kind);
-            };
-            if (((OpenMPDistscheduleClause*)(*it))->getKind() == dist_schedule_kind &&
-            current_user_defined_kind_expression.compare(((OpenMPDistscheduleClause*)(*it))->getUserDefinedKind()) == 0) {
-                new_clause = (*it);
-                return new_clause;
-            };
-        }
-        new_clause = new OpenMPDistscheduleClause(dist_schedule_kind);
-        if (dist_schedule_kind == OMPC_DISTSCHEDULE_KIND_user) {
-            ((OpenMPDistscheduleClause*)new_clause)->setUserDefinedKind(user_defined_kind);
-        }
-        current_clauses->push_back(new_clause);
+        std::cerr << "Cannot have two dist_schedule clause for the directive " << directive->getKind() << ", ignored\n";
     }
     return new_clause;
 };
