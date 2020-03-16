@@ -2368,8 +2368,7 @@ parallel_master_taskloop_simd_clause_optseq : /*empty*/
 loop_clause_optseq : /*empty*/
                    | loop_clause_seq
                    ;
-scan_clause_optseq : /*empty*/
-                   | scan_clause_seq
+scan_clause_optseq : scan_clause_seq
                    ;
 sections_clause_optseq : /*empty*/
                        | sections_clause_seq
