@@ -494,11 +494,10 @@ OpenMPClause* OpenMPExtImplementationDefinedRequirementClause::addExtImplementat
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
         (*all_clauses)[OMPC_ext_implementation_defined_requirement] = current_clauses;
-        } 
-        else {            
+    } else {            
             new_clause = new OpenMPExtImplementationDefinedRequirementClause();
             current_clauses->push_back(new_clause);
-        };
+    };
     (*all_clauses)[OMPC_ext_implementation_defined_requirement] = current_clauses;
     return new_clause;
 };
