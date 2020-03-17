@@ -839,7 +839,7 @@ requires_clause : reverse_offload_clause
                 | unified_shared_memory_clause   
                 | atomic_default_mem_order_clause 
                 | dynamic_allocators_clause
-                | ext_implementation_defined_requirement       
+                | ext_implementation_defined_requirement_clause       
                 ;
 target_data_clause : if_target_data_clause
                    | device_clause
@@ -1037,10 +1037,12 @@ dynamic_allocators_clause: DYNAMIC_ALLOCATORS {
                             current_clause = current_directive->addOpenMPClause(OMPC_dynamic_allocators);
                          } 
                          ;
-ext_implementation_defined_requirement: EXT_ EXPR_STRING {
-                                        ((OpenMPRequiresDirective*)current_directive)->addUserDefinedImplementation($2);
-                                      }
-                                      ;
+ext_implementation_defined_requirement_clause: EXT_ EXPR_STRING {
+                                               current_clause = current_directive->addOpenMPClause(OMPC_ext_implementation_defined_requirement);
+                                               ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->setImplementationDefinedRequirement($2);
+                                               ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->mergeExtImplementationDefinedRequirement(current_directive, current_clause);
+                                             }
+                                             ;
 device_clause : DEVICE '(' device_parameter ')' ;
 
 device_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_unspecified); current_clause->addLangExpr($1); }

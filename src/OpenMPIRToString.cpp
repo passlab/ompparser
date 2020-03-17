@@ -87,18 +87,6 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += ((OpenMPEndDirective*)this)->getPairedDirective()->generatePragmaString("", "", "");
             break;
         }
-        case OMPD_requires: {
-            std::vector<std::string> *ext_user_defined_implementation = ((OpenMPRequiresDirective*)this)->getUserDefinedImplementation();
-
-            if(ext_user_defined_implementation->size() > 0) {
-                std::vector<std::string>::iterator list_item;
-                for (list_item = ext_user_defined_implementation->begin(); list_item != ext_user_defined_implementation->end(); list_item++) {
-                    result += "ext_" + *list_item;
-                    result += " ";
-                };
-            };
-            break;
-        }
         case OMPD_declare_target: {
             std::vector<std::string>* list = ((OpenMPDeclareTargetDirective*)this)->getExtendedList();
             if(list->size() > 0){
@@ -198,6 +186,10 @@ std::string OpenMPDirective::toString() {
         case OMPD_parallel:
             result += "parallel ";
             break;
+        case OMPD_requires: {
+            result += "requires ";
+            break;
+        }
         case OMPD_teams:
             result += "teams " ;
             break;
@@ -320,9 +312,6 @@ std::string OpenMPDirective::toString() {
             break;
         case OMPD_taskyield:
             result += "taskyield ";
-            break;
-        case OMPD_requires:
-            result += "requires ";
             break;
         case OMPD_target_enter_data:
             result += "target enter data ";
@@ -664,6 +653,16 @@ std::string OpenMPClause::toString() {
 
     return result;
 
+};
+
+std::string OpenMPExtImplementationDefinedRequirementClause::toString() {
+    std::string result = "";
+    std::string parameter_string;
+
+    std::string ext_user_defined_implementation = this->getImplementationDefinedRequirement();
+    result += "ext_" + ext_user_defined_implementation;
+    result += " ";
+    return result;
 };
 
 std::string OpenMPAtomicDefaultMemOrderClause::toString() {
