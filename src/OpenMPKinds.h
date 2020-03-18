@@ -150,7 +150,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(inbranch, OMPInbranchClause)
     OPENMP_CLAUSE(notinbranch, OMPNotinbranchClause)
 
-    OPENMP_CLAUSE(dist_schedule, OMPDistscheduleClause)
+    OPENMP_CLAUSE(dist_schedule, OMPDistScheduleClause)
 
     OPENMP_CLAUSE(bind, OMPBindClause)
 
@@ -186,6 +186,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(unified_shared_memory, OMPUnifiedShared_memoryClause)
     OPENMP_CLAUSE(atomic_default_mem_order, OMPAtomicDefaultMemOrderClause)
     OPENMP_CLAUSE(dynamic_allocators, OMPDynamicAllocatorsClause)
+    OPENMP_CLAUSE(ext_implementation_defined_requirement, OMPExtImplementationDefinedRequirementClause)
 
     OPENMP_CLAUSE(device, OMPDeviceClause)
     OPENMP_CLAUSE(map, OMPMapClause)
@@ -462,26 +463,27 @@ enum OpenMPScheduleClauseKind {
 };
 
 /// OpenMP attributes for 'dist_schedule' clause.
-enum OpenMPDistscheduleClauseKind {
-#define OPENMP_DISTSCHEDULE_KIND(Name) OMPC_DISTSCHEDULE_KIND_##Name,
+enum OpenMPDistScheduleClauseKind {
+#define OPENMP_DIST_SCHEDULE_KIND(Name) OMPC_DIST_SCHEDULE_KIND_##Name,
 
-    OPENMP_DISTSCHEDULE_KIND(static)
-    OPENMP_DISTSCHEDULE_KIND(user)
+    OPENMP_DIST_SCHEDULE_KIND(static)
+    OPENMP_DIST_SCHEDULE_KIND(user)
 
-    OPENMP_DISTSCHEDULE_KIND(unknown)
-#undef OPENMP_DISTSCHEDULE_KIND
+    OPENMP_DIST_SCHEDULE_KIND(unknown)
+#undef OPENMP_DIST_SCHEDULE_KIND
 };
 
 /// OpenMP attributes for 'bind' clause.
-enum OpenMPBindClauseKind {
-#define OPENMP_BIND_KIND(Name) OMPC_BIND_##Name,
-    OPENMP_BIND_KIND(teams)
-    OPENMP_BIND_KIND(parallel)
-    OPENMP_BIND_KIND(thread)
-    OPENMP_BIND_KIND(user)
+enum OpenMPBindClauseBinding {
+#define OPENMP_BIND_BINDING(Name) OMPC_BIND_##Name,
+    OPENMP_BIND_BINDING(teams)
+    OPENMP_BIND_BINDING(parallel)
+    OPENMP_BIND_BINDING(thread)
+    OPENMP_BIND_BINDING(user)
 
-    OPENMP_BIND_KIND(unknown)
-#undef OPENMP_BIND_KIND
+    OPENMP_BIND_BINDING(unknown)
+    OPENMP_BIND_BINDING(unspecified)
+#undef OPENMP_BIND_BINDING
 };
 
 /// omp_priv for 'initializer' clause.

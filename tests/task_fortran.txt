@@ -14,13 +14,13 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 !$omp task if(task: 5858*5) final (5) affinity(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9):b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority(5) detach(abc) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) default (none)
-PASS: !$omp task if (task: 5858*5) default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) final (5) untied mergeable in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n) priority (5) affinity (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ) : b, c) detach (abc)
+PASS: !$omp task if (task: 5858*5) final (5) affinity (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ) : b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority (5) detach (abc) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) default (none)
 
 !$omp task affinity (iterator ( int bba=4:120:2, double b=1:220:3,int c=2:57 ): b, c)
 PASS: !$omp task affinity (iterator ( int bba=4:120:2, double b=1:220:3, int c=2:57 ) : b, c)
 
 !$omp task affinity(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9):b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority(5) detach(abc) depend(iterator(int bba=4:120:2, b=1:220:3, int c=2:57:9),in:m, n) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10])
-PASS: !$omp task private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) untied mergeable in_reduction (test_identifier : x11, y, z) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n) priority (5) affinity (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ) : b, c) detach (abc)
+PASS: !$omp task affinity (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ) : b, c) in_reduction (test_identifier : x11, y, z) untied mergeable priority (5) detach (abc) depend (iterator ( int bba=4:120:2, b=1:220:3, int c=2:57:9 ), in : m, n) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10])
 
 !$omp end task
 PASS: !$omp end task 

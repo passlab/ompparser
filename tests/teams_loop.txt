@@ -17,10 +17,10 @@
 PASS: #pragma omp teams loop 
 
 #pragma omp teams loop num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
-PASS: #pragma omp teams loop default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5)
+PASS: #pragma omp teams loop num_teams (4) thread_limit (4+5) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) reduction (tasktest : x11, y, z) default (none)
  
 #pragma omp teams loop lastprivate(conditional:a,b,c) collapse(a)  lastprivate(conditional:a,b,c) order(concurrent) bind(teams)
 PASS: #pragma omp teams loop lastprivate (conditional: a, b, c) collapse (a) order (concurrent) bind (teams)
 
 #pragma omp teams loop num_teams (4) thread_limit (4+5) private (a[foo(x, goo(x, y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test : m, n[1:5]) reduction (tasktest : x11, y, z) default (none) lastprivate(conditional:a,b,c) collapse(a)  lastprivate(conditional:a,b,c) order(concurrent) bind(teams)
-PASS: #pragma omp teams loop default (none) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) reduction (tasktest : x11, y, z) allocate (user_defined_test: m, n[1:5]) num_teams (4) thread_limit (4+5) lastprivate (conditional: a, b, c) collapse (a) order (concurrent) bind (teams)
+PASS: #pragma omp teams loop num_teams (4) thread_limit (4+5) private (a[foo(x,goo(x,y)):100], b[1:30], c) firstprivate (foo(x), y) shared (a, b, c[1:10]) allocate (user_defined_test: m, n[1:5]) reduction (tasktest : x11, y, z) default (none) lastprivate (conditional: a, b, c) collapse (a) order (concurrent) bind (teams)

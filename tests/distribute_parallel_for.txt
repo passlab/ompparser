@@ -59,7 +59,7 @@ PASS: #pragma omp distribute parallel for if (a) if (parallel: b) default (first
 PASS: #pragma omp distribute parallel for proc_bind (master)
 
 #pragma omp distribute parallel for proc_bind (close) default (private)
-PASS: #pragma omp distribute parallel for default (private) proc_bind (close)
+PASS: #pragma omp distribute parallel for proc_bind (close) default (private)
 
 #pragma omp distribute parallel for proc_bind (spread)
 PASS: #pragma omp distribute parallel for proc_bind (spread)

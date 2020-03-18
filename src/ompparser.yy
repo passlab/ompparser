@@ -847,7 +847,7 @@ requires_clause : reverse_offload_clause
                 | unified_shared_memory_clause   
                 | atomic_default_mem_order_clause 
                 | dynamic_allocators_clause
-                | ext_implementation_defined_requirement       
+                | ext_implementation_defined_requirement_clause       
                 ;
 target_data_clause : if_target_data_clause
                    | device_clause
@@ -1045,10 +1045,12 @@ dynamic_allocators_clause: DYNAMIC_ALLOCATORS {
                             current_clause = current_directive->addOpenMPClause(OMPC_dynamic_allocators);
                          } 
                          ;
-ext_implementation_defined_requirement: EXT_ EXPR_STRING {
-                                        ((OpenMPRequiresDirective*)current_directive)->addUserDefinedImplementation($2);
-                                      }
-                                      ;
+ext_implementation_defined_requirement_clause: EXT_ EXPR_STRING {
+                                               current_clause = current_directive->addOpenMPClause(OMPC_ext_implementation_defined_requirement);
+                                               ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->setImplementationDefinedRequirement($2);
+                                               ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->mergeExtImplementationDefinedRequirement(current_directive, current_clause);
+                                             }
+                                             ;
 device_clause : DEVICE '(' device_parameter ')' ;
 
 device_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_unspecified); current_clause->addLangExpr($1); }
@@ -1250,7 +1252,7 @@ teams_distribute_clause : num_teams_clause
                         | shared_clause
                         | reduction_default_only_clause
                         | allocate_clause              
-                        | lastprivate_clause
+                        | lastprivate_distribute_clause
                         | collapse_clause
                         | dist_schedule_clause
                         ;
@@ -1767,7 +1769,7 @@ target_teams_distribute_clause : if_target_clause
                                | default_clause                   
                                | shared_clause
                                | reduction_default_only_clause
-                               | lastprivate_clause
+                               | lastprivate_distribute_clause
                                | collapse_clause
                                | dist_schedule_clause
                                ;
@@ -2376,8 +2378,7 @@ parallel_master_taskloop_simd_clause_optseq : /*empty*/
 loop_clause_optseq : /*empty*/
                    | loop_clause_seq
                    ;
-scan_clause_optseq : /*empty*/
-                   | scan_clause_seq
+scan_clause_optseq : scan_clause_seq
                    ;
 sections_clause_optseq : /*empty*/
                        | sections_clause_seq
@@ -2684,7 +2685,7 @@ declare_simd_clause : simdlen_clause
  
 distribute_clause : private_clause
                   | firstprivate_clause 
-                  | lastprivate_clause
+                  | lastprivate_distribute_clause
                   | collapse_clause
                   | dist_schedule_clause
                   | allocate_clause
@@ -3262,6 +3263,11 @@ lastprivate_parameter : EXPR_STRING { current_clause = current_directive->addOpe
                       | lastprivate_modifier ':'{;} var_list
                       ;
 
+lastprivate_distribute_clause : LASTPRIVATE {
+                         current_clause = current_directive->addOpenMPClause(OMPC_lastprivate);
+                        } '(' var_list ')' {
+                    }
+
 lastprivate_modifier : MODIFIER_CONDITIONAL { current_clause = current_directive->addOpenMPClause(OMPC_lastprivate,OMPC_LASTPRIVATE_MODIFIER_conditional); }
                      ;
 
@@ -3348,8 +3354,8 @@ allocator1_parameter : DEFAULT_MEM_ALLOC { current_clause = current_directive->a
 
 dist_schedule_clause : DIST_SCHEDULE '(' dist_schedule_parameter ')' {}
                      ;
-dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); }
-                        | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DISTSCHEDULE_KIND_static); } ',' var_list
+dist_schedule_parameter : STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DIST_SCHEDULE_KIND_static); }
+                        | STATIC { current_clause = current_directive->addOpenMPClause(OMPC_dist_schedule,OMPC_DIST_SCHEDULE_KIND_static); } ',' EXPR_STRING { ((OpenMPDistScheduleClause*)current_clause)->setChunkSize($4); }
                         ;
 schedule_clause : SCHEDULE { firstParameter = OMPC_SCHEDULE_MODIFIER_unspecified; secondParameter = OMPC_SCHEDULE_MODIFIER_unspecified; }'(' schedule_parameter ')' {
                 }

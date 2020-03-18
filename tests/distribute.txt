@@ -19,8 +19,8 @@ PASS: #pragma omp distribute private (a, b, c)
 #pragma omp distribute firstprivate(a,b,c)
 PASS: #pragma omp distribute firstprivate (a, b, c)
 
-#pragma omp distribute lastprivate(conditional:a,b,c)
-PASS: #pragma omp distribute lastprivate (conditional: a, b, c)
+#pragma omp distribute lastprivate(a,b,c)
+PASS: #pragma omp distribute lastprivate (a, b, c)
 
 #pragma omp distribute collapse(a)
 PASS: #pragma omp distribute collapse (a)

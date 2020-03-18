@@ -41,7 +41,7 @@ PASS: !$omp parallel workshare if (a) if (parallel: b) default (firstprivate)
 PASS: !$omp parallel workshare proc_bind (master)
 
 !$omp parallel workshare proc_bind (close) default (private)
-PASS: !$omp parallel workshare default (private) proc_bind (close)
+PASS: !$omp parallel workshare proc_bind (close) default (private)
 
 !$omp parallel workshare proc_bind (spread)
 PASS: !$omp parallel workshare proc_bind (spread)

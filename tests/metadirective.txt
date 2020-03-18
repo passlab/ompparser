@@ -12,16 +12,16 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp metadirective when(user = {condition(a>4)}:) when (user={condition(score(20) : n<20)}: ) default (parallel private(i) shared(m) shared(n))
-PASS: #pragma omp metadirective default (parallel private (i) shared (m, n)) when (user = {condition(a>4)} : ) when (user = {condition(score(20): n<20)} : )
+PASS: #pragma omp metadirective when (user = {condition(a>4)} : ) when (user = {condition(score(20): n<20)} : ) default (parallel private (i) shared (m, n))
 
 #pragma omp metadirective when(construct={parallel(score(30): private(m))}: ) when(construct={parallel}:) when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))
-PASS: #pragma omp metadirective default (parallel private (i) shared (m, n)) when (construct = {parallel score(30): private (m))} : ) when (construct = {parallel } : ) when (user = {condition(n<20)} : )
+PASS: #pragma omp metadirective when (construct = {parallel score(30): private (m))} : ) when (construct = {parallel } : ) when (user = {condition(n<20)} : ) default (parallel private (i) shared (m, n))
 
 #pragma omp metadirective when(construct={parallel(score(30): private(m))}, device = {arch(score(20): x86)}: ) when(device = {arch(arm)}, construct={parallel}:) when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))
-PASS: #pragma omp metadirective default (parallel private (i) shared (m, n)) when (construct = {parallel score(30): private (m))}, device = {arch(score(20): x86)} : ) when (construct = {parallel }, device = {arch(arm)} : ) when (user = {condition(n<20)} : )
+PASS: #pragma omp metadirective when (construct = {parallel score(30): private (m))}, device = {arch(score(20): x86)} : ) when (construct = {parallel }, device = {arch(arm)} : ) when (user = {condition(n<20)} : ) default (parallel private (i) shared (m, n))
 
 #pragma omp metadirective when(construct={parallel(score(30): private(m))}, device = {isa(score(60): avx)}: ) when(device = {isa(sse), arch(arm)}, construct={parallel}:) when (user={condition(n<20)}: ) default (parallel private(i) shared(m) shared(n))
-PASS: #pragma omp metadirective default (parallel private (i) shared (m, n)) when (construct = {parallel score(30): private (m))}, device = {isa(score(60): avx)} : ) when (construct = {parallel }, device = {arch(arm), isa(sse)} : ) when (user = {condition(n<20)} : )
+PASS: #pragma omp metadirective when (construct = {parallel score(30): private (m))}, device = {isa(score(60): avx)} : ) when (construct = {parallel }, device = {arch(arm), isa(sse)} : ) when (user = {condition(n<20)} : ) default (parallel private (i) shared (m, n))
 
 #pragma omp metadirective when(construct={parallel(score(30): private(m))}, device = {kind(any), isa(score(60): avx)}: ) when(device = {isa(sse), arch(arm)}, construct={parallel}:) when (user={condition(n<20)}, device = {kind(score(100) : nohost)}: ) default (parallel private(i) shared(m) shared(n))
-PASS: #pragma omp metadirective default (parallel private (i) shared (m, n)) when (construct = {parallel score(30): private (m))}, device = {isa(score(60): avx), kind(any)} : ) when (construct = {parallel }, device = {arch(arm), isa(sse)} : ) when (user = {condition(n<20)}, device = {kind(score(100): nohost)} : )
+PASS: #pragma omp metadirective when (construct = {parallel score(30): private (m))}, device = {isa(score(60): avx), kind(any)} : ) when (construct = {parallel }, device = {arch(arm), isa(sse)} : ) when (user = {condition(n<20)}, device = {kind(score(100): nohost)} : ) default (parallel private (i) shared (m, n))

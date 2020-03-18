@@ -44,7 +44,7 @@ PASS: !$omp parallel sections if (a) if (parallel: b) default (firstprivate)
 PASS: !$omp parallel sections proc_bind (master)
 
 !$omp parallel sections proc_bind (close) default (private)
-PASS: !$omp parallel sections default (private) proc_bind (close)
+PASS: !$omp parallel sections proc_bind (close) default (private)
 
 !$omp parallel sections proc_bind (spread)
 PASS: !$omp parallel sections proc_bind (spread)

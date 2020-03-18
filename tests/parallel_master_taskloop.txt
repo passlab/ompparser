@@ -41,7 +41,7 @@ PASS: #pragma omp parallel master taskloop if (a) if (parallel: b) if (taskloop:
 PASS: #pragma omp parallel master taskloop proc_bind (master)
 
 #pragma omp parallel master taskloop proc_bind (close) default (none)
-PASS: #pragma omp parallel master taskloop default (none) proc_bind (close)
+PASS: #pragma omp parallel master taskloop proc_bind (close) default (none)
 
 #pragma omp parallel master taskloop proc_bind (spread)
 PASS: #pragma omp parallel master taskloop proc_bind (spread)

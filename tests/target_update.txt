@@ -14,7 +14,7 @@
 //The other one is starting with "PASS: ", which is the result for validation.
 
 #pragma omp target update if(target update:3456) device(5) depend(iterator(int bba=4:120:2), in:m, n) nowait
-PASS: #pragma omp target update if (target update: 3456) nowait depend (iterator ( int bba=4:120:2 ), in : m, n) device (5)
+PASS: #pragma omp target update if (target update: 3456) device (5) depend (iterator ( int bba=4:120:2 ), in : m, n) nowait
 
 #pragma omp target update to(mapper(default):m,i,o) from(m,i,o)
 PASS: #pragma omp target update to (mapper(default) : m, i, o) from (m, i, o)

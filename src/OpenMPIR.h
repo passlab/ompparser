@@ -199,11 +199,8 @@ public:
 
 class OpenMPRequiresDirective : public OpenMPDirective {
 protected:
-    std::vector<std::string> user_defined_implementation;
 public:
     OpenMPRequiresDirective () : OpenMPDirective(OMPD_requires) {};
-    void addUserDefinedImplementation (const char* _user_defined_implementation) { user_defined_implementation.push_back(std::string(_user_defined_implementation)); };
-    std::vector<std::string>* getUserDefinedImplementation() { return &user_defined_implementation; };
 };
 
 //declare variant directive
@@ -305,6 +302,24 @@ public:
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// ext_implementation_defined_requirement clause
+class OpenMPExtImplementationDefinedRequirementClause : public OpenMPClause {
+
+protected:
+    std::string implementation_defined_requirement; 
+
+public:
+    OpenMPExtImplementationDefinedRequirementClause() : OpenMPClause(OMPC_ext_implementation_defined_requirement) { }
+
+    void setImplementationDefinedRequirement(const char* _implementation_defined_requirement) { implementation_defined_requirement = _implementation_defined_requirement; };
+    std::string getImplementationDefinedRequirement() { return implementation_defined_requirement; };
+
+    static OpenMPClause * addExtImplementationDefinedRequirementClause(OpenMPDirective *);
+    void mergeExtImplementationDefinedRequirement(OpenMPDirective*, OpenMPClause*);
+    std::string toString();
+    //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // initializer clause
@@ -433,24 +448,24 @@ public:
 
 };
 // dist_schedule Clause
-class OpenMPDistscheduleClause : public OpenMPClause {
+class OpenMPDistScheduleClause : public OpenMPClause {
 
 protected:
-    OpenMPDistscheduleClauseKind dist_schedule_kind;     // kind
-    std::string user_defined_kind;                // user defined identifier if it is used
+    OpenMPDistScheduleClauseKind dist_schedule_kind;     // kind
+    std::string chunk_size; 
 
 public:
-    OpenMPDistscheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
+    OpenMPDistScheduleClause( ) : OpenMPClause(OMPC_dist_schedule) { }
 
-    OpenMPDistscheduleClause(OpenMPDistscheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind), user_defined_kind ("") { };
+    OpenMPDistScheduleClause(OpenMPDistScheduleClauseKind _dist_schedule_kind) : OpenMPClause(OMPC_dist_schedule), dist_schedule_kind(_dist_schedule_kind){ };
 
-    OpenMPDistscheduleClauseKind getKind() { return dist_schedule_kind; };
+    OpenMPDistScheduleClauseKind getKind() { return dist_schedule_kind; };
 
-    void setUserDefinedKind(char *dist_schedule_kind) { user_defined_kind = dist_schedule_kind; };
+    void setChunkSize(const char *_chunk_size) { chunk_size = _chunk_size; };
 
-    std::string getUserDefinedKind() { return user_defined_kind; };
+    std::string getChunkSize() { return chunk_size; };
 
-    static OpenMPClause* addDistscheduleClause(OpenMPDirective *, OpenMPDistscheduleClauseKind, char *);
+    static OpenMPClause* addDistScheduleClause(OpenMPDirective *, OpenMPDistScheduleClauseKind);
 
     std::string toString();
 
@@ -574,16 +589,15 @@ public:
 class OpenMPBindClause : public OpenMPClause {
 
 protected:
-    OpenMPBindClauseKind bind_kind;
+    OpenMPBindClauseBinding bind_binding;
 
 public:
-    OpenMPBindClause(OpenMPBindClauseKind _bind_kind) :
-            OpenMPClause(OMPC_bind), bind_kind(_bind_kind) { };
+    OpenMPBindClause(OpenMPBindClauseBinding _bind_binding) :
+            OpenMPClause(OMPC_bind), bind_binding(_bind_binding) { };
 
-    OpenMPBindClauseKind getBindClauseKind() { return bind_kind; };
-    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseKind);
+    OpenMPBindClauseBinding getBindClauseBinding() { return bind_binding; };
+    static OpenMPClause * addBindClause(OpenMPDirective*, OpenMPBindClauseBinding);
     std::string toString();
-    //void addProcBindClauseKind(OpenMPProcBindClauseKind v);
 };
 
 // Default Clause
