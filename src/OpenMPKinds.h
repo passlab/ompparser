@@ -178,6 +178,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(unified_shared_memory, OMPUnifiedShared_memoryClause)
     OPENMP_CLAUSE(atomic_default_mem_order, OMPAtomicDefaultMemOrderClause)
     OPENMP_CLAUSE(dynamic_allocators, OMPDynamicAllocatorsClause)
+    OPENMP_CLAUSE(ext_implementation_defined_requirement, OMPExtImplementationDefinedRequirementClause)
 
     OPENMP_CLAUSE(device, OMPDeviceClause)
     OPENMP_CLAUSE(map, OMPMapClause)

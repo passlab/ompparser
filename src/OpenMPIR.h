@@ -191,11 +191,8 @@ public:
 
 class OpenMPRequiresDirective : public OpenMPDirective {
 protected:
-    std::vector<std::string> user_defined_implementation;
 public:
     OpenMPRequiresDirective () : OpenMPDirective(OMPD_requires) {};
-    void addUserDefinedImplementation (const char* _user_defined_implementation) { user_defined_implementation.push_back(std::string(_user_defined_implementation)); };
-    std::vector<std::string>* getUserDefinedImplementation() { return &user_defined_implementation; };
 };
 
 //declare variant directive
@@ -297,6 +294,24 @@ public:
 
     std::string toString();
     void generateDOT(std::ofstream&, int, int, std::string);
+};
+
+// ext_implementation_defined_requirement clause
+class OpenMPExtImplementationDefinedRequirementClause : public OpenMPClause {
+
+protected:
+    std::string implementation_defined_requirement; 
+
+public:
+    OpenMPExtImplementationDefinedRequirementClause() : OpenMPClause(OMPC_ext_implementation_defined_requirement) { }
+
+    void setImplementationDefinedRequirement(const char* _implementation_defined_requirement) { implementation_defined_requirement = _implementation_defined_requirement; };
+    std::string getImplementationDefinedRequirement() { return implementation_defined_requirement; };
+
+    static OpenMPClause * addExtImplementationDefinedRequirementClause(OpenMPDirective *);
+    void mergeExtImplementationDefinedRequirement(OpenMPDirective*, OpenMPClause*);
+    std::string toString();
+    //void generateDOT(std::ofstream&, int, int, std::string);
 };
 
 // initializer clause

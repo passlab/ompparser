@@ -157,6 +157,10 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
             new_clause = OpenMPOrderClause::addOrderClause(this, order_kind);
             break;
         }
+        case OMPC_ext_implementation_defined_requirement : {
+            new_clause = OpenMPExtImplementationDefinedRequirementClause::addExtImplementationDefinedRequirementClause(this);
+            break;
+        }
         case OMPC_match: {
             new_clause = OpenMPMatchClause::addMatchClause(this);
             break;
@@ -479,6 +483,40 @@ OpenMPClause* OpenMPLinearClause::addLinearClause(OpenMPDirective *directive, Op
     return new_clause;
 };
 
+OpenMPClause* OpenMPExtImplementationDefinedRequirementClause::addExtImplementationDefinedRequirementClause(OpenMPDirective *directive) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_ext_implementation_defined_requirement);
+    OpenMPClause* new_clause = NULL;
+
+    if (current_clauses->size() == 0) {
+        new_clause = new OpenMPExtImplementationDefinedRequirementClause();
+        current_clauses = new std::vector<OpenMPClause*>();
+        current_clauses->push_back(new_clause);
+        (*all_clauses)[OMPC_ext_implementation_defined_requirement] = current_clauses;
+    } else {            
+            new_clause = new OpenMPExtImplementationDefinedRequirementClause();
+            current_clauses->push_back(new_clause);
+    };
+    (*all_clauses)[OMPC_ext_implementation_defined_requirement] = current_clauses;
+    return new_clause;
+};
+
+void OpenMPExtImplementationDefinedRequirementClause::mergeExtImplementationDefinedRequirement(OpenMPDirective *directive, OpenMPClause* current_clause) {
+
+    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+    std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_ext_implementation_defined_requirement);
+    OpenMPClause* new_clause = NULL;
+
+    for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
+        if (((OpenMPExtImplementationDefinedRequirementClause*)(*it))->getImplementationDefinedRequirement() == ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->getImplementationDefinedRequirement()) {
+            directive->getClausesInOriginalOrder()->pop_back();
+            std::cerr << "You can not have 2 same ext_implementation_defined_requirement clauses, ignored\n";
+            break;
+        }
+    }
+};
+
 void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* current_clause) {
 
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
@@ -505,6 +543,7 @@ void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* c
             }
             current_clauses->pop_back();
             directive->getClausesInOriginalOrder()->pop_back();
+
             break;
         }
     }
