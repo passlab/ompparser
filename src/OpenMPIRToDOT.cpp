@@ -437,6 +437,9 @@ void OpenMPDefaultmapClause::generateDOT(std::ofstream& dot_file, int depth, int
         case OMPC_DEFAULTMAP_CATEGORY_pointer:
             parameter_string = "pointer";
             break;
+        case OMPC_DEFAULTMAP_CATEGORY_allocatable:
+            parameter_string = "allocatable";
+            break;
         default:
             ;
     };

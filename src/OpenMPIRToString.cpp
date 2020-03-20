@@ -1003,6 +1003,9 @@ std::string OpenMPDefaultmapClause::toString() {
         case OMPC_DEFAULTMAP_CATEGORY_pointer:
             clause_string += "pointer";
             break;
+        case OMPC_DEFAULTMAP_CATEGORY_allocatable:
+            clause_string += "allocatable";
+            break;
         default:
             ;
     }
