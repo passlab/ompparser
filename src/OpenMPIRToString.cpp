@@ -990,7 +990,7 @@ std::string OpenMPDefaultmapClause::toString() {
         default:
             ;
     }
-    if (clause_string.size() > 1) {
+    if (category != OMPC_DEFAULTMAP_CATEGORY_unspecified) {
         clause_string += ": ";
     };
     switch (category) {

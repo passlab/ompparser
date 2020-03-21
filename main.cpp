@@ -163,7 +163,7 @@ int main( int argc, const char* argv[] ) {
 
     // example of calling ompparser without test file or producing DOT file.
     // setLang(Lang_C);
-    const char* input = "omp requires ext_user_test reverse_offload unified_address unified_shared_memory,atomic_default_mem_order(acq_rel) dynamic_allocators";
+    const char* input = "omp target defaultmap(alloc)";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 
