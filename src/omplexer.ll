@@ -726,6 +726,7 @@ threads                   { return THREADS; }
 <DEFAULTMAP_STATE>scalar/{blank}*           { return CATEGORY_SCALAR; }
 <DEFAULTMAP_STATE>aggregate/{blank}*        { return CATEGORY_AGGREGATE; }
 <DEFAULTMAP_STATE>pointer/{blank}*          { return CATEGORY_POINTER; }
+<DEFAULTMAP_STATE>allocatable/{blank}*      { return CATEGORY_ALLOCATABLE; }
 <DEFAULTMAP_STATE>"("                       { return '('; }
 <DEFAULTMAP_STATE>")"                       { yy_pop_state(); return ')'; }
 <DEFAULTMAP_STATE>":"                       { return ':'; }

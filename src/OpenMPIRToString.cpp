@@ -990,7 +990,7 @@ std::string OpenMPDefaultmapClause::toString() {
         default:
             ;
     }
-    if (clause_string.size() > 1) {
+    if (category != OMPC_DEFAULTMAP_CATEGORY_unspecified) {
         clause_string += ": ";
     };
     switch (category) {
@@ -1002,6 +1002,9 @@ std::string OpenMPDefaultmapClause::toString() {
             break;
         case OMPC_DEFAULTMAP_CATEGORY_pointer:
             clause_string += "pointer";
+            break;
+        case OMPC_DEFAULTMAP_CATEGORY_allocatable:
+            clause_string += "allocatable";
             break;
         default:
             ;
