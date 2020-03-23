@@ -922,17 +922,15 @@ in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpen
                              | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
                              ;
 
-depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unspecified; } '(' depend_parameter ')' { depend_iterators_definition_class->clear();
-}
-                             ;
+depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unspecified; } '(' depend_parameter ':' var_list ')' { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
+                            ;
 
-depend_parameter : dependence_type ':' var_list 
-                 | depend_modifier ',' dependence_type ':' var_list { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
+depend_parameter : dependence_type
+                 | depend_modifier ',' dependence_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); depend_iterators_definition_class->clear(); }
                  ;
-dependence_type : depend_enum_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); }
+dependence_type : depend_enum_type 
                 ;
-depend_modifier : MODIFIER_ITERATOR { depend_iterators_definition_class = new std::vector<std::vector<const char *> *>(); firstParameter = OMPC_DEPEND_MODIFIER_iterator;
-                              } '('depend_iterators_definition ')'
+depend_modifier : MODIFIER_ITERATOR { depend_iterators_definition_class = new std::vector<std::vector<const char *> *>(); firstParameter = OMPC_DEPEND_MODIFIER_iterator; } '('depend_iterators_definition ')'
                 ;
 depend_iterators_definition : depend_iterator_specifier
                             | depend_iterators_definition ',' depend_iterator_specifier
@@ -945,7 +943,7 @@ depend_range_specification : EXPR_STRING { depend_iterator_definition->push_back
 depend_range_step : /*empty*/ { depend_iterator_definition->push_back(""); depend_iterators_definition_class->push_back(depend_iterator_definition); }
                   | ':' EXPR_STRING { depend_iterator_definition->push_back($2);depend_iterators_definition_class->push_back(depend_iterator_definition); }
                   ;
-depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in); }
+depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in); ((OpenMPDependClause*)current_clause)->toString();}
                  | OUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_out); }
                  | INOUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_inout); }
                  | MUTEXINOUTSET { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_mutexinoutset); }

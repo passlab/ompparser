@@ -22,3 +22,9 @@ PASS: #pragma omp target depend (iterator ( int bba=4:120:2, char huj=2:677 ), i
 
 #pragma omp target uses_allocators(omp_default_mem_alloc(1234567),omp_const_mem_alloc(234))
 PASS: #pragma omp target uses_allocators (omp_default_mem_alloc(1234567),omp_const_mem_alloc(234) )
+
+#pragma omp target defaultmap(alloc)
+PASS: #pragma omp target defaultmap (alloc)
+
+#pragma omp target defaultmap(to)
+PASS: #pragma omp target defaultmap (to)

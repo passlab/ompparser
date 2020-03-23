@@ -748,15 +748,15 @@ std::string OpenMPInReductionClause::toString() {
 };
 
 std::string OpenMPDependClause::toString() {
-    std::vector<vector<const char*>* >* depend_iterators_definition_class = this->getDependIteratorsDefinitionClass();
+  OpenMPDependClauseModifier modifier = this->getModifier();
+  std::vector<vector<const char*>* >* depend_iterators_definition_class;
+  if(modifier == OMPC_DEPEND_MODIFIER_iterator){
+    depend_iterators_definition_class = this->getDependIteratorsDefinitionClass();}
     std::string result = "depend ";
-
     std::string clause_string = "(";
 
-    OpenMPDependClauseModifier modifier = this->getModifier();
-
     OpenMPDependClauseType type = this->getType();
-    if(modifier != OMPC_DEPEND_MODIFIER_unknown) {
+    if(modifier == OMPC_DEPEND_MODIFIER_iterator) {
         switch (modifier) {
             case OMPC_DEPEND_MODIFIER_iterator: {
                 clause_string += "iterator";
@@ -817,6 +817,7 @@ std::string OpenMPDependClause::toString() {
 
     if (clause_string.size() > 1&&type!=OMPC_DEPENDENCE_TYPE_source) {
         clause_string += " : ";
+
     };
     if(type==OMPC_DEPENDENCE_TYPE_sink){clause_string += this->getDependenceVector();}
     clause_string += this->expressionToString();
