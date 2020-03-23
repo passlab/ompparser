@@ -723,7 +723,8 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                 }
             }
                   
-        } else if (((OpenMPDependClause*)(*it))->getModifier() == OMPC_DEPEND_MODIFIER_unspecified && ((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
+        }
+        else if (((OpenMPDependClause*)(*it))->getModifier() == OMPC_DEPEND_MODIFIER_unspecified && ((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
             std::vector<const char *>* expressions_previous = ((OpenMPDependClause*)(*it))->getExpressions();
             std::vector<const char *>* expressions_current = current_clause->getExpressions();
             for (std::vector<const char *>::iterator it_expr_current = expressions_current->begin(); it_expr_current != expressions_current->end(); it_expr_current++) {
