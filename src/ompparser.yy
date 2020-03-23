@@ -943,7 +943,7 @@ depend_range_specification : EXPR_STRING { depend_iterator_definition->push_back
 depend_range_step : /*empty*/ { depend_iterator_definition->push_back(""); depend_iterators_definition_class->push_back(depend_iterator_definition); }
                   | ':' EXPR_STRING { depend_iterator_definition->push_back($2);depend_iterators_definition_class->push_back(depend_iterator_definition); }
                   ;
-depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in); ((OpenMPDependClause*)current_clause)->toString();}
+depend_enum_type : IN { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_in); }
                  | OUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_out); }
                  | INOUT { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_inout); }
                  | MUTEXINOUTSET { current_clause = current_directive->addOpenMPClause(OMPC_depend, firstParameter, OMPC_DEPENDENCE_TYPE_mutexinoutset); }
