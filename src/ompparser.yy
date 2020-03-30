@@ -2403,9 +2403,13 @@ allocate_clause_optseq : /*empty*/
 declare_reduction_clause_optseq :  /*empty*/
                                 | declare_reduction_clause_seq
                                 ;
-declare_mapper_clause_optseq :  /*empty*/
+declare_mapper_clause_optseq : 
                              | declare_mapper_clause_seq
-                             ; 
+                             ;
+declare_mapper_clause_seq : declare_mapper_clause
+                          | declare_mapper_clause_seq declare_mapper_clause
+                          | declare_mapper_clause_seq ',' declare_mapper_clause
+                          ; 
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
@@ -2549,7 +2553,7 @@ allocate_clause_seq :  allocator_clause
                     ;
 declare_reduction_clause_seq : initializer_clause
                              ;
-declare_mapper_clause_seq : map_clause
+declare_mapper_clause : map_clause
                           ;
 parallel_clause : if_parallel_clause
                 | num_threads_clause
