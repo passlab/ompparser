@@ -63,13 +63,29 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             break;
         }
         case OMPD_declare_mapper:{
-            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
-            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
+            OpenMPDeclareMapperDirectiveIdentifier identifier = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
             result += "( ";
-            if(id != ""){
-              result += id;
-              result += ":";
+            if(identifier != OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified)
+            {
+                switch (identifier) {
+                    case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
+                    {
+                        result += "default ";
+                        break;
+                    }
+                    case OMPD_DECLARE_MAPPER_IDENTIFIER_user: {
+                        std::string id = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
+                        cout<<"id:"<<id<<endl;
+                        result += id;
+                        break;
+                    }
+                    default:
+                        ;
+                };
+                result += ":";
             }
+
+            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
             result += type_var;
             result += " )";
             break;

@@ -2266,7 +2266,7 @@ typername_list : typername_variable
 combiner : EXPR_STRING { ((OpenMPDeclareReductionDirective*)current_directive)->setCombiner($1); }
          ;
 
-declare_mapper_directive : DECLARE MAPPER { current_directive = new OpenMPDeclareMapperDirective(); } '(' mapper_list ')' declare_mapper_clause_optseq
+declare_mapper_directive : DECLARE MAPPER { current_directive = new OpenMPDeclareMapperDirective(OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified); } '(' mapper_list ')' declare_mapper_clause_optseq
                          ;
 
 mapper_list : mapper_identifier_optseq 
@@ -2276,8 +2276,8 @@ mapper_identifier_optseq : type_var
                          | mapper_identifier ':' type_var
                          ;
  
-mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier("default"); }
-                  | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier($1); }
+mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_default);}
+                  | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
 
 type_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setTypeVar($1); }
