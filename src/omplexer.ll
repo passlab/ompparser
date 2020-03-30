@@ -61,6 +61,7 @@
 %x COPYIN_STATE
 %x COPYPRIVATE_STATE
 %x ORDER_STATE
+%x ID_EXPR_STATE
 	
 
 %{
@@ -487,11 +488,11 @@ threads                   { return THREADS; }
 <INITIALIZER_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT; }
-<MAPPER_STATE>":"                           { yy_push_state(TYPE_STR_STATE); return ':'; }
+<MAPPER_STATE>":"                           { yy_push_state(ID_EXPR_STATE); return ':'; }
 <MAPPER_STATE>{blank}*                      { ; }
 <MAPPER_STATE>"("                           { return '('; }
 <MAPPER_STATE>")"                           { yy_pop_state(); return ')'; }
-<MAPPER_STATE>.                             { yy_push_state(TYPE_STR_STATE); current_string = yytext[0]; }
+<MAPPER_STATE>.                             { yy_push_state(ID_EXPR_STATE); current_string = yytext[0]; }
 
 <TYPE_STR_STATE>.                           { current_char = yytext[0];
                                             switch (current_char) {
@@ -956,6 +957,81 @@ threads                   { return THREADS; }
                                                         bracket_count = 0;
                                                         return EXPR_STRING;
                                                     };
+                                                    break;
+                                                }
+                                                default: {
+                                                    if (current_char != ' ' || parenthesis_local_count != 0) {
+                                                        current_string.append(1, current_char);
+                                                    }
+                                                }
+                                            }
+                                        }
+<ID_EXPR_STATE>.                           { current_char = yytext[0];
+                                            switch (current_char) {
+                                                case '(': {
+                                                    parenthesis_local_count++;
+                                                    parenthesis_global_count++;
+                                                    current_string.append(1, current_char);
+                                                    break;
+                                                }
+                                                case ')': {
+                                                    parenthesis_local_count--;
+                                                    parenthesis_global_count--;
+                                                    if (parenthesis_global_count == 0) {
+                                                        yy_pop_state();
+                                                        if (current_string.size() != 0) {
+                                                            openmp_lval.stype = strdup(current_string.c_str());
+                                                            current_string.clear();
+                                                            unput(')');
+                                                            parenthesis_local_count = 0;
+                                                            parenthesis_global_count = 1;
+                                                            bracket_count = 0;
+                                                            return EXPR_STRING;
+                                                        }
+                                                        else {
+                                                            break;
+                                                        };
+                                                    }
+                                                    else {
+                                                        current_string.append(1, current_char);
+                                                    };
+                                                    break;
+                                                }
+                                                case ':': {
+                                                    if (current_string.size() == 0) {
+                                                        parenthesis_local_count = 0;
+                                                        parenthesis_global_count = 1;
+                                                        bracket_count = 0;
+                                                        return ':';
+                                                    }
+                                                    else if (bracket_count == 0) {
+                                                        yy_pop_state();
+                                                        openmp_lval.stype = strdup(current_string.c_str());
+                                                        current_string.clear();
+                                                        unput(':');
+                                                        parenthesis_local_count = 0;
+                                                        parenthesis_global_count = 1;
+                                                        bracket_count = 0;
+                                                        return EXPR_STRING;
+                                                    }
+                                                    else {
+                                                        current_string.append(1, current_char);
+                                                    }
+                                                    break;
+                                                }
+                                                case ' ': {
+                                                    if (parenthesis_global_count == 0) {
+                                                        yy_pop_state();
+                                                        openmp_lval.stype = strdup(current_string.c_str());
+                                                        current_string.clear();
+                                                        parenthesis_local_count = 0;
+                                                        parenthesis_global_count = 1;
+                                                        bracket_count = 0;
+                                                        return EXPR_STRING;
+                                                    }
+                                                    else {
+                                                        current_string.append(1, current_char);
+                                                    }
                                                     break;
                                                 }
                                                 default: {
