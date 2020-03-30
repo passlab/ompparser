@@ -255,14 +255,18 @@ public:
 //declare mapper directive
 class OpenMPDeclareMapperDirective : public OpenMPDirective {
 protected:
-    std::string identifier;
+    OpenMPDeclareMapperDirectiveIdentifier identifier = OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified;  // modifier
+    std::string user_defined_identifier;
     std::string type_var;
 
 public:
-    OpenMPDeclareMapperDirective () : OpenMPDirective(OMPD_declare_mapper) {};
-    void setIdentifier (std::string _identifier) { identifier = _identifier;}
-    std::string getIdentifier() { return identifier;}
-    void setTypeVar (std::string _type_var) { type_var = _type_var;}
+    OpenMPDeclareMapperDirective(OpenMPDeclareMapperDirectiveIdentifier _identifier) :
+            OpenMPDirective(OMPD_declare_mapper){ identifier = _identifier;};
+    void setIdentifier (OpenMPDeclareMapperDirectiveIdentifier _identifier) { identifier = _identifier; };
+    OpenMPDeclareMapperDirectiveIdentifier getIdentifier() { return identifier; };
+    void setUserDefinedIdentifier (std::string _user_defined_identifier) { user_defined_identifier = _user_defined_identifier;}
+    std::string getUserDefinedIdentifier() { return user_defined_identifier;}
+    void setTypeVar (const char * _type_var) { type_var = _type_var;}
     std::string getTypeVar() { return type_var;}
 };
 
