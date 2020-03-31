@@ -158,37 +158,6 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
         }
         result = result.substr(0, result.size()-1);
     }
-
-    if(this->getKind() == OMPD_atomic){
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses_atomic_clauses = ((OpenMPAtomicDirective*)this)->getAllAtomicClauses();
-        if (clauses_atomic_clauses->size() != 0) {
-            result += " ";
-            std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-            for (it = clauses_atomic_clauses->begin(); it != clauses_atomic_clauses->end(); it++) {
-                std::vector<OpenMPClause*>* current_clauses = it->second;
-                std::vector<OpenMPClause*>::iterator clauseIter;
-                for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                    result += (*clauseIter)->toString();
-                }
-            }
-            result = result.substr(0, result.size()-1);
-        }
-
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses_atomic_after = ((OpenMPAtomicDirective*)this)->getAllClausesAtomicAfter();
-    
-        if (clauses_atomic_after->size() != 0) {
-            result += " ";
-            std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-            for (it = clauses_atomic_after->begin(); it != clauses_atomic_after->end(); it++) {
-                std::vector<OpenMPClause*>* current_clauses = it->second;
-                std::vector<OpenMPClause*>::iterator clauseIter;
-                for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                    result += (*clauseIter)->toString();
-                }
-            }
-            result = result.substr(0, result.size()-1);
-        }
-    }
     result += ending_symbol;
 
     return result;

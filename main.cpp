@@ -163,7 +163,7 @@ int main( int argc, const char* argv[] ) {
 
     // example of calling ompparser without test file or producing DOT file.
     // setLang(Lang_C);
-    const char* input = "omp declare mapper(default:double a)";
+    const char* input = "omp atomic hint(abc),seq_cst,read";
         OpenMPDirective* openMPAST = parseOpenMP(input, NULL);
         output(openMPAST);
 
