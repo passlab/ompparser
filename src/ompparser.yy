@@ -2385,14 +2385,12 @@ single_paired_clause_optseq : /*empty*/
 workshare_paired_clause_optseq : /*empty*/
                                | nowait_clause
                                ;
-cancel_clause_optseq : /*empty*/
-                     | cancel_clause_seq
+cancel_clause_optseq : cancel_clause_seq
                      ;
 //cancel_clause_fortran_optseq : /*empty*/
 //                             | cancel_clause_fortran_seq
 //                             ;
-cancellation_point_clause_optseq : /*empty*/
-                                 | cancellation_point_clause_seq
+cancellation_point_clause_optseq : cancellation_point_clause_seq
                                  ;
 //cancellation_point_clause_fortran_optseq : /*empty*/
 //                                         | cancellation_point_clause_fortran_seq
