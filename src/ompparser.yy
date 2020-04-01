@@ -636,18 +636,29 @@ atomic_directive : ATOMIC {
                  ;
 atomic_clause_optseq : memory_order_clause_seq
                      | memory_order_clause_seq atomic_clause_seq
-                     | memory_order_clause_seq ',' atomic_clause_seq
+                     | hint_clause ',' memory_order_clause ',' atomic_clause_seq
+                     | memory_order_clause ',' hint_clause ',' atomic_clause_seq
+                     | memory_order_clause ','atomic_clause_seq
+                     | hint_clause ',' memory_order_clause atomic_clause_seq
+                     | memory_order_clause ',' hint_clause atomic_clause_seq
+                     | hint_clause ','atomic_clause_seq
                      ;
 
-atomic_clause_seq : atomic_clause memory_order_clause_seq
-                  | atomic_clause ',' memory_order_clause_seq
+atomic_clause_seq : atomic_clause memory_order_clause_seq_after
+                  | atomic_clause ',' memory_order_clause_seq_after
                   ;
 
 memory_order_clause_seq : 
                         | memory_order_clause hint_clause
                         | hint_clause memory_order_clause
-                        | hint_clause ',' memory_order_clause
+                        | memory_order_clause
+                        | hint_clause
+                        ;
+memory_order_clause_seq_after : 
+                        | memory_order_clause hint_clause
+                        | hint_clause memory_order_clause
                         | memory_order_clause ',' hint_clause
+                        | hint_clause ',' memory_order_clause
                         | memory_order_clause
                         | hint_clause
                         ;
