@@ -655,13 +655,13 @@ memory_order_clause_seq :
                         | hint_clause
                         ;
 memory_order_clause_seq_after : 
-                        | memory_order_clause hint_clause
-                        | hint_clause memory_order_clause
-                        | memory_order_clause ',' hint_clause
-                        | hint_clause ',' memory_order_clause
-                        | memory_order_clause
-                        | hint_clause
-                        ;
+                              | memory_order_clause hint_clause
+                              | hint_clause memory_order_clause
+                              | memory_order_clause ',' hint_clause
+                              | hint_clause ',' memory_order_clause
+                              | memory_order_clause
+                              | hint_clause
+                              ;
 atomic_clause : read_clause
               | write_clause
               | update_clause
