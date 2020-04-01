@@ -16,22 +16,22 @@ PASS: #pragma omp atomic hint (abc)
 PASS: #pragma omp atomic read
 
 #pragma omp atomic seq_cst hint(abc) read
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic seq_cst hint (abc) read
 
 #pragma omp atomic hint(abc) seq_cst read
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic hint (abc) seq_cst read
 
 #pragma omp atomic hint(abc) read seq_cst
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic hint (abc) read seq_cst
 
 #pragma omp atomic seq_cst read hint(abc)
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic seq_cst read hint (abc)
 
 #pragma omp atomic read hint(abc) seq_cst
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic read hint (abc) seq_cst
 
 #pragma omp atomic read seq_cst hint(abc)
-PASS: #pragma omp atomic hint (abc) read
+PASS: #pragma omp atomic read seq_cst hint (abc)
 
 #pragma omp atomic write hint(abc)
 PASS: #pragma omp atomic write hint (abc)
@@ -39,6 +39,59 @@ PASS: #pragma omp atomic write hint (abc)
 #pragma omp atomic write seq_cst
 PASS: #pragma omp atomic write seq_cst
 
+#pragma omp atomic seq_cst, hint(abc), read
+PASS: #pragma omp atomic seq_cst hint (abc) read
+
+#pragma omp atomic seq_cst, hint(abc) read
+PASS:#pragma omp atomic seq_cst hint (abc) read
+
+#pragma omp atomic seq_cst hint(abc) read
+PASS: #pragma omp atomic seq_cst hint (abc) read
+
+#pragma omp atomic seq_cst, hint(abc), read,
+PASS: #pragma omp atomic seq_cst hint (abc) read
+
+#pragma omp atomic hint(abc) seq_cst read
+PASS: #pragma omp atomic hint (abc) seq_cst read
+
+#pragma omp atomic hint(abc) read seq_cst
+PASS: #pragma omp atomic hint (abc) read seq_cst
+
+#pragma omp atomic seq_cst read hint(abc)
+PASS: #pragma omp atomic seq_cst read hint (abc)
+
+#pragma omp atomic read hint(abc) seq_cst
+PASS: #pragma omp atomic read hint (abc) seq_cst
+
+#pragma omp atomic read seq_cst hint(abc)
+PASS: #pragma omp atomic read seq_cst hint (abc)
+
+#pragma omp atomic read,seq_cst,hint(abc)
+PASS: #pragma omp atomic read seq_cst hint (abc)
+
+#pragma omp atomic read ,seq_cst hint(abc)
+PASS: #pragma omp atomic read seq_cst hint (abc)
+
+#pragma omp atomic read seq_cst, hint(abc)
+PASS: #pragma omp atomic read seq_cst hint (abc)
+
+#pragma omp atomic hint(abc) read seq_cst
+PASS: #pragma omp atomic hint (abc) read seq_cst
+
+#pragma omp atomic hint(abc), read ,seq_cst
+PASS: #pragma omp atomic hint (abc) read seq_cst
+
+#pragma omp atomic hint(abc) ,read seq_cst
+PASS: #pragma omp atomic hint (abc) read seq_cst
+
+#pragma omp atomic hint(abc) read ,seq_cst
+PASS: #pragma omp atomic hint (abc) read seq_cst
+
+#pragma omp atomic write hint(abc)
+PASS: #pragma omp atomic write hint (abc)
+
+#pragma omp atomic write seq_cst
+PASS: #pragma omp atomic write seq_cst
 
 #pragma omp atomic release
 PASS: #pragma omp atomic release
