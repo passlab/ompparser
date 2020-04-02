@@ -395,9 +395,8 @@ enum OpenMPReductionClauseIdentifier {
 /// modifiers for 'lastprivate' clause.
 enum OpenMPLastprivateClauseModifier {
 #define OPENMP_LASTPRIVATE_MODIFIER(Name) OMPC_LASTPRIVATE_MODIFIER_##Name,
-    OPENMP_LASTPRIVATE_MODIFIER(conditional)
-
     OPENMP_LASTPRIVATE_MODIFIER(unspecified)
+    OPENMP_LASTPRIVATE_MODIFIER(conditional)
 #undef OPENMP_LASTPRIVATE_MODIFIER
 };
 
