@@ -1,4 +1,4 @@
-name: LLVM C/C++ CI
+name: LLVM CI
 
 on:
   push:
