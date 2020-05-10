@@ -39,7 +39,7 @@ std::vector<std::string>* process(std::ifstream& input_file) {
     char current_char = input_file.peek();
     std::string current_line;
     std::regex c_regex ("^([[:blank:]]*#pragma)([[:blank:]]+)(omp)[[:blank:]]+(.*)");
-    std::regex comment_regex ("[/][*].*[*][/](?!.*[*][/].*)");
+    std::regex comment_regex ("[/][*]([^*]|[*][^/])*[*][/]");
     std::regex continue_regex ("([\\\\]+[[:blank:]]*$)");
 
     while (!input_file.eof()) {
