@@ -42,6 +42,9 @@ add_executable(main ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUT
 # The temporary test file
 add_executable(tester ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} tester.cpp)
 
+# Pick up all the OpenMP pragmas
+add_executable(prep_c preprocess_c.cpp)
+
 # The ompparser library for install and distribution
 add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES})
 
