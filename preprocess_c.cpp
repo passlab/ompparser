@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <string.h>
 #include <iostream>
 #include <regex>
 #include <fstream>
 
 void output(std::vector<std::string>);
 int openFile(std::ifstream&, const char*);
+std::vector<std::string>* process(std::ifstream&);
 
 void output(std::vector<std::string> *omp_pragmas) {
 
@@ -29,27 +28,8 @@ int openFile(std::ifstream& file, const char* filename) {
     return 0;
 }
 
+std::vector<std::string>* process(std::ifstream& input_file) {
 
-
-int main( int argc, const char* argv[] ) {
-    const char* filename = NULL;
-    int result;
-    if (argc > 1) {
-        filename = argv[1];
-    };
-    std::ifstream input_file;
-
-    if (filename != NULL) {
-        result = openFile(input_file, filename);
-    }
-    else {
-        std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
-        result = openFile(input_file, "../tests/parallel.txt");
-    };
-    if (result) {
-        std::cout << "No testing file is available.\n";
-        return -1;
-    };
     std::string input_pragma;
     int total_amount = 0;
     int line_no = 0;
@@ -95,10 +75,33 @@ int main( int argc, const char* argv[] ) {
         current_char = input_file.peek();
     };
 
-    input_pragma.clear();
+    return omp_pragmas;
+}
+
+int main( int argc, const char* argv[] ) {
+    const char* filename = NULL;
+    int result;
+    if (argc > 1) {
+        filename = argv[1];
+    };
+    std::ifstream input_file;
+
+    if (filename != NULL) {
+        result = openFile(input_file, filename);
+    }
+    else {
+        std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
+        result = openFile(input_file, "../tests/parallel.txt");
+    };
+    if (result) {
+        std::cout << "No testing file is available.\n";
+        return -1;
+    };
+
+    std::vector<std::string> *omp_pragmas = process(input_file);
 
     std::cout << "=================== SUMMARY ===================\n";
-    std::cout << "TOTAL OPENMP PRAGMAS: " << total_amount << "\n";
+    std::cout << "TOTAL OPENMP PRAGMAS: " << omp_pragmas->size() << "\n";
 
     output(omp_pragmas);
 
