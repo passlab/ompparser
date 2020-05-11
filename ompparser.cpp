@@ -1,9 +1,10 @@
+#include <fstream>
 #include <iostream>
 #include <regex>
-#include <fstream>
 #include <OpenMPIR.h>
 
-void output(std::vector<std::string>);
+void output(std::vector<OpenMPDirective*>*);
+void savePragmaList(std::vector<OpenMPDirective*>*, const char*);
 int openFile(std::ifstream&, const char*);
 extern std::vector<std::string>* preProcessC(std::ifstream&);
 extern OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
@@ -21,6 +22,26 @@ void output(std::vector<OpenMPDirective*> *omp_ast_list) {
             };
         };
     };
+}
+
+void savePragmaList(std::vector<OpenMPDirective*> *omp_ast_list, const char* filename) {
+
+    std::string output_filename = std::string(filename) + ".pragmas";
+    std::ofstream output_file(output_filename.c_str(), std::ofstream::trunc);
+    //std::ofstream output_file("ompp.pragmas", std::ofstream::trunc);
+
+    if (omp_ast_list != NULL) {
+        for (int i = 0; i < omp_ast_list->size(); i++) {
+            if (omp_ast_list->at(i) != NULL) {
+                output_file << omp_ast_list->at(i)->generatePragmaString() << std::endl;
+            }
+            else {
+                output_file << "NULL" << std::endl;
+            };
+        };
+    };
+
+    output_file.close();
 }
 
 int openFile(std::ifstream& file, const char* filename) {
@@ -78,6 +99,8 @@ int main( int argc, const char* argv[] ) {
     std::cout << "TOTAL OPENMP PRAGMAS: " << omp_pragmas->size() << "\n";
 
     output(omp_ast_list);
+
+    savePragmaList(omp_ast_list, filename);
 
     return 0;
 }
