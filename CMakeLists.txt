@@ -29,6 +29,10 @@ set(OMPIR_SOURCE_FILES
     src/OpenMPIRToString.cpp
     src/OpenMPIR.cpp)
 
+# tools based on omparser
+set(OMPP_TOOLS
+    preprocess_c.cpp)
+
 BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/ompparser.yy.cpp)
 FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/omplexer.ll.cpp)
 ADD_FLEX_BISON_DEPENDENCY(OMPFLEXScanner OMPBISONParser)
@@ -42,13 +46,17 @@ add_executable(main ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUT
 # The temporary test file
 add_executable(tester ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} tester.cpp)
 
-# Pick up all the OpenMP pragmas
-add_executable(prep_c preprocess_c.cpp)
+# The standalone ompparser executable
+add_executable(ompp ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} ${OMPP_TOOLS} ompparser.cpp)
 
 # The ompparser library for install and distribution
 add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES})
 
 set(ompparser_targets ompparser)
+set(executable_targets
+    main
+    ompp
+    tester)
 
 # Install headers and libraries
 install(FILES
@@ -58,4 +66,7 @@ install(FILES
         DESTINATION include)
 install(TARGETS ${ompparser_targets}
         LIBRARY DESTINATION lib
+        )
+install(TARGETS ${executable_targets}
+        RUNTIME DESTINATION bin
         )

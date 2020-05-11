@@ -2,33 +2,9 @@
 #include <regex>
 #include <fstream>
 
-void output(std::vector<std::string>);
-int openFile(std::ifstream&, const char*);
-std::vector<std::string>* process(std::ifstream&);
+std::vector<std::string>* preProcessC(std::ifstream&);
 
-void output(std::vector<std::string> *omp_pragmas) {
-
-    if (omp_pragmas != NULL) {
-        for (int i = 0; i < omp_pragmas->size(); i++) {
-            std::cout << omp_pragmas->at(i) << std::endl;
-        };
-    };
-}
-
-int openFile(std::ifstream& file, const char* filename) {
-    file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        file.open(filename);
-    }
-    catch (std::ifstream::failure e) {
-        std::cerr << "Exception caused by opening the given file\n";
-        return -1;
-    }
-
-    return 0;
-}
-
-std::vector<std::string>* process(std::ifstream& input_file) {
+std::vector<std::string>* preProcessC(std::ifstream& input_file) {
 
     std::string input_pragma;
     int total_amount = 0;
@@ -76,35 +52,5 @@ std::vector<std::string>* process(std::ifstream& input_file) {
     };
 
     return omp_pragmas;
-}
-
-int main( int argc, const char* argv[] ) {
-    const char* filename = NULL;
-    int result;
-    if (argc > 1) {
-        filename = argv[1];
-    };
-    std::ifstream input_file;
-
-    if (filename != NULL) {
-        result = openFile(input_file, filename);
-    }
-    else {
-        std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
-        result = openFile(input_file, "../tests/parallel.txt");
-    };
-    if (result) {
-        std::cout << "No testing file is available.\n";
-        return -1;
-    };
-
-    std::vector<std::string> *omp_pragmas = process(input_file);
-
-    std::cout << "=================== SUMMARY ===================\n";
-    std::cout << "TOTAL OPENMP PRAGMAS: " << omp_pragmas->size() << "\n";
-
-    output(omp_pragmas);
-
-    return 0;
 }
 
