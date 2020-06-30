@@ -1,3 +1,11 @@
+//******************************************************************************************************************//
+// Copyright (c) 2018-2019, High Performance Computing Architecture and System
+// research laboratory at University of North Carolina at Charlotte (HPCAS@UNCC)
+// and Lawrence Livermore National Security, LLC.
+//
+// SPDX-License-Identifier: (BSD-3-Clause)
+//*****************************************************************************************************************//
+
 //FOR testing purpose, there are several extra empty lines.
 //The final version should only contain necessary information.
 //This is not a C/C++ code, so there's no required writing style.

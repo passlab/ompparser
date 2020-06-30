@@ -1,9 +1,8 @@
 # ompparser: A Standalone and Unified OpenMP Parser
 
-ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. It can be used as an independent tool as well as an integral component of an OpenMP compiler. It has syntax and semantics checking functionalitity for OpenMP constructs for validating and verifying usage of existing constructs. The formal grammar included in ompparser, developed with Flex and Bison tools, can help interpretation ofthe OpenMP standard. The implementation supports the full and latest OpenMP 5.0 and is is released as open-source with BSD-license. 
+ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. It can be used as an independent tool as well as an integral component of an OpenMP compiler. It has syntax and semantics checking functionalitity for OpenMP constructs for validating and verifying usage of existing constructs. The formal grammar included in ompparser, developed with Flex and Bison tools, can help interpretation of the OpenMP standard. The implementation supports the full and latest OpenMP 5.0 and is released as open-source with BSD-license. 
 
-
-## Build and usage
+## Build and Usage
 1. clone the repo, create build folder and use cmake to create Makefile
 
        git clone https://github.com/passlab/ompparser.git
@@ -18,25 +17,22 @@ ompparser is a standalone and unified OpenMP parser for both C/C++ and Fortran. 
 ## omparser API
 
 ```
+enum OpenMPBaseLang {
+    Lang_C,
+    Lang_Cplusplus,
+    Lang_Fortran,
+    Lang_unknown
+};
 
-public class OMPAttribute {
- OMPAttribute [] children; /* this could be other C/C++ vector */
- OMPAttribute parent;
- const char * lang_str;
-   
-
+class OpenMPClause : public SourceLocation {
+ ...
+}
+ 
+class OpenMPDirective : public SourceLocation  {
+ ...
 }
 
-public class OMPDirective extends OMPAttribute {
-
-
-}
-
-public class OMPClause extends OMPAttribute {
-
-}
-
-OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
+extern  OpenMPDirective * parseOpenMP(const char *, void * exprParse(const char * expr));
 
 ```
 
@@ -53,12 +49,27 @@ OpenMPDirective* parseOpenMP(const char*, void *_exprParse(const char*));
 1. Conversion between perfectly-nested OpenMP constructs and combined constructs (ongoing work)
 1. Being integrated with ROSE compiler (ongoing work)
 
-## Acknowledge and Support
-The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please refer to following paper:
+## Contribution
+Submit contribution as github pull request to this repository. We require all new contributions must be made with the similar license. 
 
-[Anjia Wang, Yaying Shi, Xinyao Yi, Yonghong Yan, Chunhua Liao and Bronis R. de Supinski, ompparser: A Standalone and Unified OpenMP Parser, the 15th International Workshop on OpenMP (IWOMP), 11th - 13th September, in Auckland, New Zealand](https://link.springer.com/chapter/10.1007%2F978-3-030-28596-8_10)
+## Getting Involved and Technical Support
+Submit feature request, bugs and questions from the repository's "[Issues](https://github.com/passlab/ompparser/issues)" tab. 
+
+## Acknowledgement
+The work has been performed with support from Department of Energy Lawrence Livermore National Laboratory and the National Science Foundation. To cite, please use following paper:
+
+[Anjia Wang, Yaying Shi, Xinyao Yi, Yonghong Yan, Chunhua Liao and Bronis R. de Supinski, ompparser: A Standalone and Unified OpenMP Parser, the 15th International Workshop on OpenMP (IWOMP), 11th - 13th September, in Auckland, New Zealand](https://link.springer.com/chapter/10.1007%2F978-3-030-28596-8_10). [The presentation of the paper](http://parallel.auckland.ac.nz/iwomp2019/slides_ompparser.pdf), which is from IWOMP'19 website. 
+
+## Authors
+
+Anjia Wang, Yaying Shi, Xinyao Yi, Yonghong Yan, Chunhua Liao and Bronis R. de Supinski
 
 ## Contact
 Please contact Yonghong Yan (@yanyh15) from github or gmail. 
 
+## License
+
+ompparser is released under a BSD license. For more details see the file LICENSE.
+
+LLNL-CODE-798101
 
