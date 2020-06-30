@@ -13,14 +13,17 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-#pragma omp declare mapper(defualt : const int * a)
-PASS: #pragma omp declare mapper ( defualt : const int * a )
+#pragma omp declare mapper(default : const int * a)
+PASS: #pragma omp declare mapper ( default : const int * a )
 
 #pragma omp declare mapper(userdeID : double a)
 PASS: #pragma omp declare mapper ( userdeID : double a )
 
 #pragma omp declare mapper(short * a)
 PASS: #pragma omp declare mapper ( short * a )
+
+#pragma omp declare mapper(short * a) map(to :w,e,r)
+PASS: #pragma omp declare mapper ( short * a )map ( to : w, e, r)
 
 // invalid test without paired validation.
 

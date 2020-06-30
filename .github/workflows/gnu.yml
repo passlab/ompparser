@@ -1,4 +1,4 @@
-name: LLVM CI
+name: GNU CI
 
 on:
   push:
@@ -15,39 +15,26 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-16.04]
-        llvm: ['6.0', 7, 8, 9, 10]
+        gnu: [5, 6, 7, 8, 9]
 
     runs-on: ${{ matrix.os }}
     env:
-      CC: /usr/bin/clang-${{ matrix.llvm }}
-      CXX: /usr/bin/clang++-${{ matrix.llvm }}
+      CC: /usr/bin/gcc-${{ matrix.gnu }}
+      CXX: /usr/bin/g++-${{ matrix.gnu }}
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Add LLVM repository key
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-
-    - name: Add LLVM repository on Ubuntu 18.04
-      if: ${{ matrix.os }} == 'ubuntu-18.04' && ${{ matrix.os }} != '6.0'
-      run: |
-        sudo add-apt-repository -y 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{ matrix.llvm }} main'
-
-    - name: Add LLVM repository on Ubuntu 16.04
-      if: ${{ matrix.os }} == 'ubuntu-16.04' && ${{ matrix.os }} != '6.0'
-      run: |
-        sudo add-apt-repository -y 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-${{ matrix.llvm }} main'
-
     - name: Install dependencies
       run: |
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install -y \
           bison \
           build-essential \
-          clang-${{ matrix.llvm }} \
           cmake \
-          flex
+          flex \
+          g++-${{ matrix.gnu }}
 
     - name: Build
       run: |

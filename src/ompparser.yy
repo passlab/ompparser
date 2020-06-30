@@ -57,7 +57,6 @@ static const char* orig_str;
 void * (*exprParse)(const char*) = NULL;
 
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
-int atomic_before_or_after = 0;
 
 /* used for language setting and detecting*/
 OpenMPBaseLang user_set_lang = Lang_unknown;
@@ -96,7 +95,7 @@ corresponding C type is union name defaults to YYSTYPE.
         FINAL UNTIED MERGEABLE IN_REDUCTION DEPEND PRIORITY AFFINITY DETACH MODIFIER_ITERATOR DEPOBJ FINAL_CLAUSE IN INOUT MUTEXINOUTSET OUT
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
-        DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
+        DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER CATEGORY_ALLOCATABLE UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
  LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL SOURCE SINK DESTROY THREADS
         CONCURRENT
 %token <itype> ICONSTANT
@@ -637,62 +636,56 @@ flush_memory_order_clause : acq_rel_clause
                           | release_clause
                           | acquire_clause
                           ;
+
 atomic_directive : ATOMIC {
                         current_directive = new OpenMPAtomicDirective ();
                     }
                     atomic_clause_optseq 
                  ;
-                  /*Do we need to care about the expression-stmt and the structure-stmt? Page235*/
+atomic_clause_optseq : memory_order_clause_seq
+                     | memory_order_clause_seq atomic_clause_seq
+                     | hint_clause ',' memory_order_clause ',' atomic_clause_seq
+                     | memory_order_clause ',' hint_clause ',' atomic_clause_seq
+                     | memory_order_clause ','atomic_clause_seq
+                     | hint_clause ',' memory_order_clause atomic_clause_seq
+                     | memory_order_clause ',' hint_clause atomic_clause_seq
+                     | hint_clause ','atomic_clause_seq
+                     ;
 
-atomic_clause_optseq: /* empty */
-                    | atomic_clause_seq_before
-                    | atomic_clause_class
-                    | atomic_clause_seq_before ',' atomic_clause_class
-                    | atomic_clause_seq_before atomic_clause_class
-                    ;
-atomic_clause_class : atomic_clause
-                    | atomic_clause atomic_clause_seq_after
-                    | atomic_clause ',' atomic_clause_seq_after
-		    ;
-atomic_clause_seq_before : atomic_clause_seq_general_before
-                         | atomic_clause_seq_before atomic_clause_seq_general_before
-                         | atomic_clause_seq_before ',' atomic_clause_seq_general_before
-                         ;
-atomic_clause_seq_after : atomic_clause_seq_general_after
-                        | atomic_clause_seq_after atomic_clause_seq_general_after
-                        | atomic_clause_seq_after ',' atomic_clause_seq_general_after
+atomic_clause_seq : atomic_clause memory_order_clause_seq_after
+                  | atomic_clause ',' memory_order_clause_seq_after
+                  ;
+
+memory_order_clause_seq : 
+                        | memory_order_clause hint_clause
+                        | hint_clause memory_order_clause
+                        | memory_order_clause
+                        | hint_clause
                         ;
-atomic_clause_seq_general_before : memory_order_clause_before
-                                 | hint_clause
-                                 ;
-atomic_clause_seq_general_after : memory_order_clause_after
-                                | hint_clause_after
-                                ;
+memory_order_clause_seq_after : 
+                              | memory_order_clause hint_clause
+                              | hint_clause memory_order_clause
+                              | memory_order_clause ',' hint_clause
+                              | hint_clause ',' memory_order_clause
+                              | memory_order_clause
+                              | hint_clause
+                              ;
 atomic_clause : read_clause
               | write_clause
               | update_clause
               | capture_clause
               ;
-memory_order_clause_before : seq_cst_clause
-                           | acq_rel_clause
-                           | release_clause
-                           | acquire_clause
-                           | relaxed_clause
-                           ; 
-memory_order_clause_after : seq_cst_clause_after
-                          | acq_rel_clause_after
-                          | release_clause_after
-                          | acquire_clause_after
-                          | relaxed_clause_after
-                          ; 
 
-hint_clause : HINT{ atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_hint, atomic_before_or_after);
-                     } '(' expression ')'
+memory_order_clause : seq_cst_clause
+                    | acq_rel_clause
+                    | release_clause
+                    | acquire_clause
+                    | relaxed_clause
+                    ; 
+
+hint_clause : HINT{ current_clause = current_directive->addOpenMPClause(OMPC_hint);
+                     } '(' expression ')' 
             ;
-hint_clause_after : HINT{ atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_hint, atomic_before_or_after);
-                    } '(' expression ')'
-                  ;
-
 read_clause : READ { current_clause = current_directive->addOpenMPClause(OMPC_read);
                    } 
             ;
@@ -702,31 +695,20 @@ write_clause : WRITE { current_clause = current_directive->addOpenMPClause(OMPC_
 update_clause : UPDATE { current_clause = current_directive->addOpenMPClause(OMPC_update);
                        } 
               ;
-capture_clause : CAPTURE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_capture);
+capture_clause : CAPTURE { current_clause = current_directive->addOpenMPClause(OMPC_capture);
                          } 
                ;
 
-seq_cst_clause : SEQ_CST { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_seq_cst, atomic_before_or_after); }
+seq_cst_clause : SEQ_CST { current_clause = current_directive->addOpenMPClause(OMPC_seq_cst); }
                ;
-acq_rel_clause : ACQ_REL { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_acq_rel, atomic_before_or_after); }
+acq_rel_clause : ACQ_REL { current_clause = current_directive->addOpenMPClause(OMPC_acq_rel); }
                ;
-release_clause : RELEASE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_release, atomic_before_or_after); }
+release_clause : RELEASE { current_clause = current_directive->addOpenMPClause(OMPC_release); }
                ;
-acquire_clause : ACQUIRE { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_acquire, atomic_before_or_after); }
+acquire_clause : ACQUIRE { current_clause = current_directive->addOpenMPClause(OMPC_acquire); }
                ;
-relaxed_clause : RELAXED { atomic_before_or_after = 0; current_clause = current_directive->addOpenMPClause(OMPC_relaxed, atomic_before_or_after); }
+relaxed_clause : RELAXED { current_clause = current_directive->addOpenMPClause(OMPC_relaxed); }
                ;
-
-seq_cst_clause_after : SEQ_CST { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_seq_cst, atomic_before_or_after); }
-                     ;
-acq_rel_clause_after : ACQ_REL { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_acq_rel, atomic_before_or_after); }
-                     ;
-release_clause_after : RELEASE { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_release, atomic_before_or_after); }
-                     ;
-acquire_clause_after : ACQUIRE { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_acquire, atomic_before_or_after); }
-                     ;
-relaxed_clause_after : RELAXED { atomic_before_or_after = 1; current_clause = current_directive->addOpenMPClause(OMPC_relaxed, atomic_before_or_after); }
-                     ;
 
 taskwait_clause_optseq : /* empty */
                        | taskwait_clause_seq
@@ -930,17 +912,15 @@ in_reduction_enum_identifier :  '+'{ current_clause = current_directive->addOpen
                              | MIN{ current_clause = current_directive->addOpenMPClause(OMPC_in_reduction,OMPC_IN_REDUCTION_IDENTIFIER_min); }
                              ;
 
-depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unspecified; } '(' depend_parameter ')' { depend_iterators_definition_class->clear();
-}
-                             ;
+depend_with_modifier_clause : DEPEND { firstParameter = OMPC_DEPEND_MODIFIER_unspecified; } '(' depend_parameter ':' var_list ')' { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
+                            ;
 
-depend_parameter : dependence_type ':' var_list 
-                 | depend_modifier ',' dependence_type ':' var_list { ((OpenMPDependClause*)current_clause)->mergeDepend(current_directive, current_clause); }
+depend_parameter : dependence_type
+                 | depend_modifier ',' dependence_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); depend_iterators_definition_class->clear(); }
                  ;
-dependence_type : depend_enum_type { ((OpenMPDependClause*)current_clause)->setDependIteratorsDefinitionClass(depend_iterators_definition_class); }
+dependence_type : depend_enum_type 
                 ;
-depend_modifier : MODIFIER_ITERATOR { depend_iterators_definition_class = new std::vector<std::vector<const char *> *>(); firstParameter = OMPC_DEPEND_MODIFIER_iterator;
-                              } '('depend_iterators_definition ')'
+depend_modifier : MODIFIER_ITERATOR { depend_iterators_definition_class = new std::vector<std::vector<const char *> *>(); firstParameter = OMPC_DEPEND_MODIFIER_iterator; } '('depend_iterators_definition ')'
                 ;
 depend_iterators_definition : depend_iterator_specifier
                             | depend_iterators_definition ',' depend_iterator_specifier
@@ -1078,22 +1058,22 @@ is_device_ptr_clause : IS_DEVICE_PTR {
                      ;
 defaultmap_clause : DEFAULTMAP{ firstParameter = OMPC_DEFAULTMAP_BEHAVIOR_unspecified; } '('  defaultmap_parameter ')'
                   ;
-defaultmap_parameter : defaultmap_behavior
+defaultmap_parameter : defaultmap_behavior { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_unspecified); } 
                      | defaultmap_behavior ':' defaultmap_category
                      ;
 
 defaultmap_behavior : BEHAVIOR_ALLOC { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_alloc; }
-                    | BEHAVIOR_TO { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_alloc; }
+                    | BEHAVIOR_TO { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_to; }
                     | BEHAVIOR_FROM { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_from; }
                     | BEHAVIOR_TOFROM {firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_tofrom; }
                     | BEHAVIOR_FIRSTPRIVATE { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_firstprivate; }
                     | BEHAVIOR_NONE { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_none; }
                     | BEHAVIOR_DEFAULT { firstParameter=OMPC_DEFAULTMAP_BEHAVIOR_default; }
                     ;
-
 defaultmap_category : CATEGORY_SCALAR { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_scalar); }
                     | CATEGORY_AGGREGATE { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap, firstParameter,OMPC_DEFAULTMAP_CATEGORY_aggregate); }
                     | CATEGORY_POINTER { current_clause = current_directive->addOpenMPClause(OMPC_defaultmap,firstParameter,OMPC_DEFAULTMAP_CATEGORY_pointer); }
+                    | CATEGORY_ALLOCATABLE { if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {current_clause = current_directive->addOpenMPClause(OMPC_defaultmap,firstParameter,OMPC_DEFAULTMAP_CATEGORY_allocatable);} else { yyerror("Defaultmap clause does not support allocatable in C/C++."); YYABORT;} }
                     ;
 uses_allocators_clause : USES_ALLOCATORS  { current_clause = current_directive->addOpenMPClause(OMPC_uses_allocators); firstParameter = OMPC_USESALLOCATORS_ALLOCATOR_unspecified; firstStringParameter = ""; secondStringParameter = ""; } '(' uses_allocators_parameter ')' ;
 uses_allocators_parameter : allocators_list
@@ -2276,7 +2256,7 @@ typername_list : typername_variable
 combiner : EXPR_STRING { ((OpenMPDeclareReductionDirective*)current_directive)->setCombiner($1); }
          ;
 
-declare_mapper_directive : DECLARE MAPPER { current_directive = new OpenMPDeclareMapperDirective(); } '(' mapper_list ')' declare_mapper_clause_optseq
+declare_mapper_directive : DECLARE MAPPER { current_directive = new OpenMPDeclareMapperDirective(OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified); } '(' mapper_list ')' declare_mapper_clause_optseq
                          ;
 
 mapper_list : mapper_identifier_optseq 
@@ -2286,8 +2266,8 @@ mapper_identifier_optseq : type_var
                          | mapper_identifier ':' type_var
                          ;
  
-mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier("default"); }
-                  | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier($1); }
+mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_default);}
+                  | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
 
 type_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setTypeVar($1); }
@@ -2413,9 +2393,13 @@ allocate_clause_optseq : /*empty*/
 declare_reduction_clause_optseq :  /*empty*/
                                 | declare_reduction_clause_seq
                                 ;
-declare_mapper_clause_optseq :  /*empty*/
+declare_mapper_clause_optseq : /*empty*/
                              | declare_mapper_clause_seq
-                             ; 
+                             ;
+declare_mapper_clause_seq : declare_mapper_clause
+                          | declare_mapper_clause_seq declare_mapper_clause
+                          | declare_mapper_clause_seq ',' declare_mapper_clause
+                          ; 
 parallel_clause_seq : parallel_clause
                     | parallel_clause_seq parallel_clause
                     | parallel_clause_seq ',' parallel_clause
@@ -2559,8 +2543,8 @@ allocate_clause_seq :  allocator_clause
                     ;
 declare_reduction_clause_seq : initializer_clause
                              ;
-declare_mapper_clause_seq : map_clause
-                          ;
+declare_mapper_clause : map_clause
+                      ;
 parallel_clause : if_parallel_clause
                 | num_threads_clause
                 | default_clause

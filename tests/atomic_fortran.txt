@@ -13,9 +13,6 @@
 //One is starting with "omp", which is the input.
 //The other one is starting with "PASS: ", which is the result for validation.
 
-!$omp atomic hint(abc) seq_cst seq_cst read seq_cst
-PASS: !$omp atomic seq_cst hint (abc) read seq_cst
-
 !$omp atomic
 PASS: !$omp atomic 
 
@@ -35,12 +32,8 @@ PASS: !$omp atomic write hint (abc)
 PASS: !$omp atomic write seq_cst
 
 
-!$omp atomic release hint(abc)
-PASS: !$omp atomic release hint (abc)
-
-
-!$omp atomic release hint(abc) read acq_rel
-PASS: !$omp atomic release hint (abc) read acq_rel
+!$omp atomic release
+PASS: !$omp atomic release
 
 !$omp end atomic
 PASS: !$omp end atomic 

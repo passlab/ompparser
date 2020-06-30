@@ -84,6 +84,16 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_link :
         case OMPC_threads:
         case OMPC_simd:
+        case OMPC_acq_rel : 
+        case OMPC_seq_cst : 
+        case OMPC_release : 
+        case OMPC_acquire : 
+        case OMPC_relaxed : 
+        case OMPC_read : 
+        case OMPC_write : 
+        case OMPC_update : 
+        case OMPC_capture : 
+        case OMPC_hint :
         case OMPC_destroy:
         
         {
@@ -99,53 +109,43 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
                     /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
                     new_clause = current_clauses->at(0);
                 }
+               if (kind == OMPC_seq_cst) {
+                    std::cerr << "Cannot have two seq_cst clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_acq_rel) {
+                    std::cerr << "Cannot have two acq_rel clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_release) {
+                    std::cerr << "Cannot have two release clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_acquire) {
+                    std::cerr << "Cannot have two acquire clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_relaxed) {
+                    std::cerr << "Cannot have two relaxed clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_hint) {
+                    std::cerr << "Cannot have two hint clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
             }
-            break;
-        }
-        case OMPC_hint : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPHintClause::addHintClause(this, before_or_after);
-            break;
-        }
-        case OMPC_acq_rel : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPAcqRelClause::addAcqRelClause(this, before_or_after);
-            break;
-        }
-        case OMPC_seq_cst : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPSeqCstClause::addSeqCstClause(this, before_or_after);
-            break;
-        }
-        case OMPC_release : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPReleaseClause::addReleaseClause(this, before_or_after);
-            break;
-        }
-        case OMPC_acquire : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPAcquireClause::addAcquireClause(this, before_or_after);
-            break;
-        }
-        case OMPC_relaxed : {
-            int before_or_after = va_arg(args, int);
-            new_clause = OpenMPRelaxedClause::addRelaxedClause(this, before_or_after);
-            break;
-        }
-        case OMPC_read : {
-            new_clause = OpenMPReadClause::addReadClause(this);
-            break;
-        }
-        case OMPC_write : {
-            new_clause = OpenMPWriteClause::addWriteClause(this);
-            break;
-        }
-        case OMPC_update : {
-            new_clause = OpenMPUpdateClause::addUpdateClause(this);
-            break;
-        }
-        case OMPC_capture : {
-            new_clause = OpenMPCaptureClause::addCaptureClause(this);
             break;
         }
         case OMPC_if : {
@@ -676,7 +676,6 @@ OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, Op
     OpenMPClause* new_clause = NULL;
 
     if (current_clauses->size() == 0) {
-        //new_clause = new OpenMPDependClause(modifier, type, depend_iterators_definition_class);
         new_clause = new OpenMPDependClause(modifier, type);
         current_clauses = new std::vector<OpenMPClause*>();
         current_clauses->push_back(new_clause);
@@ -688,7 +687,6 @@ OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, Op
     (*all_clauses)[OMPC_depend] = current_clauses;
     return new_clause;
 };
-
 void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* current_clause) {
     std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_depend);
@@ -697,7 +695,7 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
     if (current_clauses->size() == true) return;
 
     for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
-        if (((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
+        if (((OpenMPDependClause*)(*it))->getModifier() != OMPC_DEPEND_MODIFIER_unspecified && ((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
             bool normalize = true;
             std::vector<vector<const char*>* >* depend_iterators_definition_previous = ((OpenMPDependClause*)(*it))->getDependIteratorsDefinitionClass();
             std::vector<vector<const char*>* >* depend_iterators_definition_current = ((OpenMPDependClause*)current_clause)->getDependIteratorsDefinitionClass();
@@ -732,6 +730,23 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                     break;
                 }
             }
+                  
+        }
+        else if (((OpenMPDependClause*)(*it))->getModifier() == OMPC_DEPEND_MODIFIER_unspecified && ((OpenMPDependClause*)(*it))->getModifier() == ((OpenMPDependClause*)current_clause)->getModifier() && ((OpenMPDependClause*)(*it))->getType() == ((OpenMPDependClause*)current_clause)->getType()) {
+            std::vector<const char *>* expressions_previous = ((OpenMPDependClause*)(*it))->getExpressions();
+            std::vector<const char *>* expressions_current = current_clause->getExpressions();
+            for (std::vector<const char *>::iterator it_expr_current = expressions_current->begin(); it_expr_current != expressions_current->end(); it_expr_current++) {
+                bool para_merge = true;
+                for (std::vector<const char *>::iterator it_expr_previous = expressions_previous->begin(); it_expr_previous != expressions_previous->end(); it_expr_previous++) {
+                    if (strcmp(*it_expr_current, *it_expr_previous) == 0 ){ 
+                        para_merge = false;
+                    }
+                }
+                if (para_merge == true) expressions_previous->push_back(*it_expr_current);
+            }
+            current_clauses->pop_back();
+            directive->getClausesInOriginalOrder()->pop_back();
+            break;
         }
     }
 };
@@ -985,309 +1000,6 @@ OpenMPClause* OpenMPLastprivateClause::addLastprivateClause(OpenMPDirective *dir
             current_clauses->push_back(new_clause);
         }
     return new_clause;
-};
-
-OpenMPClause* OpenMPHintClause::addHintClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_hint);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPHintClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_hint] = current_clauses;
-        }
-        else {
-            /* could be an error since hint clause may only appear once */
-            std::cerr << "Cannot have two hint clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_hint) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_hint, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_hint);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPHintClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_hint] = current_clauses;
-        }
-        else {
-            /* could be an error since hint clause may only appear once */
-            std::cerr << "Cannot have two hint clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPAcqRelClause::addAcqRelClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_acq_rel);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPAcqRelClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_acq_rel] = current_clauses;
-        }
-        else {
-            /* could be an error since acq_rel clause may only appear once */
-            std::cerr << "Cannot have two acq_rel clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_acq_rel) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_acq_rel, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_acq_rel);
-        OpenMPClause* new_clause = NULL;
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPAcqRelClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_acq_rel] = current_clauses;
-        }
-        else {
-            /* could be an error since acq_rel clause may only appear once */
-            std::cerr << "Cannot have two acq_rel clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPSeqCstClause::addSeqCstClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_seq_cst);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPSeqCstClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_seq_cst] = current_clauses;
-        }
-        else {
-            /* could be an error since seq_cst clause may only appear once */
-            std::cerr << "Cannot have two seq_cst clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_seq_cst) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_seq_cst, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_seq_cst);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPSeqCstClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_seq_cst] = current_clauses;
-        }
-        else {
-            /* could be an error since seq_cst clause may only appear once */
-            std::cerr << "Cannot have two seq_cst clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPReleaseClause::addReleaseClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_release);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPReleaseClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_release] = current_clauses;
-        }
-        else {
-            /* could be an error since release clause may only appear once */
-            std::cerr << "Cannot have two release clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_release) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_release, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_release);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPReleaseClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_release] = current_clauses;
-        }
-        else {
-            /* could be an error since release clause may only appear once */
-            std::cerr << "Cannot have two release clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPAcquireClause::addAcquireClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_acquire);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPAcquireClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_acquire] = current_clauses;
-        }
-        else {
-            /* could be an error since acquire clause may only appear once */
-            std::cerr << "Cannot have two acquire clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_acquire) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_acquire, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_acquire);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPAcquireClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_acquire] = current_clauses;
-        }
-        else {
-            /* could be an error since acquire clause may only appear once */
-            std::cerr << "Cannot have two acquire clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPRelaxedClause::addRelaxedClause(OpenMPDirective *directive, int before_or_after) {
-
-    OpenMPClause* new_clause = NULL;
-    if (before_or_after == 0) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
-        std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_relaxed);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPRelaxedClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_relaxed] = current_clauses;
-        }
-        else {
-            /* could be an error since relaxed clause may only appear once */
-            std::cerr << "Cannot have two relaxed clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    else if (before_or_after == 1) {
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllClausesAtomicAfter();
-        if (all_clauses->count(OMPC_relaxed) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_relaxed, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getClausesAtomicAfter(OMPC_relaxed);
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPRelaxedClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_relaxed] = current_clauses;
-        }
-        else {
-            /* could be an error since relaxed clause may only appear once */
-            std::cerr << "Cannot have two relaxed clause for the directive " << directive->getKind() << ", ignored\n";
-        };
-    }
-    return new_clause;
-};
-
-OpenMPClause* OpenMPReadClause::addReadClause(OpenMPDirective *directive) {
-    
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllAtomicClauses();
-    if (all_clauses->count(OMPC_read) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_read, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getAtomicClauses(OMPC_read);
-        OpenMPClause* new_clause = NULL;
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPReadClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_read] = current_clauses;
-        } else {
-            /* could be an error since read clause may only appear once */
-            std::cerr << "Cannot have two read clause for the directive " << directive->getKind() << ", ignored\n";
-          }; 
-        return new_clause;
-};
-
-OpenMPClause* OpenMPCaptureClause::addCaptureClause(OpenMPDirective *directive) {
-    
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllAtomicClauses();
-    if (all_clauses->count(OMPC_capture) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_capture, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getAtomicClauses(OMPC_capture);
-        OpenMPClause* new_clause = NULL;
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPCaptureClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_capture] = current_clauses;
-        } else {
-            /* could be an error since capture clause may only appear once */
-            std::cerr << "Cannot have two capture clause for the directive " << directive->getKind() << ", ignored\n";
-          }; 
-        return new_clause;
-};
-
-OpenMPClause* OpenMPUpdateClause::addUpdateClause(OpenMPDirective *directive) {
-    
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllAtomicClauses();
-    if (all_clauses->count(OMPC_update) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_update, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getAtomicClauses(OMPC_update);
-        OpenMPClause* new_clause = NULL;
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPUpdateClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_update] = current_clauses;
-        } else {
-            /* could be an error since update clause may only appear once */
-            std::cerr << "Cannot have two update clause for the directive " << directive->getKind() << ", ignored\n";
-          }; 
-        return new_clause;
-};
-
-OpenMPClause* OpenMPWriteClause::addWriteClause(OpenMPDirective *directive) {
-    
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = ((OpenMPAtomicDirective*)directive)->getAllAtomicClauses();
-    if (all_clauses->count(OMPC_write) == 0) {
-            all_clauses->insert(std::pair<OpenMPClauseKind, std::vector<OpenMPClause*>*>(OMPC_write, new std::vector<OpenMPClause*>));
-        };
-        std::vector<OpenMPClause*>* current_clauses = ((OpenMPAtomicDirective*)directive)->getAtomicClauses(OMPC_write);
-        OpenMPClause* new_clause = NULL;
-        if (current_clauses->size() == 0) {
-            new_clause = new OpenMPWriteClause();
-            current_clauses = new std::vector<OpenMPClause*>();
-            current_clauses->push_back(new_clause);
-            (*all_clauses)[OMPC_write] = current_clauses;
-        } else {
-            /* could be an error since write clause may only appear once */
-            std::cerr << "Cannot have two write clause for the directive " << directive->getKind() << ", ignored\n";
-          }; 
-        return new_clause;
 };
 
 OpenMPClause* OpenMPIfClause::addIfClause(OpenMPDirective *directive, OpenMPIfClauseModifier modifier, char * user_defined_modifier) {

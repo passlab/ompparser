@@ -63,13 +63,29 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             break;
         }
         case OMPD_declare_mapper:{
-            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
-            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
+            OpenMPDeclareMapperDirectiveIdentifier identifier = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
             result += "( ";
-            if(id != ""){
-              result += id;
-              result += ":";
+            if(identifier != OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified)
+            {
+                switch (identifier) {
+                    case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
+                    {
+                        result += "default ";
+                        break;
+                    }
+                    case OMPD_DECLARE_MAPPER_IDENTIFIER_user: {
+                        std::string id = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
+                        cout<<"id:"<<id<<endl;
+                        result += id;
+                        break;
+                    }
+                    default:
+                        ;
+                };
+                result += ":";
             }
+
+            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
             result += type_var;
             result += " )";
             break;
@@ -141,37 +157,6 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             result += (*iter)->toString();
         }
         result = result.substr(0, result.size()-1);
-    }
-
-    if(this->getKind() == OMPD_atomic){
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses_atomic_clauses = ((OpenMPAtomicDirective*)this)->getAllAtomicClauses();
-        if (clauses_atomic_clauses->size() != 0) {
-            result += " ";
-            std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-            for (it = clauses_atomic_clauses->begin(); it != clauses_atomic_clauses->end(); it++) {
-                std::vector<OpenMPClause*>* current_clauses = it->second;
-                std::vector<OpenMPClause*>::iterator clauseIter;
-                for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                    result += (*clauseIter)->toString();
-                }
-            }
-            result = result.substr(0, result.size()-1);
-        }
-
-        std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* clauses_atomic_after = ((OpenMPAtomicDirective*)this)->getAllClausesAtomicAfter();
-    
-        if (clauses_atomic_after->size() != 0) {
-            result += " ";
-            std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >::iterator it;
-            for (it = clauses_atomic_after->begin(); it != clauses_atomic_after->end(); it++) {
-                std::vector<OpenMPClause*>* current_clauses = it->second;
-                std::vector<OpenMPClause*>::iterator clauseIter;
-                for (clauseIter = current_clauses->begin(); clauseIter != current_clauses->end(); clauseIter++) {
-                    result += (*clauseIter)->toString();
-                }
-            }
-            result = result.substr(0, result.size()-1);
-        }
     }
     result += ending_symbol;
 
@@ -748,15 +733,16 @@ std::string OpenMPInReductionClause::toString() {
 };
 
 std::string OpenMPDependClause::toString() {
-    std::vector<vector<const char*>* >* depend_iterators_definition_class = this->getDependIteratorsDefinitionClass();
+    OpenMPDependClauseModifier modifier = this->getModifier();
+    std::vector<vector<const char*>* >* depend_iterators_definition_class;
+    if (modifier == OMPC_DEPEND_MODIFIER_iterator) {
+        depend_iterators_definition_class = this->getDependIteratorsDefinitionClass();
+    }
     std::string result = "depend ";
-
     std::string clause_string = "(";
 
-    OpenMPDependClauseModifier modifier = this->getModifier();
-
     OpenMPDependClauseType type = this->getType();
-    if(modifier != OMPC_DEPEND_MODIFIER_unknown) {
+    if (modifier == OMPC_DEPEND_MODIFIER_iterator) {
         switch (modifier) {
             case OMPC_DEPEND_MODIFIER_iterator: {
                 clause_string += "iterator";
@@ -817,6 +803,7 @@ std::string OpenMPDependClause::toString() {
 
     if (clause_string.size() > 1&&type!=OMPC_DEPENDENCE_TYPE_source) {
         clause_string += " : ";
+
     };
     if(type==OMPC_DEPENDENCE_TYPE_sink){clause_string += this->getDependenceVector();}
     clause_string += this->expressionToString();
@@ -990,7 +977,7 @@ std::string OpenMPDefaultmapClause::toString() {
         default:
             ;
     }
-    if (clause_string.size() > 1) {
+    if (category != OMPC_DEFAULTMAP_CATEGORY_unspecified) {
         clause_string += ": ";
     };
     switch (category) {
@@ -1002,6 +989,9 @@ std::string OpenMPDefaultmapClause::toString() {
             break;
         case OMPC_DEFAULTMAP_CATEGORY_pointer:
             clause_string += "pointer";
+            break;
+        case OMPC_DEFAULTMAP_CATEGORY_allocatable:
+            clause_string += "allocatable";
             break;
         default:
             ;

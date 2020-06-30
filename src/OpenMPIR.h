@@ -263,14 +263,18 @@ public:
 //declare mapper directive
 class OpenMPDeclareMapperDirective : public OpenMPDirective {
 protected:
-    std::string identifier;
+    OpenMPDeclareMapperDirectiveIdentifier identifier = OMPD_DECLARE_MAPPER_IDENTIFIER_unspecified;  // modifier
+    std::string user_defined_identifier;
     std::string type_var;
 
 public:
-    OpenMPDeclareMapperDirective () : OpenMPDirective(OMPD_declare_mapper) {};
-    void setIdentifier (std::string _identifier) { identifier = _identifier;}
-    std::string getIdentifier() { return identifier;}
-    void setTypeVar (std::string _type_var) { type_var = _type_var;}
+    OpenMPDeclareMapperDirective(OpenMPDeclareMapperDirectiveIdentifier _identifier) :
+            OpenMPDirective(OMPD_declare_mapper){ identifier = _identifier;};
+    void setIdentifier (OpenMPDeclareMapperDirectiveIdentifier _identifier) { identifier = _identifier; };
+    OpenMPDeclareMapperDirectiveIdentifier getIdentifier() { return identifier; };
+    void setUserDefinedIdentifier (std::string _user_defined_identifier) { user_defined_identifier = _user_defined_identifier;}
+    std::string getUserDefinedIdentifier() { return user_defined_identifier;}
+    void setTypeVar (const char * _type_var) { type_var = _type_var;}
     std::string getTypeVar() { return type_var;}
 };
 
@@ -659,89 +663,6 @@ public:
     std::string toString();
 
     void generateDOT(std::ofstream&, int, int, std::string);
-};
-// hint Clause
-class OpenMPHintClause : public OpenMPClause {
-public:
-    OpenMPHintClause() :
-            OpenMPClause(OMPC_hint) { };
-
-    static OpenMPClause* addHintClause(OpenMPDirective *directive, int before_or_after);
-};
-// acq_rel Clause
-class OpenMPAcqRelClause : public OpenMPClause {
-public:
-    OpenMPAcqRelClause() :
-            OpenMPClause(OMPC_acq_rel) { };
-
-    static OpenMPClause* addAcqRelClause(OpenMPDirective *directive, int before_or_after);
-};
-// seq_cst Clause
-class OpenMPSeqCstClause : public OpenMPClause {
-public:
-    OpenMPSeqCstClause() :
-            OpenMPClause(OMPC_seq_cst) { };
-
-    static OpenMPClause* addSeqCstClause(OpenMPDirective *directive, int before_or_after);
-};
-// release Clause
-class OpenMPReleaseClause : public OpenMPClause {
-public:
-    OpenMPReleaseClause() :
-            OpenMPClause(OMPC_release) { };
-
-    static OpenMPClause* addReleaseClause(OpenMPDirective *directive, int before_or_after);
-};
-// acquire Clause
-class OpenMPAcquireClause : public OpenMPClause {
-public:
-    OpenMPAcquireClause() :
-            OpenMPClause(OMPC_acquire) { };
-
-    static OpenMPClause* addAcquireClause(OpenMPDirective *directive, int before_or_after);
-};
-// relaxed Clause
-class OpenMPRelaxedClause : public OpenMPClause {
-public:
-    OpenMPRelaxedClause() :
-            OpenMPClause(OMPC_relaxed) { };
-
-    static OpenMPClause* addRelaxedClause(OpenMPDirective *directive, int before_or_after);
-};
-// read Clause
-class OpenMPReadClause : public OpenMPClause {
-public:
-    OpenMPReadClause() :
-            OpenMPClause(OMPC_read) { };
-
-    static OpenMPClause* addReadClause(OpenMPDirective *directive);
-};
-
-// capture Clause
-class OpenMPCaptureClause : public OpenMPClause {
-public:
-    OpenMPCaptureClause() :
-            OpenMPClause(OMPC_capture) { };
-
-    static OpenMPClause* addCaptureClause(OpenMPDirective *directive);
-};
-
-// update Clause
-class OpenMPUpdateClause : public OpenMPClause {
-public:
-    OpenMPUpdateClause() :
-            OpenMPClause(OMPC_update) { };
-
-    static OpenMPClause* addUpdateClause(OpenMPDirective *directive);
-};
-
-// write Clause
-class OpenMPWriteClause : public OpenMPClause {
-public:
-    OpenMPWriteClause() :
-            OpenMPClause(OMPC_write) { };
-
-    static OpenMPClause* addWriteClause(OpenMPDirective *directive);
 };
 //in_reduction clause
 class OpenMPInReductionClause : public OpenMPClause {

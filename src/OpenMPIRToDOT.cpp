@@ -437,6 +437,9 @@ void OpenMPDefaultmapClause::generateDOT(std::ofstream& dot_file, int depth, int
         case OMPC_DEFAULTMAP_CATEGORY_pointer:
             parameter_string = "pointer";
             break;
+        case OMPC_DEFAULTMAP_CATEGORY_allocatable:
+            parameter_string = "allocatable";
+            break;
         default:
             ;
     };
@@ -999,23 +1002,38 @@ void OpenMPDirective::generateDOT() {
         }
         case OMPD_declare_mapper: {
             std::string indent = std::string(1, '\t');
-            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            //std::string id = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
             std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
             int list_index = 0;
             std::string tkind = "declare_mapper";
             std::string node_id = tkind + "_mapper_identifier";
-            if (id != ""){
-              current_line = indent + tkind + " -- " + node_id + "\n";
-              output << current_line.c_str();
-              current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
-              output << current_line.c_str();
-            }
+            std::string parameter_string;
+            switch (id) {
+                case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
+                {
+                    parameter_string = "default";
+                    break;
+                }
+                case OMPD_DECLARE_MAPPER_IDENTIFIER_user: 
+                {
+                    parameter_string = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
+                    break;
+                }
+                default:
+                    ;
+            };
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            output << current_line.c_str();
+
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+            output << current_line.c_str();
             node_id = tkind + "_type_var";
             current_line = indent + tkind + " -- " + node_id + "\n";
             output << current_line.c_str();
             current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + type_var + "\"]\n";
             output << current_line.c_str();
-           break;
+            break;
         }
         case OMPD_declare_simd: {
             std::string indent = std::string(1, '\t');
@@ -1271,17 +1289,30 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             break;
         }
         case OMPD_declare_mapper: {
-            std::string id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
+            std::string indent = std::string(1, '\t');
+            OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
             std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
             int list_index = 0;
             std::string tkind = "declare_mapper";
             std::string node_id = tkind + "_mapper_identifier";
-            if (id != ""){
-                current_line = indent + tkind + " -- " + node_id + "\n";
-                dot_file << current_line.c_str();
-                current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + id + "\"]\n";
-                dot_file << current_line.c_str();
-            }
+            std::string parameter_string;
+            switch (id) {
+                case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
+                {
+                    parameter_string = "default";
+                    break;
+                }
+                case OMPD_DECLARE_MAPPER_IDENTIFIER_user: {
+                    parameter_string = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
+                    break;
+                }
+                default:
+                    ;
+            };
+            current_line = indent + tkind + " -- " + node_id + "\n";
+            dot_file << current_line.c_str();
+            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
+            dot_file << current_line.c_str();
             node_id = tkind + "_type_var";
             current_line = indent + tkind + " -- " + node_id + "\n";
             dot_file << current_line.c_str();
