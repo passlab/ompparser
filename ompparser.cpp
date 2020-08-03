@@ -69,13 +69,11 @@ int main( int argc, const char* argv[] ) {
     };
     std::ifstream input_file;
 
-    if (filename != NULL) {
-        result = openFile(input_file, filename);
-    }
-    else {
+    if (filename == NULL) {
         std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
-        result = openFile(input_file, "../tests/parallel.txt");
+        filename = "../tests/parallel.txt";
     };
+    result = openFile(input_file, filename);
     if (result) {
         std::cout << "No testing file is available.\n";
         return -1;
