@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018-2020, High Performance Computing Architecture and System
+ * research laboratory at University of North Carolina at Charlotte (HPCAS@UNCC)
+ * and Lawrence Livermore National Security, LLC.
+ *
+ * SPDX-License-Identifier: (BSD-3-Clause)
+ */
+
 #include <iostream>
 #include <regex>
 #include <fstream>
