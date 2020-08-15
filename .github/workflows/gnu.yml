@@ -14,8 +14,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04]
-        gnu: [5, 6, 7, 8, 9]
+        os: [ubuntu-20.04, ubuntu-18.04]
+        gnu: [7, 8, 9, 10]
 
     runs-on: ${{ matrix.os }}
     env:
