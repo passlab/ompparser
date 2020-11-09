@@ -90,7 +90,7 @@ extern void * (*exprParse)(const char*);
 #include <stdio.h>
 #include <string>
 #include <string.h>
-#include "ompparser.yy.hpp"
+#include "ompparser.hh"
 #include <iostream>
 
 /* Moved from Makefile.am to the source file to work with --with-pch 

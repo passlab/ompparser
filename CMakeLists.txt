@@ -41,8 +41,8 @@ set(OMPIR_SOURCE_FILES
 set(OMPP_TOOLS
     preprocess_c.cpp)
 
-BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/ompparser.yy.cpp)
-FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/omplexer.ll.cpp)
+BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/ompparser.cc)
+FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/omplexer.cc)
 ADD_FLEX_BISON_DEPENDENCY(OMPFLEXScanner OMPBISONParser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
