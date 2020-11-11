@@ -11,8 +11,12 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/frontend/SageIII/ompparser/src -I.
 omplexer.cc: $(top_srcdir)/src/frontend/SageIII/ompparser/src/omplexer.ll
 	flex --outfile $@ $<
 
+# Make sure ompparser.hh is generated before compiling omplexer.cc
+omplexer.lo: ompparser.hh omplexer.cc
+ompparser.hh: ompparser.cc
+
 noinst_LTLIBRARIES = libompparser.la
-libompparser_la_SOURCES = src/ompparser.yy omplexer.cc src/OpenMPIR.cpp src/OpenMPIRToString.cpp src/OpenMPIRToDOT.cpp
+libompparser_la_SOURCES = omplexer.cc src/ompparser.yy src/OpenMPIR.cpp src/OpenMPIRToString.cpp src/OpenMPIRToDOT.cpp
 
 pkginclude_HEADERS =  src/OpenMPIR.h src/OpenMPKinds.h
 
