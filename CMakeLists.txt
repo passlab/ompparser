@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(ompparser)
 
-set(CMAKE_CXX_STANDARD 11)
+# set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE Debug)
 
