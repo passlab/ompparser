@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018-2020, High Performance Computing Architecture and System
+ * research laboratory at University of North Carolina at Charlotte (HPCAS@UNCC)
+ * and Lawrence Livermore National Security, LLC.
+ *
+ * SPDX-License-Identifier: (BSD-3-Clause)
+ */
+
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -69,13 +77,11 @@ int main( int argc, const char* argv[] ) {
     };
     std::ifstream input_file;
 
-    if (filename != NULL) {
-        result = openFile(input_file, filename);
-    }
-    else {
+    if (filename == NULL) {
         std::cout << "No specific testing file is provided, use the default PARALLEL testing instead.\n";
-        result = openFile(input_file, "../tests/parallel.txt");
+        filename = "../tests/parallel.txt";
     };
+    result = openFile(input_file, filename);
     if (result) {
         std::cout << "No testing file is available.\n";
         return -1;

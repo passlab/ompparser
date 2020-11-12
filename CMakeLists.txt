@@ -1,5 +1,5 @@
 #******************************************************************************************************************#
-# Copyright (c) 2018-2019, High Performance Computing Architecture and System
+# Copyright (c) 2018-2020, High Performance Computing Architecture and System
 # research laboratory at University of North Carolina at Charlotte (HPCAS@UNCC)
 # and Lawrence Livermore National Security, LLC.
 #

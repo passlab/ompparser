@@ -14,8 +14,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04]
-        llvm: ['6.0', 7, 8, 9, 10]
+        os: [ubuntu-20.04, ubuntu-18.04]
+        llvm: ['6.0', 7, 8, 9, 10, 11]
 
     runs-on: ${{ matrix.os }}
     env:
@@ -30,14 +30,14 @@ jobs:
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
 
     - name: Add LLVM repository on Ubuntu 18.04
-      if: ${{ matrix.os }} == 'ubuntu-18.04' && ${{ matrix.os }} != '6.0'
+      if: ${{ matrix.os == 'ubuntu-18.04' && matrix.llvm != '6.0' }}
       run: |
         sudo add-apt-repository -y 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{ matrix.llvm }} main'
 
-    - name: Add LLVM repository on Ubuntu 16.04
-      if: ${{ matrix.os }} == 'ubuntu-16.04' && ${{ matrix.os }} != '6.0'
+    - name: Add LLVM repository on Ubuntu 20.04
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.llvm == 11 }}
       run: |
-        sudo add-apt-repository -y 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-${{ matrix.llvm }} main'
+        sudo add-apt-repository -y 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.llvm }} main'
 
     - name: Install dependencies
       run: |
