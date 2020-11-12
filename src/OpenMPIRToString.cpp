@@ -1640,10 +1640,10 @@ std::string OpenMPVariantClause::toString() {
     };
 
     // check construct
-    std::vector<std::pair<std::string, OpenMPDirective*>>* parameter_pair_directives = this->getConstructDirective();
+    std::vector<std::pair<std::string, OpenMPDirective*> >* parameter_pair_directives = this->getConstructDirective();
     if (parameter_pair_directives->size() != 0) {
         clause_string += "construct = {";
-        std::vector<std::pair<std::string, OpenMPDirective*>>::iterator iter;
+        std::vector<std::pair<std::string, OpenMPDirective*> >::iterator iter;
         for (iter = parameter_pair_directives->begin(); iter != parameter_pair_directives->end(); iter++) {
             if ((*iter).first != "") {
                 beginning_symbol = "score(" + (*iter).first + "): ";
