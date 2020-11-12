@@ -1677,7 +1677,7 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
 
     std::string parameter_string;
     std::pair<std::string, std::string>* parameter_pair_string;
-    std::vector<std::pair<std::string, OpenMPDirective*>>* parameter_pair_directives;
+    std::vector<std::pair<std::string, OpenMPDirective*> >* parameter_pair_directives;
     OpenMPDirective* variant_directive = NULL;
 
 /*
