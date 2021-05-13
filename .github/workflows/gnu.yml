@@ -43,7 +43,7 @@ jobs:
         cd build
         bison -v ../src/ompparser.yy && ! cat ompparser.output | grep conflict
         cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON ..
-        make
+        make tester
 
     - name: Test
       run: |
