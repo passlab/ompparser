@@ -3439,7 +3439,7 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
     current_directive = NULL;
     std::string input_string;
     const char *input = _input;
-    std::regex fortran_regex ("[!][$][Oo][Mm][Pp]");
+    std::regex fortran_regex ("[!c*][$][Oo][Mm][Pp]");
     input_string = std::string(input, 5);
     if (user_set_lang == Lang_unknown){
         auto_lang = Lang_C;

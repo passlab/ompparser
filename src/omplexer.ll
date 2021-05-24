@@ -136,7 +136,7 @@ comment         [\/\/].*
 
 %%
 
-!$omp           { ; }
+[!c*]$omp       { ; }
 #pragma         { ; }
 omp             { ; }
 parallel        { return PARALLEL; }
