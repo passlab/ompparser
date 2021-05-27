@@ -238,6 +238,7 @@ variant_directive : parallel_directive
 fortran_paired_directive : parallel_directive
                          | do_paired_directive
                          | metadirective_directive
+                         | master_directive
                          | teams_directive
                          | section_directive
                          | sections_paired_directive
