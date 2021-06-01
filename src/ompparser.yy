@@ -627,9 +627,11 @@ flush_clause_optseq : /* empty */
                     | '(' flush_list ')'
                     | flush_clause_seq
                     ;
-flush_list : extended_variable
-           | flush_list ',' extended_variable
+flush_list : flush_variable
+           | flush_list ',' flush_variable
            ;
+flush_variable : EXPR_STRING { ((OpenMPFlushDirective*)current_directive)->addFlushList($1); }
+               ;
 flush_clause_seq : flush_memory_order_clause
                  | flush_memory_order_clause '(' flush_list ')'
                  ;
