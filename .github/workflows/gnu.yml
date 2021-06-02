@@ -3,11 +3,11 @@ name: GNU CI
 on:
   push:
     branches:
-      - master
+      - main
       - dev
   pull_request:
     branches:
-      - master
+      - main
       - dev
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, ubuntu-18.04]
-        gnu: [7, 8, 9, 10]
+        gnu: [7, 8, 9, 10, 11]
 
     runs-on: ${{ matrix.os }}
     env:
