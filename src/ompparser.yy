@@ -1045,7 +1045,7 @@ device_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPC
                  
 device_without_modifier_clause : DEVICE '(' device_without_modifier_parameter ')' ;
 
-device_without_modifier_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1); }
+device_without_modifier_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_unspecified); current_clause->addLangExpr($1); }
                                   | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1); } var_list
                                   ;
 
