@@ -527,10 +527,10 @@ enum OpenMPUsesAllocatorsClauseAllocator {
 /// modifiers for 'device' clause.
 enum OpenMPDeviceClauseModifier {
 #define OPENMP_DEVICE_MODIFIER(Name) OMPC_DEVICE_MODIFIER_##Name,
+    OPENMP_DEVICE_MODIFIER(unspecified)
     OPENMP_DEVICE_MODIFIER(ancestor)
     OPENMP_DEVICE_MODIFIER(device_num)
 
-    OPENMP_DEVICE_MODIFIER(unspecified)
 #undef OPENMP_DEVICE_MODIFIER
 };
 
