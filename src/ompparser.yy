@@ -872,7 +872,7 @@ motion_clause: to_clause
              | from_clause
              ;
 target_update_other_clause: if_target_update_clause
-                          | device_clause
+                          | device_without_modifier_clause
                           | depend_with_modifier_clause
                           | nowait_clause
                           ;
@@ -1044,6 +1044,12 @@ device_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPC
 device_modifier_parameter : ANCESTOR { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_ancestor); }
                           | DEVICE_NUM { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_device_num); }
                           ;
+                          
+device_without_modifier_clause : DEVICE '(' device_without_modifier_parameter ')' ;
+
+device_without_modifier_parameter : EXPR_STRING  { current_clause = current_directive->addOpenMPClause(OMPC_device, OMPC_DEVICE_MODIFIER_unspecified); current_clause->addLangExpr($1); }
+                                  | EXPR_STRING ',' { current_clause = current_directive->addOpenMPClause(OMPC_device); current_clause->addLangExpr($1); } var_list
+                                  ;
 
 use_device_ptr_clause : USE_DEVICE_PTR {
                 current_clause = current_directive->addOpenMPClause(OMPC_use_device_ptr);
