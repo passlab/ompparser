@@ -21,3 +21,6 @@ PASS: #pragma omp target update to (mapper(default) : m, i, o) from (m, i, o)
 
 #pragma omp target update to(mapper(default):m,i,o) from(mapper(default):m,i,o)
 PASS: #pragma omp target update to (mapper(default) : m, i, o) from (mapper(default) : m, i, o)
+
+#pragma omp target update device(ancestor:5) to(mapper(default):m,i,o) from(mapper(default):m,i,o)
+PASS:
