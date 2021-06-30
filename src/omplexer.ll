@@ -7,8 +7,9 @@
  */
 
 %option prefix="openmp_"
-/*%option outfile="lex.yy.c"*/
 %option stack
+%option noyy_top_state
+
 %x EXPR_STATE
 %x ALLOCATE_STATE
 %x DEFAULT_STATE
