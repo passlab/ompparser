@@ -45,6 +45,8 @@ BISON_TARGET(OMPBISONParser src/ompparser.yy ${CMAKE_CURRENT_BINARY_DIR}/omppars
 FLEX_TARGET(OMPFLEXScanner src/omplexer.ll ${CMAKE_CURRENT_BINARY_DIR}/omplexer.cc)
 ADD_FLEX_BISON_DEPENDENCY(OMPFLEXScanner OMPBISONParser)
 
+add_compile_options(-Wall)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 

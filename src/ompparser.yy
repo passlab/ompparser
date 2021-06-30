@@ -53,7 +53,6 @@ static const char* trait_score = "";
 /* Treat the entire expression as a string for now */
 extern void openmp_parse_expr();
 static int openmp_error(const char*);
-static const char* orig_str;
 void * (*exprParse)(const char*) = NULL;
 
 bool b_within_variable_list  = false;  // a flag to indicate if the program is now processing a list of variables
@@ -3476,7 +3475,7 @@ OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*))
         };
     }
     start_lexer(input);
-    int res = yyparse();
+    yyparse();
     end_lexer();
     if (current_directive) {
         current_directive->setBaseLang(base_lang);

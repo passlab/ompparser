@@ -12,7 +12,7 @@
 
 void OpenMPClause::addLangExpr(const char *expression, int line, int col) {
     // Since the size of expression vector is supposed to be small, brute force is used here.
-    for (int i = 0; i < this->expressions.size(); i++) {
+    for (unsigned int i = 0; i < this->expressions.size(); i++) {
         if (!strcmp(expressions.at(i), expression)) {
             return;
         };
@@ -331,7 +331,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
             ;
         }
     };
-end:
+
     va_end(args);
     if (new_clause != NULL && new_clause->getClausePosition() == -1) {
         this->getClausesInOriginalOrder()->push_back(new_clause);
@@ -512,9 +512,7 @@ OpenMPClause* OpenMPExtImplementationDefinedRequirementClause::addExtImplementat
 
 void OpenMPExtImplementationDefinedRequirementClause::mergeExtImplementationDefinedRequirement(OpenMPDirective *directive, OpenMPClause* current_clause) {
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_ext_implementation_defined_requirement);
-    OpenMPClause* new_clause = NULL;
 
     for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
         if (((OpenMPExtImplementationDefinedRequirementClause*)(*it))->getImplementationDefinedRequirement() == ((OpenMPExtImplementationDefinedRequirementClause*)current_clause)->getImplementationDefinedRequirement()) {
@@ -527,9 +525,7 @@ void OpenMPExtImplementationDefinedRequirementClause::mergeExtImplementationDefi
 
 void OpenMPLinearClause::mergeLinear(OpenMPDirective *directive, OpenMPClause* current_clause) {
 
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_linear);
-    OpenMPClause* new_clause = NULL;
 
     for (std::vector<OpenMPClause*>::iterator it = current_clauses->begin(); it != current_clauses->end()-1; it++) {
           
@@ -688,9 +684,8 @@ OpenMPClause* OpenMPDependClause::addDependClause(OpenMPDirective *directive, Op
     return new_clause;
 };
 void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* current_clause) {
-    std::map<OpenMPClauseKind, std::vector<OpenMPClause*>* >* all_clauses = directive->getAllClauses();
+
     std::vector<OpenMPClause*>* current_clauses = directive->getClauses(OMPC_depend);
-    OpenMPClause* new_clause = NULL;
     
     if (current_clauses->size() == true) return;
 
@@ -704,7 +699,7 @@ void OpenMPDependClause::mergeDepend(OpenMPDirective *directive, OpenMPClause* c
                     for (std::vector<vector<const char*>* >::iterator it_expr_previous_outer = depend_iterators_definition_previous->begin(); it_expr_previous_outer != depend_iterators_definition_previous->end(); it_expr_previous_outer++) {
                         bool merge = false;
                         if (strcmp((*it_expr_current_outer)->at(0), (*it_expr_previous_outer)->at(0)) == 0 && strcmp((*it_expr_current_outer)->at(1), (*it_expr_previous_outer)->at(1)) == 0 && strcmp((*it_expr_current_outer)->at(2), (*it_expr_previous_outer)->at(2)) == 0 && strcmp((*it_expr_current_outer)->at(3), (*it_expr_previous_outer)->at(3)) == 0 && strcmp((*it_expr_current_outer)->at(4), (*it_expr_previous_outer)->at(4)) == 0){
-                            bool merge = true;
+                            merge = true;
                             break;
                         }
                         if (it_expr_previous_outer == depend_iterators_definition_previous->end()-1 && merge == false) {

@@ -308,7 +308,7 @@ void OpenMPToClause::generateDOT(std::ofstream& dot_file, int depth, int index, 
         current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
         dot_file << current_line.c_str();
     };
-    std:string mapper_identifier = this->getMapperIdentifier();
+    std::string mapper_identifier = this->getMapperIdentifier();
     if (mapper_identifier != "") {
     std::string node_id =  clause_kind+ "_kind";
         parameter_string = mapper_identifier;
@@ -363,7 +363,7 @@ void OpenMPFromClause::generateDOT(std::ofstream& dot_file, int depth, int index
         current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
         dot_file << current_line.c_str();
     };
-    std:string mapper_identifier = this->getMapperIdentifier();
+    std::string mapper_identifier = this->getMapperIdentifier();
     if (mapper_identifier != "") {
     std::string node_id =  clause_kind+ "_kind";
         parameter_string = mapper_identifier;
@@ -642,7 +642,6 @@ void OpenMPMapClause::generateDOT(std::ofstream& dot_file, int depth, int index,
     OpenMPMapClauseModifier modifier1 = this->getModifier1();
     OpenMPMapClauseModifier modifier2 = this->getModifier2();
     OpenMPMapClauseModifier modifier3 = this->getModifier3();
-    OpenMPMapClauseType Type = this->getType();
     std::string parameter_string;
     switch (modifier1) {
         case OMPC_MAP_MODIFIER_always:
@@ -1011,9 +1010,7 @@ void OpenMPDirective::generateDOT() {
         case OMPD_declare_mapper: {
             std::string indent = std::string(1, '\t');
             OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
-            //std::string id = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
             std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
-            int list_index = 0;
             std::string tkind = "declare_mapper";
             std::string node_id = tkind + "_mapper_identifier";
             std::string parameter_string;
@@ -1046,7 +1043,6 @@ void OpenMPDirective::generateDOT() {
         case OMPD_declare_simd: {
             std::string indent = std::string(1, '\t');
             std::string proc_name = ((OpenMPDeclareSimdDirective*)this)->getProcName();
-            int list_index = 0;
             std::string tkind = "declare_simd";
             std::string node_id = tkind + "_proc_name";
             if (proc_name != ""){
@@ -1300,7 +1296,6 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             std::string indent = std::string(1, '\t');
             OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
             std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
-            int list_index = 0;
             std::string tkind = "declare_mapper";
             std::string node_id = tkind + "_mapper_identifier";
             std::string parameter_string;
@@ -1755,7 +1750,7 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
     std::string indent = std::string(depth, '\t');
     std::string clause_string;
     std::string clause_type;
-    std::vector<OpenMPDirective*>* parameter_directives;
+    //std::vector<OpenMPDirective*>* parameter_directives;
     parent_node = parent_node.substr(0, parent_node.size()-1);
     OpenMPClauseKind clause_kind = this->getKind();
     switch (clause_kind) {
@@ -1806,7 +1801,7 @@ void OpenMPVariantClause::generateDOT(std::ofstream& dot_file, int depth, int in
         dot_file << current_line.c_str();
         current_line = indent + "\t" + node_id + " [label = \"construct\"]\n";
         dot_file << current_line.c_str();
-        for (int i = 0; i < parameter_pair_directives->size(); i++) {
+        for (unsigned int i = 0; i < parameter_pair_directives->size(); i++) {
             parameter_pair_directives->at(i).second->generateDOT(dot_file, depth+2, i, node_id, parameter_pair_directives->at(i).first);
         };
     };
@@ -1940,9 +1935,9 @@ void OpenMPDefaultClause::generateDOT(std::ofstream& dot_file, int depth, int in
     std::string current_line;
     std::string indent = std::string(depth, '\t');
     std::string clause_string;
-    std::vector<OpenMPDirective*>* parameter_directives;
+    //std::vector<OpenMPDirective*>* parameter_directives;
     parent_node = parent_node.substr(0, parent_node.size()-1);
-    OpenMPClauseKind clause_kind = this->getKind();
+    //OpenMPClauseKind clause_kind = this->getKind();
 
     clause_string = "default";
 
@@ -1959,13 +1954,10 @@ void OpenMPDefaultClause::generateDOT(std::ofstream& dot_file, int depth, int in
 void OpenMPOrderClause::generateDOT(std::ofstream& dot_file, int depth, int index, std::string parent_node) {
 
     std::string parameter_string;
-    OpenMPDirective* variant_directive = NULL;
     std::string current_line;
     std::string indent = std::string(depth, '\t');
     std::string clause_string;
-    std::vector<OpenMPDirective*>* parameter_directives;
     parent_node = parent_node.substr(0, parent_node.size()-1);
-    OpenMPClauseKind clause_kind = this->getKind();
 
     clause_string = "order";
 
@@ -2067,7 +2059,7 @@ void OpenMPLinearClause::generateDOT(std::ofstream& dot_file, int depth, int ind
             dot_file << current_line.c_str();
         };
     };
-    std:string step = this->getUserDefinedStep();
+    std::string step = this->getUserDefinedStep();
     if (step != "") {
         parameter_string = step;
         std::string step_name = clause_kind + "_liner_step";
@@ -2104,7 +2096,7 @@ void OpenMPAlignedClause::generateDOT(std::ofstream& dot_file, int depth, int in
             dot_file << current_line.c_str();
         };
     };
-    std:string alignment = this->getUserDefinedAlignment();
+    std::string alignment = this->getUserDefinedAlignment();
     if (alignment != "") {
         parameter_string = alignment;
         std::string alignment_name = clause_kind + "_aligned_alignment";
@@ -2242,7 +2234,7 @@ void OpenMPDistScheduleClause::generateDOT(std::ofstream& dot_file, int depth, i
         dot_file << current_line.c_str();
     };
 
-    std:string chunk_size = this->getChunkSize();
+    std::string chunk_size = this->getChunkSize();
     if (chunk_size != "") {
         parameter_string = chunk_size;
         std::string chunk_size_name = clause_kind + "_chunk_size";

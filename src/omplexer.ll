@@ -112,9 +112,6 @@ We introduce a flag to indicate the context: within a variable list like (a,y,y)
   We check '(' or ')' to set it to true or false as parsing proceed */
 extern bool b_within_variable_list ; /* = false; */
 
-/*conditionally return either a clause token or ID_EXPRESSION, depending on the context.
-  We should use it for any OpenMP keyword which could potentially used by users as a variable within a variable list.*/
-static int cond_return (int input);
 /* pass user specified string to buf, indicate the size using 'result', 
    and shift the current position pointer of user input afterwards 
    to prepare next round of token recognition!!

@@ -755,7 +755,7 @@ std::string OpenMPDependClause::toString() {
             case OMPC_DEPEND_MODIFIER_iterator: {
                 clause_string += "iterator";
                 clause_string += " ( ";
-                for (int i = 0; i < depend_iterators_definition_class->size(); i++) {  
+                for (unsigned int i = 0; i < depend_iterators_definition_class->size(); i++) {
                     clause_string += depend_iterators_definition_class->at(i)->at(0);
                     if (strcmp(depend_iterators_definition_class->at(i)->at(0), "\0") != 0) {
                         clause_string += " ";
@@ -869,7 +869,7 @@ std::string OpenMPAffinityClause::toString() {
         case OMPC_AFFINITY_MODIFIER_iterator:
             clause_string += "iterator";
             clause_string += " ( ";
-            for (int i = 0; i <iterators_definition_class->size(); i++){  
+            for (unsigned int i = 0; i <iterators_definition_class->size(); i++){
                 clause_string += iterators_definition_class->at(i)->at(0);
                 if (strcmp(iterators_definition_class->at(i)->at(0), "\0") != 0) { clause_string +=" "; };
                 clause_string +=iterators_definition_class->at(i)->at(1);
@@ -1928,7 +1928,7 @@ std::string OpenMPUsesAllocatorsClause::toString() {
     std::string result = "uses_allocators ";
     std::string parameter_string;
     parameter_string += "(";
-    for (int i = 0; i < usesAllocatorsAllocatorSequence->size(); i++) { 
+    for (unsigned int i = 0; i < usesAllocatorsAllocatorSequence->size(); i++) {
         switch (usesAllocatorsAllocatorSequence->at(i)->getUsesAllocatorsAllocator()) {
             case OMPC_USESALLOCATORS_ALLOCATOR_default: {
                 parameter_string += "omp_default_mem_alloc";

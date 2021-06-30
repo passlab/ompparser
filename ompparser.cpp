@@ -57,7 +57,7 @@ int openFile(std::ifstream& file, const char* filename) {
     try {
         file.open(filename);
     }
-    catch (std::ifstream::failure e) {
+    catch (std::ifstream::failure const&) {
         std::cerr << "Exception caused by opening the given file\n";
         return -1;
     }
