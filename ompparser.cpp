@@ -21,7 +21,7 @@ extern void setLang(OpenMPBaseLang);
 void output(std::vector<OpenMPDirective*> *omp_ast_list) {
 
     if (omp_ast_list != NULL) {
-        for (int i = 0; i < omp_ast_list->size(); i++) {
+        for (unsigned int i = 0; i < omp_ast_list->size(); i++) {
             if (omp_ast_list->at(i) != NULL) {
                 std::cout << omp_ast_list->at(i)->generatePragmaString() << std::endl;
             }
@@ -36,10 +36,9 @@ void savePragmaList(std::vector<OpenMPDirective*> *omp_ast_list, const char* fil
 
     std::string output_filename = std::string(filename) + ".pragmas";
     std::ofstream output_file(output_filename.c_str(), std::ofstream::trunc);
-    //std::ofstream output_file("ompp.pragmas", std::ofstream::trunc);
 
     if (omp_ast_list != NULL) {
-        for (int i = 0; i < omp_ast_list->size(); i++) {
+        for (unsigned int i = 0; i < omp_ast_list->size(); i++) {
             if (omp_ast_list->at(i) != NULL) {
                 output_file << omp_ast_list->at(i)->generatePragmaString() << std::endl;
             }
@@ -68,7 +67,7 @@ int openFile(std::ifstream& file, const char* filename) {
 int main( int argc, const char* argv[] ) {
     const char* filename = NULL;
     int result;
-    int i;
+    unsigned int i;
     std::vector<OpenMPDirective*> *omp_ast_list = new std::vector<OpenMPDirective*>();
     OpenMPDirective* omp_ast = NULL;
     std::vector<std::string> *omp_directive_list = new std::vector<std::string>();

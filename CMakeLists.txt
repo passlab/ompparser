@@ -50,17 +50,23 @@ add_compile_options(-Wall)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# The temporary test file
-add_executable(main EXCLUDE_FROM_ALL ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} main.cpp)
-
-# The temporary test file
-add_executable(tester EXCLUDE_FROM_ALL ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} tester.cpp)
-
-# The standalone ompparser executable
-add_executable(ompp EXCLUDE_FROM_ALL ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES} ${OMPP_TOOLS} ompparser.cpp)
-
 # The ompparser library for install and distribution
 add_library(ompparser SHARED ${BISON_OMPBISONParser_OUTPUTS} ${FLEX_OMPFLEXScanner_OUTPUTS} ${OMPIR_SOURCE_FILES})
+
+# The temporary test file
+add_executable(main EXCLUDE_FROM_ALL main.cpp)
+add_dependencies(main ompparser)
+target_link_libraries(main ompparser)
+
+# The temporary test file
+add_executable(tester EXCLUDE_FROM_ALL tester.cpp)
+add_dependencies(tester ompparser)
+target_link_libraries(tester ompparser)
+
+# The standalone ompparser executable
+add_executable(ompp EXCLUDE_FROM_ALL ${OMPP_TOOLS} ompparser.cpp)
+add_dependencies(ompp ompparser)
+target_link_libraries(ompp ompparser)
 
 set(ompparser_targets ompparser)
 set(executable_targets
