@@ -83,6 +83,6 @@ install(FILES
 install(TARGETS ${ompparser_targets}
         LIBRARY DESTINATION lib
         )
-install(TARGETS ${executable_targets}
+install(TARGETS ${executable_targets} OPTIONAL
         RUNTIME DESTINATION bin
         )
