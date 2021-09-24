@@ -81,6 +81,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_unified_shared_memory :
         case OMPC_dynamic_allocators :
         case OMPC_is_device_ptr :
+        case OMPC_has_device_addr :
         case OMPC_link :
         case OMPC_threads:
         case OMPC_simd:

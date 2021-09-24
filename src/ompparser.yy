@@ -93,7 +93,7 @@ corresponding C type is union name defaults to YYSTYPE.
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
         FINAL UNTIED MERGEABLE IN_REDUCTION DEPEND PRIORITY AFFINITY DETACH MODIFIER_ITERATOR DEPOBJ FINAL_CLAUSE IN INOUT MUTEXINOUTSET OUT
         TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
-        USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR
+        USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR HAS_DEVICE_ADDR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER CATEGORY_ALLOCATABLE UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
  LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL SOURCE SINK DESTROY THREADS
         CONCURRENT
@@ -853,11 +853,13 @@ target_exit_data_clause: if_target_exit_data_clause
                        ;
 target_clause: if_target_clause
              | device_clause
+             | thread_limit_clause
              | private_clause
              | firstprivate_clause
              | in_reduction_clause
              | map_clause
              | is_device_ptr_clause
+             | has_device_addr_clause
              | defaultmap_clause
              | nowait_clause
              | allocate_clause
@@ -1061,6 +1063,12 @@ use_device_addr_clause : USE_DEVICE_ADDR {
                        ;
 is_device_ptr_clause : IS_DEVICE_PTR {
                 current_clause = current_directive->addOpenMPClause(OMPC_is_device_ptr);
+} '(' var_list ')' {
+}
+                     ;
+                     
+has_device_addr_clause : HAS_DEVICE_ADDR {
+                current_clause = current_directive->addOpenMPClause(OMPC_has_device_addr);
 } '(' var_list ')' {
 }
                      ;

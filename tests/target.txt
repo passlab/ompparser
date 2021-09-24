@@ -36,3 +36,6 @@ PASS: #pragma omp target defaultmap (alloc)
 
 #pragma omp target defaultmap(to)
 PASS: #pragma omp target defaultmap (to)
+
+#pragma omp target has_device_addr(a, b, c)
+PASS: #pragma omp target has_device_addr (a, b, c)

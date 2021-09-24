@@ -249,6 +249,7 @@ use_device_addr           { return USE_DEVICE_ADDR; }
 enter                     { return ENTER; }
 exit                      { return EXIT; }
 is_device_ptr             { return IS_DEVICE_PTR; }
+has_device_addr           { return HAS_DEVICE_ADDR; }
 defaultmap                { yy_push_state(DEFAULTMAP_STATE); return DEFAULTMAP; }
 update                    { yy_push_state(UPDATE_STATE); return UPDATE; }
 

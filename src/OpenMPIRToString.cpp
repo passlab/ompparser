@@ -582,6 +582,9 @@ std::string OpenMPClause::toString() {
         case OMPC_is_device_ptr:
             result += "is_device_ptr ";
             break;
+        case OMPC_has_device_addr:
+            result += "has_device_addr ";
+            break;
         case OMPC_grainsize:
             result += "grainsize ";
             break;
