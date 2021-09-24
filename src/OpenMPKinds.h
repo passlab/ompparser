@@ -193,6 +193,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(use_device_ptr, OMPUseDevicePtrClause)
     OPENMP_CLAUSE(use_device_addr, OMPUseDeviceAddrClause)
     OPENMP_CLAUSE(is_device_ptr, OMPIsDevicePtrClause)
+    OPENMP_CLAUSE(has_device_addr, OMPHasDeviceAddrClause)
 
     OPENMP_CLAUSE(defaultmap, OMPDefaultmapClause)
     OPENMP_CLAUSE(to, OMPToClause)
