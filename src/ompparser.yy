@@ -3181,13 +3181,11 @@ num_teams_clause: NUM_TEAMS {
                          } '(' expression ')'
                 ;
 align_clause: ALIGN {
-                            current_clause = current_directive->addOpenMPClause(OMPC_align);
-                         } '(' expression ')'
-                ;
+                  current_clause = current_directive->addOpenMPClause(OMPC_align);
+                  } '(' expression ')'
+            ;
                 
-thread_limit_clause: THREAD_LIMIT {
-                            current_clause = current_directive->addOpenMPClause(OMPC_thread_limit);
-                         } '(' expression ')'
+thread_limit_clause: THREAD_LIMIT { current_clause = current_directive->addOpenMPClause(OMPC_thread_limit); } '(' expression ')'
                    ;
 copyin_clause: COPYIN {
                 current_clause = current_directive->addOpenMPClause(OMPC_copyin);
