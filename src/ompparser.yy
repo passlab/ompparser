@@ -81,7 +81,7 @@ corresponding C type is union name defaults to YYSTYPE.
 %token  OMP PARALLEL FOR DO DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE MAPPER
         IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NONMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
-        SAFELEN SIMDLEN ALIGNED NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT WORKSHARE/*YAYING*/
+        SAFELEN SIMDLEN ALIGNED ALIGN NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT WORKSHARE/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
         PLUS MINUS STAR BITAND BITOR BITXOR LOGAND LOGOR EQV NEQV MAX MIN
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
@@ -2406,6 +2406,13 @@ cancellation_point_clause_optseq : /*empty*/
 allocate_clause_optseq : /*empty*/
                        | allocate_clause_seq
                        ;
+allocate_clause_seq : allocate_directive_clause
+                    | allocate_clause_seq allocate_directive_clause
+                    | allocate_clause_seq ',' allocate_directive_clause
+                    ; 
+
+
+
 declare_reduction_clause_optseq :  /*empty*/
                                 | declare_reduction_clause_seq
                                 ;
@@ -2555,8 +2562,9 @@ cancellation_point_clause_seq : construct_type_clause
                               ;
 //cancellation_point_clause_fortran_seq : construct_type_clause_fortran
 //                                      ;
-allocate_clause_seq :  allocator_clause
-                    ;
+allocate_directive_clause : allocator_clause
+                          | align_clause
+                          ;
 declare_reduction_clause_seq : initializer_clause
                              ;
 declare_mapper_clause : map_clause
@@ -3172,6 +3180,11 @@ num_teams_clause: NUM_TEAMS {
                             current_clause = current_directive->addOpenMPClause(OMPC_num_teams);
                          } '(' expression ')'
                 ;
+align_clause: ALIGN {
+                            current_clause = current_directive->addOpenMPClause(OMPC_align);
+                         } '(' expression ')'
+                ;
+                
 thread_limit_clause: THREAD_LIMIT {
                             current_clause = current_directive->addOpenMPClause(OMPC_thread_limit);
                          } '(' expression ')'

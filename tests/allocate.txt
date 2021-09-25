@@ -25,6 +25,16 @@ PASS: #pragma omp allocate (f,e) allocator (omp_allocator_handle_t)
 #pragma omp allocate (z,x) allocator(omp_default_mem_alloc)
 PASS: #pragma omp allocate (z,x) allocator (omp_default_mem_alloc)
 
+#pragma omp allocate (z,x) allocator(omp_default_mem_alloc) align(3)
+PASS: #pragma omp allocate (z,x) allocator (omp_default_mem_alloc) align (3)
+
+#pragma omp allocate (z,x) align(3)
+PASS: #pragma omp allocate (z,x) align (3)
+
+#pragma omp allocate (z,x) align(3) allocator(omp_default_mem_alloc)
+PASS: #pragma omp allocate (z,x) align (3) allocator (omp_default_mem_alloc)
+
+
 // invalid test without paired validation.
 
 #pragma omp allocate allocator(omp_default_mem_alloc:a,b,c)

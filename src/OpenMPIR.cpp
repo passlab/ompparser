@@ -49,6 +49,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_num_teams:
         case OMPC_thread_limit:
         case OMPC_copyin:
+        case OMPC_align:
         case OMPC_collapse:
         case OMPC_ordered:
         case OMPC_nowait:
