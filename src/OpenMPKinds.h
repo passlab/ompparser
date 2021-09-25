@@ -127,6 +127,7 @@ enum OpenMPClauseKind {
     OPENMP_CLAUSE(firstprivate, OMPFirstprivateClause)
     OPENMP_CLAUSE(shared,  OMPSharedClause)
     OPENMP_CLAUSE(copyin,  OMPCopyinClause)
+    OPENMP_CLAUSE(align,  OMPAlignClause)
     OPENMP_CLAUSE(reduction,  OMPReductionClause)
     OPENMP_CLAUSE(proc_bind, OMPProcBindClause)
     OPENMP_CLAUSE(allocate, OMPAllocateClause)

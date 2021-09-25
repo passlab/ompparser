@@ -483,6 +483,9 @@ std::string OpenMPClause::toString() {
         case OMPC_copyin:
             result += "copyin ";
             break;
+        case OMPC_align:
+            result += "align ";
+            break;
         case OMPC_collapse:
             result += "collapse ";
             break;

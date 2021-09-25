@@ -1362,6 +1362,9 @@ void OpenMPClause::generateDOT(std::ofstream& dot_file, int depth, int index, st
         case OMPC_num_threads:
             clause_kind += "num_threads";
             break;
+        case OMPC_align:
+            clause_kind += "align";
+            break;
         case OMPC_num_teams:
             clause_kind += "num_teams";
             break;

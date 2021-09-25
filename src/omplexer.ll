@@ -173,6 +173,7 @@ order           { yy_push_state(ORDER_STATE); return ORDER; }
 safelen         { yy_push_state(SAFELEN_STATE); return SAFELEN; }
 nontemporal     { yy_push_state(NONTEMPORAL_STATE); return NONTEMPORAL; }
 aligned         { yy_push_state(ALIGNED_STATE); return ALIGNED; }
+align           { return ALIGN; }
 declare         { return DECLARE; }
 uniform         { return UNIFORM; }
 inbranch        { return INBRANCH; }
