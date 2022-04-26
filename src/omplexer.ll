@@ -168,7 +168,9 @@ schedule        { yy_push_state(SCHEDULE_STATE); return SCHEDULE; }
 collapse        { yy_push_state(COLLAPSE_STATE); return COLLAPSE; }
 ordered/{blank}*\( { yy_push_state(ORDERED_STATE); return ORDERED; }
 ordered         { return ORDERED; }
+partial         { return PARTIAL; }
 nowait          { return NOWAIT; }
+full            { return FULL; }
 order           { yy_push_state(ORDER_STATE); return ORDER; }
 safelen         { yy_push_state(SAFELEN_STATE); return SAFELEN; }
 nontemporal     { yy_push_state(NONTEMPORAL_STATE); return NONTEMPORAL; }
@@ -202,6 +204,7 @@ when            { yy_push_state(WHEN_STATE); return WHEN; }
 match           { yy_push_state(MATCH_STATE); return MATCH; }
 initializer     { yy_push_state(INITIALIZER_STATE); return INITIALIZER; }
 mapper          { yy_push_state(MAPPER_STATE); return MAPPER; }
+unroll          { return UNROLL;}
 
 end             { return END; }
 score           { return SCORE; }

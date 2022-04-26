@@ -345,6 +345,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_taskwait:
             result += "taskwait ";
             break;
+        case OMPD_unroll:
+            result += "unroll ";
+            break;
         case OMPD_taskgroup:
             result += "taskgroup ";
             break;
@@ -494,6 +497,12 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_nowait:
             result += "nowait ";
+            break;
+        case OMPC_full:
+            result += "full ";
+            break;
+        case OMPC_partial:
+            result += "partial ";
             break;
         case OMPC_order:
             result += "order ";
