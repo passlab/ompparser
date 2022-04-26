@@ -52,7 +52,9 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_align:
         case OMPC_collapse:
         case OMPC_ordered:
+        case OMPC_partial:
         case OMPC_nowait:
+        case OMPC_full:
         case OMPC_safelen:
         case OMPC_simdlen:
         case OMPC_nontemporal:

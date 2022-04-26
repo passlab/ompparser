@@ -79,7 +79,7 @@ corresponding C type is union name defaults to YYSTYPE.
 
 
 %token  OMP PARALLEL FOR DO DECLARE DISTRIBUTE LOOP SCAN SECTIONS SECTION SINGLE CANCEL TASKGROUP CANCELLATION POINT THREAD VARIANT THREADPRIVATE METADIRECTIVE MAPPER
-        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH
+        IF NUM_THREADS DEFAULT PRIVATE FIRSTPRIVATE SHARED COPYIN REDUCTION PROC_BIND ALLOCATE SIMD TASK LASTPRIVATE WHEN MATCH PARTIAL FULL
         LINEAR SCHEDULE COLLAPSE NOWAIT ORDER ORDERED MODIFIER_CONDITIONAL MODIFIER_MONOTONIC MODIFIER_NONMONOTONIC STATIC DYNAMIC GUIDED AUTO RUNTIME MODOFIER_VAL MODOFIER_REF MODOFIER_UVAL MODIFIER_SIMD
         SAFELEN SIMDLEN ALIGNED ALIGN NONTEMPORAL UNIFORM INBRANCH NOTINBRANCH DIST_SCHEDULE BIND INCLUSIVE EXCLUSIVE COPYPRIVATE ALLOCATOR INITIALIZER OMP_PRIV IDENTIFIER_DEFAULT WORKSHARE/*YAYING*/
         NONE MASTER CLOSE SPREAD MODIFIER_INSCAN MODIFIER_TASK MODIFIER_DEFAULT 
@@ -92,7 +92,7 @@ corresponding C type is union name defaults to YYSTYPE.
         KIND HOST NOHOST ANY CPU GPU FPGA ISA ARCH EXTENSION
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
         FINAL UNTIED MERGEABLE IN_REDUCTION DEPEND PRIORITY AFFINITY DETACH MODIFIER_ITERATOR DEPOBJ FINAL_CLAUSE IN INOUT MUTEXINOUTSET OUT
-        TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED
+        TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED UNROLL
         USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR HAS_DEVICE_ADDR
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER CATEGORY_ALLOCATABLE UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
  LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL SOURCE SINK DESTROY THREADS
@@ -210,6 +210,7 @@ openmp_directive : parallel_directive
                  | target_parallel_do_simd_directive
                  | target_teams_distribute_parallel_do_directive
                  | target_teams_distribute_parallel_do_simd_directive
+                 | unroll_directive
                  ;
 
 variant_directive : parallel_directive
@@ -284,6 +285,7 @@ fortran_paired_directive : parallel_directive
                          | target_teams_loop_directive
                          | target_teams_distribute_parallel_do_directive
                          | target_teams_distribute_parallel_do_simd_directive
+                         | unroll_directive
                          ;
 
 end_directive : END { current_directive = new OpenMPEndDirective();
@@ -538,6 +540,11 @@ taskwait_directive : TASKWAIT {
                      }
                       taskwait_clause_optseq
                    ;
+unroll_directive : UNROLL {
+                        current_directive = new OpenMPDirective(OMPD_unroll);
+                     }
+                      unroll_clause_optseq
+                   ;
 taskgroup_directive : TASKGROUP {
                         current_directive = new OpenMPDirective(OMPD_taskgroup);
                      }
@@ -715,6 +722,9 @@ relaxed_clause : RELAXED { current_clause = current_directive->addOpenMPClause(O
 taskwait_clause_optseq : /* empty */
                        | taskwait_clause_seq
                        ;
+unroll_clause_optseq : /* empty */
+                       | unroll_clause_seq
+                       ;
 taskgroup_clause_optseq : /* empty */
                         | taskgroup_clause_seq
                         ;
@@ -764,6 +774,8 @@ taskwait_clause_seq : taskwait_clause
                     | taskwait_clause_seq taskwait_clause
                     | taskwait_clause_seq ',' taskwait_clause
                     ;
+unroll_clause_seq : unroll_clause
+                  ;
 taskgroup_clause_seq : taskgroup_clause
                      | taskgroup_clause_seq taskgroup_clause
                      | taskgroup_clause_seq ',' taskgroup_clause
@@ -883,6 +895,9 @@ declare_target_clause : to_clause
                       ;
 taskwait_clause : depend_with_modifier_clause
                 ;
+unroll_clause : full_clause
+              | partial_clause
+              ;
 taskgroup_clause : task_reduction_clause
                  | allocate_clause
                  ;
@@ -3329,9 +3344,14 @@ collapse_clause: COLLAPSE { current_clause = current_directive->addOpenMPClause(
 ordered_clause: ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); } '(' expression ')'
               | ORDERED { current_clause = current_directive->addOpenMPClause(OMPC_ordered); }
               ;
+partial_clause: PARTIAL { current_clause = current_directive->addOpenMPClause(OMPC_partial); } '(' expression ')'
+              | PARTIAL { current_clause = current_directive->addOpenMPClause(OMPC_partial); }
+              ;
 fortran_nowait_clause: NOWAIT { if (user_set_lang == Lang_C || auto_lang == Lang_C) {current_clause = current_directive->addOpenMPClause(OMPC_nowait);} else {yyerror("Sections does not support nowait clause in Fortran."); YYABORT;} }
                      ;
 nowait_clause: NOWAIT { current_clause = current_directive->addOpenMPClause(OMPC_nowait); }
+             ;
+full_clause: FULL { current_clause = current_directive->addOpenMPClause(OMPC_full); }
              ;
 order_clause: ORDER '(' order_parameter ')' { }
             ;
