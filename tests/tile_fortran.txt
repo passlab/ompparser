@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2018-2020, High Performance Computing Architecture and System
+ * research laboratory at University of North Carolina at Charlotte (HPCAS@UNCC)
+ * and Lawrence Livermore National Security, LLC.
+ *
+ * SPDX-License-Identifier: (BSD-3-Clause)
+ */
+
+//For testing purpose, there are several extra empty lines.
+//The final version should only contain necessary information.
+//This is not a C/C++ code, so there's no required writing style.
+//Only two kinds of special lines will be recognized.
+//One is starting with "omp", which is the input.
+//The other one is starting with "PASS: ", which is the result for validation.
+
+!$omp tile sizes(1,2,3)
+PASS: !$omp tile sizes (1, 2, 3)
+

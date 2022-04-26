@@ -99,6 +99,7 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
         case OMPC_capture : 
         case OMPC_hint :
         case OMPC_destroy:
+        case OMPC_sizes:
         
         {
             if (current_clauses->size() == 0) {
