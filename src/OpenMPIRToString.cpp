@@ -348,6 +348,9 @@ std::string OpenMPDirective::toString() {
         case OMPD_unroll:
             result += "unroll ";
             break;
+        case OMPD_tile:
+            result += "tile ";
+            break;
         case OMPD_taskgroup:
             result += "taskgroup ";
             break;
@@ -587,6 +590,9 @@ std::string OpenMPClause::toString() {
             break;
         case OMPC_use_device_ptr:
             result += "use_device_ptr ";
+            break;
+        case OMPC_sizes:
+            result += "sizes ";
             break;
         case OMPC_use_device_addr:
             result += "use_device_addr ";

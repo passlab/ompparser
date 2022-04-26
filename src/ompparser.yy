@@ -92,8 +92,8 @@ corresponding C type is union name defaults to YYSTYPE.
         KIND HOST NOHOST ANY CPU GPU FPGA ISA ARCH EXTENSION
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
         FINAL UNTIED MERGEABLE IN_REDUCTION DEPEND PRIORITY AFFINITY DETACH MODIFIER_ITERATOR DEPOBJ FINAL_CLAUSE IN INOUT MUTEXINOUTSET OUT
-        TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED UNROLL
-        USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR HAS_DEVICE_ADDR
+        TASKLOOP GRAINSIZE NUM_TASKS NOGROUP TASKYIELD REQUIRES REVERSE_OFFLOAD UNIFIED_ADDRESS UNIFIED_SHARED_MEMORY ATOMIC_DEFAULT_MEM_ORDER DYNAMIC_ALLOCATORS SEQ_CST ACQ_REL RELAXED UNROLL TILE
+        USE_DEVICE_PTR USE_DEVICE_ADDR TARGET DATA ENTER EXIT ANCESTOR DEVICE_NUM IS_DEVICE_PTR HAS_DEVICE_ADDR SIZES
         DEFAULTMAP BEHAVIOR_ALLOC BEHAVIOR_TO BEHAVIOR_FROM BEHAVIOR_TOFROM BEHAVIOR_FIRSTPRIVATE BEHAVIOR_NONE BEHAVIOR_DEFAULT CATEGORY_SCALAR CATEGORY_AGGREGATE CATEGORY_POINTER CATEGORY_ALLOCATABLE UPDATE TO FROM TO_MAPPER FROM_MAPPER USES_ALLOCATORS
  LINK DEVICE_TYPE MAP MAP_MODIFIER_ALWAYS MAP_MODIFIER_CLOSE MAP_MODIFIER_MAPPER MAP_TYPE_TO MAP_TYPE_FROM MAP_TYPE_TOFROM MAP_TYPE_ALLOC MAP_TYPE_RELEASE MAP_TYPE_DELETE EXT_ BARRIER TASKWAIT FLUSH RELEASE ACQUIRE ATOMIC READ WRITE CAPTURE HINT CRITICAL SOURCE SINK DESTROY THREADS
         CONCURRENT
@@ -211,6 +211,7 @@ openmp_directive : parallel_directive
                  | target_teams_distribute_parallel_do_directive
                  | target_teams_distribute_parallel_do_simd_directive
                  | unroll_directive
+                 | tile_directive
                  ;
 
 variant_directive : parallel_directive
@@ -286,6 +287,7 @@ fortran_paired_directive : parallel_directive
                          | target_teams_distribute_parallel_do_directive
                          | target_teams_distribute_parallel_do_simd_directive
                          | unroll_directive
+                         | tile_directive
                          ;
 
 end_directive : END { current_directive = new OpenMPEndDirective();
@@ -545,6 +547,11 @@ unroll_directive : UNROLL {
                      }
                       unroll_clause_optseq
                    ;
+tile_directive : TILE {
+                        current_directive = new OpenMPDirective(OMPD_tile);
+                     }
+                      tile_clause_optseq
+                   ;
 taskgroup_directive : TASKGROUP {
                         current_directive = new OpenMPDirective(OMPD_taskgroup);
                      }
@@ -723,8 +730,10 @@ taskwait_clause_optseq : /* empty */
                        | taskwait_clause_seq
                        ;
 unroll_clause_optseq : /* empty */
-                       | unroll_clause_seq
-                       ;
+                     | unroll_clause_seq
+                     ;
+tile_clause_optseq : tile_clause_seq
+                   ;
 taskgroup_clause_optseq : /* empty */
                         | taskgroup_clause_seq
                         ;
@@ -776,6 +785,8 @@ taskwait_clause_seq : taskwait_clause
                     ;
 unroll_clause_seq : unroll_clause
                   ;
+tile_clause_seq : tile_clause
+                ;
 taskgroup_clause_seq : taskgroup_clause
                      | taskgroup_clause_seq taskgroup_clause
                      | taskgroup_clause_seq ',' taskgroup_clause
@@ -898,6 +909,8 @@ taskwait_clause : depend_with_modifier_clause
 unroll_clause : full_clause
               | partial_clause
               ;
+tile_clause : sizes_clause
+            ;
 taskgroup_clause : task_reduction_clause
                  | allocate_clause
                  ;
@@ -1069,6 +1082,11 @@ device_without_modifier_parameter : EXPR_STRING  { current_clause = current_dire
 
 use_device_ptr_clause : USE_DEVICE_PTR {
                 current_clause = current_directive->addOpenMPClause(OMPC_use_device_ptr);
+} '(' var_list ')'
+                      ;
+            
+sizes_clause : SIZES {
+                current_clause = current_directive->addOpenMPClause(OMPC_sizes);
 } '(' var_list ')'
                       ;
 

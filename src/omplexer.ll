@@ -205,6 +205,7 @@ match           { yy_push_state(MATCH_STATE); return MATCH; }
 initializer     { yy_push_state(INITIALIZER_STATE); return INITIALIZER; }
 mapper          { yy_push_state(MAPPER_STATE); return MAPPER; }
 unroll          { return UNROLL;}
+tile            { return TILE;}
 
 end             { return END; }
 score           { return SCORE; }
@@ -279,7 +280,7 @@ critical                  { return CRITICAL; }
 depobj                    { return DEPOBJ; }
 destroy                   { return DESTROY; }
 threads                   { return THREADS; }
-
+sizes                     { return SIZES; }
 
 
 "("             { return '('; }
