@@ -282,7 +282,7 @@ public:
         type_var = _type_var;
         int length = type_var.length()-1;
         for (int i = length; i>=0; i--) {
-            if (type_var[i] == ' ') { type = type_var.substr(0,i-1); var = type_var.substr(i+1,length); }
+            if (type_var[i] == ' ' || type_var[i] == '*') { type = type_var.substr(0,i+1); var = type_var.substr(i+1,length-i); break;}
         }
     }
     std::string getDeclareMapperType () { return type;}

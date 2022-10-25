@@ -96,6 +96,7 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
             std::string declare_mapper_type = ((OpenMPDeclareMapperDirective*)this)->getDeclareMapperType();
             result += declare_mapper_type;
             if (this->getBaseLang() == Lang_Fortran) result += " :: ";
+            else result += " ";
             std::string declare_mapper_variable = ((OpenMPDeclareMapperDirective*)this)->getDeclareMapperVar();
             result += declare_mapper_variable;
             result += " )";
