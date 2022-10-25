@@ -2319,7 +2319,7 @@ mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current
                   | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
 
-type_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setTypeVar($1); }
+type_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); }
          ;
 
 parallel_clause_optseq : /* empty */

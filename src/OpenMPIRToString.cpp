@@ -93,8 +93,11 @@ std::string OpenMPDirective::generatePragmaString(std::string prefix, std::strin
                 result += ":";
             }
 
-            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
-            result += type_var;
+            std::string declare_mapper_type = ((OpenMPDeclareMapperDirective*)this)->getDeclareMapperType();
+            result += declare_mapper_type;
+            if (this->getBaseLang() == Lang_Fortran) result += " :: ";
+            std::string declare_mapper_variable = ((OpenMPDeclareMapperDirective*)this)->getDeclareMapperVar();
+            result += declare_mapper_variable;
             result += " )";
             break;
         }
