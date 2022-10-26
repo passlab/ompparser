@@ -500,6 +500,7 @@ sizes                     { return SIZES; }
 <INITIALIZER_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <MAPPER_STATE>default                       { return IDENTIFIER_DEFAULT; }
+<MAPPER_STATE>"::"                          { return DOUBLE_COLON; }
 <MAPPER_STATE>":"                           { yy_push_state(ID_EXPR_STATE); return ':'; }
 <MAPPER_STATE>{blank}*                      { ; }
 <MAPPER_STATE>"("                           { return '('; }

@@ -87,7 +87,7 @@ corresponding C type is union name defaults to YYSTYPE.
         DEFAULT_MEM_ALLOC LARGE_CAP_MEM_ALLOC CONST_MEM_ALLOC HIGH_BW_MEM_ALLOC LOW_LAT_MEM_ALLOC CGROUP_MEM_ALLOC
         PTEAM_MEM_ALLOC THREAD_MEM_ALLOC
         TEAMS
-        NUM_TEAMS THREAD_LIMIT
+        NUM_TEAMS THREAD_LIMIT DOUBLE_COLON
         END USER CONSTRUCT DEVICE IMPLEMENTATION CONDITION SCORE VENDOR
         KIND HOST NOHOST ANY CPU GPU FPGA ISA ARCH EXTENSION
         AMD ARM BSC CRAY FUJITSU GNU IBM INTEL LLVM PGI TI UNKNOWN
@@ -2318,9 +2318,16 @@ mapper_identifier_optseq : type_var
 mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_default);}
                   | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
-
-type_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); }
+         
+type_var : EXPR_STRING { if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) { yyerror("The syntax should be \"type :: var\" in Fortran"); YYABORT; } else ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); }
+         | declare_mapper_type DOUBLE_COLON declare_mapper_var {if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {} else {yyerror("The syntax should be \"type var\" in C"); YYABORT; } }
          ;
+
+declare_mapper_type : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperType($1); }
+                    ;
+                    
+declare_mapper_var : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperVar($1); }
+                   ;
 
 parallel_clause_optseq : /* empty */
                        | parallel_clause_seq

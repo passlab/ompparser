@@ -287,6 +287,8 @@ public:
     }
     std::string getDeclareMapperType () { return type;}
     std::string getDeclareMapperVar () { return var;}
+    void setDeclareMapperType (const char * _declare_mapper_type) { type = _declare_mapper_type;}
+    void setDeclareMapperVar (const char * _declare_mapper_variable) { var = _declare_mapper_variable;}
 };
 
 // reduction clause
