@@ -2319,10 +2319,10 @@ mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current
                   | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
          
-type_var : EXPR_STRING { if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) { yyerror("The syntax should be \"type :: var\" in Fortran"); YYABORT; } else ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); }
-         | declare_mapper_type DOUBLE_COLON declare_mapper_var {if (user_set_lang == Lang_Fortran || auto_lang == Lang_Fortran) {} else {yyerror("The syntax should be \"type var\" in C"); YYABORT; } }
+type_var : EXPR_STRING { if (user_set_lang == Lang_C || auto_lang == Lang_C) { ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); } else {yyerror("The syntax should be \"type :: var\" in Fortran"); YYABORT; } } 
+         | declare_mapper_type DOUBLE_COLON declare_mapper_var { if (user_set_lang == Lang_C || auto_lang == Lang_C) yyerror("The syntax should be \"type var\" in C"); YYABORT; }
          ;
-
+         
 declare_mapper_type : EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperType($1); }
                     ;
                     
