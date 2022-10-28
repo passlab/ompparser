@@ -114,6 +114,18 @@ OpenMPClause * OpenMPDirective::addOpenMPClause(int k, ... ) {
                     /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
                     new_clause = current_clauses->at(0);
                 }
+               if (kind == OMPC_simdlen) {
+                    std::cerr << "Cannot have two simdlen clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
+               if (kind == OMPC_safelen) {
+                    std::cerr << "Cannot have two safelen clause for the directive " << kind << ", ignored\n";
+                } else {
+                    /* we can have multiple clause and we merge them together now, thus we return the object that is already created */
+                    new_clause = current_clauses->at(0);
+                }
                if (kind == OMPC_seq_cst) {
                     std::cerr << "Cannot have two seq_cst clause for the directive " << kind << ", ignored\n";
                 } else {
