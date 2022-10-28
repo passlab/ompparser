@@ -2319,7 +2319,27 @@ mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current
                   | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
          
-type_var : EXPR_STRING { if (user_set_lang == Lang_C || auto_lang == Lang_C) { ((OpenMPDeclareMapperDirective*)current_directive)->cutTypeAndVar($1); } else {yyerror("The syntax should be \"type :: var\" in Fortran"); YYABORT; } } 
+type_var : EXPR_STRING { 
+               if (user_set_lang == Lang_C || auto_lang == Lang_C) { 
+                   const char * _type_var = $1;
+                   std::string type_var = (std::string)_type_var;
+                   int length = type_var.length()-1;
+                   for (int i = length; i >= 0; i--) {
+                       if (type_var[i] == ' ' || type_var[i] == '*') { 
+                           std::string _type = type_var.substr(0,i+1); 
+                           std::string _var = type_var.substr(i+1,length-i); 
+                           const char* type = &_type[0];
+                           const char* var = &_var[0];
+                           ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperType(type);
+                           ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperVar(var);
+                           break;
+                       }
+                   }
+               } else {
+                   yyerror("The syntax should be \"type :: var\" in Fortran"); 
+                   YYABORT; 
+               }
+         } 
          | declare_mapper_type DOUBLE_COLON declare_mapper_var { if (user_set_lang == Lang_C || auto_lang == Lang_C) yyerror("The syntax should be \"type var\" in C"); YYABORT; }
          ;
          
