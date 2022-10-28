@@ -1007,39 +1007,6 @@ void OpenMPDirective::generateDOT() {
             output << current_line.c_str();
            break;
         }
-        case OMPD_declare_mapper: {
-            std::string indent = std::string(1, '\t');
-            OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
-            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
-            std::string tkind = "declare_mapper";
-            std::string node_id = tkind + "_mapper_identifier";
-            std::string parameter_string;
-            switch (id) {
-                case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
-                {
-                    parameter_string = "default";
-                    break;
-                }
-                case OMPD_DECLARE_MAPPER_IDENTIFIER_user: 
-                {
-                    parameter_string = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
-                    break;
-                }
-                default:
-                    ;
-            };
-            current_line = indent + tkind + " -- " + node_id + "\n";
-            output << current_line.c_str();
-
-            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
-            output << current_line.c_str();
-            node_id = tkind + "_type_var";
-            current_line = indent + tkind + " -- " + node_id + "\n";
-            output << current_line.c_str();
-            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + type_var + "\"]\n";
-            output << current_line.c_str();
-            break;
-        }
         case OMPD_declare_simd: {
             std::string indent = std::string(1, '\t');
             std::string proc_name = ((OpenMPDeclareSimdDirective*)this)->getProcName();
@@ -1289,37 +1256,6 @@ void OpenMPDirective::generateDOT(std::ofstream& dot_file, int depth, int index,
             current_line = indent + tkind + " -- " + node_id + "\n";
             dot_file << current_line.c_str();
             current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + combiner + "\"]\n";
-            dot_file << current_line.c_str();
-            break;
-        }
-        case OMPD_declare_mapper: {
-            std::string indent = std::string(1, '\t');
-            OpenMPDeclareMapperDirectiveIdentifier id = ((OpenMPDeclareMapperDirective*)this)->getIdentifier();
-            std::string type_var = ((OpenMPDeclareMapperDirective*)this)->getTypeVar();
-            std::string tkind = "declare_mapper";
-            std::string node_id = tkind + "_mapper_identifier";
-            std::string parameter_string;
-            switch (id) {
-                case OMPD_DECLARE_MAPPER_IDENTIFIER_default:
-                {
-                    parameter_string = "default";
-                    break;
-                }
-                case OMPD_DECLARE_MAPPER_IDENTIFIER_user: {
-                    parameter_string = ((OpenMPDeclareMapperDirective*)this)->getUserDefinedIdentifier();
-                    break;
-                }
-                default:
-                    ;
-            };
-            current_line = indent + tkind + " -- " + node_id + "\n";
-            dot_file << current_line.c_str();
-            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + parameter_string + "\"]\n";
-            dot_file << current_line.c_str();
-            node_id = tkind + "_type_var";
-            current_line = indent + tkind + " -- " + node_id + "\n";
-            dot_file << current_line.c_str();
-            current_line = indent + "\t" + node_id + " [label = \"" + node_id + "\\n " + type_var + "\"]\n";
             dot_file << current_line.c_str();
             break;
         }

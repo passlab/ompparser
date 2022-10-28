@@ -276,15 +276,6 @@ public:
     OpenMPDeclareMapperDirectiveIdentifier getIdentifier() { return identifier; };
     void setUserDefinedIdentifier (std::string _user_defined_identifier) { user_defined_identifier = _user_defined_identifier;}
     std::string getUserDefinedIdentifier() { return user_defined_identifier;}
-    void setTypeVar (const char * _type_var) { type_var = _type_var;}
-    std::string getTypeVar() { return type_var;}
-    void cutTypeAndVar (const char * _type_var) { 
-        type_var = _type_var;
-        int length = type_var.length()-1;
-        for (int i = length; i>=0; i--) {
-            if (type_var[i] == ' ' || type_var[i] == '*') { type = type_var.substr(0,i+1); var = type_var.substr(i+1,length-i); break;}
-        }
-    }
     std::string getDeclareMapperType () { return type;}
     std::string getDeclareMapperVar () { return var;}
     void setDeclareMapperType (const char * _declare_mapper_type) { type = _declare_mapper_type;}
