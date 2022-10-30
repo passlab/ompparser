@@ -2315,7 +2315,7 @@ mapper_identifier_optseq : type_var
                          | mapper_identifier ':' type_var
                          ;
  
-mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_default);}
+mapper_identifier : IDENTIFIER_DEFAULT { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_default); }
                   | EXPR_STRING { ((OpenMPDeclareMapperDirective*)current_directive)->setIdentifier(OMPD_DECLARE_MAPPER_IDENTIFIER_user); ((OpenMPDeclareMapperDirective*)current_directive)->setUserDefinedIdentifier($1); }
                   ;
          
