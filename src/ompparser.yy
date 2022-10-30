@@ -2323,11 +2323,11 @@ type_var : EXPR_STRING {
                if (user_set_lang == Lang_C || auto_lang == Lang_C) { 
                    const char * _type_var = $1;
                    std::string type_var = std::string(_type_var);
-                   int length = type_var.length()-1;
+                   int length = type_var.length() - 1;
                    for (int i = length; i >= 0; i--) {
                        if (type_var[i] == ' ' || type_var[i] == '*') { 
-                           std::string _type = type_var.substr(0,i+1); 
-                           std::string _var = type_var.substr(i+1,length-i); 
+                           std::string _type = type_var.substr(0, i + 1);
+                           std::string _var = type_var.substr(i + 1, length - i);
                            const char* type = _type.c_str();
                            const char* var = _var.c_str();
                            ((OpenMPDeclareMapperDirective*)current_directive)->setDeclareMapperType(type);
