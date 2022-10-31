@@ -4,18 +4,17 @@ on:
   push:
     branches:
       - main
-      - dev
+
   pull_request:
     branches:
       - main
-      - dev
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
-        gnu: [7, 8, 9, 10, 11]
+        os: [ubuntu-22.04, ubuntu-20.04]
+        gnu: [9, 10, 11]
 
     runs-on: ${{ matrix.os }}
     env:
@@ -23,7 +22,7 @@ jobs:
       CXX: /usr/bin/g++-${{ matrix.gnu }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install dependencies
       run: |
