@@ -3526,7 +3526,6 @@ int yywrap()
 
 // Standalone ompparser
 OpenMPDirective* parseOpenMP(const char* _input, void * _exprParse(const char*)) {
-    printf("Start parsing...\n");
     OpenMPBaseLang base_lang = Lang_C;
     current_directive = NULL;
     std::string input_string;
