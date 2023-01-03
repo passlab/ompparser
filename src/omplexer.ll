@@ -10,68 +10,69 @@
 %option stack
 %option noyy_top_state
 
-%x EXPR_STATE
-%x ALLOCATE_STATE
-%x DEFAULT_STATE
-%x IF_STATE
-%x PROC_BIND_STATE
-%x REDUCTION_STATE
-%x LASTPRIVATE_STATE
-%x LINEAR_STATE
-%x SCHEDULE_STATE
-%x COLLAPSE_STATE
-%x ORDERED_STATE
-%x ALIGNED_STATE
-%x DIST_SCHEDULE_STATE
-%x BIND_STATE
-%X ALLOCATOR_STATE
-%X INITIALIZER_STATE
-%X MAPPER_STATE
-%X TYPE_STR_STATE
-%x WHEN_STATE
-%x MATCH_STATE
-%x ISA_STATE
-%x SCORE_STATE
-%x CONDITION_STATE
-%x VENDOR_STATE
-%x ARCH_STATE
-%x EXTENSION_STATE
-%x IN_REDUCTION_STATE
-%x DEPEND_STATE
-%x AFFINITY_STATE
 %x AFFINITY_EXPR_STATE
 %x AFFINITY_ITERATOR_STATE
-%x FINAL_STATE
-%x ATOMIC_DEFAULT_MEM_ORDER_STATE
-%x DEVICE_STATE
-%x DEFAULTMAP_STATE
-%x DEPEND_ITERATOR_STATE
-%x DEPEND_EXPR_STATE
-%x TO_STATE
-%x TO_MAPPER_STATE
-%x FROM_STATE
-%x FROM_MAPPER_STATE
-%X USES_ALLOCATORS_STATE
+%x AFFINITY_STATE
+%x ALIGNED_STATE
+%x ALLOCATE_STATE
+%x ALLOCATOR_STATE
 %x ALLOC_EXPR_STATE
-%x DEVICE_TYPE_STATE
-%x MAP_STATE
-%x MAP_MAPPER_STATE
-%x TASK_REDUCTION_STATE
-%x IMPLEMENTATION_STATE
-%x UPDATE_STATE
-%x PRIVATE_STATE
-%x FIRSTPRIVATE_STATE
-%x SIMDLEN_STATE
-%x SAFELEN_STATE
-%x NONTEMPORAL_STATE
-%x SIMD_STATE
-%x THREADPRIVATE_STATE
-%x SHARED_STATE
+%x ARCH_STATE
+%x ATOMIC_DEFAULT_MEM_ORDER_STATE
+%x BIND_STATE
+%x COLLAPSE_STATE
+%x CONDITION_STATE
 %x COPYIN_STATE
 %x COPYPRIVATE_STATE
-%x ORDER_STATE
+%x DEFAULTMAP_STATE
+%x DEFAULT_STATE
+%x DEPEND_EXPR_STATE
+%x DEPEND_ITERATOR_STATE
+%x DEPEND_STATE
+%x DEVICE_STATE
+%x DEVICE_TYPE_STATE
+%x DIST_SCHEDULE_STATE
+%x EXPR_STATE
+%x EXTENSION_STATE
+%x FINAL_STATE
+%x FIRSTPRIVATE_STATE
+%x FROM_MAPPER_STATE
+%x FROM_STATE
 %x ID_EXPR_STATE
-	
+%x IF_STATE
+%x IMPLEMENTATION_STATE
+%x INITIALIZER_STATE
+%x IN_REDUCTION_STATE
+%x ISA_STATE
+%x LASTPRIVATE_STATE
+%x LINEAR_STATE
+%x MAPPER_STATE
+%x MAP_MAPPER_STATE
+%x MAP_STATE
+%x MATCH_STATE
+%x NONTEMPORAL_STATE
+%x NUM_TEAMS_STATE
+%x NUM_THREADS_STATE
+%x ORDERED_STATE
+%x ORDER_STATE
+%x PRIVATE_STATE
+%x PROC_BIND_STATE
+%x REDUCTION_STATE
+%x SAFELEN_STATE
+%x SCHEDULE_STATE
+%x SCORE_STATE
+%x SHARED_STATE
+%x SIMDLEN_STATE
+%x SIMD_STATE
+%x TASK_REDUCTION_STATE
+%x THREADPRIVATE_STATE
+%x TO_MAPPER_STATE
+%x TO_STATE
+%x TYPE_STR_STATE
+%x UPDATE_STATE
+%x USES_ALLOCATORS_STATE
+%x VENDOR_STATE
+%x WHEN_STATE
 
 %{
 
@@ -144,8 +145,8 @@ if              { yy_push_state(IF_STATE); return IF; }
 simdlen         { yy_push_state(SIMDLEN_STATE); return SIMDLEN; }
 simd/{blank}*\( { yy_push_state(SIMD_STATE); return SIMD; }
 simd            { return SIMD; }
-num_threads     { return NUM_THREADS; }
-num_teams       { return NUM_TEAMS; }
+num_threads     { yy_push_state(NUM_THREADS_STATE); return NUM_THREADS; }
+num_teams       { yy_push_state(NUM_TEAMS_STATE); return NUM_TEAMS; }
 thread_limit    { return THREAD_LIMIT; }
 default         { yy_push_state(DEFAULT_STATE); return DEFAULT; }
 private         { yy_push_state(PRIVATE_STATE); return PRIVATE; }
@@ -457,6 +458,16 @@ sizes                     { return SIZES; }
 <NONTEMPORAL_STATE>")"                      { yy_pop_state(); return ')'; }
 <NONTEMPORAL_STATE>{blank}*                 { ; }
 <NONTEMPORAL_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<NUM_TEAMS_STATE>"("                        { return '('; }
+<NUM_TEAMS_STATE>")"                        { yy_pop_state(); return ')'; }
+<NUM_TEAMS_STATE>{blank}*                   { ; }
+<NUM_TEAMS_STATE>.                          { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
+
+<NUM_THREADS_STATE>"("                      { return '('; }
+<NUM_THREADS_STATE>")"                      { yy_pop_state(); return ')'; }
+<NUM_THREADS_STATE>{blank}*                 { ; }
+<NUM_THREADS_STATE>.                        { yy_push_state(EXPR_STATE); current_string = yytext[0]; }
 
 <ALIGNED_STATE>"("                          { return '('; }
 <ALIGNED_STATE>":"                          { return ':'; }
