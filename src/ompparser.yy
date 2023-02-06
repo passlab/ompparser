@@ -2495,128 +2495,128 @@ teams_clause_seq : teams_clause
 
 for_clause_seq : for_clause
                | for_clause_seq for_clause
-               | for_clause_seq "," for_clause
+               | for_clause_seq ',' for_clause
                ;
 
 do_clause_seq : do_clause
               | do_clause_seq do_clause
-              | do_clause_seq "," do_clause
+              | do_clause_seq ',' do_clause
               ;
 
 simd_clause_seq : simd_clause
                 | simd_clause_seq simd_clause
-                | simd_clause_seq "," simd_clause
+                | simd_clause_seq ',' simd_clause
                 ;
 
 for_simd_clause_seq : for_simd_clause
                     | for_simd_clause_seq for_simd_clause
-                    | for_simd_clause_seq "," for_simd_clause
+                    | for_simd_clause_seq ',' for_simd_clause
                     ;
 do_simd_clause_seq : do_simd_clause
                    | do_simd_clause_seq do_simd_clause
-                   | do_simd_clause_seq "," do_simd_clause
+                   | do_simd_clause_seq ',' do_simd_clause
                    ;
 parallel_for_simd_clause_seq : parallel_for_simd_clause
                              | parallel_for_simd_clause_seq parallel_for_simd_clause
-                             | parallel_for_simd_clause_seq "," parallel_for_simd_clause
+                             | parallel_for_simd_clause_seq ',' parallel_for_simd_clause
                              ;
 declare_simd_clause_seq : declare_simd_clause
                         | declare_simd_clause_seq declare_simd_clause
-                        | declare_simd_clause_seq "," declare_simd_clause
+                        | declare_simd_clause_seq ',' declare_simd_clause
                         ;
 distribute_clause_seq : distribute_clause
                       | distribute_clause_seq distribute_clause
-                      | distribute_clause_seq "," distribute_clause
+                      | distribute_clause_seq ',' distribute_clause
                       ;
 distribute_simd_clause_seq : distribute_simd_clause
                            | distribute_simd_clause_seq distribute_simd_clause
-                           | distribute_simd_clause_seq "," distribute_simd_clause
+                           | distribute_simd_clause_seq ',' distribute_simd_clause
                            ;
 distribute_parallel_for_clause_seq : distribute_parallel_for_clause
                                    | distribute_parallel_for_clause_seq distribute_parallel_for_clause
-                                   | distribute_parallel_for_clause_seq "," distribute_parallel_for_clause
+                                   | distribute_parallel_for_clause_seq ',' distribute_parallel_for_clause
                                    ;
 distribute_parallel_do_clause_seq : distribute_parallel_do_clause
                                   | distribute_parallel_do_clause_seq distribute_parallel_do_clause
-                                  | distribute_parallel_do_clause_seq "," distribute_parallel_do_clause
+                                  | distribute_parallel_do_clause_seq ',' distribute_parallel_do_clause
                                   ;
 distribute_parallel_for_simd_clause_seq : distribute_parallel_for_simd_clause
                                         | distribute_parallel_for_simd_clause_seq distribute_parallel_for_simd_clause
-                                        | distribute_parallel_for_simd_clause_seq "," distribute_parallel_for_simd_clause
+                                        | distribute_parallel_for_simd_clause_seq ',' distribute_parallel_for_simd_clause
                                         ;
 distribute_parallel_do_simd_clause_seq : distribute_parallel_do_simd_clause
                                        | distribute_parallel_do_simd_clause_seq distribute_parallel_do_simd_clause
-                                       | distribute_parallel_do_simd_clause_seq "," distribute_parallel_do_simd_clause
+                                       | distribute_parallel_do_simd_clause_seq ',' distribute_parallel_do_simd_clause
                                        ;
 parallel_for_clause_seq : parallel_for_clause
                         | parallel_for_clause_seq parallel_for_clause
-                        | parallel_for_clause_seq "," parallel_for_clause
+                        | parallel_for_clause_seq ',' parallel_for_clause
                         ;
 parallel_do_clause_seq : parallel_do_clause
                        | parallel_do_clause_seq parallel_do_clause
-                       | parallel_do_clause_seq "," parallel_do_clause
+                       | parallel_do_clause_seq ',' parallel_do_clause
                        ;
 parallel_loop_clause_seq : parallel_loop_clause
                          | parallel_loop_clause_seq parallel_loop_clause
-                         | parallel_loop_clause_seq "," parallel_loop_clause
+                         | parallel_loop_clause_seq ',' parallel_loop_clause
                          ;
 parallel_sections_clause_seq : parallel_sections_clause
                              | parallel_sections_clause_seq parallel_sections_clause
-                             | parallel_sections_clause_seq "," parallel_sections_clause
+                             | parallel_sections_clause_seq ',' parallel_sections_clause
                              ;
 parallel_workshare_clause_seq : parallel_workshare_clause
                               | parallel_workshare_clause_seq parallel_workshare_clause
-                              | parallel_workshare_clause_seq "," parallel_workshare_clause
+                              | parallel_workshare_clause_seq ',' parallel_workshare_clause
                               ;
 parallel_master_clause_seq : parallel_master_clause
                            | parallel_master_clause_seq parallel_master_clause
-                           | parallel_master_clause_seq "," parallel_master_clause
+                           | parallel_master_clause_seq ',' parallel_master_clause
                            ;
 master_taskloop_clause_seq : master_taskloop_clause
                            | master_taskloop_clause_seq master_taskloop_clause
-                           | master_taskloop_clause_seq "," master_taskloop_clause
+                           | master_taskloop_clause_seq ',' master_taskloop_clause
                            ;
 master_taskloop_simd_clause_seq : master_taskloop_simd_clause
                                 | master_taskloop_simd_clause_seq master_taskloop_simd_clause
-                                | master_taskloop_simd_clause_seq "," master_taskloop_simd_clause
+                                | master_taskloop_simd_clause_seq ',' master_taskloop_simd_clause
                                 ;
 parallel_master_taskloop_clause_seq : parallel_master_taskloop_clause
                                     | parallel_master_taskloop_clause_seq parallel_master_taskloop_clause
-                                    | parallel_master_taskloop_clause_seq "," parallel_master_taskloop_clause
+                                    | parallel_master_taskloop_clause_seq ',' parallel_master_taskloop_clause
                                     ;
 parallel_master_taskloop_simd_clause_seq : parallel_master_taskloop_simd_clause
                                          | parallel_master_taskloop_simd_clause_seq parallel_master_taskloop_simd_clause
-                                         | parallel_master_taskloop_simd_clause_seq "," parallel_master_taskloop_simd_clause
+                                         | parallel_master_taskloop_simd_clause_seq ',' parallel_master_taskloop_simd_clause
                                          ;
 loop_clause_seq : loop_clause
                 | loop_clause_seq loop_clause
-                | loop_clause_seq "," loop_clause
+                | loop_clause_seq ',' loop_clause
                 ;
 scan_clause_seq : scan_clause
                 ;
 sections_clause_seq : sections_clause
                     | sections_clause_seq sections_clause
-                    | sections_clause_seq "," sections_clause
+                    | sections_clause_seq ',' sections_clause
                     ;
 //sections_clause_fortran_seq : sections_fortran_clause
 //                            | sections_clause_fortran_seq sections_fortran_clause
-//                            | sections_clause_fortran_seq "," sections_fortran_clause
+//                            | sections_clause_fortran_seq ',' sections_fortran_clause
 //                            ;
 single_clause_seq : single_clause
                   | single_clause_seq single_clause
-                  | single_clause_seq "," single_clause
+                  | single_clause_seq ',' single_clause
                   ;
 single_paired_clause_seq : single_paired_clause
                          | single_paired_clause_seq single_paired_clause
-                         | single_paired_clause_seq "," single_paired_clause
+                         | single_paired_clause_seq ',' single_paired_clause
                          ;
 cancel_clause_seq : construct_type_clause
                   | construct_type_clause if_cancel_clause
-                  | construct_type_clause "," if_cancel_clause
+                  | construct_type_clause ',' if_cancel_clause
                   ;
 //cancel_clause_fortran_seq : construct_type_clause_fortran
 //                          | construct_type_clause_fortran if_cancel_clause
-//                          | construct_type_clause_fortran "," if_cancel_clause
+//                          | construct_type_clause_fortran ',' if_cancel_clause
 //                          ;
 cancellation_point_clause_seq : construct_type_clause
                               ;
