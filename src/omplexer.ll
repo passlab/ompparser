@@ -290,6 +290,9 @@ sizes                     { return SIZES; }
 "}"             { yy_pop_state(); return '}'; }
 ","             { return ','; }
 "\\"            { ; }
+"<="            { return LESSOREQUAL; }
+">="            { return MOREOREQUAL; }
+"!="            { return NOTEQUAL; }
 
 {comment}       { ; }
 
